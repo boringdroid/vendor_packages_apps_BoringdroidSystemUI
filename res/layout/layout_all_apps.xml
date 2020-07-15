@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <com.boringdroid.systemui.AllAppsLayout
+        android:id="@+id/all_apps_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/all_apps_margin_horizontal"
+        android:layout_marginTop="@dimen/all_apps_margin_vertical"
+        android:layout_marginEnd="@dimen/all_apps_margin_horizontal"
+        android:layout_marginBottom="@dimen/all_apps_margin_vertical"
+        android:scrollbars="vertical" />
+</RelativeLayout>

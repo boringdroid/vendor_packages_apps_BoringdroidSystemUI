@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/nav_button_size"
+    android:height="@dimen/nav_button_size"
+    android:viewportWidth="30.0"
+    android:viewportHeight="30.0">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M3.0,3.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12.0,3.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M21.0,3.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M3.0,12.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12.0,12.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M21.0,12.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M3.0,21.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12.0,21.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M21.0,21.0l6.0,0.0l0.0,6.0l-6.0,0.0z" />
+</vector>
+
