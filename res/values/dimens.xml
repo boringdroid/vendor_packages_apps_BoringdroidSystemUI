@@ -13,6 +13,8 @@
     <dimen name="app_info_icon_height">36dp</dimen>
     <dimen name="all_apps_margin_vertical">20dp</dimen>
     <dimen name="all_apps_margin_horizontal">10dp</dimen>
+    <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
+    <dimen name="all_apps_window_margin_vertical">10dp</dimen>
     <dimen name="task_info_icon_size">26dp</dimen>
     <dimen name="line_long_width">30dp</dimen>
     <dimen name="line_long_height">2dp</dimen>
