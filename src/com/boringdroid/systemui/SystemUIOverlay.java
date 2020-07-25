@@ -1,20 +1,38 @@
 package com.boringdroid.systemui;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+
 import com.android.systemui.plugins.OverlayPlugin;
 import com.android.systemui.plugins.annotations.Requires;
-import com.boringdroid.systemui.R;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Requires(target = OverlayPlugin.class, version = OverlayPlugin.VERSION)
 public class SystemUIOverlay implements OverlayPlugin {
     private static final String TAG = "SystemUIOverlay";
+    // Copied from systemui source code, please keep it update to source code.
+    private static final String ACTION_PLUGIN_CHANGED =
+            "com.android.systemui.action.PLUGIN_CHANGED";
     private Context mPluginContext;
     private View mNavBarButtonGroup;
     private ViewGroup mBtAllAppsGroup;
@@ -22,15 +40,18 @@ public class SystemUIOverlay implements OverlayPlugin {
     private View mBtAllApps;
     private AllAppsWindow mAllAppsWindow;
     private int mNavBarButtonGroupId = -1;
+    private ContentResolver mResolver;
+    private List<String> mTunerKeys = new ArrayList<>();
+    private ContentObserver mTunerKeyObserver = new TunerKeyObserver();
 
     @Override
     public void setup(View statusBar, View navBar) {
-        Log.e(TAG, "setup status bar " + statusBar + ", nav bar " + navBar);
+        Log.d(TAG, "setup status bar " + statusBar + ", nav bar " + navBar);
         if (mNavBarButtonGroupId > 0) {
             View buttonGroup = navBar.findViewById(mNavBarButtonGroupId);
             if (buttonGroup instanceof ViewGroup) {
                 mNavBarButtonGroup = buttonGroup;
-                // We must set the height to match parent programatically
+                // We must set the height to match parent programmatically
                 // to let all apps button group be center of navigation
                 // bar view.
                 FrameLayout.LayoutParams layoutParams =
@@ -55,7 +76,7 @@ public class SystemUIOverlay implements OverlayPlugin {
 
     @Override
     public void setCollapseDesired(boolean collapseDesired) {
-
+        // Do nothing
     }
 
     @Override
@@ -74,10 +95,13 @@ public class SystemUIOverlay implements OverlayPlugin {
         mBtAllApps = mBtAllAppsGroup.findViewById(R.id.bt_all_apps);
         mAllAppsWindow = new AllAppsWindow(mPluginContext);
         mBtAllApps.setOnClickListener(mAllAppsWindow);
+        mResolver = sysUIContext.getContentResolver();
+        initializeTuningServiceSettingKeys(mResolver, mTunerKeyObserver);
     }
 
     @Override
     public void onDestroy() {
+        mResolver.unregisterContentObserver(mTunerKeyObserver);
         mBtAllAppsGroup.setOnClickListener(null);
         if (mNavBarButtonGroup instanceof ViewGroup) {
             ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
@@ -86,16 +110,45 @@ public class SystemUIOverlay implements OverlayPlugin {
         mPluginContext = null;
     }
 
+    @SuppressLint("PrivateApi")
+    private void initializeTuningServiceSettingKeys(ContentResolver resolver,
+                                                    ContentObserver observer) {
+        try {
+            Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
+            Method getMethod =
+                    systemPropertiesClass.getMethod("get", String.class, String.class);
+            String tunerKeys =
+                    (String) getMethod.invoke(null, "persist.sys.settings.tunerkeys", "");
+            Log.d(TAG, "Got tuner keys " + tunerKeys);
+            List<String> tunerKeyList =
+                    Arrays
+                            .stream(tunerKeys.split("--"))
+                            .map(String::trim)
+                            .filter(key -> !key.isEmpty())
+                            .collect(Collectors.toList());
+            mTunerKeys.clear();
+            mTunerKeys.addAll(tunerKeyList);
+            for (String key : mTunerKeys) {
+                Log.d(TAG, "Got key " + key);
+                Uri uri = Settings.Secure.getUriFor(key);
+                resolver.registerContentObserver(uri, false, observer);
+            }
+        } catch (ClassNotFoundException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            Log.e(TAG, "Failed to get tuner keys from properties, so fallback to default");
+        }
+    }
+
     @SuppressLint("InflateParams")
     private ViewGroup initializeAllAppsButton(Context context, ViewGroup btAllAppsGroup) {
         if (btAllAppsGroup != null) {
             return btAllAppsGroup;
         }
-        btAllAppsGroup =
-                (ViewGroup) LayoutInflater
-                        .from(context)
-                        .inflate(R.layout.layout_bt_all_apps, null);
-        return btAllAppsGroup;
+        return (ViewGroup) LayoutInflater
+                .from(context)
+                .inflate(R.layout.layout_bt_all_apps, null);
     }
 
     @SuppressLint("InflateParams")
@@ -104,10 +157,31 @@ public class SystemUIOverlay implements OverlayPlugin {
         if (appStateLayout != null) {
             return appStateLayout;
         }
-        appStateLayout =
-                (AppStateLayout) LayoutInflater
-                        .from(context)
-                        .inflate(R.layout.layout_app_state, null);
-        return appStateLayout;
+        return (AppStateLayout) LayoutInflater
+                .from(context)
+                .inflate(R.layout.layout_app_state, null);
+    }
+
+    private void onTunerChange(@NonNull Uri uri) {
+        String keyName = uri.getLastPathSegment();
+        String value = Settings.Secure.getString(mResolver, keyName);
+        Log.d(TAG, "onTunerChange " + uri + ", value " + value);
+        Uri packageUri = Uri.fromParts("package", mPluginContext.getPackageName(), null);
+        Log.d(TAG, "onTunerChange packageUri " + packageUri);
+        Intent pluginChangedIntent = new Intent(ACTION_PLUGIN_CHANGED, packageUri);
+        mPluginContext.sendBroadcast(pluginChangedIntent);
+    }
+
+    private class TunerKeyObserver extends ContentObserver {
+        public TunerKeyObserver() {
+            super(new Handler(Looper.getMainLooper()));
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            super.onChange(selfChange, uri);
+            Log.d(TAG, "TunerKeyChanged " + uri + ", self changed " + selfChange);
+            onTunerChange(uri);
+        }
     }
 }
