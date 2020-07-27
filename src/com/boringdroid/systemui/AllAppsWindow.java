@@ -2,7 +2,11 @@ package com.boringdroid.systemui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Outline;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -11,10 +15,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 public class AllAppsWindow implements View.OnClickListener {
     private static final String TAG = "AppAppsWindow";
@@ -54,6 +58,14 @@ public class AllAppsWindow implements View.OnClickListener {
                     return false;
                 }
         );
+        float cornerRadius = mContext.getResources().getDimension(R.dimen.all_apps_corner_radius);
+        mWindowContentView.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerRadius);
+            }
+        });
+        mWindowContentView.setClipToOutline(true);
         mWindowManager.addView(mWindowContentView, layoutParams);
         mAppLoaderTask.start();
         mShown = true;
@@ -61,10 +73,9 @@ public class AllAppsWindow implements View.OnClickListener {
 
     private WindowManager.LayoutParams generateLayoutParams(Context context,
                                                             WindowManager windowManager) {
-        int windowWidth =
-                context.getResources().getDimensionPixelSize(R.dimen.all_apps_window_width);
-        int windowHeight =
-                context.getResources().getDimensionPixelSize(R.dimen.all_apps_window_height);
+        Resources resources = context.getResources();
+        int windowWidth = (int) resources.getDimension(R.dimen.all_apps_window_width);
+        int windowHeight = (int) resources.getDimension(R.dimen.all_apps_window_height);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
                 windowWidth,
                 windowHeight,
@@ -76,9 +87,17 @@ public class AllAppsWindow implements View.OnClickListener {
         );
         DisplayMetrics displayMetrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        Point size = new Point();
+        windowManager.getDefaultDisplay().getRealSize(size);
+        int marginStart = (int) resources.getDimension(R.dimen.all_apps_window_margin_horizontal);
+        int marginVertical = (int) resources.getDimension(R.dimen.all_apps_window_margin_vertical);
         layoutParams.gravity = Gravity.TOP | Gravity.START;
-        layoutParams.x = 0;
-        layoutParams.y = displayMetrics.heightPixels - windowHeight;
+        layoutParams.x = marginStart;
+        // TODO: Looks like the heightPixels is incorrect, so we use multi margin to
+        //  achieve looks-fine vertical margin of window. Figure out the real reason
+        //  of this problem, and fix it.
+        layoutParams.y = displayMetrics.heightPixels - windowHeight - marginVertical * 3;
+        Log.d(TAG, "All apps window location (" + layoutParams.x + ", " + layoutParams.y + ")");
         return layoutParams;
     }
 
