@@ -1,1 +1,2 @@
+include ':launcher3plugin'
 include ':iconloader'

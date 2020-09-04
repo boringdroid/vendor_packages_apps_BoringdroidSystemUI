@@ -71,6 +71,7 @@ dependencies {
     compileOnly fileTree(include: ['*.jar'], dir: 'libs/compile')
     implementation fileTree(include: ['*.jar'], dir: 'libs/impl')
     implementation project(':iconloader')
+    implementation project(':launcher3plugin')
     // Current system use this version, we should keep it.
     implementation group: 'androidx.recyclerview', name: 'recyclerview', version: '1.0.0'
 }
