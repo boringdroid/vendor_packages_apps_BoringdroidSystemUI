@@ -1,2 +1,3 @@
+include ':launcher3common'
 include ':launcher3plugin'
 include ':iconloader'
