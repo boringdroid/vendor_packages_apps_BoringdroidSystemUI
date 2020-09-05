@@ -19,7 +19,7 @@
 -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.launcher3">
+    package="com.android.launcher3.common">
 
     <!--
     The manifest defines the common entries that should be present in any derivative of Launcher3.
