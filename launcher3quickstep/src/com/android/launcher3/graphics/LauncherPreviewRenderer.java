@@ -52,7 +52,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.WorkspaceLayoutManager;
-import com.android.launcher3.allapps.SearchUiManager;
 import com.android.launcher3.icons.BaseIconFactory;
 import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.BitmapRenderer;
@@ -240,11 +239,7 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
                 inflateAndAddIcon(info);
             }
 
-            // Setup search view
-            SearchUiManager searchUiManager =
-                    mRootView.findViewById(R.id.search_container_all_apps);
-            mRootView.findViewById(R.id.apps_view).setTranslationY(
-                    mDp.heightPx - searchUiManager.getScrollRangeDelta(mInsets));
+            mRootView.findViewById(R.id.apps_view).setTranslationY(mDp.heightPx);
 
             measureView(mRootView, mDp.widthPx, mDp.heightPx);
             dispatchVisibilityAggregated(mRootView, true);

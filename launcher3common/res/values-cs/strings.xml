@@ -33,7 +33,6 @@
     <string name="widget_accessible_dims_format" msgid="3640149169885301790">"šířka %1$d, výška %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Chcete-li položku umístit ručně, klepněte na ni a podržte ji"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Přidat automaticky"</string>
-    <string name="all_apps_search_bar_hint" msgid="1390553134053255246">"Hledat v aplikacích"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Načítání aplikací…"</string>
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Dotazu „<xliff:g id="QUERY">%1$s</xliff:g>“ neodpovídají žádné aplikace"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Vyhledat další aplikace"</string>

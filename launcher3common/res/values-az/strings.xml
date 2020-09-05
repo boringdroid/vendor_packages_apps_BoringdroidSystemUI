@@ -33,7 +33,6 @@
     <string name="widget_accessible_dims_format" msgid="3640149169885301790">"%2$d hündürlük %1$d enində"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Manual olaraq yerləşdirmək üçün toxunaraq basıb saxlayın"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Avtomatik əlavə edin"</string>
-    <string name="all_apps_search_bar_hint" msgid="1390553134053255246">"Tətbiqləri axtarın"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Tətbiqlər yüklənir…"</string>
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"<xliff:g id="QUERY">%1$s</xliff:g> sorğusuna uyğun tətbiq tapılmadı"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Daha çox tətbiq üçün axtarış edin"</string>

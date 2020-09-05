@@ -33,7 +33,6 @@
     <string name="widget_accessible_dims_format" msgid="3640149169885301790">"Լայնությունը՝ %1$d, բարձրությունը՝ %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Հպեք և պահեք՝ ձեռքով տեղադրելու համար"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Ավելացնել ավտոմատ կերպով"</string>
-    <string name="all_apps_search_bar_hint" msgid="1390553134053255246">"Որոնել հավելվածներ"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Հավելվածների բեռնում…"</string>
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"«<xliff:g id="QUERY">%1$s</xliff:g>» հարցմանը համապատասխանող հավելվածներ չեն գտնվել"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Որոնել այլ հավելվածներ"</string>

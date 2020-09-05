@@ -33,7 +33,6 @@
     <string name="widget_accessible_dims_format" msgid="3640149169885301790">"‏العرض %1$d الطول %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"انقر مع الاستمرار لإضافة العنصر يدويًا"</string>
     <string name="place_automatically" msgid="8064208734425456485">"الإضافة تلقائيًا"</string>
-    <string name="all_apps_search_bar_hint" msgid="1390553134053255246">"بحث في التطبيقات"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"جارٍ تحميل التطبيقات…"</string>
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"لم يتم العثور على أي تطبيقات تتطابق مع \"<xliff:g id="QUERY">%1$s</xliff:g>\""</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"البحث عن مزيد من التطبيقات"</string>

@@ -33,7 +33,6 @@
     <string name="widget_accessible_dims_format" msgid="3640149169885301790">"ширина од %1$d и висина од %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Додирните и задржите да бисте поставили ручно"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Аутоматски додај"</string>
-    <string name="all_apps_search_bar_hint" msgid="1390553134053255246">"Претражите апликације"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Апликације се учитавају…"</string>
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Није пронађена ниједна апликација за „<xliff:g id="QUERY">%1$s</xliff:g>“"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Претражи још апликација"</string>

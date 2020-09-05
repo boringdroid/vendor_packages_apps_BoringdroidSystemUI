@@ -188,10 +188,6 @@ public class FlingAndHoldTouchController extends PortraitStatesTouchController {
             super.onDragEnd(velocity);
         }
 
-        View searchView = mLauncher.getAppsView().getSearchView();
-        if (searchView instanceof FeedbackHandler) {
-            ((FeedbackHandler) searchView).resetFeedback();
-        }
         mMotionPauseDetector.clear();
     }
 

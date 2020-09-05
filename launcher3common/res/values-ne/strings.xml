@@ -33,7 +33,6 @@
     <string name="widget_accessible_dims_format" msgid="3640149169885301790">"%1$d चौडाइ गुणा %2$d उचाइ"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"म्यानुअल तरिकाले थप्न छुनुहोस् र थिची राख्नुहोस्‌"</string>
     <string name="place_automatically" msgid="8064208734425456485">"स्वतः थप्नुहोस्"</string>
-    <string name="all_apps_search_bar_hint" msgid="1390553134053255246">"खोजसम्बन्धी अनुप्रयोगहरू"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"अनुप्रयोगहरू लोड गर्दै…"</string>
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\" सँग मिल्दो कुनै अनुप्रयोग भेटिएन"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"थप अनुप्रयोगहरू खोज्नुहोस्"</string>
