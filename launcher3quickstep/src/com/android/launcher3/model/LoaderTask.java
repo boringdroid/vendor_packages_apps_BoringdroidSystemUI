@@ -459,7 +459,7 @@ public class LoaderTask implements Runnable {
                                 c.markRestored();
                             }
 
-                            boolean useLowResIcon = !c.isOnWorkspaceOrHotseat();
+                            boolean useLowResIcon = !c.isOnWorkspace();
 
                             if (c.restoreFlag != 0) {
                                 // Already verified above that user is same as default user
@@ -673,7 +673,7 @@ public class LoaderTask implements Runnable {
                                             + appWidgetInfo.spanX + "x" + appWidgetInfo.spanY);
                                     continue;
                                 }
-                                if (!c.isOnWorkspaceOrHotseat()) {
+                                if (!c.isOnWorkspace()) {
                                     c.markDeleted("Widget found where container != " +
                                             "CONTAINER_DESKTOP nor CONTAINER_HOTSEAT - ignoring!");
                                     continue;

@@ -149,10 +149,9 @@ public class CellLayout extends ViewGroup implements Transposable {
     private final ShortcutAndWidgetContainer mShortcutsAndWidgets;
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({WORKSPACE, HOTSEAT, FOLDER})
+    @IntDef({WORKSPACE, FOLDER})
     public @interface ContainerType{}
     public static final int WORKSPACE = 0;
-    public static final int HOTSEAT = 1;
     public static final int FOLDER = 2;
 
     @ContainerType private final int mContainerType;
@@ -576,10 +575,9 @@ public class CellLayout extends ViewGroup implements Transposable {
             boolean markCells) {
         final LayoutParams lp = params;
 
-        // Hotseat icons - remove text
         if (child instanceof BubbleTextView) {
             BubbleTextView bubbleChild = (BubbleTextView) child;
-            bubbleChild.setTextVisibility(mContainerType != HOTSEAT);
+            bubbleChild.setTextVisibility(true);
         }
 
         child.setScaleX(mChildScale);
@@ -1025,13 +1023,8 @@ public class CellLayout extends ViewGroup implements Transposable {
 
     @SuppressLint("StringFormatMatches")
     public String getItemMoveDescription(int cellX, int cellY) {
-        if (mContainerType == HOTSEAT) {
-            return getContext().getString(R.string.move_to_hotseat_position,
-                    Math.max(cellX, cellY) + 1);
-        } else {
-            return getContext().getString(R.string.move_to_empty_cell,
-                    cellY + 1, cellX + 1);
-        }
+        return getContext().getString(R.string.move_to_empty_cell,
+                cellY + 1, cellX + 1);
     }
 
     public void clearDragOutlines() {
@@ -2092,11 +2085,6 @@ public class CellLayout extends ViewGroup implements Transposable {
 
         int screenId = Launcher.cast(mActivity).getWorkspace().getIdForScreen(this);
         int container = Favorites.CONTAINER_DESKTOP;
-
-        if (mContainerType == HOTSEAT) {
-            screenId = -1;
-            container = Favorites.CONTAINER_HOTSEAT;
-        }
 
         int childCount = mShortcutsAndWidgets.getChildCount();
         for (int i = 0; i < childCount; i++) {

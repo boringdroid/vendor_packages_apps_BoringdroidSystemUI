@@ -55,7 +55,7 @@ import com.android.launcher3.folder.Folder;
 import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.graphics.OverviewScrim;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.graphics.WorkspaceAndHotseatScrim;
+import com.android.launcher3.graphics.WorkspaceScrim;
 import com.android.launcher3.keyboard.ViewGroupFocusHelper;
 import com.android.launcher3.uioverrides.UiFactory;
 import com.android.launcher3.util.Thunk;
@@ -93,7 +93,7 @@ public class DragLayer extends BaseDragLayer<Launcher> {
 
     // Related to adjacent page hints
     private final ViewGroupFocusHelper mFocusIndicatorHelper;
-    private final WorkspaceAndHotseatScrim mWorkspaceScrim;
+    private final WorkspaceScrim mWorkspaceScrim;
     private final OverviewScrim mOverviewScrim;
 
     /**
@@ -110,7 +110,7 @@ public class DragLayer extends BaseDragLayer<Launcher> {
         setChildrenDrawingOrderEnabled(true);
 
         mFocusIndicatorHelper = new ViewGroupFocusHelper(this);
-        mWorkspaceScrim = new WorkspaceAndHotseatScrim(this);
+        mWorkspaceScrim = new WorkspaceScrim(this);
         mOverviewScrim = new OverviewScrim(this);
     }
 
@@ -557,10 +557,10 @@ public class DragLayer extends BaseDragLayer<Launcher> {
     public void setInsets(Rect insets) {
         super.setInsets(insets);
         mWorkspaceScrim.onInsetsChanged(insets, mAllowSysuiScrims);
-        mOverviewScrim.onInsetsChanged(insets);
+        mOverviewScrim.onInsetsChanged();
     }
 
-    public WorkspaceAndHotseatScrim getScrim() {
+    public WorkspaceScrim getScrim() {
         return mWorkspaceScrim;
     }
 

@@ -81,9 +81,7 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
     public int getSwipeUpDestinationAndLength(DeviceProfile dp, Context context, Rect outRect) {
         LayoutUtils.calculateLauncherTaskSize(context, dp, outRect);
         if (dp.isVerticalBarLayout() && SysUINavigationMode.getMode(context) != Mode.NO_BUTTON) {
-            Rect targetInsets = dp.getInsets();
-            int hotseatInset = dp.isSeascape() ? targetInsets.left : targetInsets.right;
-            return dp.hotseatBarSizePx + hotseatInset;
+            return 0;
         } else {
             return LayoutUtils.getShelfTrackingDistance(context, dp);
         }

@@ -352,11 +352,10 @@ public class LoaderCursor extends CursorWrapper {
     }
 
     /**
-     * Returns true is the item is on workspace or hotseat
+     * Returns true is the item is on workspace
      */
-    public boolean isOnWorkspaceOrHotseat() {
-        return container == LauncherSettings.Favorites.CONTAINER_DESKTOP ||
-                container == LauncherSettings.Favorites.CONTAINER_HOTSEAT;
+    public boolean isOnWorkspace() {
+        return container == LauncherSettings.Favorites.CONTAINER_DESKTOP;
     }
 
     /**
@@ -392,35 +391,7 @@ public class LoaderCursor extends CursorWrapper {
      */
     protected boolean checkItemPlacement(ItemInfo item) {
         int containerIndex = item.screenId;
-        if (item.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            final GridOccupancy hotseatOccupancy =
-                    occupied.get(LauncherSettings.Favorites.CONTAINER_HOTSEAT);
-
-            if (item.screenId >= mIDP.numHotseatIcons) {
-                Log.e(TAG, "Error loading shortcut " + item
-                        + " into hotseat position " + item.screenId
-                        + ", position out of bounds: (0 to " + (mIDP.numHotseatIcons - 1)
-                        + ")");
-                return false;
-            }
-
-            if (hotseatOccupancy != null) {
-                if (hotseatOccupancy.cells[(int) item.screenId][0]) {
-                    Log.e(TAG, "Error loading shortcut into hotseat " + item
-                            + " into position (" + item.screenId + ":" + item.cellX + ","
-                            + item.cellY + ") already occupied");
-                    return false;
-                } else {
-                    hotseatOccupancy.cells[item.screenId][0] = true;
-                    return true;
-                }
-            } else {
-                final GridOccupancy occupancy = new GridOccupancy(mIDP.numHotseatIcons, 1);
-                occupancy.cells[item.screenId][0] = true;
-                occupied.put(LauncherSettings.Favorites.CONTAINER_HOTSEAT, occupancy);
-                return true;
-            }
-        } else if (item.container != LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+        if (item.container != LauncherSettings.Favorites.CONTAINER_DESKTOP) {
             // Skip further checking if it is not the hotseat or workspace container
             return true;
         }

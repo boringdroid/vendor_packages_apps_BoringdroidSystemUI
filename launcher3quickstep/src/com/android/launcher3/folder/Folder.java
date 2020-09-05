@@ -18,7 +18,6 @@ package com.android.launcher3.folder;
 
 import static com.android.launcher3.LauncherAnimUtils.SPRING_LOADED_EXIT_DELAY;
 import static com.android.launcher3.LauncherSettings.Favorites.CONTAINER_DESKTOP;
-import static com.android.launcher3.LauncherSettings.Favorites.CONTAINER_HOTSEAT;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.compat.AccessibilityManagerCompat.sendCustomAccessibilityEvent;
 
@@ -1548,15 +1547,12 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
         LauncherLogProto.Target parent_target = new LauncherLogProto.Target();
         parent_target.type = LauncherLogProto.Target.Type.CONTAINER;
         switch (mInfo.container) {
-            case CONTAINER_HOTSEAT:
-                parent_target.containerType = LauncherLogProto.ContainerType.HOTSEAT;
-                break;
             case CONTAINER_DESKTOP:
                 parent_target.containerType = LauncherLogProto.ContainerType.WORKSPACE;
                 break;
             default:
-                Log.e(TAG, String.format("Expected container to be either %s or %s but found %s.",
-                        CONTAINER_HOTSEAT, CONTAINER_DESKTOP, mInfo.container));
+                Log.e(TAG, String.format("Expected container to be %s but found %s.",
+                        CONTAINER_DESKTOP, mInfo.container));
         }
         ev.srcTarget = new LauncherLogProto.Target[]{edittext_target, folder_target, parent_target};
         mLauncher.getUserEventDispatcher().dispatchUserEvent(ev, null);

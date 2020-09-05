@@ -196,9 +196,6 @@ public class StatsLogCompatManager extends StatsLogManager {
 
         // Fill in container
         switch (src.containerType) {
-            case ContainerType.HOTSEAT:
-                dst.container = LauncherTarget.HOTSEAT;
-                break;
             case ContainerType.FOLDER:
                 dst.container = LauncherTarget.FOLDER;
                 break;

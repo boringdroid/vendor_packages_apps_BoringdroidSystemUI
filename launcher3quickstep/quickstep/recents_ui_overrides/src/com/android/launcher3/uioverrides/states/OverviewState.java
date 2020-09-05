@@ -90,26 +90,6 @@ public class OverviewState extends LauncherState {
     }
 
     @Override
-    public ScaleAndTranslation getHotseatScaleAndTranslation(Launcher launcher) {
-        if ((getVisibleElements(launcher) & HOTSEAT_ICONS) != 0) {
-            DeviceProfile dp = launcher.getDeviceProfile();
-            if (dp.allAppsIconSizePx >= dp.iconSizePx) {
-                return new ScaleAndTranslation(1, 0, 0);
-            } else {
-                float scale = ((float) dp.allAppsIconSizePx) / dp.iconSizePx;
-                // Distance between the screen center (which is the pivotY for hotseat) and the
-                // bottom of the hotseat (which we want to preserve)
-                float distanceFromBottom = dp.heightPx / 2 - dp.hotseatBarBottomPaddingPx;
-                // On scaling, the bottom edge is moved closer to the pivotY. We move the
-                // hotseat back down so that the bottom edge's position is preserved.
-                float translationY = distanceFromBottom * (1 - scale);
-                return new ScaleAndTranslation(scale, 0, translationY);
-            }
-        }
-        return getWorkspaceScaleAndTranslation(launcher);
-    }
-
-    @Override
     public ScaleAndTranslation getOverviewScaleAndTranslation(Launcher launcher) {
         return new ScaleAndTranslation(1f, 0f, 0f);
     }
@@ -140,10 +120,8 @@ public class OverviewState extends LauncherState {
         if (launcher.getDeviceProfile().isVerticalBarLayout()) {
             return VERTICAL_SWIPE_INDICATOR | RECENTS_CLEAR_ALL_BUTTON;
         } else {
-            boolean hasAllAppsHeaderExtra = launcher.getAppsView() != null
-                    && launcher.getAppsView().getFloatingHeaderView().hasVisibleContent();
-            return HOTSEAT_SEARCH_BOX | VERTICAL_SWIPE_INDICATOR | RECENTS_CLEAR_ALL_BUTTON |
-                    (hasAllAppsHeaderExtra ? ALL_APPS_HEADER_EXTRA : HOTSEAT_ICONS);
+            return VERTICAL_SWIPE_INDICATOR | RECENTS_CLEAR_ALL_BUTTON |
+                    ALL_APPS_HEADER_EXTRA;
         }
     }
 

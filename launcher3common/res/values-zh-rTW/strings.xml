@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"按住捷徑即可選取。"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"輕觸兩下並按住捷徑即可選取，你也可以使用自訂動作。"</string>
     <string name="out_of_space" msgid="4691004494942118364">"這個主螢幕已無空間。"</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"「我的最愛」匣已無可用空間"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"應用程式清單"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"個人應用程式清單"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"辦公應用程式清單"</string>
@@ -109,7 +108,6 @@
     <string name="action_move" msgid="4339390619886385032">"移動項目"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"移至第 <xliff:g id="NUMBER_0">%1$s</xliff:g> 列第 <xliff:g id="NUMBER_1">%2$s</xliff:g> 欄"</string>
     <string name="move_to_position" msgid="6750008980455459790">"移至位置 <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"移至收藏位置 <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"已移動項目"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"新增到「<xliff:g id="NAME">%1$s</xliff:g>」資料夾"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"新增到「<xliff:g id="NAME">%1$s</xliff:g>」所在資料夾"</string>

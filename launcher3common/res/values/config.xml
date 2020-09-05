@@ -55,9 +55,6 @@
 
     <!-- The duration of the caret animation -->
 
-    <!-- Hotseat -->
-    <bool name="hotseat_transpose_layout_with_orientation">true</bool>
-
     <!-- Various classes overriden by projects/build flavors. -->
     <string name="app_filter_class" translatable="false"></string>
     <string name="icon_provider_class" translatable="false"></string>

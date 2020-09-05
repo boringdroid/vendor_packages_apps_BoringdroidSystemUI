@@ -23,7 +23,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Point;
 import android.os.Process;
 import android.util.Log;
 
@@ -40,7 +39,6 @@ public class GridBackupTable {
 
     private static final int ID_PROPERTY = -1;
 
-    private static final String KEY_HOTSEAT_SIZE = Favorites.SCREEN;
     private static final String KEY_GRID_X_SIZE = Favorites.SPANX;
     private static final String KEY_GRID_Y_SIZE = Favorites.SPANY;
     private static final String KEY_DB_VERSION = Favorites.RANK;
@@ -48,20 +46,17 @@ public class GridBackupTable {
     private final Context mContext;
     private final SQLiteDatabase mDb;
 
-    private final int mOldHotseatSize;
     private final int mOldGridX;
     private final int mOldGridY;
 
-    private int mRestoredHotseatSize;
     private int mRestoredGridX;
     private int mRestoredGridY;
 
     public GridBackupTable(Context context, SQLiteDatabase db,
-            int hotseatSize, int gridX, int gridY) {
+                           int gridX, int gridY) {
         mContext = context;
         mDb = db;
 
-        mOldHotseatSize = hotseatSize;
         mOldGridX = gridX;
         mOldGridY = gridY;
     }
@@ -88,11 +83,6 @@ public class GridBackupTable {
         return true;
     }
 
-    public int getRestoreHotseatAndGridSize(Point outGridSize) {
-        outGridSize.set(mRestoredGridX, mRestoredGridY);
-        return mRestoredHotseatSize;
-    }
-
     private void copyTable(String from, String to) {
         long userSerial = UserManagerCompat.getInstance(mContext).getSerialNumberForUser(
                 Process.myUserHandle());
@@ -107,7 +97,6 @@ public class GridBackupTable {
         values.put(KEY_DB_VERSION, mDb.getVersion());
         values.put(KEY_GRID_X_SIZE, mOldGridX);
         values.put(KEY_GRID_Y_SIZE, mOldGridY);
-        values.put(KEY_HOTSEAT_SIZE, mOldHotseatSize);
         mDb.insert(BACKUP_TABLE_NAME, null, values);
     }
 
@@ -115,8 +104,7 @@ public class GridBackupTable {
         try (Cursor c = mDb.query(BACKUP_TABLE_NAME, new String[] {
                         KEY_DB_VERSION,     // 0
                         KEY_GRID_X_SIZE,    // 1
-                        KEY_GRID_Y_SIZE,    // 2
-                        KEY_HOTSEAT_SIZE},  // 3
+                        KEY_GRID_Y_SIZE},   // 2
                 "_id=" + ID_PROPERTY, null, null, null, null)) {
             if (!c.moveToNext()) {
                 Log.e(TAG, "Meta data not found in backup table");
@@ -128,7 +116,6 @@ public class GridBackupTable {
 
             mRestoredGridX = c.getInt(1);
             mRestoredGridY = c.getInt(2);
-            mRestoredHotseatSize = c.getInt(3);
             return true;
         }
     }

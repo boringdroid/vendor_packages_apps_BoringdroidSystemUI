@@ -23,7 +23,6 @@
         launcher:numColumns="3"
         launcher:numFolderRows="2"
         launcher:numFolderColumns="3"
-        launcher:numHotseatIcons="3"
         launcher:defaultLayoutId="@xml/default_workspace_3x3" >
 
         <display-option
@@ -50,7 +49,6 @@
         launcher:numColumns="4"
         launcher:numFolderRows="3"
         launcher:numFolderColumns="4"
-        launcher:numHotseatIcons="4"
         launcher:defaultLayoutId="@xml/default_workspace_4x4" >
 
         <display-option
@@ -101,7 +99,6 @@
         launcher:numColumns="5"
         launcher:numFolderRows="4"
         launcher:numFolderColumns="4"
-        launcher:numHotseatIcons="5"
         launcher:defaultLayoutId="@xml/default_workspace_5x5" >
 
         <display-option

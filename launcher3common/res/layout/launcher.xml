@@ -38,11 +38,6 @@
             android:theme="@style/HomeScreenElementTheme"
             launcher:pageIndicator="@+id/page_indicator" />
 
-        <!-- DO NOT CHANGE THE ID -->
-        <include
-            android:id="@+id/hotseat"
-            layout="@layout/hotseat" />
-
         <include
             android:id="@+id/overview_panel"
             layout="@layout/overview_panel"

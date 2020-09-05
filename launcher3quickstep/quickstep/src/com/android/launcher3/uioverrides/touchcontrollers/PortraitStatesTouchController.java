@@ -114,14 +114,8 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
             if (!mOverviewPortraitStateTouchHelper.canInterceptTouch(ev)) {
                 return false;
             }
-        } else {
-            // If we are swiping to all apps instead of overview, allow it from anywhere.
-            boolean interceptAnywhere = mLauncher.isInState(NORMAL) && !mAllowDragToOverview;
-            // For all other states, only listen if the event originated below the hotseat height
-            if (!interceptAnywhere && !isTouchOverHotseat(mLauncher, ev)) {
-                return false;
-            }
-        }
+        }  // If we are swiping to all apps instead of overview, allow it from anywhere.
+
         if (AbstractFloatingView.getTopOpenViewWithType(mLauncher, TYPE_ACCESSIBLE) != null) {
             return false;
         }
@@ -148,7 +142,7 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
 
     @Override
     protected int getLogContainerTypeForNormalState(MotionEvent ev) {
-        return isTouchOverHotseat(mLauncher, ev) ? ContainerType.HOTSEAT : ContainerType.WORKSPACE;
+        return ContainerType.WORKSPACE;
     }
 
     private AnimatorSetBuilder getNormalToOverviewAnimation() {
@@ -303,23 +297,6 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
         if (mStartState == NORMAL && targetState == OVERVIEW) {
             RecentsModel.INSTANCE.get(mLauncher).onOverviewShown(true, TAG);
         }
-    }
-
-    /**
-     * Whether the motion event is over the hotseat.
-     *
-     * @param launcher the launcher activity
-     * @param ev the event to check
-     * @return true if the event is over the hotseat
-     */
-    static boolean isTouchOverHotseat(Launcher launcher, MotionEvent ev) {
-        return (ev.getY() >= getHotseatTop(launcher));
-    }
-
-    public static int getHotseatTop(Launcher launcher) {
-        DeviceProfile dp = launcher.getDeviceProfile();
-        int hotseatHeight = dp.hotseatBarSizePx + dp.getInsets().bottom;
-        return launcher.getDragLayer().getHeight() - hotseatHeight;
     }
 
     private static class InterpolatorWrapper implements Interpolator {

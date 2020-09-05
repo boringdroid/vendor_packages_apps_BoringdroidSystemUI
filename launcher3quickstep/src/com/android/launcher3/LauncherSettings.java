@@ -125,13 +125,11 @@ public class LauncherSettings {
          * The icon is a resource identified by a package name and an integer id.
          */
         public static final int CONTAINER_DESKTOP = -100;
-        public static final int CONTAINER_HOTSEAT = -101;
         public static final int CONTAINER_PREDICTION = -102;
 
         static final String containerToString(int container) {
             switch (container) {
                 case CONTAINER_DESKTOP: return "desktop";
-                case CONTAINER_HOTSEAT: return "hotseat";
                 case CONTAINER_PREDICTION: return "prediction";
                 default: return String.valueOf(container);
             }
@@ -157,7 +155,6 @@ public class LauncherSettings {
 
         /**
          * The X coordinate of the cell holding the favorite
-         * (if container is CONTAINER_HOTSEAT or CONTAINER_HOTSEAT)
          * <P>Type: INTEGER</P>
          */
         public static final String CELLX = "cellX";
@@ -230,7 +227,7 @@ public class LauncherSettings {
         public static final String RESTORED = "restored";
 
         /**
-         * Indicates the position of the item inside an auto-arranged view like folder or hotseat.
+         * Indicates the position of the item inside an auto-arranged view like folder.
          * <p>Type: INTEGER</p>
          */
         public static final String RANK = "rank";

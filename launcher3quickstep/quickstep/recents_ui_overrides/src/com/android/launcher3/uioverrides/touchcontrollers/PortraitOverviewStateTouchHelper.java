@@ -16,8 +16,6 @@
 
 package com.android.launcher3.uioverrides.touchcontrollers;
 
-import static com.android.launcher3.uioverrides.touchcontrollers.PortraitStatesTouchController.isTouchOverHotseat;
-
 import android.view.MotionEvent;
 
 import com.android.launcher3.Launcher;
@@ -48,11 +46,10 @@ public final class PortraitOverviewStateTouchHelper {
      */
     boolean canInterceptTouch(MotionEvent ev) {
         if (mRecentsView.getTaskViewCount() > 0) {
-            // Allow swiping up in the gap between the hotseat and overview.
+            // Allow swiping up in the gap between the overview.
             return ev.getY() >= mRecentsView.getTaskViewAt(0).getBottom();
         } else {
-            // If there are no tasks, we only intercept if we're below the hotseat height.
-            return isTouchOverHotseat(mLauncher, ev);
+            return true;
         }
     }
 

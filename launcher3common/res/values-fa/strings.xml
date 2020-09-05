@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"برای انتخاب میان‌بر، لمس کنید و نگه‌دارید."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"برای انتخاب میان‌بر، دو ضربه سریع بزنید و نگه‌دارید یا از کنش‌های سفارشی استفاده کنید."</string>
     <string name="out_of_space" msgid="4691004494942118364">"فضای بیشتری در این صفحه اصلی موجود نیست."</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"فضای بیشتری در سینی موارد دلخواه وجود ندارد"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"فهرست برنامه‌ها"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"فهرست برنامه‌های شخصی"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"فهرست برنامه‌های کاری"</string>
@@ -109,7 +108,6 @@
     <string name="action_move" msgid="4339390619886385032">"انتقال مورد"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"انتقال به سطر <xliff:g id="NUMBER_0">%1$s</xliff:g> ستون <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="move_to_position" msgid="6750008980455459790">"انتقال به موقعیت <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"انتقال به موقعیت دلخواه <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"مورد منتقل شد"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"افزودن به پوشه: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"افزودن به پوشه حاوی <xliff:g id="NAME">%1$s</xliff:g>"</string>

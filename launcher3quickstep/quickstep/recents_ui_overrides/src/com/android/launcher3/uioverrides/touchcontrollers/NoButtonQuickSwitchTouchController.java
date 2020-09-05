@@ -17,7 +17,6 @@ package com.android.launcher3.uioverrides.touchcontrollers;
 
 import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
 import static com.android.launcher3.LauncherAppTransitionManagerImpl.INDEX_PAUSE_TO_OVERVIEW_ANIM;
-import static com.android.launcher3.LauncherState.HOTSEAT_ICONS;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherState.QUICK_SWITCH;
@@ -190,11 +189,6 @@ public class NoButtonQuickSwitchTouchController implements TouchController,
             allAppsController.setAlphas(NORMAL.getVisibleElements(mLauncher),
                     new AnimationConfig(), builder);
             builder.build().setDuration(0).start();
-
-            if ((OVERVIEW.getVisibleElements(mLauncher) & HOTSEAT_ICONS) != 0) {
-                // Hotseat was hidden, but we need it visible when peeking.
-                mLauncher.getHotseat().setAlpha(1);
-            }
         }
         mShelfPeekAnim.setShelfState(shelfState, ShelfPeekAnim.INTERPOLATOR,
                 ShelfPeekAnim.DURATION);

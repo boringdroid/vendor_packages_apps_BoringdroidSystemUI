@@ -32,8 +32,6 @@ public class AnimatorSetBuilder {
     public static final int ANIM_WORKSPACE_SCALE = 1;
     public static final int ANIM_WORKSPACE_TRANSLATE = 2;
     public static final int ANIM_WORKSPACE_FADE = 3;
-    public static final int ANIM_HOTSEAT_SCALE = 4;
-    public static final int ANIM_HOTSEAT_TRANSLATE = 5;
     public static final int ANIM_OVERVIEW_SCALE = 6;
     public static final int ANIM_OVERVIEW_TRANSLATE_X = 7;
     public static final int ANIM_OVERVIEW_TRANSLATE_Y = 8;

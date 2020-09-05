@@ -39,11 +39,6 @@ public interface WorkspaceLayoutManager {
     default void addInScreenFromBind(View child, ItemInfo info) {
         int x = info.cellX;
         int y = info.cellY;
-        if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            int screenId = info.screenId;
-            x = getHotseat().getCellXFromOrder(screenId);
-            y = getHotseat().getCellYFromOrder(screenId);
-        }
         addInScreen(child, info.container, info.screenId, x, y, info.spanX, info.spanY);
     }
 
@@ -83,20 +78,10 @@ public interface WorkspaceLayoutManager {
         }
 
         final CellLayout layout;
-        if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            layout = getHotseat();
-
-            // Hide folder title in the hotseat
-            if (child instanceof FolderIcon) {
-                ((FolderIcon) child).setTextVisible(false);
-            }
-        } else {
-            // Show folder title if not in the hotseat
-            if (child instanceof FolderIcon) {
-                ((FolderIcon) child).setTextVisible(true);
-            }
-            layout = getScreenWithId(screenId);
+        if (child instanceof FolderIcon) {
+            ((FolderIcon) child).setTextVisible(true);
         }
+        layout = getScreenWithId(screenId);
 
         ViewGroup.LayoutParams genericLp = child.getLayoutParams();
         CellLayout.LayoutParams lp;
@@ -132,8 +117,6 @@ public interface WorkspaceLayoutManager {
             onAddDropTarget((DropTarget) child);
         }
     }
-
-    Hotseat getHotseat();
 
     CellLayout getScreenWithId(int screenId);
 

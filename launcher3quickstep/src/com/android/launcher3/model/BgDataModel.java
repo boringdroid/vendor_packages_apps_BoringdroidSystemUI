@@ -179,7 +179,6 @@ public class BgDataModel {
             String[] args) {
 
         // Add top parent nodes. (L1)
-        DumpTargetWrapper hotseat = new DumpTargetWrapper(ContainerType.HOTSEAT, 0);
         IntSparseArrayMap<DumpTargetWrapper> workspaces = new IntSparseArrayMap<>();
         IntArray workspaceScreens = collectWorkspaceScreens();
         for (int i = 0; i < workspaceScreens.size(); i++) {
@@ -197,9 +196,7 @@ public class BgDataModel {
                 child.writeToDumpTarget(sInfo);
                 dtw.add(child);
             }
-            if (fInfo.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-                hotseat.add(dtw);
-            } else if (fInfo.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+            if (fInfo.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 workspaces.get(fInfo.screenId).add(dtw);
             }
         }
@@ -211,9 +208,7 @@ public class BgDataModel {
             }
             dtw = new DumpTargetWrapper(info);
             dtw.writeToDumpTarget(info);
-            if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-                hotseat.add(dtw);
-            } else if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+            if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 workspaces.get(info.screenId).add(dtw);
             }
         }
@@ -221,9 +216,7 @@ public class BgDataModel {
             ItemInfo info = appWidgets.get(i);
             dtw = new DumpTargetWrapper(info);
             dtw.writeToDumpTarget(info);
-            if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-                hotseat.add(dtw);
-            } else if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+            if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 workspaces.get(info.screenId).add(dtw);
             }
         }
@@ -231,7 +224,6 @@ public class BgDataModel {
 
         // Traverse target wrapper
         ArrayList<DumpTarget> targetList = new ArrayList<>();
-        targetList.addAll(hotseat.getFlattenedList());
         for (int i = 0; i < workspaces.size(); i++) {
             targetList.addAll(workspaces.valueAt(i).getFlattenedList());
         }
@@ -330,8 +322,7 @@ public class BgDataModel {
             }
             case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
             case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP ||
-                        item.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
+                if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                     workspaceItems.add(item);
                 } else {
                     if (newItem) {

@@ -34,12 +34,10 @@ import com.android.launcher3.provider.LauncherDbUtils.SQLiteTransaction;
 import com.android.launcher3.util.GridOccupancy;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSparseArrayMap;
-import com.android.launcher3.util.PackageUserKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.function.Consumer;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -53,7 +51,6 @@ public class GridSizeMigrationTask {
     private static final boolean DEBUG = true;
 
     private static final String KEY_MIGRATION_SRC_WORKSPACE_SIZE = "migration_src_workspace_size";
-    private static final String KEY_MIGRATION_SRC_HOTSEAT_COUNT = "migration_src_hotseat_count";
 
     // These are carefully selected weights for various item types (Math.random?), to allow for
     // the least absurd migration experience.
@@ -76,9 +73,6 @@ public class GridSizeMigrationTask {
     private final int mTrgX, mTrgY;
     private final boolean mShouldRemoveX, mShouldRemoveY;
 
-    private final int mSrcHotseatSize;
-    private final int mDestHotseatSize;
-
     protected GridSizeMigrationTask(Context context, SQLiteDatabase db,
             HashSet<String> validPackages, Point sourceSize, Point targetSize) {
         mContext = context;
@@ -95,22 +89,6 @@ public class GridSizeMigrationTask {
         mShouldRemoveY = mTrgY < mSrcY;
 
         // Non-used variables
-        mSrcHotseatSize = mDestHotseatSize = -1;
-    }
-
-    protected GridSizeMigrationTask(Context context, SQLiteDatabase db,
-            HashSet<String> validPackages, int srcHotseatSize, int destHotseatSize) {
-        mContext = context;
-        mDb = db;
-        mValidPackages = validPackages;
-
-        mSrcHotseatSize = srcHotseatSize;
-
-        mDestHotseatSize = destHotseatSize;
-
-        // Non-used variables
-        mSrcX = mSrcY = mTrgX = mTrgY = -1;
-        mShouldRemoveX = mShouldRemoveY = false;
     }
 
     /**
@@ -135,52 +113,6 @@ public class GridSizeMigrationTask {
         }
 
         return updateCount > 0 || !mEntryToRemove.isEmpty();
-    }
-
-    /**
-     * To migrate hotseat, we load all the entries in order (LTR or RTL) and arrange them
-     * in the order in the new hotseat while keeping an empty space for all-apps. If the number of
-     * entries is more than what can fit in the new hotseat, we drop the entries with least weight.
-     * For weight calculation {@see #WT_SHORTCUT}, {@see #WT_APPLICATION}
-     * & {@see #WT_FOLDER_FACTOR}.
-     *
-     * @return true if any DB change was made
-     */
-    protected boolean migrateHotseat() throws Exception {
-        ArrayList<DbEntry> items = loadHotseatEntries();
-        while (items.size() > mDestHotseatSize) {
-            // Pick the center item by default.
-            DbEntry toRemove = items.get(items.size() / 2);
-
-            // Find the item with least weight.
-            for (DbEntry entry : items) {
-                if (entry.weight < toRemove.weight) {
-                    toRemove = entry;
-                }
-            }
-
-            mEntryToRemove.add(toRemove.id);
-            items.remove(toRemove);
-        }
-
-        // Update screen IDS
-        int newScreenId = 0;
-        for (DbEntry entry : items) {
-            if (entry.screenId != newScreenId) {
-                entry.screenId = newScreenId;
-
-                // These values does not affect the item position, but we should set them
-                // to something other than -1.
-                entry.cellX = newScreenId;
-                entry.cellY = 0;
-
-                update(entry);
-            }
-
-            newScreenId++;
-        }
-
-        return applyOperations();
     }
 
     @VisibleForTesting
@@ -276,7 +208,6 @@ public class GridSizeMigrationTask {
         // Try removing all possible combinations
         for (int x = 0; x < mSrcX; x++) {
             // Try removing the rows first from bottom. This keeps the workspace
-            // nicely aligned with hotseat.
             for (int y = mSrcY - 1; y >= startY; y--) {
                 // Use a deep copy when trying out a particular combination as it can change
                 // the underlying object.
@@ -603,68 +534,6 @@ public class GridSizeMigrationTask {
         }
     }
 
-    private ArrayList<DbEntry> loadHotseatEntries() {
-        Cursor c =  queryWorkspace(
-                new String[]{
-                        Favorites._ID,                  // 0
-                        Favorites.ITEM_TYPE,            // 1
-                        Favorites.INTENT,               // 2
-                        Favorites.SCREEN},              // 3
-                Favorites.CONTAINER + " = " + Favorites.CONTAINER_HOTSEAT);
-
-        final int indexId = c.getColumnIndexOrThrow(Favorites._ID);
-        final int indexItemType = c.getColumnIndexOrThrow(Favorites.ITEM_TYPE);
-        final int indexIntent = c.getColumnIndexOrThrow(Favorites.INTENT);
-        final int indexScreen = c.getColumnIndexOrThrow(Favorites.SCREEN);
-
-        ArrayList<DbEntry> entries = new ArrayList<>();
-        while (c.moveToNext()) {
-            DbEntry entry = new DbEntry();
-            entry.id = c.getInt(indexId);
-            entry.itemType = c.getInt(indexItemType);
-            entry.screenId = c.getInt(indexScreen);
-
-            if (entry.screenId >= mSrcHotseatSize) {
-                mEntryToRemove.add(entry.id);
-                continue;
-            }
-
-            try {
-                // calculate weight
-                switch (entry.itemType) {
-                    case Favorites.ITEM_TYPE_SHORTCUT:
-                    case Favorites.ITEM_TYPE_DEEP_SHORTCUT:
-                    case Favorites.ITEM_TYPE_APPLICATION: {
-                        verifyIntent(c.getString(indexIntent));
-                        entry.weight = entry.itemType == Favorites.ITEM_TYPE_APPLICATION ?
-                                WT_APPLICATION : WT_SHORTCUT;
-                        break;
-                    }
-                    case Favorites.ITEM_TYPE_FOLDER: {
-                        int total = getFolderItemsCount(entry.id);
-                        if (total == 0) {
-                            throw new Exception("Folder is empty");
-                        }
-                        entry.weight = WT_FOLDER_FACTOR * total;
-                        break;
-                    }
-                    default:
-                        throw new Exception("Invalid item type");
-                }
-            } catch (Exception e) {
-                if (DEBUG) {
-                    Log.d(TAG, "Removing item " + entry.id, e);
-                }
-                mEntryToRemove.add(entry.id);
-                continue;
-            }
-            entries.add(entry);
-        }
-        c.close();
-        return entries;
-    }
-
-
     /**
      * Loads entries for a particular screen id.
      */
@@ -871,14 +740,6 @@ public class GridSizeMigrationTask {
         return dup;
     }
 
-    public static void markForMigration(
-            Context context, int gridX, int gridY, int hotseatSize) {
-        Utilities.getPrefs(context).edit()
-                .putString(KEY_MIGRATION_SRC_WORKSPACE_SIZE, getPointString(gridX, gridY))
-                .putInt(KEY_MIGRATION_SRC_HOTSEAT_COUNT, hotseatSize)
-                .apply();
-    }
-
     /**
      * Migrates the workspace and hotseat in case their sizes changed.
      *
@@ -890,10 +751,8 @@ public class GridSizeMigrationTask {
 
         String gridSizeString = getPointString(idp.numColumns, idp.numRows);
 
-        if (gridSizeString.equals(prefs.getString(KEY_MIGRATION_SRC_WORKSPACE_SIZE, "")) &&
-                idp.numHotseatIcons == prefs.getInt(KEY_MIGRATION_SRC_HOTSEAT_COUNT,
-                        idp.numHotseatIcons)) {
-            // Skip if workspace and hotseat sizes have not changed.
+        if (gridSizeString.equals(prefs.getString(KEY_MIGRATION_SRC_WORKSPACE_SIZE, ""))) {
+            // Skip if workspace sizes have not changed.
             return true;
         }
 
@@ -902,28 +761,18 @@ public class GridSizeMigrationTask {
                 context.getContentResolver(), Settings.METHOD_NEW_TRANSACTION)
                 .getBinder(Settings.EXTRA_VALUE)) {
 
-            int srcHotseatCount = prefs.getInt(KEY_MIGRATION_SRC_HOTSEAT_COUNT,
-                    idp.numHotseatIcons);
             Point sourceSize = parsePoint(prefs.getString(
                     KEY_MIGRATION_SRC_WORKSPACE_SIZE, gridSizeString));
 
             boolean dbChanged = false;
 
             GridBackupTable backupTable = new GridBackupTable(context, transaction.getDb(),
-                    srcHotseatCount, sourceSize.x, sourceSize.y);
+                    sourceSize.x, sourceSize.y);
             if (backupTable.backupOrRestoreAsNeeded()) {
                 dbChanged = true;
-                srcHotseatCount = backupTable.getRestoreHotseatAndGridSize(sourceSize);
             }
 
             HashSet<String> validPackages = getValidPackages(context);
-            // Hotseat
-            if (srcHotseatCount != idp.numHotseatIcons) {
-                // Migrate hotseat.
-                dbChanged = new GridSizeMigrationTask(context, transaction.getDb(),
-                        validPackages, srcHotseatCount, idp.numHotseatIcons).migrateHotseat();
-            }
-
             // Grid size
             Point targetSize = new Point(idp.numColumns, idp.numRows);
             if (new MultiStepMigrationTask(validPackages, context, transaction.getDb())
@@ -956,7 +805,6 @@ public class GridSizeMigrationTask {
             // Save current configuration, so that the migration does not run again.
             prefs.edit()
                     .putString(KEY_MIGRATION_SRC_WORKSPACE_SIZE, gridSizeString)
-                    .putInt(KEY_MIGRATION_SRC_HOTSEAT_COUNT, idp.numHotseatIcons)
                     .apply();
         }
     }
@@ -976,33 +824,6 @@ public class GridSizeMigrationTask {
                 .updateAndGetActiveSessionCache().keySet()
                 .forEach(packageUserKey -> validPackages.add(packageUserKey.mPackageName));
         return validPackages;
-    }
-
-    /**
-     * Removes any broken item from the hotseat.
-     *
-     * @return a map with occupied hotseat position set to non-null value.
-     */
-    public static IntSparseArrayMap<Object> removeBrokenHotseatItems(Context context)
-            throws Exception {
-        try (SQLiteTransaction transaction = (SQLiteTransaction) Settings.call(
-                context.getContentResolver(), Settings.METHOD_NEW_TRANSACTION)
-                .getBinder(Settings.EXTRA_VALUE)) {
-            GridSizeMigrationTask task = new GridSizeMigrationTask(
-                    context, transaction.getDb(), getValidPackages(context),
-                    Integer.MAX_VALUE, Integer.MAX_VALUE);
-
-            // Load all the valid entries
-            ArrayList<DbEntry> items = task.loadHotseatEntries();
-            // Delete any entry marked for deletion by above load.
-            task.applyOperations();
-            IntSparseArrayMap<Object> positions = new IntSparseArrayMap<>();
-            for (DbEntry item : items) {
-                positions.put(item.screenId, item);
-            }
-            transaction.commit();
-            return positions;
-        }
     }
 
     /**

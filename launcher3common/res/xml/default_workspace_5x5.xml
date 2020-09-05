@@ -16,7 +16,6 @@
 
 <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
 
-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
     <!-- Dialer, Messaging, [Maps/Music], Browser, Camera -->
     <resolve
         launcher:container="-101"

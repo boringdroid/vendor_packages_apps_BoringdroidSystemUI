@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"কোনো শ্বৰ্টকাট বাছনি কৰিবলৈ স্পৰ্শ কৰি হেঁচি ধৰক।"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"কোনো শ্বৰ্টকাট বাছনি কৰিবলৈ দুবাৰ টিপি হেঁচি ধৰক, বা নিজৰ উপযোগিতা অনুসৰি সৃষ্টি কৰা কাৰ্যসমূহ ব্যৱহাৰ কৰক।"</string>
     <string name="out_of_space" msgid="4691004494942118364">"এই গৃহ স্ক্ৰীণত আৰু বেছি ঠাই নাই।"</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"পছন্দৰ ট্ৰে\'ত আৰু বেছি ঠাই নাই"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"এপৰ সূচী"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"ব্যক্তিগত এপৰ তালিকা"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"কৰ্মস্থানৰ এপৰ তালিকা"</string>
@@ -109,7 +108,6 @@
     <string name="action_move" msgid="4339390619886385032">"বস্তু স্থানান্তৰ কৰক"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"শাৰী <xliff:g id="NUMBER_0">%1$s</xliff:g> স্তম্ভ <xliff:g id="NUMBER_1">%2$s</xliff:g>লৈ স্থানান্তৰিত কৰক"</string>
     <string name="move_to_position" msgid="6750008980455459790">"পছন্দৰ অৱস্থান <xliff:g id="NUMBER">%1$s</xliff:g>লৈ স্থানান্তৰিত কৰক"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"পছন্দৰ অৱস্থান <xliff:g id="NUMBER">%1$s</xliff:g>লৈ স্থানান্তৰিত কৰক"</string>
     <string name="item_moved" msgid="4606538322571412879">"বস্তুটো স্থানান্তৰ কৰা হ’ল"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"ফ\'ল্ডাৰত যোগ কৰক: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"<xliff:g id="NAME">%1$s</xliff:g>সহ ফ\'ল্ডাৰত যোগ কৰক"</string>

@@ -147,7 +147,7 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
         static RectF getDefaultWindowTargetRect(DeviceProfile dp) {
             final int halfIconSize = dp.iconSizePx / 2;
             final float targetCenterX = dp.availableWidthPx / 2f;
-            final float targetCenterY = dp.availableHeightPx - dp.hotseatBarSizePx;
+            final float targetCenterY = dp.availableHeightPx;
             // Fallback to animate to center of screen.
             return new RectF(targetCenterX - halfIconSize, targetCenterY - halfIconSize,
                     targetCenterX + halfIconSize, targetCenterY + halfIconSize);

@@ -201,7 +201,7 @@ public abstract class RecentsUiFactory {
         boolean visible = (state == NORMAL || state == OVERVIEW) && launcher.isUserActive()
                 && !profile.isVerticalBarLayout();
         UiThreadHelper.runAsyncCommand(launcher, SET_SHELF_HEIGHT_CMD,
-                visible ? 1 : 0, profile.hotseatBarSizePx);
+                visible ? 1 : 0, 0);
 
         if (state == NORMAL) {
             launcher.<RecentsView>getOverviewPanel().setSwipeDownShouldLaunchApp(false);

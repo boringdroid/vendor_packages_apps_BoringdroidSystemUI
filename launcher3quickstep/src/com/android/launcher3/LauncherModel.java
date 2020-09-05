@@ -152,9 +152,8 @@ public class LauncherModel extends BroadcastReceiver
         enqueueModelUpdateTask(new AddWorkspaceItemsTask(itemList));
     }
 
-    public ModelWriter getWriter(boolean hasVerticalHotseat, boolean verifyChanges) {
-        return new ModelWriter(mApp.getContext(), this, sBgDataModel,
-                hasVerticalHotseat, verifyChanges);
+    public ModelWriter getWriter(boolean verifyChanges) {
+        return new ModelWriter(mApp.getContext(), this, sBgDataModel, verifyChanges);
     }
 
     /**

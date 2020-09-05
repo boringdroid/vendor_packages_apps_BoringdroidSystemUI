@@ -63,9 +63,7 @@ public final class FallbackActivityControllerHelper implements
         LayoutUtils.calculateFallbackTaskSize(context, dp, outRect);
         if (dp.isVerticalBarLayout()
                 && SysUINavigationMode.INSTANCE.get(context).getMode() != NO_BUTTON) {
-            Rect targetInsets = dp.getInsets();
-            int hotseatInset = dp.isSeascape() ? targetInsets.left : targetInsets.right;
-            return dp.hotseatBarSizePx + hotseatInset;
+            return 0;
         } else {
             return dp.heightPx - outRect.bottom;
         }

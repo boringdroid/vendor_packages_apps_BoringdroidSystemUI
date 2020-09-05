@@ -59,7 +59,6 @@ enum ItemType {
 enum ContainerType {
   UNKNOWN_CONTAINERTYPE = 0;
   WORKSPACE = 1;
-  HOTSEAT = 2;
   FOLDER = 3;
 }
 

@@ -42,7 +42,7 @@ import static android.os.Process.myUserHandle;
  * - Items on the first screen
  * - Items with an active install session
  *
- * The packages are broken down by: folder items, workspace items, hotseat items, and widgets.
+ * The packages are broken down by: folder items, workspace items, and widgets.
  *
  * Package installers only receive data for items that they are installing.
  */
@@ -56,7 +56,6 @@ public class FirstScreenBroadcast {
 
     private static final String FOLDER_ITEM_EXTRA = "folderItem";
     private static final String WORKSPACE_ITEM_EXTRA = "workspaceItem";
-    private static final String HOTSEAT_ITEM_EXTRA = "hotseatItem";
     private static final String WIDGET_ITEM_EXTRA = "widgetItem";
 
     private static final String VERIFICATION_TOKEN_EXTRA = "verificationToken";
@@ -102,7 +101,6 @@ public class FirstScreenBroadcast {
             List<String> packages, List<ItemInfo> firstScreenItems) {
         Set<String> folderItems = new HashSet<>();
         Set<String> workspaceItems = new HashSet<>();
-        Set<String> hotseatItems = new HashSet<>();
         Set<String> widgetItems = new HashSet<>();
 
         for (ItemInfo info : firstScreenItems) {
@@ -124,8 +122,6 @@ public class FirstScreenBroadcast {
             }
             if (info instanceof LauncherAppWidgetInfo) {
                 widgetItems.add(packageName);
-            } else if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-                hotseatItems.add(packageName);
             } else if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 workspaceItems.add(packageName);
             }
@@ -134,7 +130,6 @@ public class FirstScreenBroadcast {
         if (DEBUG) {
             printList(installerPackageName, "Folder item", folderItems);
             printList(installerPackageName, "Workspace item", workspaceItems);
-            printList(installerPackageName, "Hotseat item", hotseatItems);
             printList(installerPackageName, "Widget item", widgetItems);
         }
 
@@ -142,7 +137,6 @@ public class FirstScreenBroadcast {
                 .setPackage(installerPackageName)
                 .putStringArrayListExtra(FOLDER_ITEM_EXTRA, new ArrayList<>(folderItems))
                 .putStringArrayListExtra(WORKSPACE_ITEM_EXTRA, new ArrayList<>(workspaceItems))
-                .putStringArrayListExtra(HOTSEAT_ITEM_EXTRA, new ArrayList<>(hotseatItems))
                 .putStringArrayListExtra(WIDGET_ITEM_EXTRA, new ArrayList<>(widgetItems))
                 .putExtra(VERIFICATION_TOKEN_EXTRA, PendingIntent.getActivity(context, 0,
                         new Intent(), PendingIntent.FLAG_ONE_SHOT)));

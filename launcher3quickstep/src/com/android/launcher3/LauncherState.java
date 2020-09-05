@@ -62,8 +62,6 @@ public class LauncherState {
      * Note that workspace is not included here as in that case, we animate individual pages
      */
     public static final int NONE = 0;
-    public static final int HOTSEAT_ICONS = 1 << 0;
-    public static final int HOTSEAT_SEARCH_BOX = 1 << 1;
     public static final int ALL_APPS_HEADER = 1 << 2;
     public static final int ALL_APPS_HEADER_EXTRA = 1 << 3; // e.g. app predictions
     public static final int ALL_APPS_CONTENT = 1 << 4;
@@ -204,11 +202,6 @@ public class LauncherState {
         return new ScaleAndTranslation(1, 0, 0);
     }
 
-    public ScaleAndTranslation getHotseatScaleAndTranslation(Launcher launcher) {
-        // For most states, treat the hotseat as if it were part of the workspace.
-        return getWorkspaceScaleAndTranslation(launcher);
-    }
-
     public ScaleAndTranslation getOverviewScaleAndTranslation(Launcher launcher) {
         return UiFactory.getOverviewScaleAndTranslationForNormalState(launcher);
     }
@@ -224,10 +217,7 @@ public class LauncherState {
     public void onStateDisabled(Launcher launcher) { }
 
     public int getVisibleElements(Launcher launcher) {
-        if (launcher.getDeviceProfile().isVerticalBarLayout()) {
-            return HOTSEAT_ICONS | VERTICAL_SWIPE_INDICATOR;
-        }
-        return HOTSEAT_ICONS | HOTSEAT_SEARCH_BOX | VERTICAL_SWIPE_INDICATOR;
+        return VERTICAL_SWIPE_INDICATOR;
     }
 
     /**
@@ -314,12 +304,6 @@ public class LauncherState {
             if (!isWorkspaceVisible) {
                 workspace.setScaleX(0.92f);
                 workspace.setScaleY(0.92f);
-            }
-            Hotseat hotseat = launcher.getHotseat();
-            boolean isHotseatVisible = hotseat.getVisibility() == VISIBLE && hotseat.getAlpha() > 0;
-            if (!isHotseatVisible) {
-                hotseat.setScaleX(0.92f);
-                hotseat.setScaleY(0.92f);
             }
         } else if (this == NORMAL && fromState == OVERVIEW_PEEK) {
             // Keep fully visible until the very end (when overview is offscreen) to make invisible.

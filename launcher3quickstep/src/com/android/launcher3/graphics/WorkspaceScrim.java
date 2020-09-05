@@ -33,7 +33,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Region;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -50,32 +49,32 @@ import com.android.launcher3.uioverrides.WallpaperColorInfo;
 import com.android.launcher3.util.Themes;
 
 /**
- * View scrim which draws behind hotseat and workspace
+ * View scrim which draws behind workspace
  */
-public class WorkspaceAndHotseatScrim extends Scrim {
+public class WorkspaceScrim extends Scrim {
 
-    public static Property<WorkspaceAndHotseatScrim, Float> SYSUI_PROGRESS =
-            new Property<WorkspaceAndHotseatScrim, Float>(Float.TYPE, "sysUiProgress") {
+    public static Property<WorkspaceScrim, Float> SYSUI_PROGRESS =
+            new Property<WorkspaceScrim, Float>(Float.TYPE, "sysUiProgress") {
                 @Override
-                public Float get(WorkspaceAndHotseatScrim scrim) {
+                public Float get(WorkspaceScrim scrim) {
                     return scrim.mSysUiProgress;
                 }
 
                 @Override
-                public void set(WorkspaceAndHotseatScrim scrim, Float value) {
+                public void set(WorkspaceScrim scrim, Float value) {
                     scrim.setSysUiProgress(value);
                 }
             };
 
-    private static Property<WorkspaceAndHotseatScrim, Float> SYSUI_ANIM_MULTIPLIER =
-            new Property<WorkspaceAndHotseatScrim, Float>(Float.TYPE, "sysUiAnimMultiplier") {
+    private static Property<WorkspaceScrim, Float> SYSUI_ANIM_MULTIPLIER =
+            new Property<WorkspaceScrim, Float>(Float.TYPE, "sysUiAnimMultiplier") {
                 @Override
-                public Float get(WorkspaceAndHotseatScrim scrim) {
+                public Float get(WorkspaceScrim scrim) {
                     return scrim.mSysUiAnimMultiplier;
                 }
 
                 @Override
-                public void set(WorkspaceAndHotseatScrim scrim, Float value) {
+                public void set(WorkspaceScrim scrim, Float value) {
                     scrim.mSysUiAnimMultiplier = value;
                     scrim.reapplySysUiAlpha();
                 }
@@ -96,12 +95,9 @@ public class WorkspaceAndHotseatScrim extends Scrim {
     };
 
     private static final int DARK_SCRIM_COLOR = 0x55000000;
-    private static final int MAX_HOTSEAT_SCRIM_ALPHA = 100;
     private static final int ALPHA_MASK_HEIGHT_DP = 500;
     private static final int ALPHA_MASK_BITMAP_DP = 200;
     private static final int ALPHA_MASK_WIDTH_DP = 2;
-
-    private final Rect mHighlightRect = new Rect();
 
     private Workspace mWorkspace;
 
@@ -120,7 +116,7 @@ public class WorkspaceAndHotseatScrim extends Scrim {
     private boolean mAnimateScrimOnNextDraw = false;
     private float mSysUiAnimMultiplier = 1;
 
-    public WorkspaceAndHotseatScrim(View view) {
+    public WorkspaceScrim(View view) {
         super(view);
 
         mMaskHeight = ResourceUtils.pxFromDp(ALPHA_MASK_BITMAP_DP,
@@ -143,12 +139,6 @@ public class WorkspaceAndHotseatScrim extends Scrim {
             mWorkspace.computeScrollWithoutInvalidation();
             CellLayout currCellLayout = mWorkspace.getCurrentDragOverlappingLayout();
             canvas.save();
-            if (currCellLayout != null && currCellLayout != mLauncher.getHotseat()) {
-                // Cut a hole in the darkening scrim on the page that should be highlighted, if any.
-                mLauncher.getDragLayer()
-                        .getDescendantRectRelativeToSelf(currCellLayout, mHighlightRect);
-                canvas.clipRect(mHighlightRect, Region.Op.DIFFERENCE);
-            }
 
             super.draw(canvas);
             canvas.restore();
@@ -256,7 +246,7 @@ public class WorkspaceAndHotseatScrim extends Scrim {
 
     private void reapplySysUiAlphaNoInvalidate() {
         float factor = mSysUiProgress * mSysUiAnimMultiplier;
-        mBottomMaskPaint.setAlpha(Math.round(MAX_HOTSEAT_SCRIM_ALPHA * factor));
+        mBottomMaskPaint.setAlpha(Math.round(100 * factor));
         if (mTopScrim != null) {
             mTopScrim.setAlpha(Math.round(255 * factor));
         }

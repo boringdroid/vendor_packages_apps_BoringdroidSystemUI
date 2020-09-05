@@ -38,7 +38,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.Hotseat;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager.StateListener;
@@ -132,17 +131,12 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
         updateEmptyMessage();
     }
 
-    /**
-     * Animates adjacent tasks and translate hotseat off screen as well.
-     */
     @Override
     public AnimatorSet createAdjacentPageAnimForTaskLaunch(TaskView tv,
             ClipAnimationHelper helper) {
         AnimatorSet anim = super.createAdjacentPageAnimForTaskLaunch(tv, helper);
 
         if (!SysUINavigationMode.getMode(mActivity).hasGestures) {
-            // Hotseat doesn't move when opening recents with the button,
-            // so don't animate it here either.
             return anim;
         }
 
@@ -300,11 +294,8 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
     @Override
     protected boolean shouldStealTouchFromSiblingsBelow(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            // Allow touches to go through to the hotseat.
-            Hotseat hotseat = mActivity.getHotseat();
-            boolean touchingHotseat = hotseat.isShown()
-                    && mActivity.getDragLayer().isEventOverView(hotseat, ev, this);
-            return !touchingHotseat;
+            // TODO recheck it
+            return true;
         }
         return super.shouldStealTouchFromSiblingsBelow(ev);
     }

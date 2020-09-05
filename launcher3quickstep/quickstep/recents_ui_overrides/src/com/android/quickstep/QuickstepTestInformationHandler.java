@@ -36,14 +36,6 @@ public class QuickstepTestInformationHandler extends TestInformationHandler {
                 return response;
             }
 
-            case TestProtocol.REQUEST_HOTSEAT_TOP: {
-                if (mLauncher == null) return null;
-
-                response.putInt(TestProtocol.TEST_INFO_RESPONSE_FIELD,
-                        PortraitStatesTouchController.getHotseatTop(mLauncher));
-                return response;
-            }
-
             case TestProtocol.REQUEST_OVERVIEW_LEFT_GESTURE_MARGIN: {
                 try {
                     final int leftMargin = MAIN_EXECUTOR.submit(() ->

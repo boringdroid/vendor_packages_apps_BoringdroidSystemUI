@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"ଏକ ଶର୍ଟକଟ୍ ଚୟନ କରିବାକୁ ସ୍ପର୍ଶ କରି ଧରି ରଖନ୍ତୁ।"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"ଡବଲ୍‌-ଟାପ୍‌ କରନ୍ତୁ ଏବଂ ଏକ ଶର୍ଟକଟ୍ ଚୟନ କରିବାକୁ ଧରି ରଖନ୍ତୁ କିମ୍ୱା କଷ୍ଟମ୍ ପ୍ରକ୍ରିୟା ବ୍ୟବହାର କରନ୍ତୁ।"</string>
     <string name="out_of_space" msgid="4691004494942118364">"ହୋମ୍‌ ସ୍କ୍ରୀନ ପାଇଁ ଆଉ କୋଠରୀ ନାହିଁ"</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"ମନପସନ୍ଦ ଟ୍ରେରେ ଆଉ କୋଠରୀ ନାହିଁ"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"ଆପ୍‌ ତାଲିକା"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"ବ୍ୟକ୍ତିଗତ ଆପ୍ ତାଲିକା"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"କାର୍ଯ୍ୟକାରୀ ଆପ୍‌ ତାଲିକା"</string>
@@ -109,7 +108,6 @@
     <string name="action_move" msgid="4339390619886385032">"ଆଇଟମ୍‌ ଘୁଞ୍ଚାନ୍ତୁ"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"ଧାଡ଼ି <xliff:g id="NUMBER_0">%1$s</xliff:g> ସ୍ତମ୍ଭ <xliff:g id="NUMBER_1">%2$s</xliff:g>କୁ ନିଅନ୍ତୁ"</string>
     <string name="move_to_position" msgid="6750008980455459790">"<xliff:g id="NUMBER">%1$s</xliff:g> ସ୍ଥିତିକୁ ନିଅନ୍ତୁ"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"ପସନ୍ଦର ସ୍ଥିତି <xliff:g id="NUMBER">%1$s</xliff:g>କୁ ନିଅନ୍ତୁ"</string>
     <string name="item_moved" msgid="4606538322571412879">"ଆଇଟମ୍‌ ଘୁଞ୍ଚେଇ ଦିଆଗଲା"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"ଏହି ଫୋଲ୍ଡରରେ ଯୋଡ଼ନ୍ତୁ: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"<xliff:g id="NAME">%1$s</xliff:g> ସହିତ ଫୋଲ୍ଡରରେ ଯୋଡ଼ନ୍ତୁ"</string>

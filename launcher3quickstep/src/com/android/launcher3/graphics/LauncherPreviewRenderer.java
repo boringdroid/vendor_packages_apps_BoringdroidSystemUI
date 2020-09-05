@@ -45,7 +45,6 @@ import android.widget.TextClock;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.CellLayout;
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.Hotseat;
 import com.android.launcher3.InsettableFrameLayout;
 import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.LauncherSettings.Favorites;
@@ -54,7 +53,6 @@ import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.WorkspaceLayoutManager;
 import com.android.launcher3.allapps.SearchUiManager;
-import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.BaseIconFactory;
 import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.BitmapRenderer;
@@ -139,7 +137,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         private final LayoutInflater mHomeElementInflater;
         private final InsettableFrameLayout mRootView;
 
-        private final Hotseat mHotseat;
         private final CellLayout mWorkspace;
 
         MainThreadRenderer(Context context) {
@@ -153,9 +150,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
                     R.layout.launcher_preview_layout, null, false);
             mRootView.setInsets(mInsets);
             measureView(mRootView, mDp.widthPx, mDp.heightPx);
-
-            mHotseat = mRootView.findViewById(R.id.hotseat);
-            mHotseat.resetLayout(false);
 
             mWorkspace = mRootView.findViewById(R.id.workspace);
             mWorkspace.setPadding(mDp.workspacePadding.left + mDp.cellLayoutPaddingLeftRightPx,
@@ -206,11 +200,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         }
 
         @Override
-        public Hotseat getHotseat() {
-            return mHotseat;
-        }
-
-        @Override
         public CellLayout getScreenWithId(int screenId) {
             return mWorkspace;
         }
@@ -241,14 +230,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         }
 
         private void renderScreenShot(Canvas canvas) {
-            // Add hotseat icons
-            for (int i = 0; i < mIdp.numHotseatIcons; i++) {
-                WorkspaceItemInfo info = new WorkspaceItemInfo(mWorkspaceItemInfo);
-                info.container = Favorites.CONTAINER_HOTSEAT;
-                info.screenId = i;
-                inflateAndAddIcon(info);
-            }
-
             // Add workspace icons
             for (int i = 0; i < mIdp.numColumns; i++) {
                 WorkspaceItemInfo info = new WorkspaceItemInfo(mWorkspaceItemInfo);

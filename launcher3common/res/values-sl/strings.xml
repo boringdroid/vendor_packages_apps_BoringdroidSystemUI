@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Pridržite bližnjico, da jo izberete."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Dvakrat se dotaknite bližnjice in jo pridržite, da jo izberete, ali pa uporabite dejanja po meri."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Na tem začetnem zaslonu ni več prostora."</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"V vrstici za priljubljene ni več prostora"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Seznam aplikacij"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"Seznam osebnih aplikacij"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"Seznam delovnih aplikacij"</string>
@@ -111,7 +110,6 @@
     <string name="action_move" msgid="4339390619886385032">"Premik elementa"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"Premik v <xliff:g id="NUMBER_0">%1$s</xliff:g>. vrstico <xliff:g id="NUMBER_1">%2$s</xliff:g>. stolpca"</string>
     <string name="move_to_position" msgid="6750008980455459790">"Premk na mesto št. <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"Premik na mesto priljubljenih št. <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"Element je premaknjen"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"Dodajanje v mapo: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"Dodajanje v mapo z aplikacijo <xliff:g id="NAME">%1$s</xliff:g>"</string>

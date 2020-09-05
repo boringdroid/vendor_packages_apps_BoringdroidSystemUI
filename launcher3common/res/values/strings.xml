@@ -80,7 +80,6 @@
     <!-- Error message when user has filled a home screen -->
     <string name="out_of_space">No more room on this Home screen.</string>
     <!-- Error message when user has filled the hotseat -->
-    <string name="hotseat_out_of_space">No more room in the Favorites tray</string>
 
     <!-- All applications label -->
     <string name="all_apps_button_label">Apps list</string>
@@ -262,7 +261,6 @@
     <string name="move_to_position">Move to position <xliff:g id="number" example="1">%1$s</xliff:g></string>
 
     <!-- Accessibility description to move item to the hotseat. -->
-    <string name="move_to_hotseat_position">Move to favorites position <xliff:g id="number" example="1">%1$s</xliff:g></string>
 
     <!-- Accessibility confirmation for item move. -->
     <string name="item_moved">Item moved</string>

@@ -79,7 +79,6 @@ enum ItemType {
 enum ContainerType {
   DEFAULT_CONTAINERTYPE = 0;
   WORKSPACE = 1;
-  HOTSEAT = 2;
   FOLDER = 3;
   ALLAPPS = 4;
   WIDGETS = 5;

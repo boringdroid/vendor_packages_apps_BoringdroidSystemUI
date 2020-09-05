@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Trykk og hold for å velge en snarvei."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Dobbelttrykk og hold for å velge en snarvei eller bruke tilpassede handlinger."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Denne startsiden er full."</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"Favoritter-skuffen er full"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"App-liste"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"Personlige apper-liste"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"Jobbapper-liste"</string>
@@ -109,7 +108,6 @@
     <string name="action_move" msgid="4339390619886385032">"Flytt elementet"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"Flytt til rad <xliff:g id="NUMBER_0">%1$s</xliff:g>, kolonne <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="move_to_position" msgid="6750008980455459790">"Flytt til posisjon <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"Flytt til posisjonen for favoritter <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"Elementet er flyttet"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"Legg til i mappe: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"Legg til mappen med <xliff:g id="NAME">%1$s</xliff:g>"</string>

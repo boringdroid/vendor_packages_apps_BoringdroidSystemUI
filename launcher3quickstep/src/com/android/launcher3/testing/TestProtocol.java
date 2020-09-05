@@ -68,7 +68,6 @@ public final class TestProtocol {
             "home-to-all-apps-swipe-height";
     public static final String REQUEST_ICON_HEIGHT =
             "icon-height";
-    public static final String REQUEST_HOTSEAT_TOP = "hotseat-top";
     public static final String REQUEST_IS_LAUNCHER_INITIALIZED = "is-launcher-initialized";
     public static final String REQUEST_FREEZE_APP_LIST = "freeze-app-list";
     public static final String REQUEST_UNFREEZE_APP_LIST = "unfreeze-app-list";

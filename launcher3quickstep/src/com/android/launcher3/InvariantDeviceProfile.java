@@ -110,11 +110,6 @@ public class InvariantDeviceProfile {
     private SparseArray<TypedValue> mExtraAttrs;
 
     /**
-     * Number of icons inside the hotseat area.
-     */
-    public int numHotseatIcons;
-
-    /**
      * Number of columns in the all apps list.
      */
     public int numAllAppsColumns;
@@ -144,7 +139,6 @@ public class InvariantDeviceProfile {
         iconShapePath = p.iconShapePath;
         landscapeIconSize = p.landscapeIconSize;
         iconTextSize = p.iconTextSize;
-        numHotseatIcons = p.numHotseatIcons;
         numAllAppsColumns = p.numAllAppsColumns;
         allAppsIconSize = p.allAppsIconSize;
         allAppsIconTextSize = p.allAppsIconTextSize;
@@ -284,7 +278,6 @@ public class InvariantDeviceProfile {
         GridOption closestProfile = options.get(0).grid;
         numRows = closestProfile.numRows;
         numColumns = closestProfile.numColumns;
-        numHotseatIcons = closestProfile.numHotseatIcons;
         defaultLayoutId = closestProfile.defaultLayoutId;
         demoModeLayoutId = closestProfile.demoModeLayoutId;
         numFolderRows = closestProfile.numFolderRows;
@@ -347,8 +340,7 @@ public class InvariantDeviceProfile {
         if (numRows != oldProfile.numRows ||
                 numColumns != oldProfile.numColumns ||
                 numFolderColumns != oldProfile.numFolderColumns ||
-                numFolderRows != oldProfile.numFolderRows ||
-                numHotseatIcons != oldProfile.numHotseatIcons) {
+                numFolderRows != oldProfile.numFolderRows) {
             changeFlags |= CHANGE_FLAG_GRID;
         }
 
@@ -528,8 +520,6 @@ public class InvariantDeviceProfile {
         private final int numFolderRows;
         private final int numFolderColumns;
 
-        private final int numHotseatIcons;
-
         private final int defaultLayoutId;
         private final int demoModeLayoutId;
 
@@ -546,8 +536,6 @@ public class InvariantDeviceProfile {
                     R.styleable.GridDisplayOption_defaultLayoutId, 0);
             demoModeLayoutId = a.getResourceId(
                     R.styleable.GridDisplayOption_demoModeLayoutId, defaultLayoutId);
-            numHotseatIcons = a.getInt(
-                    R.styleable.GridDisplayOption_numHotseatIcons, numColumns);
             numFolderRows = a.getInt(
                     R.styleable.GridDisplayOption_numFolderRows, numRows);
             numFolderColumns = a.getInt(

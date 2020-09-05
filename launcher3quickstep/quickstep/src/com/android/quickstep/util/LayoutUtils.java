@@ -55,11 +55,7 @@ public class LayoutUtils {
         if (dp.isVerticalBarLayout()) {
             extraSpace = 0;
         } else {
-            Resources res = context.getResources();
-
-            extraSpace = getDefaultSwipeHeight(context, dp) + dp.verticalDragHandleSizePx
-                    + res.getDimensionPixelSize(R.dimen.dynamic_grid_hotseat_extra_vertical_size)
-                    + res.getDimensionPixelSize(R.dimen.dynamic_grid_hotseat_bottom_padding);
+            extraSpace = getDefaultSwipeHeight(context, dp) + dp.verticalDragHandleSizePx;
         }
         calculateTaskSize(context, dp, extraSpace, MULTI_WINDOW_STRATEGY_HALF_SCREEN, outRect);
     }
@@ -130,7 +126,7 @@ public class LayoutUtils {
 
     public static int getShelfTrackingDistance(Context context, DeviceProfile dp) {
         // Track the bottom of the window.
-        int shelfHeight = dp.hotseatBarSizePx + dp.getInsets().bottom;
+        int shelfHeight = dp.getInsets().bottom;
         int spaceBetweenShelfAndRecents = (int) context.getResources().getDimension(
                 R.dimen.task_card_vert_space);
         return shelfHeight + spaceBetweenShelfAndRecents;

@@ -59,7 +59,6 @@ public class ItemInfo {
     /**
      * Indicates the screen in which the shortcut appears if the container types is
      * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. (i.e., ignore if the container type is
-     * {@link LauncherSettings.Favorites#CONTAINER_HOTSEAT})
      */
     public int screenId = -1;
 

@@ -65,7 +65,6 @@ public class ModelWriter {
     private final BgDataModel mBgDataModel;
     private final Handler mUiHandler;
 
-    private final boolean mHasVerticalHotseat;
     private final boolean mVerifyChanges;
 
     // Keep track of delete operations that occur when an Undo option is present; we may not commit.
@@ -73,11 +72,10 @@ public class ModelWriter {
     private boolean mPreparingToUndo;
 
     public ModelWriter(Context context, LauncherModel model, BgDataModel dataModel,
-            boolean hasVerticalHotseat, boolean verifyChanges) {
+                       boolean verifyChanges) {
         mContext = context;
         mModel = model;
         mBgDataModel = dataModel;
-        mHasVerticalHotseat = hasVerticalHotseat;
         mVerifyChanges = verifyChanges;
         mUiHandler = new Handler(Looper.getMainLooper());
     }
@@ -87,14 +85,7 @@ public class ModelWriter {
         item.container = container;
         item.cellX = cellX;
         item.cellY = cellY;
-        // We store hotseat items in canonical form which is this orientation invariant position
-        // in the hotseat
-        if (container == Favorites.CONTAINER_HOTSEAT) {
-            item.screenId = mHasVerticalHotseat
-                    ? LauncherAppState.getIDP(mContext).numHotseatIcons - cellY - 1 : cellX;
-        } else {
-            item.screenId = screenId;
-        }
+        item.screenId = screenId;
     }
 
     /**
@@ -421,8 +412,7 @@ public class ModelWriter {
             synchronized (mBgDataModel) {
                 checkItemInfoLocked(itemId, item, mStackTrace);
 
-                if (item.container != Favorites.CONTAINER_DESKTOP &&
-                        item.container != Favorites.CONTAINER_HOTSEAT) {
+                if (item.container != Favorites.CONTAINER_DESKTOP) {
                     // Item is in a folder, make sure this folder exists
                     if (!mBgDataModel.folders.containsKey(item.container)) {
                         // An items container is being set to a that of an item which is not in
@@ -437,9 +427,7 @@ public class ModelWriter {
                 // as in Workspace.onDrop. Here, we just add/remove them from the list of items
                 // that are on the desktop, as appropriate
                 ItemInfo modelItem = mBgDataModel.itemsIdMap.get(itemId);
-                if (modelItem != null &&
-                        (modelItem.container == Favorites.CONTAINER_DESKTOP ||
-                                modelItem.container == Favorites.CONTAINER_HOTSEAT)) {
+                if (modelItem != null && modelItem.container == Favorites.CONTAINER_DESKTOP) {
                     switch (modelItem.itemType) {
                         case Favorites.ITEM_TYPE_APPLICATION:
                         case Favorites.ITEM_TYPE_SHORTCUT:

@@ -73,11 +73,6 @@ public class SpringLoadedState extends LauncherState {
     }
 
     @Override
-    public ScaleAndTranslation getHotseatScaleAndTranslation(Launcher launcher) {
-        return new ScaleAndTranslation(1, 0, 0);
-    }
-
-    @Override
     public void onStateEnabled(Launcher launcher) {
         Workspace ws = launcher.getWorkspace();
         ws.showPageIndicatorAtCurrentScroll();

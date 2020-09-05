@@ -709,11 +709,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     }
 
     @Override
-    public Hotseat getHotseat() {
-        return mLauncher.getHotseat();
-    }
-
-    @Override
     public void onAddDropTarget(DropTarget target) {
         mDragController.addDropTarget(target);
     }
@@ -1416,7 +1411,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 @Override
                 protected void enableAccessibleDrag(boolean enable) {
                     super.enableAccessibleDrag(enable);
-                    setEnableForLayout(mLauncher.getHotseat(),enable);
                 }
             });
         }
@@ -1751,10 +1745,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             if (dropTargetLayout != null && !d.cancelled) {
                 // Move internally
                 boolean hasMovedLayouts = (getParentCellLayoutForView(cell) != dropTargetLayout);
-                boolean hasMovedIntoHotseat = mLauncher.isHotseatLayout(dropTargetLayout);
-                int container = hasMovedIntoHotseat ?
-                        LauncherSettings.Favorites.CONTAINER_HOTSEAT :
-                        LauncherSettings.Favorites.CONTAINER_DESKTOP;
+                int container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
                 int screenId = (mTargetCell[0] < 0) ?
                         mDragInfo.screenId : getIdForScreen(dropTargetLayout);
                 int spanX = mDragInfo != null ? mDragInfo.spanX : 1;
@@ -1819,7 +1810,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 }
 
                 if (foundCell) {
-                    if (getScreenIdForPageIndex(mCurrentPage) != screenId && !hasMovedIntoHotseat) {
+                    if (getScreenIdForPageIndex(mCurrentPage) != screenId) {
                         snapScreen = getPageIndexForScreenId(screenId);
                         snapToPage(snapScreen);
                     }
@@ -1845,8 +1836,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                     lp.cellVSpan = item.spanY;
                     lp.isLockedToGrid = true;
 
-                    if (container != LauncherSettings.Favorites.CONTAINER_HOTSEAT &&
-                            cell instanceof LauncherAppWidgetHostView) {
+                    if (cell instanceof LauncherAppWidgetHostView) {
                         final CellLayout cellLayout = dropTargetLayout;
                         // We post this call so that the widget has a chance to be placed
                         // in its final location
@@ -1921,8 +1911,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     }
 
     public void onNoCellFound(View dropTargetLayout) {
-        int strId = mLauncher.isHotseatLayout(dropTargetLayout)
-                ? R.string.hotseat_out_of_space : R.string.out_of_space;
+        int strId = R.string.out_of_space;
         Toast.makeText(mLauncher, mLauncher.getString(strId), Toast.LENGTH_SHORT).show();
     }
 
@@ -2088,29 +2077,13 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
        xy[1] = xy[1] - v.getTop();
    }
 
-   boolean isPointInSelfOverHotseat(int x, int y) {
-       mTempFXY[0] = x;
-       mTempFXY[1] = y;
-       mLauncher.getDragLayer().getDescendantCoordRelativeToSelf(this, mTempFXY, true);
-       View hotseat = mLauncher.getHotseat();
-       return mTempFXY[0] >= hotseat.getLeft() &&
-               mTempFXY[0] <= hotseat.getRight() &&
-               mTempFXY[1] >= hotseat.getTop() &&
-               mTempFXY[1] <= hotseat.getBottom();
-   }
-
     /**
      * Updates the point in {@param xy} to point to the co-ordinate space of {@param layout}
      * @param layout either hotseat of a page in workspace
      * @param xy the point location in workspace co-ordinate space
      */
    private void mapPointFromDropLayout(CellLayout layout, float[] xy) {
-       if (mLauncher.isHotseatLayout(layout)) {
-           mLauncher.getDragLayer().getDescendantCoordRelativeToSelf(this, xy, true);
-           mLauncher.getDragLayer().mapCoordInSelfToDescendant(layout, xy);
-       } else {
-           mapPointFromSelfToChild(layout, xy);
-       }
+       mapPointFromSelfToChild(layout, xy);
    }
 
     private boolean isDragWidget(DragObject d) {
@@ -2136,11 +2109,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
         final View child = (mDragInfo == null) ? null : mDragInfo.cell;
         if (setDropLayoutForDragObject(d, mDragViewVisualCenter[0], mDragViewVisualCenter[1])) {
-            if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
-                mSpringLoadedDragController.cancel();
-            } else {
-                mSpringLoadedDragController.setAlarm(mDragTargetLayout);
-            }
+            mSpringLoadedDragController.setAlarm(mDragTargetLayout);
         }
 
         // Handle the drag over
@@ -2206,7 +2175,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
      * based on the DragObject's position.
      *
      * The layout will be:
-     * - The Hotseat if the drag object is over it
      * - A side page if we are in spring-loaded mode and the drag object is over it
      * - The current page otherwise
      *
@@ -2214,13 +2182,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
      */
     private boolean setDropLayoutForDragObject(DragObject d, float centerX, float centerY) {
         CellLayout layout = null;
-        // Test to see if we are over the hotseat first
-        if (mLauncher.getHotseat() != null && !isDragWidget(d)) {
-            if (isPointInSelfOverHotseat(d.x, d.y)) {
-                layout = mLauncher.getHotseat();
-            }
-        }
-
         int nextPage = getNextPage();
         if (layout == null && !isPageInTransition()) {
             // Check if the item is dragged over left page
@@ -2423,12 +2384,9 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             spanY = mDragInfo.spanY;
         }
 
-        final int container = mLauncher.isHotseatLayout(cellLayout) ?
-                LauncherSettings.Favorites.CONTAINER_HOTSEAT :
-                    LauncherSettings.Favorites.CONTAINER_DESKTOP;
+        final int container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
         final int screenId = getIdForScreen(cellLayout);
-        if (!mLauncher.isHotseatLayout(cellLayout)
-                && screenId != getScreenIdForPageIndex(mCurrentPage)
+        if (screenId != getScreenIdForPageIndex(mCurrentPage)
                 && !mLauncher.isInState(SPRING_LOADED)) {
             snapToPage(getPageIndexForScreenId(screenId));
         }
@@ -2876,7 +2834,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
      * Returns a specific CellLayout
      */
     CellLayout getParentCellLayoutForView(View v) {
-        for (CellLayout layout : getWorkspaceAndHotseatCellLayouts()) {
+        for (CellLayout layout : getWorkspaceCellLayouts()) {
             if (layout.getShortcutsAndWidgets().indexOfChild(v) > -1) {
                 return layout;
             }
@@ -2887,15 +2845,9 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     /**
      * Returns a list of all the CellLayouts on the Homescreen.
      */
-    private CellLayout[] getWorkspaceAndHotseatCellLayouts() {
+    private CellLayout[] getWorkspaceCellLayouts() {
         int screenCount = getChildCount();
-        final CellLayout[] layouts;
-        if (mLauncher.getHotseat() != null) {
-            layouts = new CellLayout[screenCount + 1];
-            layouts[screenCount] = mLauncher.getHotseat();
-        } else {
-            layouts = new CellLayout[screenCount];
-        }
+        final CellLayout[] layouts = new CellLayout[screenCount];
         for (int screen = 0; screen < screenCount; screen++) {
             layouts[screen] = (CellLayout) getChildAt(screen);
         }
@@ -2930,14 +2882,14 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             return false;
         };
 
-        // Order: App icons, app in folder. Items in hotseat get returned first.
+        // Order: App icons, app in folder.
         if (ADAPTIVE_ICON_WINDOW_ANIM.get()) {
-            return getFirstMatch(new CellLayout[] { getHotseat(), currentPage },
+            return getFirstMatch(new CellLayout[] { currentPage },
                     packageAndUserAndApp, packageAndUserAndAppInFolder);
         } else {
             // Do not use Folder as a criteria, since it'll cause a crash when trying to draw
             // FolderAdaptiveIcon as the background.
-            return getFirstMatch(new CellLayout[] { getHotseat(), currentPage },
+            return getFirstMatch(new CellLayout[] { currentPage },
                     packageAndUserAndApp);
         }
     }
@@ -3020,7 +2972,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
      * shortcuts are not removed.
      */
     public void removeItemsByMatcher(final ItemInfoMatcher matcher) {
-        for (final CellLayout layoutParent: getWorkspaceAndHotseatCellLayouts()) {
+        for (final CellLayout layoutParent: getWorkspaceCellLayouts()) {
             final ViewGroup layout = layoutParent.getShortcutsAndWidgets();
 
             IntSparseArrayMap<View> idToViewMap = new IntSparseArrayMap<>();
@@ -3079,7 +3031,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
      * @param op the operator to map over the shortcuts
      */
     public void mapOverItems(ItemOperator op) {
-        for (CellLayout layout : getWorkspaceAndHotseatCellLayouts()) {
+        for (CellLayout layout : getWorkspaceCellLayouts()) {
             if (mapOverCellLayout(layout, op)) {
                 return;
             }
@@ -3289,10 +3241,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         target.gridY = info.cellY;
         target.pageIndex = getCurrentPage();
         targetParent.containerType = ContainerType.WORKSPACE;
-        if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            target.rank = info.rank;
-            targetParent.containerType = ContainerType.HOTSEAT;
-        } else if (info.container >= 0) {
+        if (info.container >= 0) {
             targetParent.containerType = ContainerType.FOLDER;
         }
     }

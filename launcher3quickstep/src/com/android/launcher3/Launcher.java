@@ -183,12 +183,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private static final float BOUNCE_ANIMATION_TENSION = 1.3f;
 
-    /**
-     * IntentStarter uses request codes starting with this. This must be greater than all activity
-     * request codes used internally.
-     */
-    protected static final int REQUEST_LAST = 100;
-
     // Type: int
     private static final String RUNTIME_STATE_CURRENT_SCREEN = "launcher.current_screen";
     // Type: int
@@ -231,9 +225,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private LauncherAppWidgetHost mAppWidgetHost;
 
     private final int[] mTmpAddItemCellCoordinates = new int[2];
-
-    @Thunk
-    Hotseat mHotseat;
 
     private DropTargetBar mDropTargetBar;
 
@@ -522,7 +513,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         mRotationHelper.updateRotationAnimation();
         onDeviceProfileInitiated();
-        mModelWriter = mModel.getWriter(getWallpaperDeviceProfile().isVerticalBarLayout(), true);
+        mModelWriter = mModel.getWriter(true);
     }
 
     public void updateInsets(Rect insets) {
@@ -1105,7 +1096,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mWorkspace = mDragLayer.findViewById(R.id.workspace);
         mWorkspace.initParentViews(mDragLayer);
         mOverviewPanel = findViewById(R.id.overview_panel);
-        mHotseat = findViewById(R.id.hotseat);
 
         mLauncherView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -1341,10 +1331,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public Workspace getWorkspace() {
         return mWorkspace;
-    }
-
-    public Hotseat getHotseat() {
-        return mHotseat;
     }
 
     public <T extends View> T getOverviewPanel() {
@@ -1860,17 +1846,11 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return success;
     }
 
-    boolean isHotseatLayout(View layout) {
-        // TODO: Remove this method
-        return mHotseat != null && (layout == mHotseat);
-    }
-
     /**
      * Returns the CellLayout of the specified container at the specified screen.
      */
     public CellLayout getCellLayout(int container, int screenId) {
-        return (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT)
-                ? mHotseat : mWorkspace.getScreenWithId(screenId);
+        return mWorkspace.getScreenWithId(screenId);
     }
 
     @Override
@@ -1956,9 +1936,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mWorkspace.removeAllWorkspaceScreens();
         mAppWidgetHost.clearViews();
 
-        if (mHotseat != null) {
-            mHotseat.resetLayout(getWallpaperDeviceProfile().isVerticalBarLayout());
-        }
         TraceHelper.endSection("startBinding");
     }
 
@@ -2039,12 +2016,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         int end = items.size();
         for (int i = 0; i < end; i++) {
             final ItemInfo item = items.get(i);
-
-            // Short circuit if we are loading dock items for a configuration which has no dock
-            if (item.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT &&
-                    mHotseat == null) {
-                continue;
-            }
 
             final View view;
             switch (item.itemType) {
@@ -2422,7 +2393,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
      * A package was uninstalled/updated.  We take both the super set of packageNames
      * in addition to specific applications to remove, the reason being that
      * this can be called when a package is updated as well.  In that scenario,
-     * we only remove specific components from the workspace and hotseat, where as
+     * we only remove specific components from the workspace, where as
      * package-removal should clear all items by package name.
      */
     @Override
@@ -2462,15 +2433,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                     if (tag != null) {
                         writer.println(prefix + "    " + tag.toString());
                     }
-                }
-            }
-
-            writer.println(prefix + "  Hotseat");
-            ViewGroup layout = mHotseat.getShortcutsAndWidgets();
-            for (int j = 0; j < layout.getChildCount(); j++) {
-                Object tag = layout.getChildAt(j).getTag();
-                if (tag != null) {
-                    writer.println(prefix + "    " + tag.toString());
                 }
             }
         }

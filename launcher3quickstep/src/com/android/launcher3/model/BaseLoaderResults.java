@@ -200,9 +200,6 @@ public abstract class BaseLoaderResults {
                 } else {
                     otherScreenItems.add(info);
                 }
-            } else if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-                currentScreenItems.add(info);
-                itemsOnScreen.add(info.id);
             } else {
                 if (itemsOnScreen.contains(info.container)) {
                     currentScreenItems.add(info);
@@ -232,10 +229,6 @@ public abstract class BaseLoaderResults {
                             int rr = (rhs.screenId * screenCellCount +
                                     rhs.cellY * screenCols + rhs.cellX);
                             return Integer.compare(lr, rr);
-                        }
-                        case LauncherSettings.Favorites.CONTAINER_HOTSEAT: {
-                            // We currently use the screen id as the rank
-                            return Integer.compare(lhs.screenId, rhs.screenId);
                         }
                         default:
                             if (FeatureFlags.IS_DOGFOOD_BUILD) {

@@ -42,7 +42,6 @@
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Felvételhez tartsa nyomva a parancsikont."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Parancsikon felvételéhez koppintson rá duplán és tartsa nyomva, vagy használjon egyéni műveleteket."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Nincs több hely ezen a kezdőképernyőn."</string>
-    <string name="hotseat_out_of_space" msgid="7448809638125333693">"Nincs több hely a Kedvencek tálcán"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Alkalmazások listája"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"Személyes alkalmazások listája"</string>
     <string name="all_apps_button_work_label" msgid="7270707118948892488">"Munkahelyi alkalmazások listája"</string>
@@ -109,7 +108,6 @@
     <string name="action_move" msgid="4339390619886385032">"Elem mozgatása"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"Áthelyezés ide: <xliff:g id="NUMBER_0">%1$s</xliff:g>. sor, <xliff:g id="NUMBER_1">%2$s</xliff:g>. oszlop"</string>
     <string name="move_to_position" msgid="6750008980455459790">"Áthelyezés a(z) <xliff:g id="NUMBER">%1$s</xliff:g>. pozícióba"</string>
-    <string name="move_to_hotseat_position" msgid="6295412897075147808">"Áthelyezés a kedvencek <xliff:g id="NUMBER">%1$s</xliff:g>. pozíciójába"</string>
     <string name="item_moved" msgid="4606538322571412879">"Elem áthelyezve"</string>
     <string name="add_to_folder" msgid="9040534766770853243">"Hozzáadás a(z) <xliff:g id="NAME">%1$s</xliff:g> mappához"</string>
     <string name="add_to_folder_with_app" msgid="4534929978967147231">"Hozzáadás a mappához a következővel: <xliff:g id="NAME">%1$s</xliff:g>"</string>

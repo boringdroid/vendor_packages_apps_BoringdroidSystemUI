@@ -18,10 +18,6 @@ package com.android.launcher3.graphics;
 
 import static android.view.View.VISIBLE;
 
-import static com.android.launcher3.LauncherState.HOTSEAT_ICONS;
-import static com.android.launcher3.LauncherState.OVERVIEW;
-
-import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,10 +40,8 @@ public class OverviewScrim extends Scrim {
         onExtractedColorsChanged(mWallpaperColorInfo);
     }
 
-    public void onInsetsChanged(Rect insets) {
-        mStableScrimmedView = (OVERVIEW.getVisibleElements(mLauncher) & HOTSEAT_ICONS) != 0
-                ? mLauncher.getHotseat()
-                : mLauncher.getOverviewPanel();
+    public void onInsetsChanged() {
+        mStableScrimmedView = mLauncher.getOverviewPanel();
     }
 
     public void updateCurrentScrimmedView(ViewGroup root) {
