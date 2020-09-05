@@ -63,7 +63,6 @@ import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.model.DbDowngradeHelper;
 import com.android.launcher3.provider.LauncherDbUtils;
 import com.android.launcher3.provider.LauncherDbUtils.SQLiteTransaction;
-import com.android.launcher3.provider.RestoreDbTask;
 import com.android.launcher3.util.IOUtils;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
@@ -155,16 +154,6 @@ public class LauncherProvider extends ContentProvider {
     protected synchronized void createDbIfNotExists() {
         if (mOpenHelper == null) {
             mOpenHelper = new DatabaseHelper(getContext(), mListenerHandler);
-
-            if (RestoreDbTask.isPending(getContext())) {
-                if (!RestoreDbTask.performRestore(getContext(), mOpenHelper,
-                        new BackupManager(getContext()))) {
-                    mOpenHelper.createEmptyDB(mOpenHelper.getWritableDatabase());
-                }
-                // Set is pending to false irrespective of the result, so that it doesn't get
-                // executed again.
-                RestoreDbTask.setPending(getContext(), false);
-            }
         }
     }
 

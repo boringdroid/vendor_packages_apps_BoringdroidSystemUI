@@ -6,8 +6,8 @@ import android.app.backup.BackupDataOutput;
 import android.os.ParcelFileDescriptor;
 
 import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.provider.RestoreDbTask;
 
+// TODO remove it
 public class LauncherBackupAgent extends BackupAgent {
 
     @Override
@@ -31,6 +31,5 @@ public class LauncherBackupAgent extends BackupAgent {
 
     @Override
     public void onRestoreFinished() {
-        RestoreDbTask.setPending(this, true);
     }
 }

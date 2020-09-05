@@ -77,7 +77,6 @@ import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.logging.EventLogArray;
 import com.android.launcher3.logging.UserEventDispatcher;
 import com.android.launcher3.model.AppLaunchTracker;
-import com.android.launcher3.provider.RestoreDbTask;
 import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.util.DefaultDisplay;
 import com.android.quickstep.SysUINavigationMode.Mode;
@@ -764,12 +763,6 @@ public class TouchInteractionService extends Service implements
         }
         if (!mMode.hasGestures && !mOverviewComponentObserver.isHomeAndOverviewSame()) {
             // Prevent the overview from being started before the real home on first boot.
-            return;
-        }
-
-        if (RestoreDbTask.isPending(this)) {
-            // Preloading while a restore is pending may cause launcher to start the restore
-            // too early.
             return;
         }
 
