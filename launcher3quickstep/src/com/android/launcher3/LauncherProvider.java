@@ -50,12 +50,9 @@ import android.os.Message;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.BaseColumns;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Xml;
 
-import com.android.launcher3.AutoInstallsLayout.LayoutParserCallback;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
@@ -63,7 +60,6 @@ import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.model.DbDowngradeHelper;
 import com.android.launcher3.provider.LauncherDbUtils;
 import com.android.launcher3.provider.LauncherDbUtils.SQLiteTransaction;
-import com.android.launcher3.util.IOUtils;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.NoLocaleSQLiteHelper;
@@ -71,13 +67,9 @@ import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.Preconditions;
 import com.android.launcher3.util.Thunk;
 
-import org.xmlpull.v1.XmlPullParser;
-
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -378,7 +370,6 @@ public class LauncherProvider extends ContentProvider {
                 return null;
             }
             case LauncherSettings.Settings.METHOD_LOAD_DEFAULT_FAVORITES: {
-                loadDefaultFavoritesIfNecessary();
                 return null;
             }
             case LauncherSettings.Settings.METHOD_REMOVE_GHOST_WIDGETS: {
@@ -444,117 +435,9 @@ public class LauncherProvider extends ContentProvider {
     }
 
     /**
-     * Loads the default workspace based on the following priority scheme:
-     *   1) From the app restrictions
-     *   2) From a package provided by play store
-     *   3) From a partner configuration APK, already in the system image
-     *   4) The default configuration for the particular device
-     */
-    synchronized private void loadDefaultFavoritesIfNecessary() {
-        SharedPreferences sp = Utilities.getPrefs(getContext());
-
-        if (sp.getBoolean(EMPTY_DATABASE_CREATED, false)) {
-            Log.d(TAG, "loading default workspace");
-
-            AppWidgetHost widgetHost = mOpenHelper.newLauncherWidgetHost();
-            AutoInstallsLayout loader = createWorkspaceLoaderFromAppRestriction(widgetHost);
-            if (loader == null) {
-                loader = AutoInstallsLayout.get(getContext(),widgetHost, mOpenHelper);
-            }
-            if (loader == null) {
-                final Partner partner = Partner.get(getContext().getPackageManager());
-                if (partner != null && partner.hasDefaultLayout()) {
-                    final Resources partnerRes = partner.getResources();
-                    int workspaceResId = partnerRes.getIdentifier(Partner.RES_DEFAULT_LAYOUT,
-                            "xml", partner.getPackageName());
-                    if (workspaceResId != 0) {
-                        loader = new DefaultLayoutParser(getContext(), widgetHost,
-                                mOpenHelper, partnerRes, workspaceResId);
-                    }
-                }
-            }
-
-            final boolean usingExternallyProvidedLayout = loader != null;
-            if (loader == null) {
-                loader = getDefaultLayoutParser(widgetHost);
-            }
-
-            // There might be some partially restored DB items, due to buggy restore logic in
-            // previous versions of launcher.
-            mOpenHelper.createEmptyDB(mOpenHelper.getWritableDatabase());
-            // Populate favorites table with initial favorites
-            if ((mOpenHelper.loadFavorites(mOpenHelper.getWritableDatabase(), loader) <= 0)
-                    && usingExternallyProvidedLayout) {
-                // Unable to load external layout. Cleanup and load the internal layout.
-                mOpenHelper.createEmptyDB(mOpenHelper.getWritableDatabase());
-                mOpenHelper.loadFavorites(mOpenHelper.getWritableDatabase(),
-                        getDefaultLayoutParser(widgetHost));
-            }
-            clearFlagEmptyDbCreated();
-        }
-    }
-
-    /**
-     * Creates workspace loader from an XML resource listed in the app restrictions.
-     *
-     * @return the loader if the restrictions are set and the resource exists; null otherwise.
-     */
-    private AutoInstallsLayout createWorkspaceLoaderFromAppRestriction(AppWidgetHost widgetHost) {
-        Context ctx = getContext();
-        InvariantDeviceProfile grid = LauncherAppState.getIDP(ctx);
-
-        String authority = Settings.Secure.getString(ctx.getContentResolver(),
-                "launcher3.layout.provider");
-        if (TextUtils.isEmpty(authority)) {
-            return null;
-        }
-
-        ProviderInfo pi = ctx.getPackageManager().resolveContentProvider(authority, 0);
-        if (pi == null) {
-            Log.e(TAG, "No provider found for authority " + authority);
-            return null;
-        }
-        Uri uri = new Uri.Builder().scheme("content").authority(authority).path("launcher_layout")
-                .appendQueryParameter("version", "1")
-                .appendQueryParameter("gridWidth", Integer.toString(grid.numColumns))
-                .appendQueryParameter("gridHeight", Integer.toString(grid.numRows))
-                .appendQueryParameter("hotseatSize", Integer.toString(grid.numHotseatIcons))
-                .build();
-
-        try (InputStream in = ctx.getContentResolver().openInputStream(uri)) {
-            // Read the full xml so that we fail early in case of any IO error.
-            String layout = new String(IOUtils.toByteArray(in));
-            XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(new StringReader(layout));
-
-            Log.d(TAG, "Loading layout from " + authority);
-            return new AutoInstallsLayout(ctx, widgetHost, mOpenHelper,
-                    ctx.getPackageManager().getResourcesForApplication(pi.applicationInfo),
-                    () -> parser, AutoInstallsLayout.TAG_WORKSPACE);
-        } catch (Exception e) {
-            Log.e(TAG, "Error getting layout stream from: " + authority , e);
-            return null;
-        }
-    }
-
-    private DefaultLayoutParser getDefaultLayoutParser(AppWidgetHost widgetHost) {
-        InvariantDeviceProfile idp = LauncherAppState.getIDP(getContext());
-        int defaultLayout = idp.defaultLayoutId;
-
-        UserManagerCompat um = UserManagerCompat.getInstance(getContext());
-        if (um.isDemoUser() && idp.demoModeLayoutId != 0) {
-            defaultLayout = idp.demoModeLayoutId;
-        }
-
-        return new DefaultLayoutParser(getContext(), widgetHost,
-                mOpenHelper, getContext().getResources(), defaultLayout);
-    }
-
-    /**
      * The class is subclassed in tests to create an in-memory db.
      */
     public static class DatabaseHelper extends NoLocaleSQLiteHelper implements LayoutParserCallback {
-        private final BackupManager mBackupManager;
         private final Handler mWidgetHostResetHandler;
         private final Context mContext;
         private int mMaxItemId = -1;
@@ -584,7 +467,6 @@ public class LauncherProvider extends ContentProvider {
             super(context, tableName, SCHEMA_VERSION);
             mContext = context;
             mWidgetHostResetHandler = widgetHostResetHandler;
-            mBackupManager = new BackupManager(mContext);
         }
 
         protected void initIds() {
@@ -972,16 +854,6 @@ public class LauncherProvider extends ContentProvider {
             return getMaxId(db, "SELECT MAX(%1$s) FROM %2$s WHERE %3$s = %4$d",
                     Favorites.SCREEN, Favorites.TABLE_NAME, Favorites.CONTAINER,
                     Favorites.CONTAINER_DESKTOP);
-        }
-
-        @Thunk int loadFavorites(SQLiteDatabase db, AutoInstallsLayout loader) {
-            // TODO: Use multiple loaders with fall-back and transaction.
-            int count = loader.loadLayout(db, new IntArray());
-
-            // Ensure that the max ids are initialized
-            mMaxItemId = initializeMaxItemId(db);
-            mMaxScreenId = initializeMaxScreenId(db);
-            return count;
         }
     }
 
