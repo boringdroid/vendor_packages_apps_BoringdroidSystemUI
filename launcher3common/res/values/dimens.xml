@@ -16,8 +16,6 @@
 
 <resources>
 
-    <dimen name="click_shadow_elevation">4dp</dimen>
-
     <!-- Dynamic Grid -->
     <dimen name="dynamic_grid_edge_margin">8dp</dimen>
     <dimen name="dynamic_grid_page_indicator_line_height">1dp</dimen>
@@ -37,7 +35,6 @@
     <dimen name="dynamic_grid_hotseat_side_padding">0dp</dimen>
 
     <!-- Hotseat/all-apps scrim -->
-    <dimen name="all_apps_scrim_blur">4dp</dimen>
     <dimen name="vertical_drag_handle_size">24dp</dimen>
     <dimen name="vertical_drag_handle_overlap_workspace">0dp</dimen>
 
@@ -54,7 +51,6 @@
     <dimen name="fastscroll_track_max_width">8dp</dimen>
     <dimen name="fastscroll_thumb_padding">1dp</dimen>
     <dimen name="fastscroll_thumb_height">52dp</dimen>
-    <dimen name="fastscroll_thumb_touch_inset">-24dp</dimen>
 
     <dimen name="fastscroll_popup_width">75dp</dimen>
     <dimen name="fastscroll_popup_height">62dp</dimen>
@@ -86,9 +82,6 @@
     <dimen name="all_apps_divider_height">1dp</dimen>
 
 <!-- Search bar in All Apps -->
-    <dimen name="all_apps_header_max_elevation">3dp</dimen>
-    <dimen name="all_apps_header_scroll_to_elevation">16dp</dimen>
-    <dimen name="all_apps_header_shadow_height">6dp</dimen>
 
     <dimen name="all_apps_divider_margin_vertical">8dp</dimen>
 
@@ -108,15 +101,11 @@
     <dimen name="widget_section_horizontal_padding">16dp</dimen>
     <dimen name="widget_section_indent">0dp</dimen>
 
-    <dimen name="widget_row_padding">8dp</dimen>
     <dimen name="widget_row_divider">2dp</dimen>
 
     <!-- Padding applied to shortcut previews -->
-    <dimen name="shortcut_preview_padding_left">0dp</dimen>
-    <dimen name="shortcut_preview_padding_right">0dp</dimen>
-    <dimen name="shortcut_preview_padding_top">0dp</dimen>
 
-<!-- Dragging -->
+    <!-- Dragging -->
     <!-- Drag padding to add to the bottom of drop targets -->
     <dimen name="drop_target_drag_padding">14dp</dimen>
     <dimen name="drop_target_text_size">14sp</dimen>
@@ -146,15 +135,12 @@
 <!-- Sizes for managed profile badges -->
     <dimen name="profile_badge_size">24dp</dimen>
     <dimen name="profile_badge_margin">5dp</dimen>
-    <dimen name="profile_badge_minimum_top">2dp</dimen>
 
-<!-- Shadows and outlines -->
+    <!-- Shadows and outlines -->
     <dimen name="blur_size_thin_outline">1dp</dimen>
     <dimen name="blur_size_medium_outline">2dp</dimen>
-    <dimen name="blur_size_click_shadow">4dp</dimen>
-    <dimen name="click_shadow_high_shift">2dp</dimen>
 
-<!-- Pending widget -->
+    <!-- Pending widget -->
     <dimen name="pending_widget_min_padding">8dp</dimen>
     <dimen name="pending_widget_elevation">2dp</dimen>
 
@@ -202,7 +188,6 @@
     <dimen name="notification_main_height">84dp</dimen>
     <dimen name="notification_footer_height">32dp</dimen>
     <!-- How much space to keep as padding for the last notification when the footer collapses -->
-    <dimen name="notification_empty_footer_height">6dp</dimen>
     <dimen name="notification_header_text_size">13sp</dimen>
     <dimen name="notification_header_count_text_size">12sp</dimen>
     <dimen name="notification_main_title_size">16sp</dimen>
@@ -215,9 +200,8 @@
     <!-- arrow_horizontal_offset_start - (ellipsis_size - arrow_width) / 2 -->
     <dimen name="horizontal_ellipsis_offset">19dp</dimen>
     <dimen name="popup_item_divider_height">0.5dp</dimen>
-    <dimen name="swipe_helper_falsing_threshold">70dp</dimen>
 
-<!-- Overview -->
+    <!-- Overview -->
     <dimen name="options_menu_icon_size">24dp</dimen>
     <dimen name="options_menu_thumb_size">32dp</dimen>
 

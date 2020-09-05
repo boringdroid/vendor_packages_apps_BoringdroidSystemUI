@@ -20,8 +20,4 @@
 
     <!-- Various configurations to control the simple cache implementation -->
 
-    <dimen name="default_icon_bitmap_size">56dp</dimen>
-    <bool name="simple_cache_enable_im_memory">false</bool>
-    <string name="cache_db_name" translatable="false">app_icons.db</string>
-
 </resources>

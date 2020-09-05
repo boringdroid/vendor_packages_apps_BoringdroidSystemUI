@@ -24,7 +24,6 @@
     <!-- Application name -->
     <string name="app_name">Launcher3</string>
     <!-- Work folder name -->
-    <string name="work_folder_name">Work</string>
     <!-- Displayed when user selects a shortcut for an app that was uninstalled [CHAR_LIMIT=none]-->
     <string name="activity_not_found">App isn\'t installed.</string>
     <!-- Displayed when user selects a shortcut for an app that is current not available [CHAR_LIMIT=none]-->
@@ -211,7 +210,6 @@
     <string name="auto_add_shortcuts_description">For new apps</string>
 
     <!-- Label on an icon that references an uninstalled package, for which we have no information about when it might be installed. [CHAR_LIMIT=15] -->
-    <string name="package_state_unknown">Unknown</string>
 
     <!-- Button for abandoned promises dialog, to removes this abandoned promise icon. -->
     <string name="abandoned_clean_this">Remove</string>

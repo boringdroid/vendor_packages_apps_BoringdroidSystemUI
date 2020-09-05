@@ -20,7 +20,6 @@ import static com.android.launcher3.provider.LauncherDbUtils.dropTable;
 import static com.android.launcher3.provider.LauncherDbUtils.tableExists;
 
 import android.annotation.TargetApi;
-import android.app.backup.BackupManager;
 import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -32,9 +31,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
-import android.content.pm.ProviderInfo;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -814,11 +810,6 @@ public class LauncherProvider extends ContentProvider {
 
         public AppWidgetHost newLauncherWidgetHost() {
             return new LauncherAppWidgetHost(mContext);
-        }
-
-        @Override
-        public int insertAndCheck(SQLiteDatabase db, ContentValues values) {
-            return dbInsertAndCheck(this, db, Favorites.TABLE_NAME, null, values);
         }
 
         public void checkId(ContentValues values) {

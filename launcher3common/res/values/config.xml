@@ -29,7 +29,6 @@
     <integer name="config_workspaceSpringLoadShrinkPercentage">90</integer>
 
     <!-- The duration of the animation from search hint to text entry -->
-    <integer name="config_searchHintAnimationDuration">50</integer>
 
     <!-- View tag key used to store SpringAnimation data. -->
     <item type="id" name="spring_animation_tag" />
@@ -55,9 +54,8 @@
     <integer name="config_dropAnimMaxDist">800</integer>
 
     <!-- The duration of the caret animation -->
-    <integer name="config_caretAnimationDuration">200</integer>
 
-<!-- Hotseat -->
+    <!-- Hotseat -->
     <bool name="hotseat_transpose_layout_with_orientation">true</bool>
 
     <!-- Various classes overriden by projects/build flavors. -->
@@ -95,9 +93,8 @@
     <!-- Popup items -->
     <integer name="config_popupOpenCloseDuration">150</integer>
     <integer name="config_popupArrowOpenCloseDuration">40</integer>
-    <integer name="config_removeNotificationViewDuration">300</integer>
 
-<!-- Accessibility actions -->
+    <!-- Accessibility actions -->
     <item type="id" name="action_remove" />
     <item type="id" name="action_uninstall" />
     <item type="id" name="action_reconfigure" />

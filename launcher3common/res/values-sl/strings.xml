@@ -20,7 +20,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="649227358658669779">"Launcher3"</string>
-    <string name="work_folder_name" msgid="3753320833950115786">"Služba"</string>
     <string name="activity_not_found" msgid="8071924732094499514">"Aplikacija ni nameščena."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Aplikacija ni na voljo"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Prenesena aplikacija je onemogočena v Varnem načinu"</string>
@@ -95,7 +94,6 @@
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Pokaži obvestilne pike"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Dodaj ikono na začetni zaslon"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"Za nove aplikacije"</string>
-    <string name="package_state_unknown" msgid="7592128424511031410">"Neznano"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"Odstrani"</string>
     <string name="abandoned_search" msgid="891119232568284442">"Iskanje"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"Ta aplikacija ni nameščena."</string>

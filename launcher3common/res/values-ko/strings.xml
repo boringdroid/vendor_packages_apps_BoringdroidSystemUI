@@ -20,7 +20,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="649227358658669779">"Launcher3"</string>
-    <string name="work_folder_name" msgid="3753320833950115786">"업무"</string>
     <string name="activity_not_found" msgid="8071924732094499514">"앱이 설치되지 않았습니다."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"앱을 사용할 수 없음"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"다운로드한 앱은 안전 모드에서 사용할 수 없습니다."</string>
@@ -93,7 +92,6 @@
     <string name="notification_dots_service_title" msgid="4284221181793592871">"알림 표시 점 보기"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"홈 화면에 아이콘 추가"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"새로 설치한 앱에 적용"</string>
-    <string name="package_state_unknown" msgid="7592128424511031410">"알 수 없음"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"삭제"</string>
     <string name="abandoned_search" msgid="891119232568284442">"검색"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"이 앱이 설치되어 있지 않음"</string>

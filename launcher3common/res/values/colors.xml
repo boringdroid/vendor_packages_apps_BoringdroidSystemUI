@@ -25,8 +25,6 @@
 
     <color name="focused_background">#80c6c5c5</color>
 
-    <color name="default_shadow_color_no_alpha">#FF000000</color>
-
     <color name="spring_loaded_panel_color">#40FFFFFF</color>
     <color name="spring_loaded_highlighted_panel_border_color">#FFF</color>
 
