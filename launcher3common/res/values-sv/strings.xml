@@ -67,11 +67,7 @@
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"Format och bakgrunder"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Startinställningar"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Inaktiverat av administratören"</string>
-    <string name="allow_rotation_title" msgid="7728578836261442095">"Tillåt rotering av startskärmen"</string>
-    <string name="allow_rotation_desc" msgid="8662546029078692509">"När mobilen vrids"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Visa aviseringsprickar"</string>
-    <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Lägg till ikonen på startskärmen"</string>
-    <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"För nya appar"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"Ta bort"</string>
     <string name="abandoned_search" msgid="891119232568284442">"Sök"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"Appen är inte installerad"</string>

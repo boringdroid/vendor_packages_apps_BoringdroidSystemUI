@@ -67,11 +67,7 @@
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"സ്‌റ്റൈലുകളും വാൾപേപ്പറുകളും"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"ഹോം ക്രമീകരണം"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"അഡ്മിൻ പ്രവർത്തനരഹിതമാക്കിയിരിക്കുന്നു"</string>
-    <string name="allow_rotation_title" msgid="7728578836261442095">"ഹോം സ്ക്രീൻ തിരിക്കൽ അനുവദിക്കുക"</string>
-    <string name="allow_rotation_desc" msgid="8662546029078692509">"ഫോൺ തിരിച്ച നിലയിലായിരിക്കുമ്പോൾ"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"അറിയിപ്പ് ഡോട്ടുകൾ കാണിക്കുക"</string>
-    <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"ഹോം സ്ക്രീനിലേക്ക് ഐക്കൺ ചേർക്കുക"</string>
-    <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"പുതിയ ആപ്പുകൾക്ക്"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"നീക്കംചെയ്യുക"</string>
     <string name="abandoned_search" msgid="891119232568284442">"തിരയുക"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"ഈ അപ്ലിക്കേഷൻ ഇൻസ്റ്റാളുചെയ്‌തിട്ടില്ല"</string>

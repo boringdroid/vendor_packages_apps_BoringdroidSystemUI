@@ -67,11 +67,7 @@
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"ଶୈଳୀ ଏବଂ ୱାଲ୍‍‍ପେପର୍"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"ହୋମ୍‌ ସେଟିଙ୍ଗ"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"ଆପଣଙ୍କ ଆଡମିନଙ୍କ ଦ୍ୱାରା ଅକ୍ଷମ କରାଯାଇଛି"</string>
-    <string name="allow_rotation_title" msgid="7728578836261442095">"ହୋମ୍‌ ସ୍କ୍ରୀନ୍ ବୁଲାଇବା ଅନୁମତି ଦିଅନ୍ତୁ"</string>
-    <string name="allow_rotation_desc" msgid="8662546029078692509">"ଯେତେବେଳେ ଫୋନକୁ ବୁଲାଯାଇଥାଏ"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ଗୁଡ଼ିକୁ ଦେଖାନ୍ତୁ"</string>
-    <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"ହୋମ୍‌ ସ୍କ୍ରୀନରେ ଆଇକନ୍‌କୁ ଯୋଡ଼ନ୍ତୁ"</string>
-    <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"ନୂଆ ଆପ୍‌ ପାଇଁ"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"ବାହାର କରନ୍ତୁ"</string>
     <string name="abandoned_search" msgid="891119232568284442">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"ଏହି ଆପ୍‌ ଇନଷ୍ଟଲ୍‌ ହୋଇନାହିଁ"</string>

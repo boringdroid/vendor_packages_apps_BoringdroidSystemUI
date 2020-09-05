@@ -67,11 +67,7 @@
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"Стилови и позадине"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Подешавања почетног екрана"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Администратор је онемогућио"</string>
-    <string name="allow_rotation_title" msgid="7728578836261442095">"Дозволи ротацију почетног екрана"</string>
-    <string name="allow_rotation_desc" msgid="8662546029078692509">"Када се телефон ротира"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Приказуј тачке за обавештења"</string>
-    <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Додај икону на почетни екран"</string>
-    <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"За нове апликације"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"Уклони"</string>
     <string name="abandoned_search" msgid="891119232568284442">"Претражи"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"Ова апликација није инсталирана"</string>

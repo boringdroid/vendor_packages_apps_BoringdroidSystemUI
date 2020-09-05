@@ -67,11 +67,7 @@
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"स्टाइल और वॉलपेपर"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"होम पेज की सेटिंग"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"आपके एडमिन ने बंद किया हुआ है"</string>
-    <string name="allow_rotation_title" msgid="7728578836261442095">"होमस्क्रीन घुमाने की अनुमति दें"</string>
-    <string name="allow_rotation_desc" msgid="8662546029078692509">"फ़ोन घुुमाए जाने पर"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"नई सूचनाएं बताने वाला गोल निशान दिखाएं"</string>
-    <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"होम स्क्रीन में आइकॉन जोड़ें"</string>
-    <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"नए ऐप्लिकेशन के लिए"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"निकालें"</string>
     <string name="abandoned_search" msgid="891119232568284442">"सर्च करें"</string>
     <string name="abandoned_promises_title" msgid="7096178467971716750">"यह ऐप्लिकेशन इंस्टॉल नहीं है"</string>

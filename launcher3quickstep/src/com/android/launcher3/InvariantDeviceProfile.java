@@ -19,7 +19,6 @@ package com.android.launcher3;
 import static com.android.launcher3.Utilities.getDevicePrefs;
 import static com.android.launcher3.config.FeatureFlags.APPLY_CONFIG_AT_RUNTIME;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
-import static com.android.launcher3.settings.SettingsActivity.GRID_OPTIONS_PREFERENCE_KEY;
 import static com.android.launcher3.util.PackageManagerHelper.getPackageFilter;
 
 import android.annotation.TargetApi;
@@ -42,7 +41,6 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.launcher3.graphics.IconShape;
@@ -86,6 +84,7 @@ public class InvariantDeviceProfile {
 
     private static final int CONFIG_ICON_MASK_RES_ID = Resources.getSystem().getIdentifier(
             "config_icon_mask", "string", "android");
+    public static final String GRID_OPTIONS_PREFERENCE_KEY = "pref_grid_options";
 
     /**
      * Number of icons per row and column in the workspace.

@@ -172,9 +172,7 @@
 
     <!-- Strings for settings -->
     <!-- Title for Allow Rotation setting. [CHAR LIMIT=50] -->
-    <string name="allow_rotation_title">Allow Home screen rotation</string>
     <!-- Text explaining when the home screen will get rotated. [CHAR LIMIT=100] -->
-    <string name="allow_rotation_desc">When phone is rotated</string>
     <!-- Title for Notification dots setting. Tapping this will link to the system Notifications settings screen where the user can turn off notification dots globally. [CHAR LIMIT=50] -->
     <!-- Text to indicate that the system notification dots setting is on [CHAR LIMIT=100] -->
     <!-- Text to indicate that the system notification dots setting is off [CHAR LIMIT=100] -->
@@ -185,9 +183,7 @@
     <string name="notification_dots_service_title">Show notification dots</string>
 
     <!-- Label for the setting that allows the automatic placement of launcher shortcuts for applications and games installed on the device [CHAR LIMIT=40] -->
-    <string name="auto_add_shortcuts_label">Add icon to Home screen</string>
     <!-- Text description of the setting that allows the automatic placement of launcher shortcuts for applications and games installed on the device [CHAR LIMIT=NONE] -->
-    <string name="auto_add_shortcuts_description">For new apps</string>
 
     <!-- Label on an icon that references an uninstalled package, for which we have no information about when it might be installed. [CHAR_LIMIT=15] -->
 
