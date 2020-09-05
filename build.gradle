@@ -3,12 +3,11 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:4.0.1"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
     }
 }
 
@@ -71,7 +70,6 @@ dependencies {
     compileOnly fileTree(include: ['*.jar'], dir: 'libs/compile')
     implementation fileTree(include: ['*.jar'], dir: 'libs/impl')
     implementation project(':iconloader')
-    implementation project(':launcher3plugin')
     implementation project(':launcher3common')
     implementation project(':launcher3secondarydisplay')
     implementation project(':launcher3quickstep')
