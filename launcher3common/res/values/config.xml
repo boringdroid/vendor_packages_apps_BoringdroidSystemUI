@@ -110,7 +110,6 @@
     <item type="id" name="action_remote_action_shortcut" />
 
 <!-- QSB IDs. DO not change -->
-    <item type="id" name="search_container_workspace" />
     <item type="id" name="search_container_all_apps" />
 
 <!-- Recents -->

@@ -65,7 +65,6 @@ import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
 import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.qsb.QsbContainerView;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.shortcuts.ShortcutKey;
 import com.android.launcher3.util.ComponentKey;
@@ -586,11 +585,8 @@ public class LoaderTask implements Runnable {
                             boolean isSearchWidget = (c.getInt(optionsIndex)
                                     & LauncherAppWidgetInfo.OPTION_SEARCH_WIDGET) != 0;
                             if (isSearchWidget) {
-                                component  = QsbContainerView.getSearchComponentName(context);
-                                if (component == null) {
-                                    c.markDeleted("Discarding SearchWidget without packagename ");
-                                    continue;
-                                }
+                                // TODO remove it
+                                component = null;
                             } else {
                                 component = ComponentName.unflattenFromString(savedProvider);
                             }
