@@ -74,6 +74,7 @@ dependencies {
     implementation project(':launcher3plugin')
     implementation project(':launcher3common')
     implementation project(':launcher3secondarydisplay')
+    implementation project(':launcher3quickstep')
     // Current system use this version, we should keep it.
     implementation group: 'androidx.recyclerview', name: 'recyclerview', version: '1.0.0'
 }
