@@ -66,7 +66,7 @@ public final class TaskViewUtils {
         if (v.getTag() instanceof ItemInfo) {
             ItemInfo itemInfo = (ItemInfo) v.getTag();
             ComponentName componentName = itemInfo.getTargetComponent();
-            int userId = itemInfo.user.getIdentifier();
+            int userId = UserHandleHelper.getIdentifier(itemInfo.user);
             if (componentName != null) {
                 for (int i = 0; i < recentsView.getTaskViewCount(); i++) {
                     TaskView taskView = recentsView.getTaskViewAt(i);

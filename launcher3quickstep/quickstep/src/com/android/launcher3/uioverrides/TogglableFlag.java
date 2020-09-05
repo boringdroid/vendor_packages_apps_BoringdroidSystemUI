@@ -17,11 +17,9 @@
 package com.android.launcher3.uioverrides;
 
 import android.content.Context;
-import android.provider.DeviceConfig;
 import com.android.launcher3.config.BaseFlags.BaseTogglableFlag;
 
 public class TogglableFlag extends BaseTogglableFlag {
-    public static final String NAMESPACE_LAUNCHER = "launcher";
     public static final String TAG = "TogglableFlag";
 
     public TogglableFlag(String key, boolean defaultValue, String description) {
@@ -30,20 +28,11 @@ public class TogglableFlag extends BaseTogglableFlag {
 
     @Override
     public boolean getOverridenDefaultValue(boolean value) {
-        return DeviceConfig.getBoolean(NAMESPACE_LAUNCHER, getKey(), value);
+        return true;
     }
 
     @Override
     public void addChangeListener(Context context, Runnable r) {
-        DeviceConfig.addOnPropertiesChangedListener(
-            NAMESPACE_LAUNCHER,
-            context.getMainExecutor(),
-            (properties) -> {
-                if (!NAMESPACE_LAUNCHER.equals(properties.getNamespace())) {
-                    return;
-                }
-                initialize(context);
-                r.run();
-            });
+        // TODO remove it
     }
 }

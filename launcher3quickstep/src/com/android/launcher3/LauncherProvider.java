@@ -96,7 +96,8 @@ public class LauncherProvider extends ContentProvider {
      */
     public static final int SCHEMA_VERSION = 28;
 
-    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".settings";
+    // TODO check authority
+    public static final String AUTHORITY = "com.android.launcher3.settings";
 
     static final String EMPTY_DATABASE_CREATED = "EMPTY_DATABASE_CREATED";
 

@@ -20,8 +20,6 @@ import static com.android.launcher3.LauncherState.BACKGROUND_APP;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.quickstep.InstantAppResolverImpl.COMPONENT_CLASS_MARKER;
 
-import android.app.prediction.AppPredictor;
-import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
 
@@ -208,13 +206,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
         dispatchOnChange(true);
     }
 
-    public AppPredictor.Callback appPredictorCallback(Client client) {
-        return targets -> {
-            mPredictionServicePredictions[client.ordinal()] = targets;
-            updatePredictionStateAfterCallback();
-        };
-    }
-
     private void dispatchOnChange(boolean changed) {
         PredictionState newState = changed ? parseLastState() :
                 (mPendingState == null ? mCurrentState : mPendingState);
@@ -235,19 +226,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
 
         state.apps = new ArrayList<>();
 
-        List<AppTarget> appTargets = mPredictionServicePredictions[mActiveClient.ordinal()];
-        if (!appTargets.isEmpty()) {
-            for (AppTarget appTarget : appTargets) {
-                ComponentKey key;
-                if (appTarget.getShortcutInfo() != null) {
-                    key = ShortcutKey.fromInfo(appTarget.getShortcutInfo());
-                } else {
-                    key = new ComponentKey(new ComponentName(appTarget.getPackageName(),
-                            appTarget.getClassName()), appTarget.getUser());
-                }
-                state.apps.add(new ComponentKeyMapper(mContext, key, mDynamicItemCache));
-            }
-        }
         updateDependencies(state);
         return state;
     }

@@ -145,7 +145,7 @@ public class RecentTasksList extends TaskStackChangeListener {
     @VisibleForTesting
     ArrayList<Task> loadTasksInBackground(int numTasks,
             boolean loadKeysOnly) {
-        int currentUserId = Process.myUserHandle().getIdentifier();
+        int currentUserId = UserHandleHelper.getIdentifier(Process.myUserHandle());
         ArrayList<Task> allTasks = new ArrayList<>();
         List<ActivityManager.RecentTaskInfo> rawTasks =
                 mActivityManagerWrapper.getRecentTasks(numTasks, currentUserId);

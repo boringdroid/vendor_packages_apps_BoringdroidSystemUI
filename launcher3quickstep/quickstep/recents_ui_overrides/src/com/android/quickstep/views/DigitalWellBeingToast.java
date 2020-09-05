@@ -26,7 +26,6 @@ import android.app.ActivityOptions;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.LauncherApps;
-import android.content.pm.LauncherApps.AppUsageLimit;
 import android.icu.text.MeasureFormat;
 import android.icu.text.MeasureFormat.FormatWidth;
 import android.icu.util.Measure;
@@ -43,6 +42,7 @@ import com.android.launcher3.BaseActivity;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
+import com.android.quickstep.UserHandleHelper;
 import com.android.systemui.shared.recents.model.Task;
 
 import java.time.Duration;
@@ -57,7 +57,6 @@ public final class DigitalWellBeingToast {
 
     private final BaseDraggingActivity mActivity;
     private final TaskView mTaskView;
-    private final LauncherApps mLauncherApps;
 
     private Task mTask;
     private boolean mHasLimit;
@@ -66,7 +65,6 @@ public final class DigitalWellBeingToast {
     public DigitalWellBeingToast(BaseDraggingActivity activity, TaskView taskView) {
         mActivity = activity;
         mTaskView = taskView;
-        mLauncherApps = activity.getSystemService(LauncherApps.class);
     }
 
     private void setTaskFooter(View view) {
@@ -112,27 +110,14 @@ public final class DigitalWellBeingToast {
     public void initialize(Task task) {
         mTask = task;
 
-        if (task.key.userId != UserHandle.myUserId()) {
+        if (task.key.userId != UserHandleHelper.myUserId()) {
             setNoLimit();
             return;
         }
 
         THREAD_POOL_EXECUTOR.execute(() -> {
-            final AppUsageLimit usageLimit = mLauncherApps.getAppUsageLimit(
-                    task.getTopComponent().getPackageName(),
-                    UserHandle.of(task.key.userId));
-
-            final long appUsageLimitTimeMs =
-                    usageLimit != null ? usageLimit.getTotalUsageLimit() : -1;
-            final long appRemainingTimeMs =
-                    usageLimit != null ? usageLimit.getUsageRemaining() : -1;
-
             mTaskView.post(() -> {
-                if (appUsageLimitTimeMs < 0 || appRemainingTimeMs < 0) {
-                    setNoLimit();
-                } else {
-                    setLimit(appUsageLimitTimeMs, appRemainingTimeMs);
-                }
+                setNoLimit();
             });
         });
     }

@@ -46,7 +46,7 @@ public final class TaskUtils {
     public static CharSequence getTitle(Context context, Task task) {
         LauncherAppsCompat launcherAppsCompat = LauncherAppsCompat.getInstance(context);
         PackageManager packageManager = context.getPackageManager();
-        UserHandle user = UserHandle.of(task.key.userId);
+        UserHandle user = UserHandleHelper.of(task.key.userId);
         ApplicationInfo applicationInfo = launcherAppsCompat.getApplicationInfo(
             task.getTopComponent().getPackageName(), 0, user);
         if (applicationInfo == null) {
@@ -61,7 +61,7 @@ public final class TaskUtils {
         final ComponentName cn = taskKey.sourceComponent != null
                 ? taskKey.sourceComponent
                 : taskKey.getComponent();
-        return new ComponentKey(cn, UserHandle.of(taskKey.userId));
+        return new ComponentKey(cn, UserHandleHelper.of(taskKey.userId));
     }
 
 
@@ -76,12 +76,12 @@ public final class TaskUtils {
     }
 
     public static boolean checkCurrentOrManagedUserId(int currentUserId, Context context) {
-        if (currentUserId == UserHandle.myUserId()) {
+        if (currentUserId == UserHandleHelper.myUserId()) {
             return true;
         }
         List<UserHandle> allUsers = UserManagerCompat.getInstance(context).getUserProfiles();
         for (int i = allUsers.size() - 1; i >= 0; i--) {
-            if (currentUserId == allUsers.get(i).getIdentifier()) {
+            if (currentUserId == UserHandleHelper.getIdentifier(allUsers.get(i))) {
                 return true;
             }
         }

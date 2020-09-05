@@ -15,10 +15,6 @@
  */
 package com.android.launcher3.appprediction;
 
-import static android.content.pm.PackageManager.MATCH_INSTANT;
-
-import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -50,6 +46,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
 /**
  * Utility class which loads and caches predicted items like instant apps and shortcuts, before
@@ -220,7 +218,7 @@ public class DynamicItemCache {
         Intent mainIntent = new Intent().setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER).setPackage(pkgName);
         List<ResolveInfo> resolveInfos = pm.queryIntentActivities(
-                mainIntent, MATCH_INSTANT | PackageManager.GET_META_DATA);
+                mainIntent, PackageManager.MATCH_ALL | PackageManager.GET_META_DATA);
         String url = null;
         for (ResolveInfo resolveInfo : resolveInfos) {
             if (resolveInfo.activityInfo.metaData != null

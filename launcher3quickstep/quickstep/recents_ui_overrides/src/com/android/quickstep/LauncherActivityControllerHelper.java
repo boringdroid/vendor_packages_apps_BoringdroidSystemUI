@@ -127,7 +127,7 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
         if (runningTaskView != null && runningTaskView.getTask().key.getComponent() != null) {
             workspaceView = activity.getWorkspace().getFirstMatchForAppClose(
                     runningTaskView.getTask().key.getComponent().getPackageName(),
-                    UserHandle.of(runningTaskView.getTask().key.userId));
+                    UserHandleHelper.of(runningTaskView.getTask().key.userId));
         } else {
             workspaceView = null;
         }

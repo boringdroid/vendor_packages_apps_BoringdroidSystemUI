@@ -81,7 +81,7 @@ public class NormalizedIconLoader extends IconLoader {
             la.setWrapperBackgroundColor(primaryColor);
 
             // User version code O, so that the icon is always wrapped in an adaptive icon container
-            return la.createBadgedIconBitmap(drawable, UserHandle.of(userId),
+            return la.createBadgedIconBitmap(drawable, UserHandleHelper.of(userId),
                     Build.VERSION_CODES.O, isInstantApp);
         }
     }
@@ -93,7 +93,7 @@ public class NormalizedIconLoader extends IconLoader {
                 activityInfo.loadUnbadgedIcon(mContext.getPackageManager()),
                 userId,
                 desc.getPrimaryColor(),
-                activityInfo.applicationInfo.isInstantApp());
+                false);
         return mDrawableFactory.newIcon(mContext, bitmapInfo, activityInfo);
     }
 }

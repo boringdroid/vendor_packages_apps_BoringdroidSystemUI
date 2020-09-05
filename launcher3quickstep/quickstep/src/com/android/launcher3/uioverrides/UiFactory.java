@@ -250,8 +250,7 @@ public class UiFactory extends RecentsUiFactory {
     }
 
     public static Person[] getPersons(ShortcutInfo si) {
-        Person[] persons = si.getPersons();
-        return persons == null ? Utilities.EMPTY_PERSON_ARRAY : persons;
+        return Utilities.EMPTY_PERSON_ARRAY;
     }
 
     /** Closes system windows. */

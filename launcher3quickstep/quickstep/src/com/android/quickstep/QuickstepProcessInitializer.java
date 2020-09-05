@@ -41,8 +41,6 @@ public class QuickstepProcessInitializer extends MainProcessInitializer {
             PackageManager pm = context.getPackageManager();
             pm.setApplicationEnabledSetting(context.getPackageName(),
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0 /* flags */);
-            Log.w(TAG, "Disabling " + BuildConfig.APPLICATION_ID
-                    + ", unable to run in a managed profile");
             return;
         }
 

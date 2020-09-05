@@ -139,7 +139,7 @@ public class RecentsModel extends TaskStackChangeListener {
             return;
         }
 
-        int currentUserId = Process.myUserHandle().getIdentifier();
+        int currentUserId = UserHandleHelper.getIdentifier(Process.myUserHandle());
         if (!checkCurrentOrManagedUserId(currentUserId, mContext)) {
             // Skip if we are not the current user
             return;
