@@ -25,16 +25,12 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherAppWidgetHost;
 import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherProvider;
-import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.LauncherSettings.Settings;
 import com.android.launcher3.Utilities;
@@ -155,30 +151,6 @@ public class ModelWriter {
     }
 
     /**
-     * Move items in the DB to a new <container, screen, cellX, cellY>. We assume that the
-     * cellX, cellY have already been updated on the ItemInfos.
-     */
-    public void moveItemsInDatabase(final ArrayList<ItemInfo> items, int container, int screen) {
-        ArrayList<ContentValues> contentValues = new ArrayList<>();
-        int count = items.size();
-
-        for (int i = 0; i < count; i++) {
-            ItemInfo item = items.get(i);
-            updateItemInfoProps(item, container, screen, item.cellX, item.cellY);
-
-            final ContentValues values = new ContentValues();
-            values.put(Favorites.CONTAINER, item.container);
-            values.put(Favorites.CELLX, item.cellX);
-            values.put(Favorites.CELLY, item.cellY);
-            values.put(Favorites.RANK, item.rank);
-            values.put(Favorites.SCREEN, item.screenId);
-
-            contentValues.add(values);
-        }
-        enqueueDeleteRunnable(new UpdateItemsRunnable(items, contentValues));
-    }
-
-    /**
      * Move and/or resize item in the DB to a new <container, screen, cellX, cellY, spanX, spanY>
      */
     public void modifyItemInDatabase(final ItemInfo item,
@@ -274,25 +246,6 @@ public class ModelWriter {
     }
 
     /**
-     * Remove the specified folder and all its contents from the database.
-     */
-    public void deleteFolderAndContentsFromDatabase(final FolderInfo info) {
-        ModelVerifier verifier = new ModelVerifier();
-
-        enqueueDeleteRunnable(() -> {
-            ContentResolver cr = mContext.getContentResolver();
-            cr.delete(LauncherSettings.Favorites.CONTENT_URI,
-                    LauncherSettings.Favorites.CONTAINER + "=" + info.id, null);
-            mBgDataModel.removeItem(mContext, info.contents);
-            info.contents.clear();
-
-            cr.delete(LauncherSettings.Favorites.getContentUri(info.id), null, null);
-            mBgDataModel.removeItem(mContext, info);
-            verifier.verifyModel();
-        });
-    }
-
-    /**
      * Deletes the widget info and the widget id.
      */
     public void deleteWidgetInfo(final LauncherAppWidgetInfo info, LauncherAppWidgetHost host) {
@@ -369,36 +322,6 @@ public class ModelWriter {
         }
     }
 
-    private class UpdateItemsRunnable extends UpdateItemBaseRunnable {
-        private final ArrayList<ContentValues> mValues;
-        private final ArrayList<ItemInfo> mItems;
-
-        UpdateItemsRunnable(ArrayList<ItemInfo> items, ArrayList<ContentValues> values) {
-            mValues = values;
-            mItems = items;
-        }
-
-        @Override
-        public void run() {
-            ArrayList<ContentProviderOperation> ops = new ArrayList<>();
-            int count = mItems.size();
-            for (int i = 0; i < count; i++) {
-                ItemInfo item = mItems.get(i);
-                final int itemId = item.id;
-                final Uri uri = Favorites.getContentUri(itemId);
-                ContentValues values = mValues.get(i);
-
-                ops.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
-                updateItemArrays(item, itemId);
-            }
-            try {
-                mContext.getContentResolver().applyBatch(LauncherProvider.AUTHORITY, ops);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private abstract class UpdateItemBaseRunnable implements Runnable {
         private final StackTraceElement[] mStackTrace;
         private final ModelVerifier mVerifier = new ModelVerifier();
@@ -412,17 +335,6 @@ public class ModelWriter {
             synchronized (mBgDataModel) {
                 checkItemInfoLocked(itemId, item, mStackTrace);
 
-                if (item.container != Favorites.CONTAINER_DESKTOP) {
-                    // Item is in a folder, make sure this folder exists
-                    if (!mBgDataModel.folders.containsKey(item.container)) {
-                        // An items container is being set to a that of an item which is not in
-                        // the list of Folders.
-                        String msg = "item: " + item + " container being set to: " +
-                                item.container + ", not in the list of folders";
-                        Log.e(TAG, msg);
-                    }
-                }
-
                 // Items are added/removed from the corresponding FolderInfo elsewhere, such
                 // as in Workspace.onDrop. Here, we just add/remove them from the list of items
                 // that are on the desktop, as appropriate
@@ -432,7 +344,6 @@ public class ModelWriter {
                         case Favorites.ITEM_TYPE_APPLICATION:
                         case Favorites.ITEM_TYPE_SHORTCUT:
                         case Favorites.ITEM_TYPE_DEEP_SHORTCUT:
-                        case Favorites.ITEM_TYPE_FOLDER:
                             if (!mBgDataModel.workspaceItems.contains(modelItem)) {
                                 mBgDataModel.workspaceItems.add(modelItem);
                             }

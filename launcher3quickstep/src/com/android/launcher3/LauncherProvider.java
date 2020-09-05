@@ -345,12 +345,6 @@ public class LauncherProvider extends ContentProvider {
                         Utilities.getPrefs(getContext()).getBoolean(EMPTY_DATABASE_CREATED, false));
                 return result;
             }
-            case LauncherSettings.Settings.METHOD_DELETE_EMPTY_FOLDERS: {
-                Bundle result = new Bundle();
-                result.putIntArray(LauncherSettings.Settings.EXTRA_VALUE, deleteEmptyFolders()
-                        .toArray());
-                return result;
-            }
             case LauncherSettings.Settings.METHOD_NEW_ITEM_ID: {
                 Bundle result = new Bundle();
                 result.putInt(LauncherSettings.Settings.EXTRA_VALUE, mOpenHelper.generateNewItemId());
@@ -385,34 +379,6 @@ public class LauncherProvider extends ContentProvider {
             }
         }
         return null;
-    }
-
-    /**
-     * Deletes any empty folder from the DB.
-     * @return Ids of deleted folders.
-     */
-    private IntArray deleteEmptyFolders() {
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        try (SQLiteTransaction t = new SQLiteTransaction(db)) {
-            // Select folders whose id do not match any container value.
-            String selection = LauncherSettings.Favorites.ITEM_TYPE + " = "
-                    + LauncherSettings.Favorites.ITEM_TYPE_FOLDER + " AND "
-                    + LauncherSettings.Favorites._ID +  " NOT IN (SELECT " +
-                            LauncherSettings.Favorites.CONTAINER + " FROM "
-                                + Favorites.TABLE_NAME + ")";
-
-            IntArray folderIds = LauncherDbUtils.queryIntArray(db, Favorites.TABLE_NAME,
-                    Favorites._ID, selection, null, null);
-            if (!folderIds.isEmpty()) {
-                db.delete(Favorites.TABLE_NAME, Utilities.createDbSelectionQuery(
-                        LauncherSettings.Favorites._ID, folderIds), null);
-            }
-            t.commit();
-            return folderIds;
-        } catch (SQLException ex) {
-            Log.e(TAG, ex.getMessage(), ex);
-            return new IntArray();
-        }
     }
 
     /**
@@ -760,19 +726,6 @@ public class LauncherProvider extends ContentProvider {
                     db.execSQL("ALTER TABLE favorites ADD COLUMN rank INTEGER NOT NULL DEFAULT 0;");
                 }
 
-                // Get a map for folder ID to folder width
-                Cursor c = db.rawQuery("SELECT container, MAX(cellX) FROM favorites"
-                        + " WHERE container IN (SELECT _id FROM favorites WHERE itemType = ?)"
-                        + " GROUP BY container;",
-                        new String[] {Integer.toString(LauncherSettings.Favorites.ITEM_TYPE_FOLDER)});
-
-                while (c.moveToNext()) {
-                    db.execSQL("UPDATE favorites SET rank=cellX+(cellY*?) WHERE "
-                            + "container=? AND cellX IS NOT NULL AND cellY IS NOT NULL;",
-                            new Object[] {c.getLong(1) + 1, c.getLong(0)});
-                }
-
-                c.close();
                 t.commit();
             } catch (SQLException ex) {
                 // Old version remains, which means we wipe old data

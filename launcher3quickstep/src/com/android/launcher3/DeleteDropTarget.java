@@ -70,8 +70,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
             return info.screenId >= 0;
         }
 
-        return (info instanceof LauncherAppWidgetInfo)
-                || (info instanceof FolderInfo);
+        return info instanceof LauncherAppWidgetInfo;
     }
 
     @Override

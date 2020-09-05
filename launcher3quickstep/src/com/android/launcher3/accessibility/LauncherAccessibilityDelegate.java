@@ -4,6 +4,7 @@ import static android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK
 
 import static com.android.launcher3.LauncherState.NORMAL;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.DialogInterface;
@@ -24,7 +25,6 @@ import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.ButtonDropTarget;
 import com.android.launcher3.CellLayout;
 import com.android.launcher3.DropTarget.DragObject;
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherAppWidgetInfo;
@@ -36,7 +36,6 @@ import com.android.launcher3.Workspace;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.dragndrop.DragController.DragListener;
 import com.android.launcher3.dragndrop.DragOptions;
-import com.android.launcher3.folder.Folder;
 import com.android.launcher3.keyboard.CustomActionsPopup;
 import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.popup.PopupContainerWithArrow;
@@ -102,10 +101,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
                 launcher.getText(R.string.shortcuts_menu_with_notifications_description)));
     }
 
-    public void addAccessibilityAction(int action, int actionLabel) {
-        mActions.put(action, new AccessibilityAction(action, mLauncher.getText(actionLabel)));
-    }
-
     @Override
     public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(host, info);
@@ -152,8 +147,7 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
             // Support the action unless the item is in a context menu.
             return item.screenId >= 0;
         }
-        return (item instanceof LauncherAppWidgetInfo)
-                || (item instanceof FolderInfo);
+        return item instanceof LauncherAppWidgetInfo;
     }
 
     @Override
@@ -203,10 +197,7 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
             });
             return true;
         } else if (action == MOVE_TO_WORKSPACE) {
-            Folder folder = Folder.getOpen(mLauncher);
-            folder.close(true);
             WorkspaceItemInfo info = (WorkspaceItemInfo) item;
-            folder.getInfo().remove(info, false);
 
             final int[] coordinates = new int[2];
             final int screenId = findSpaceOnWorkspace(item, coordinates);
@@ -293,6 +284,7 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
         return actions;
     }
 
+    @SuppressLint("StringFormatMatches")
     @Thunk void performResizeAction(int action, View host, LauncherAppWidgetInfo info) {
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams) host.getLayoutParams();
         CellLayout layout = (CellLayout) host.getParent().getParent();
@@ -380,9 +372,7 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
         mDragInfo.info = info;
         mDragInfo.item = item;
         mDragInfo.dragType = DragType.ICON;
-        if (info instanceof FolderInfo) {
-            mDragInfo.dragType = DragType.FOLDER;
-        } else if (info instanceof LauncherAppWidgetInfo) {
+        if (info instanceof LauncherAppWidgetInfo) {
             mDragInfo.dragType = DragType.WIDGET;
         }
 

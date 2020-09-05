@@ -33,10 +33,7 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragOptions;
-import com.android.launcher3.folder.Folder;
 import com.android.launcher3.testing.TestProtocol;
-
-import java.util.Arrays;
 
 /**
  * Class to handle long-clicks on workspace items and start drag as a result.
@@ -62,18 +59,6 @@ public class ItemLongClickListener {
 
     public static void beginDrag(View v, Launcher launcher, ItemInfo info,
             DragOptions dragOptions) {
-        if (info.container >= 0) {
-            Folder folder = Folder.getOpen(launcher);
-            if (folder != null) {
-                if (!folder.getIconsInReadingOrder().contains(v)) {
-                    folder.close(true);
-                } else {
-                    folder.startDrag(v, dragOptions);
-                    return;
-                }
-            }
-        }
-
         CellLayout.CellInfo longClickCellInfo = new CellLayout.CellInfo(v, info);
         launcher.getWorkspace().startDrag(longClickCellInfo, dragOptions);
     }

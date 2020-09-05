@@ -95,9 +95,6 @@ import com.android.launcher3.dot.DotInfo;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.dragndrop.DragView;
-import com.android.launcher3.folder.FolderGridOrganizer;
-import com.android.launcher3.folder.FolderIcon;
-import com.android.launcher3.folder.FolderNameProvider;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.keyboard.CustomActionsPopup;
@@ -548,10 +545,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return mStateManager;
     }
 
-    public FolderNameProvider getFolderNameProvider() {
-        return new FolderNameProvider();
-    }
-
     @Override
     public <T extends View> T findViewById(int id) {
         return mLauncherView.findViewById(id);
@@ -605,16 +598,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     @Override
     public void invalidateParent(ItemInfo info) {
-        if (info.container >= 0) {
-            View folderIcon = getWorkspace().getHomescreenIconByItemId(info.container);
-            if (folderIcon instanceof FolderIcon && folderIcon.getTag() instanceof FolderInfo) {
-                if (new FolderGridOrganizer(getDeviceProfile().inv)
-                        .setFolderInfo((FolderInfo) folderIcon.getTag())
-                        .isItemInPreview(info.rank)) {
-                    folderIcon.invalidate();
-                }
-            }
-        }
     }
 
     /**
@@ -1215,26 +1198,13 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             }
 
             if (!foundCellSpan) {
-                mWorkspace.onNoCellFound(layout);
+                mWorkspace.onNoCellFound();
                 return;
             }
 
             getModelWriter().addItemToDatabase(info, container, screenId, cellXY[0], cellXY[1]);
             mWorkspace.addInScreen(view, info);
-        } else {
-            // Adding a shortcut to a Folder.
-            FolderIcon folderIcon = findFolderIcon(container);
-            if (folderIcon != null) {
-                FolderInfo folderInfo = (FolderInfo) folderIcon.getTag();
-                folderInfo.add(info, args.rank, false);
-            } else {
-                Log.e(TAG, "Could not find folder with id " + container + " to add shortcut.");
-            }
         }
-    }
-
-    public FolderIcon findFolderIcon(final int folderIconId) {
-        return (FolderIcon) mWorkspace.getHomescreenIconByItemId(folderIconId);
     }
 
     /**
@@ -1470,7 +1440,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         super.onDestroy();
 
         unregisterReceiver(mScreenOffReceiver);
-        mWorkspace.removeFolderListeners();
 
         if (mCancelTouchController != null) {
             mCancelTouchController.run();
@@ -1676,23 +1645,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    FolderIcon addFolder(CellLayout layout, int container, final int screenId, int cellX,
-            int cellY) {
-        final FolderInfo folderInfo = new FolderInfo();
-        folderInfo.title = "";
-
-        // Update the model
-        getModelWriter().addItemToDatabase(folderInfo, container, screenId, cellX, cellY);
-
-        // Create the view
-        FolderIcon newFolder = FolderIcon.fromXml(R.layout.folder_icon, this, layout, folderInfo);
-        mWorkspace.addInScreen(newFolder, folderInfo);
-        // Force measure the new folder icon
-        CellLayout parent = mWorkspace.getParentCellLayoutForView(newFolder);
-        parent.getShortcutsAndWidgets().measureChild(newFolder);
-        return newFolder;
-    }
-
     /**
      * Unbinds the view for the specified item, and removes the item and all its children.
      *
@@ -1704,22 +1656,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (itemInfo instanceof WorkspaceItemInfo) {
             // Remove the shortcut from the folder before removing it from launcher
             View folderIcon = mWorkspace.getHomescreenIconByItemId(itemInfo.container);
-            if (folderIcon instanceof FolderIcon) {
-                ((FolderInfo) folderIcon.getTag()).remove((WorkspaceItemInfo) itemInfo, true);
-            } else {
-                mWorkspace.removeWorkspaceItem(v);
-            }
-            if (deleteFromDb) {
-                getModelWriter().deleteItemFromDatabase(itemInfo);
-            }
-        } else if (itemInfo instanceof FolderInfo) {
-            final FolderInfo folderInfo = (FolderInfo) itemInfo;
-            if (v instanceof FolderIcon) {
-                ((FolderIcon) v).removeListeners();
-            }
             mWorkspace.removeWorkspaceItem(v);
             if (deleteFromDb) {
-                getModelWriter().deleteFolderAndContentsFromDatabase(folderInfo);
+                getModelWriter().deleteItemFromDatabase(itemInfo);
             }
         } else if (itemInfo instanceof LauncherAppWidgetInfo) {
             final LauncherAppWidgetInfo widgetInfo = (LauncherAppWidgetInfo) itemInfo;
@@ -1754,7 +1693,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         // Note: There should be at most one log per method call. This is enforced implicitly
         // by using if-else statements.
-        UserEventDispatcher ued = getUserEventDispatcher();
         AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(this);
         if (topView != null && topView.onBackPressed()) {
             // Handled by the floating view.
@@ -2024,12 +1962,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                 case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT: {
                     WorkspaceItemInfo info = (WorkspaceItemInfo) item;
                     view = createShortcut(info);
-                    break;
-                }
-                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER: {
-                    view = FolderIcon.fromXml(R.layout.folder_icon, this,
-                            (ViewGroup) workspace.getChildAt(workspace.getCurrentPage()),
-                            (FolderInfo) item);
                     break;
                 }
                 case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:

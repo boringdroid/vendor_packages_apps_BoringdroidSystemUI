@@ -64,10 +64,7 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.dragndrop.DragLayer;
-import com.android.launcher3.dragndrop.FolderAdaptiveIcon;
-import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.graphics.IconShape;
-import com.android.launcher3.graphics.ShiftedBitmapDrawable;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.popup.SystemShortcut;
 import com.android.launcher3.shortcuts.DeepShortcutView;
@@ -363,8 +360,6 @@ public class FloatingIconView extends View implements
         Rect iconBounds = new Rect();
         if (v instanceof BubbleTextView) {
             ((BubbleTextView) v).getIconBounds(iconBounds);
-        } else if (v instanceof FolderIcon) {
-            ((FolderIcon) v).getPreviewBounds(iconBounds);
         } else {
             iconBounds.set(0, 0, v.getWidth(), v.getHeight());
         }
@@ -411,9 +406,8 @@ public class FloatingIconView extends View implements
                 drawable = originalView.getBackground();
             }
         } else {
-            boolean isFolderIcon = originalView instanceof FolderIcon;
-            int width = isFolderIcon ? originalView.getWidth() : (int) pos.width();
-            int height = isFolderIcon ? originalView.getHeight() : (int) pos.height();
+            int width = (int) pos.width();
+            int height = (int) pos.height();
             if (supportsAdaptiveIcons) {
                 drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
                 if (drawable instanceof AdaptiveIconDrawable) {
@@ -462,8 +456,6 @@ public class FloatingIconView extends View implements
 
         mIsAdaptiveIcon = drawable instanceof AdaptiveIconDrawable;
         if (mIsAdaptiveIcon) {
-            boolean isFolderIcon = drawable instanceof FolderAdaptiveIcon;
-
             AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) drawable;
             Drawable background = adaptiveIcon.getBackground();
             if (background == null) {
@@ -483,9 +475,7 @@ public class FloatingIconView extends View implements
             int blurMargin = mBlurSizeOutline / 2;
             mFinalDrawableBounds.set(0, 0, originalWidth, originalHeight);
 
-            if (!isFolderIcon) {
-                mFinalDrawableBounds.inset(iconOffset - blurMargin, iconOffset - blurMargin);
-            }
+            mFinalDrawableBounds.inset(iconOffset - blurMargin, iconOffset - blurMargin);
             mForeground.setBounds(mFinalDrawableBounds);
             mBackground.setBounds(mFinalDrawableBounds);
 
@@ -493,28 +483,13 @@ public class FloatingIconView extends View implements
 
             if (mBadge != null) {
                 mBadge.setBounds(mStartRevealRect);
-                if (!mIsOpening && !isFolderIcon) {
+                if (!mIsOpening) {
                     DRAWABLE_ALPHA.set(mBadge, 0);
                 }
             }
 
-            if (isFolderIcon) {
-                ((FolderIcon) originalView).getPreviewBounds(sTmpRect);
-                float bgStroke = ((FolderIcon) originalView).getBackgroundStrokeWidth();
-                if (mForeground instanceof ShiftedBitmapDrawable) {
-                    ShiftedBitmapDrawable sbd = (ShiftedBitmapDrawable) mForeground;
-                    sbd.setShiftX(sbd.getShiftX() - sTmpRect.left - bgStroke);
-                    sbd.setShiftY(sbd.getShiftY() - sTmpRect.top - bgStroke);
-                }
-                if (mBadge instanceof ShiftedBitmapDrawable) {
-                    ShiftedBitmapDrawable sbd = (ShiftedBitmapDrawable) mBadge;
-                    sbd.setShiftX(sbd.getShiftX() - sTmpRect.left - bgStroke);
-                    sbd.setShiftY(sbd.getShiftY() - sTmpRect.top - bgStroke);
-                }
-            } else {
-                Utilities.scaleRectAboutCenter(mStartRevealRect,
-                        IconShape.getNormalizationScale());
-            }
+            Utilities.scaleRectAboutCenter(mStartRevealRect,
+                    IconShape.getNormalizationScale());
 
             float aspectRatio = mLauncher.getDeviceProfile().aspectRatio;
             if (mIsVerticalBarLayout) {
@@ -847,7 +822,7 @@ public class FloatingIconView extends View implements
                 }
             });
             fade.play(ObjectAnimator.ofInt(btv.getIcon(), DRAWABLE_ALPHA, 0, 255));
-        } else if (!(originalView instanceof FolderIcon)) {
+        } else {
             fade.play(ObjectAnimator.ofFloat(originalView, ALPHA, 0f, 1f));
         }
 

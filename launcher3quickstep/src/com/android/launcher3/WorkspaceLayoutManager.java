@@ -19,8 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.launcher3.folder.Folder;
-import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.touch.ItemLongClickListener;
 
 public interface WorkspaceLayoutManager {
@@ -78,9 +76,6 @@ public interface WorkspaceLayoutManager {
         }
 
         final CellLayout layout;
-        if (child instanceof FolderIcon) {
-            ((FolderIcon) child).setTextVisible(true);
-        }
         layout = getScreenWithId(screenId);
 
         ViewGroup.LayoutParams genericLp = child.getLayoutParams();
@@ -103,7 +98,7 @@ public interface WorkspaceLayoutManager {
         ItemInfo info = (ItemInfo) child.getTag();
         int childId = info.getViewId();
 
-        boolean markCellsAsOccupied = !(child instanceof Folder);
+        boolean markCellsAsOccupied = true;
         if (!layout.addViewToCellLayout(child, -1, childId, lp, markCellsAsOccupied)) {
             // TODO: This branch occurs when the workspace is adding views
             // outside of the defined grid

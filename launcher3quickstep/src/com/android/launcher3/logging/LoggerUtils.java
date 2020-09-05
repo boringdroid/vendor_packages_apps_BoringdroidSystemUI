@@ -179,9 +179,6 @@ public class LoggerUtils {
                 t.itemType = ItemType.SHORTCUT;
                 t.predictedRank = DEFAULT_PREDICTED_RANK;
                 break;
-            case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
-                t.itemType = ItemType.FOLDER_ICON;
-                break;
             case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
                 t.itemType = ItemType.WIDGET;
                 break;

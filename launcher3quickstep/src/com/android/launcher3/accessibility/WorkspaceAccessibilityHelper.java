@@ -18,12 +18,10 @@ package com.android.launcher3.accessibility;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.CellLayout;
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
@@ -105,8 +103,7 @@ public class WorkspaceAccessibilityHelper extends DragAndDropAccessibilityDelega
             } else if (dragInfo.dragType != DragType.FOLDER) {
                 // For icons, we can consider cells that have another icon or a folder.
                 ItemInfo info = (ItemInfo) child.getTag();
-                if (info instanceof AppInfo || info instanceof FolderInfo ||
-                        info instanceof WorkspaceItemInfo) {
+                if (info instanceof AppInfo || info instanceof WorkspaceItemInfo) {
                     return id;
                 }
             }
@@ -128,8 +125,6 @@ public class WorkspaceAccessibilityHelper extends DragAndDropAccessibilityDelega
             if (info instanceof AppInfo || info instanceof WorkspaceItemInfo) {
                 return mContext.getString(R.string.folder_created);
 
-            } else if (info instanceof FolderInfo) {
-                return mContext.getString(R.string.added_to_folder);
             }
         }
         return "";
@@ -172,22 +167,6 @@ public class WorkspaceAccessibilityHelper extends DragAndDropAccessibilityDelega
         ItemInfo info = (ItemInfo) overChild.getTag();
         if (info instanceof WorkspaceItemInfo) {
             return context.getString(R.string.create_folder_with, info.title);
-        } else if (info instanceof FolderInfo) {
-            if (TextUtils.isEmpty(info.title)) {
-                // Find the first item in the folder.
-                FolderInfo folder = (FolderInfo) info;
-                WorkspaceItemInfo firstItem = null;
-                for (WorkspaceItemInfo shortcut : folder.contents) {
-                    if (firstItem == null || firstItem.rank > shortcut.rank) {
-                        firstItem = shortcut;
-                    }
-                }
-
-                if (firstItem != null) {
-                    return context.getString(R.string.add_to_folder_with_app, firstItem.title);
-                }
-            }
-            return context.getString(R.string.add_to_folder, info.title);
         }
         return "";
     }

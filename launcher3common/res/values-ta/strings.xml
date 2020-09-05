@@ -59,7 +59,6 @@
     <string name="gadget_error_text" msgid="6081085226050792095">"விட்ஜெட்டை ஏற்றுவதில் சிக்கல்"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"அமைவு"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"இது அமைப்பு ஆப்ஸ் என்பதால் நிறுவல் நீக்கம் செய்ய முடியாது."</string>
-    <string name="folder_hint_text" msgid="6617836969016293992">"பெயரிடப்படாத கோப்புறை"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> முடக்கப்பட்டது"</string>
     <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
       <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g> ஆப்ஸில் <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> அறிவிப்புகள் வந்துள்ளன</item>
@@ -68,12 +67,6 @@
     <string name="default_scroll_format" msgid="7475544710230993317">"பக்கம் %1$d / %2$d"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"முகப்புத் திரை %1$d of %2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"புதிய முகப்புத் திரை பக்கம்"</string>
-    <string name="folder_opened" msgid="94695026776264709">"திறக்கப்பட்டக் கோப்புறை, <xliff:g id="WIDTH">%1$d</xliff:g> x <xliff:g id="HEIGHT">%2$d</xliff:g>"</string>
-    <string name="folder_tap_to_close" msgid="4625795376335528256">"கோப்புறையை மூட, தட்டவும்"</string>
-    <string name="folder_tap_to_rename" msgid="4017685068016979677">"மாற்றிய பெயரைச் சேமிக்க, தட்டவும்"</string>
-    <string name="folder_closed" msgid="4100806530910930934">"கோப்புறை மூடப்பட்டது"</string>
-    <string name="folder_renamed" msgid="1794088362165669656">"கோப்புறை <xliff:g id="NAME">%1$s</xliff:g> என மறுபெயரிடப்பட்டது"</string>
-    <string name="folder_name_format" msgid="6629239338071103179">"கோப்புறை: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"விட்ஜெட்கள்"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"வால்பேப்பர்கள்"</string>
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"ஸ்டைல்கள் &amp; வால்பேப்பர்கள்"</string>
@@ -106,11 +99,7 @@
     <string name="undo" msgid="4151576204245173321">"செயல்தவிர்"</string>
     <string name="action_move" msgid="4339390619886385032">"நகர்த்து"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"<xliff:g id="NUMBER_0">%1$s</xliff:g> வரிசை, <xliff:g id="NUMBER_1">%2$s</xliff:g> நெடுவரிசைக்கு நகர்த்து"</string>
-    <string name="move_to_position" msgid="6750008980455459790">"நிலை <xliff:g id="NUMBER">%1$s</xliff:g>க்கு நகர்த்து"</string>
     <string name="item_moved" msgid="4606538322571412879">"உருப்படி நகர்த்தப்பட்டது"</string>
-    <string name="add_to_folder" msgid="9040534766770853243">"இந்தக் கோப்புறையில் சேர்க்கும்: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="add_to_folder_with_app" msgid="4534929978967147231">"<xliff:g id="NAME">%1$s</xliff:g> உள்ள கோப்புறையில் சேர்க்கும்"</string>
-    <string name="added_to_folder" msgid="4793259502305558003">"கோப்புறையில் உருப்படி சேர்க்கப்பட்டது"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"இதனுடன் கோப்புறையை உருவாக்கும்: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="folder_created" msgid="6409794597405184510">"கோப்புறை உருவாக்கப்பட்டது"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"முகப்புத் திரைக்கு நகர்த்து"</string>

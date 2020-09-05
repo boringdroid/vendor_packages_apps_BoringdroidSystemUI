@@ -139,7 +139,6 @@ public class LauncherSettings {
             switch(type) {
                 case ITEM_TYPE_APPLICATION: return "APP";
                 case ITEM_TYPE_SHORTCUT: return "SHORTCUT";
-                case ITEM_TYPE_FOLDER: return "FOLDER";
                 case ITEM_TYPE_APPWIDGET: return "WIDGET";
                 case ITEM_TYPE_CUSTOM_APPWIDGET: return "CUSTOMWIDGET";
                 case ITEM_TYPE_DEEP_SHORTCUT: return "DEEPSHORTCUT";
@@ -185,11 +184,6 @@ public class LauncherSettings {
          * </P>
          */
         public static final String PROFILE_ID = "profileId";
-
-        /**
-         * The favorite is a user created folder
-         */
-        public static final int ITEM_TYPE_FOLDER = 2;
 
         /**
          * The favorite is a widget
@@ -280,8 +274,6 @@ public class LauncherSettings {
 
         public static final String METHOD_CLEAR_EMPTY_DB_FLAG = "clear_empty_db_flag";
         public static final String METHOD_WAS_EMPTY_DB_CREATED = "get_empty_db_flag";
-
-        public static final String METHOD_DELETE_EMPTY_FOLDERS = "delete_empty_folders";
 
         public static final String METHOD_NEW_ITEM_ID = "generate_new_item_id";
         public static final String METHOD_NEW_SCREEN_ID = "generate_new_screen_id";

@@ -16,7 +16,6 @@
 
 package com.android.launcher3;
 
-import static com.android.launcher3.LauncherAnimUtils.OVERVIEW_TRANSITION_MS;
 import static com.android.launcher3.LauncherAnimUtils.SPRING_LOADED_EXIT_DELAY;
 import static com.android.launcher3.LauncherAnimUtils.SPRING_LOADED_TRANSITION_MS;
 import static com.android.launcher3.LauncherSettings.Favorites.ITEM_TYPE_APPLICATION;
@@ -56,7 +55,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
@@ -69,15 +67,11 @@ import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.dot.FolderDotInfo;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.dragndrop.DragOptions;
 import com.android.launcher3.dragndrop.DragView;
 import com.android.launcher3.dragndrop.SpringLoadedDragController;
-import com.android.launcher3.folder.Folder;
-import com.android.launcher3.folder.FolderIcon;
-import com.android.launcher3.folder.PreviewBackground;
 import com.android.launcher3.graphics.DragPreviewProvider;
 import com.android.launcher3.graphics.PreloadIconDrawable;
 import com.android.launcher3.graphics.RotationMode;
@@ -198,8 +192,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     public static final int REORDER_TIMEOUT = 650;
     private final Alarm mFolderCreationAlarm = new Alarm();
     private final Alarm mReorderAlarm = new Alarm();
-    private PreviewBackground mFolderCreateBg;
-    private FolderIcon mDragOverFolderIcon = null;
     private boolean mCreateUserFolderOnDrop = false;
     private boolean mAddToExistingFolderOnDrop = false;
     private float mMaxDistanceForFolderCreation;
@@ -491,7 +483,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         disableLayoutTransitions();
 
         // Remove the pages and clear the screen models
-        removeFolderListeners();
         removeAllViews();
         mScreenOrder.clear();
         mWorkspaceScreens.clear();
@@ -1080,41 +1071,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         return true;
     }
 
-    /**
-     * Runs the given callback when the minus one overlay is hidden. Specifically, it is run
-     * when launcher's window has focus and the overlay is no longer being shown. If a callback
-     * is already present, the new callback will chain off it so both are run.
-     *
-     * @return Whether the callback was deferred.
-     */
-    public boolean runOnOverlayHidden(Runnable callback) {
-        if (mOnOverlayHiddenCallback == null) {
-            mOnOverlayHiddenCallback = callback;
-        } else {
-            // Chain the new callback onto the previous callback(s).
-            Runnable oldCallback = mOnOverlayHiddenCallback;
-            mOnOverlayHiddenCallback = () -> {
-                oldCallback.run();
-                callback.run();
-            };
-        }
-        if (!tryRunOverlayCallback()) {
-            ViewTreeObserver observer = getViewTreeObserver();
-            if (observer != null && observer.isAlive()) {
-                observer.addOnWindowFocusChangeListener(
-                        new ViewTreeObserver.OnWindowFocusChangeListener() {
-                            @Override
-                            public void onWindowFocusChanged(boolean hasFocus) {
-                                if (tryRunOverlayCallback() && observer.isAlive()) {
-                                    observer.removeOnWindowFocusChangeListener(this);
-                                }
-                            }});
-            }
-            return true;
-        }
-        return false;
-    }
-
     @Override
     protected void notifyPageSwitchListener(int prevPage) {
         super.notifyPageSwitchListener(prevPage);
@@ -1311,10 +1267,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         mOutlineProvider = outlineProvider;
     }
 
-    public void snapToPageFromOverView(int whichPage) {
-        snapToPage(whichPage, OVERVIEW_TRANSITION_MS, Interpolators.ZOOM_IN);
-    }
-
     private void onStartStateTransition(LauncherState state) {
         mIsSwitchingState = true;
         mTransitionProgress = 0;
@@ -1465,10 +1417,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             // Note: The dragRect is used to calculate drag layer offsets, but the
             // dragVisualizeOffset in addition to the dragRect (the size) to position the outline.
             dragVisualizeOffset = new Point(- halfPadding, halfPadding);
-        } else if (child instanceof FolderIcon) {
-            int previewSize = grid.folderIconSizePx;
-            dragVisualizeOffset = new Point(- halfPadding, halfPadding - child.getPaddingTop());
-            dragRect = new Rect(0, child.getPaddingTop(), child.getWidth(), previewSize);
         } else if (previewProvider instanceof ShortcutDragPreviewProvider) {
             dragVisualizeOffset = new Point(- halfPadding, halfPadding);
         }
@@ -1564,7 +1512,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
             // Don't accept the drop if there's no room for the item
             if (!foundCell) {
-                onNoCellFound(dropTargetLayout);
+                onNoCellFound();
                 return false;
             }
         }
@@ -1625,12 +1573,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             }
         }
 
-        if (dropOverView instanceof FolderIcon) {
-            FolderIcon fi = (FolderIcon) dropOverView;
-            if (fi.acceptDrop(dragInfo)) {
-                return true;
-            }
-        }
         return false;
     }
 
@@ -1648,7 +1590,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
         if (v == null || hasntMoved || !mCreateUserFolderOnDrop) return false;
         mCreateUserFolderOnDrop = false;
-        final int screenId = getIdForScreen(target);
 
         boolean aboveShortcut = (v.getTag() instanceof WorkspaceItemInfo);
         boolean willBecomeShortcut = (newView.getTag() instanceof WorkspaceItemInfo);
@@ -1661,31 +1602,14 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 getParentCellLayoutForView(mDragInfo.cell).removeView(mDragInfo.cell);
             }
 
-            Rect folderLocation = new Rect();
-            float scale = mLauncher.getDragLayer().getDescendantRectRelativeToSelf(v, folderLocation);
             target.removeView(v);
 
-            FolderIcon fi =
-                mLauncher.addFolder(target, container, screenId, targetCell[0], targetCell[1]);
             destInfo.cellX = -1;
             destInfo.cellY = -1;
             sourceInfo.cellX = -1;
             sourceInfo.cellY = -1;
 
             // If the dragView is null, we can't animate
-            boolean animate = dragView != null;
-            if (animate) {
-                // In order to keep everything continuous, we hand off the currently rendered
-                // folder background to the newly created icon. This preserves animation state.
-                fi.setFolderBackground(mFolderCreateBg);
-                mFolderCreateBg = new PreviewBackground();
-                fi.performCreateAnimation(destInfo, v, sourceInfo, dragView, folderLocation, scale
-                );
-            } else {
-                fi.prepareCreateAnimation(v);
-                fi.addItem(destInfo);
-                fi.addItem(sourceInfo);
-            }
             return true;
         }
         return false;
@@ -1695,22 +1619,9 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             float distance, DragObject d, boolean external) {
         if (distance > mMaxDistanceForFolderCreation) return false;
 
-        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
         if (!mAddToExistingFolderOnDrop) return false;
         mAddToExistingFolderOnDrop = false;
 
-        if (dropOverView instanceof FolderIcon) {
-            FolderIcon fi = (FolderIcon) dropOverView;
-            if (fi.acceptDrop(d.dragInfo)) {
-                fi.onDrop(d, false /* itemReturnedOnFailedDrop */);
-
-                // if the drag started here, we need to remove it from the workspace
-                if (!external) {
-                    getParentCellLayoutForView(mDragInfo.cell).removeView(mDragInfo.cell);
-                }
-                return true;
-            }
-        }
         return false;
     }
 
@@ -1859,7 +1770,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                             lp.cellX, lp.cellY, item.spanX, item.spanY);
                 } else {
                     if (!returnToOriginalCellToPreventShuffling) {
-                        onNoCellFound(dropTargetLayout);
+                        onNoCellFound();
                     }
 
                     // If we can't find a drop location, we return the item to its original position
@@ -1910,22 +1821,9 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         }
     }
 
-    public void onNoCellFound(View dropTargetLayout) {
+    public void onNoCellFound() {
         int strId = R.string.out_of_space;
         Toast.makeText(mLauncher, mLauncher.getString(strId), Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Computes the area relative to dragLayer which is used to display a page.
-     */
-    public void getPageAreaRelativeToDragLayer(Rect outArea) {
-        CellLayout child = (CellLayout) getChildAt(getNextPage());
-        if (child == null) {
-            return;
-        }
-
-        ShortcutAndWidgetContainer boundingLayout = child.getShortcutsAndWidgets();
-        mLauncher.getDragLayer().getDescendantRectRelativeToSelf(boundingLayout, outArea);
     }
 
     @Override
@@ -1939,7 +1837,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
         mDropToLayout = null;
         mDragViewVisualCenter = d.getVisualCenter(mDragViewVisualCenter);
-        setDropLayoutForDragObject(d, mDragViewVisualCenter[0], mDragViewVisualCenter[1]);
+        setDropLayoutForDragObject(d, mDragViewVisualCenter[0]);
     }
 
     @Override
@@ -2024,7 +1922,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     void setDragMode(int dragMode) {
         if (dragMode != mDragMode) {
             if (dragMode == DRAG_MODE_NONE) {
-                cleanupAddToFolder();
                 // We don't want to cancel the re-order alarm every time the target cell changes
                 // as this feels to slow / unresponsive.
                 cleanupReorder(false);
@@ -2033,10 +1930,8 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 cleanupReorder(true);
                 cleanupFolderCreation();
             } else if (dragMode == DRAG_MODE_CREATE_FOLDER) {
-                cleanupAddToFolder();
                 cleanupReorder(true);
             } else if (dragMode == DRAG_MODE_REORDER) {
-                cleanupAddToFolder();
                 cleanupFolderCreation();
             }
             mDragMode = dragMode;
@@ -2044,18 +1939,8 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     }
 
     private void cleanupFolderCreation() {
-        if (mFolderCreateBg != null) {
-            mFolderCreateBg.animateToRest();
-        }
         mFolderCreationAlarm.setOnAlarmListener(null);
         mFolderCreationAlarm.cancelAlarm();
-    }
-
-    private void cleanupAddToFolder() {
-        if (mDragOverFolderIcon != null) {
-            mDragOverFolderIcon.onDragExit();
-            mDragOverFolderIcon = null;
-        }
     }
 
     private void cleanupReorder(boolean cancelAlarm) {
@@ -2086,11 +1971,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
        mapPointFromSelfToChild(layout, xy);
    }
 
-    private boolean isDragWidget(DragObject d) {
-        return (d.dragInfo instanceof LauncherAppWidgetInfo ||
-                d.dragInfo instanceof PendingAddWidgetInfo);
-    }
-
     public void onDragOver(DragObject d) {
         // Skip drag over events while we are dragging over side pages
         if (!transitionStateShouldAllowDrop()) return;
@@ -2108,7 +1988,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         mDragViewVisualCenter = d.getVisualCenter(mDragViewVisualCenter);
 
         final View child = (mDragInfo == null) ? null : mDragInfo.cell;
-        if (setDropLayoutForDragObject(d, mDragViewVisualCenter[0], mDragViewVisualCenter[1])) {
+        if (setDropLayoutForDragObject(d, mDragViewVisualCenter[0])) {
             mSpringLoadedDragController.setAlarm(mDragTargetLayout);
         }
 
@@ -2180,7 +2060,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
      *
      * @return whether the layout is different from the current {@link #mDragTargetLayout}.
      */
-    private boolean setDropLayoutForDragObject(DragObject d, float centerX, float centerY) {
+    private boolean setDropLayoutForDragObject(DragObject d, float centerX) {
         CellLayout layout = null;
         int nextPage = getNextPage();
         if (layout == null && !isPageInTransition()) {
@@ -2259,8 +2139,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
         boolean willAddToFolder = willAddToExistingUserFolder(info, dragOverView);
         if (willAddToFolder && mDragMode == DRAG_MODE_NONE) {
-            mDragOverFolderIcon = ((FolderIcon) dragOverView);
-            mDragOverFolderIcon.onDragEnter(info);
             if (targetLayout != null) {
                 targetLayout.clearDragOutlines();
             }
@@ -2286,23 +2164,13 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         final int cellX;
         final int cellY;
 
-        final PreviewBackground bg = new PreviewBackground();
-
         public FolderCreationAlarmListener(CellLayout layout, int cellX, int cellY) {
             this.layout = layout;
             this.cellX = cellX;
             this.cellY = cellY;
-
-            BubbleTextView cell = (BubbleTextView) layout.getChildAt(cellX, cellY);
-            bg.setup(mLauncher, mLauncher, null, cell.getMeasuredWidth(), cell.getPaddingTop());
-
-            // The full preview background should appear behind the icon
-            bg.isClipping = false;
         }
 
         public void onAlarm(Alarm alarm) {
-            mFolderCreateBg = bg;
-            mFolderCreateBg.animateToAccept(layout, cellX, cellY);
             layout.clearDragOutlines();
             setDragMode(DRAG_MODE_CREATE_FOLDER);
         }
@@ -2476,10 +2344,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                         d.dragInfo = info;
                     }
                     view = mLauncher.createShortcut(cellLayout, (WorkspaceItemInfo) info);
-                    break;
-                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
-                    view = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, cellLayout,
-                            (FolderInfo) info);
                     break;
                 default:
                     throw new IllegalStateException("Unknown item type: " + info.itemType);
@@ -2756,21 +2620,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         });
     }
 
-    /**
-     * Removes all folder listeners
-     */
-    public void removeFolderListeners() {
-        mapOverItems(new ItemOperator() {
-            @Override
-            public boolean evaluate(ItemInfo info, View view) {
-                if (view instanceof FolderIcon) {
-                    ((FolderIcon) view).removeListeners();
-                }
-                return false;
-            }
-        });
-    }
-
     public boolean isDropEnabled() {
         return true;
     }
@@ -2810,10 +2659,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         if (!mIsSwitchingState && workspaceInScrollableState()) {
             result = super.scrollLeft();
         }
-        Folder openFolder = Folder.getOpen(mLauncher);
-        if (openFolder != null) {
-            openFolder.completeDragExit();
-        }
         return result;
     }
 
@@ -2822,10 +2667,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         boolean result = false;
         if (!mIsSwitchingState && workspaceInScrollableState()) {
             result = super.scrollRight();
-        }
-        Folder openFolder = Folder.getOpen(mLauncher);
-        if (openFolder != null) {
-            openFolder.completeDragExit();
         }
         return result;
     }
@@ -2870,17 +2711,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 && info.user.equals(user);
         final Workspace.ItemOperator packageAndUserAndApp = (ItemInfo info, View view) ->
                 packageAndUser.evaluate(info, view) && info.itemType == ITEM_TYPE_APPLICATION;
-        final Workspace.ItemOperator packageAndUserAndAppInFolder = (info, view) -> {
-            if (info instanceof FolderInfo) {
-                FolderInfo folderInfo = (FolderInfo) info;
-                for (WorkspaceItemInfo shortcutInfo : folderInfo.contents) {
-                    if (packageAndUserAndApp.evaluate(shortcutInfo, view)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        };
+        final Workspace.ItemOperator packageAndUserAndAppInFolder = (info, view) -> false;
 
         // Order: App icons, app in folder.
         if (ADAPTIVE_ICON_WINDOW_ANIM.get()) {
@@ -2996,17 +2827,8 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                     if (child instanceof DropTarget) {
                         mDragController.removeDropTarget((DropTarget) child);
                     }
-                } else if (itemToRemove.container >= 0) {
-                    // The item may belong to a folder.
-                    View parent = idToViewMap.get(itemToRemove.container);
-                    if (parent instanceof FolderIcon) {
-                        FolderInfo folderInfo = (FolderInfo) parent.getTag();
-                        folderInfo.remove((WorkspaceItemInfo) itemToRemove, false);
-                        if (((FolderIcon) parent).getFolder().isOpen()) {
-                            ((FolderIcon) parent).getFolder().close(false /* animate */);
-                        }
-                    }
-                }
+                }  // The item may belong to a folder.
+
             }
         }
 
@@ -3065,19 +2887,12 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 boolean oldPromiseState = (oldIcon instanceof PreloadIconDrawable)
                         && ((PreloadIconDrawable) oldIcon).hasNotCompleted();
                 shortcut.applyFromWorkspaceItem(si, si.isPromise() != oldPromiseState);
-            } else if (info instanceof FolderInfo && v instanceof FolderIcon) {
-                ((FolderIcon) v).updatePreviewItems(updates::contains);
             }
-
             // Iterate all items
             return false;
         };
 
         mapOverItems(op);
-        Folder openFolder = Folder.getOpen(mLauncher);
-        if (openFolder != null) {
-            openFolder.iterateOverItems(op);
-        }
     }
 
     public void updateNotificationDots(Predicate<PackageUserKey> updatedDots) {
@@ -3090,26 +2905,12 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                 if (matcher.test(info)) {
                     ((BubbleTextView) v).applyDotState(info, true /* animate */);
                 }
-            } else if (info instanceof FolderInfo && v instanceof FolderIcon) {
-                FolderInfo fi = (FolderInfo) info;
-                if (fi.contents.stream().anyMatch(matcher)) {
-                    FolderDotInfo folderDotInfo = new FolderDotInfo();
-                    for (WorkspaceItemInfo si : fi.contents) {
-                        folderDotInfo.addDotInfo(mLauncher.getDotInfoForItem(si));
-                    }
-                    ((FolderIcon) v).setDotInfo(folderDotInfo);
-                }
             }
-
             // process all the shortcuts
             return false;
         };
 
         mapOverItems(op);
-        Folder folder = Folder.getOpen(mLauncher);
-        if (folder != null) {
-            folder.iterateOverItems(op);
-        }
     }
 
     public void removeAbandonedPromise(String packageName, UserHandle user) {
@@ -3129,17 +2930,10 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
                     && info instanceof LauncherAppWidgetInfo
                     && updates.contains(info)) {
                 ((PendingAppWidgetHostView) v).applyState();
-            } else if (v instanceof FolderIcon && info instanceof FolderInfo) {
-                ((FolderIcon) v).updatePreviewItems(updates::contains);
             }
-            // process all the shortcuts
             return false;
         };
         mapOverItems(op);
-        Folder folder = Folder.getOpen(mLauncher);
-        if (folder != null) {
-            folder.iterateOverItems(op);
-        }
     }
 
     public void widgetsRestored(final ArrayList<LauncherAppWidgetInfo> changedInfo) {

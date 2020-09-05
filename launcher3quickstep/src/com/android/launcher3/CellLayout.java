@@ -53,12 +53,10 @@ import androidx.core.view.ViewCompat;
 
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.accessibility.DragAndDropAccessibilityDelegate;
-import com.android.launcher3.accessibility.FolderAccessibilityHelper;
 import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.folder.PreviewBackground;
 import com.android.launcher3.graphics.DragPreviewProvider;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.CellAndSpan;
@@ -109,9 +107,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     private GridOccupancy mTmpOccupied;
 
     private OnTouchListener mInterceptTouchListener;
-
-    private final ArrayList<PreviewBackground> mFolderBackgrounds = new ArrayList<>();
-    final PreviewBackground mFolderLeaveBehind = new PreviewBackground();
 
     private static final int[] BACKGROUND_STATE_ACTIVE = new int[] { android.R.attr.state_active };
     private static final int[] BACKGROUND_STATE_DEFAULT = EMPTY_STATE_SET;
@@ -218,9 +213,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         mPreviousReorderDirection[0] = INVALID_DIRECTION;
         mPreviousReorderDirection[1] = INVALID_DIRECTION;
 
-        mFolderLeaveBehind.delegateCellX = -1;
-        mFolderLeaveBehind.delegateCellY = -1;
-
         setAlwaysDrawnWithCacheEnabled(false);
         final Resources res = getResources();
 
@@ -302,9 +294,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             if (dragType == WORKSPACE_ACCESSIBILITY_DRAG &&
                     !(mTouchHelper instanceof WorkspaceAccessibilityHelper)) {
                 mTouchHelper = new WorkspaceAccessibilityHelper(this);
-            } else if (dragType == FOLDER_ACCESSIBILITY_DRAG &&
-                    !(mTouchHelper instanceof FolderAccessibilityHelper)) {
-                mTouchHelper = new FolderAccessibilityHelper(this);
             }
             ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
             setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
@@ -464,66 +453,11 @@ public class CellLayout extends ViewGroup implements Transposable {
                 }
             }
         }
-
-        for (int i = 0; i < mFolderBackgrounds.size(); i++) {
-            PreviewBackground bg = mFolderBackgrounds.get(i);
-            cellToPoint(bg.delegateCellX, bg.delegateCellY, mTempLocation);
-            canvas.save();
-            canvas.translate(mTempLocation[0], mTempLocation[1]);
-            bg.drawBackground(canvas);
-            if (!bg.isClipping) {
-                bg.drawBackgroundStroke(canvas);
-            }
-            canvas.restore();
-        }
-
-        if (mFolderLeaveBehind.delegateCellX >= 0 && mFolderLeaveBehind.delegateCellY >= 0) {
-            cellToPoint(mFolderLeaveBehind.delegateCellX,
-                    mFolderLeaveBehind.delegateCellY, mTempLocation);
-            canvas.save();
-            canvas.translate(mTempLocation[0], mTempLocation[1]);
-            mFolderLeaveBehind.drawLeaveBehind(canvas);
-            canvas.restore();
-        }
     }
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-
-        for (int i = 0; i < mFolderBackgrounds.size(); i++) {
-            PreviewBackground bg = mFolderBackgrounds.get(i);
-            if (bg.isClipping) {
-                cellToPoint(bg.delegateCellX, bg.delegateCellY, mTempLocation);
-                canvas.save();
-                canvas.translate(mTempLocation[0], mTempLocation[1]);
-                bg.drawBackgroundStroke(canvas);
-                canvas.restore();
-            }
-        }
-    }
-
-    public void addFolderBackground(PreviewBackground bg) {
-        mFolderBackgrounds.add(bg);
-    }
-    public void removeFolderBackground(PreviewBackground bg) {
-        mFolderBackgrounds.remove(bg);
-    }
-
-    public void setFolderLeaveBehindCell(int x, int y) {
-        View child = getChildAt(x, y);
-        mFolderLeaveBehind.setup(getContext(), mActivity, null,
-                child.getMeasuredWidth(), child.getPaddingTop());
-
-        mFolderLeaveBehind.delegateCellX = x;
-        mFolderLeaveBehind.delegateCellY = y;
-        invalidate();
-    }
-
-    public void clearFolderLeaveBehind() {
-        mFolderLeaveBehind.delegateCellX = -1;
-        mFolderLeaveBehind.delegateCellY = -1;
-        invalidate();
     }
 
     @Override

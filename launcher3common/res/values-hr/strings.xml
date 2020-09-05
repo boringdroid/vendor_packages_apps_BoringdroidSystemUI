@@ -59,7 +59,6 @@
     <string name="gadget_error_text" msgid="6081085226050792095">"Problem pri učitavanju widgeta"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Postavljanje"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Ovo je aplikacija sustava i ne može se ukloniti."</string>
-    <string name="folder_hint_text" msgid="6617836969016293992">"Neimenovana mapa"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> onemogućena"</string>
     <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
       <item quantity="one"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, ima <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> obavijest</item>
@@ -69,12 +68,6 @@
     <string name="default_scroll_format" msgid="7475544710230993317">"Stranica %1$d od %2$d"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"Početni zaslon %1$d od %2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"Nova stranica početnog zaslona"</string>
-    <string name="folder_opened" msgid="94695026776264709">"Mapa je otvorena, <xliff:g id="WIDTH">%1$d</xliff:g> x <xliff:g id="HEIGHT">%2$d</xliff:g>"</string>
-    <string name="folder_tap_to_close" msgid="4625795376335528256">"Dodirnite da biste zatvorili mapu"</string>
-    <string name="folder_tap_to_rename" msgid="4017685068016979677">"Dodirnite da biste spremili promijenjeni naziv"</string>
-    <string name="folder_closed" msgid="4100806530910930934">"Mapa je zatvorena"</string>
-    <string name="folder_renamed" msgid="1794088362165669656">"Mapa je preimenovana u <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="folder_name_format" msgid="6629239338071103179">"Mapa: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Widgeti"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Pozadine"</string>
     <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"Stilovi i pozadine"</string>
@@ -107,11 +100,7 @@
     <string name="undo" msgid="4151576204245173321">"Poništi"</string>
     <string name="action_move" msgid="4339390619886385032">"Premještanje stavke"</string>
     <string name="move_to_empty_cell" msgid="2833711483015685619">"Premještanje u redak <xliff:g id="NUMBER_0">%1$s</xliff:g>, stupac <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
-    <string name="move_to_position" msgid="6750008980455459790">"Premještanje na položaj <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"Stavka premještena"</string>
-    <string name="add_to_folder" msgid="9040534766770853243">"Dodavanje u mapu: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="add_to_folder_with_app" msgid="4534929978967147231">"Dodavanje u mapu s aplikacijom <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="added_to_folder" msgid="4793259502305558003">"Stavka dodana u mapu"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"Izrada mape pomoću stavke: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="folder_created" msgid="6409794597405184510">"Mapa izrađena"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Premještanje na početni zaslon"</string>

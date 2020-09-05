@@ -44,7 +44,6 @@ import android.widget.TextView;
 import com.android.launcher3.Launcher.OnResumeCallback;
 import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.dot.DotInfo;
-import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.graphics.DrawableFactory;
 import com.android.launcher3.graphics.IconPalette;
 import com.android.launcher3.graphics.IconShape;
@@ -493,7 +492,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
     }
 
     public boolean shouldTextBeVisible() {
-        Object tag = getParent() instanceof FolderIcon ? ((View) getParent()).getTag() : getTag();
+        Object tag = getTag();
         ItemInfo info = tag instanceof ItemInfo ? (ItemInfo) tag : null;
         return info == null;
     }

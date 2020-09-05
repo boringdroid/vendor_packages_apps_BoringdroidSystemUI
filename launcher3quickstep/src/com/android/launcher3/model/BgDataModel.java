@@ -23,7 +23,6 @@ import android.util.Log;
 import android.util.MutableInt;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppWidgetInfo;
@@ -85,11 +84,6 @@ public class BgDataModel {
     public final ArrayList<LauncherAppWidgetInfo> appWidgets = new ArrayList<>();
 
     /**
-     * Map of id to FolderInfos of all the folders created by LauncherModel
-     */
-    public final IntSparseArrayMap<FolderInfo> folders = new IntSparseArrayMap<>();
-
-    /**
      * Map of ShortcutKey to the number of times it is pinned.
      */
     public final Map<ShortcutKey, MutableInt> pinnedShortcutCounts = new HashMap<>();
@@ -120,7 +114,6 @@ public class BgDataModel {
     public synchronized void clear() {
         workspaceItems.clear();
         appWidgets.clear();
-        folders.clear();
         itemsIdMap.clear();
         pinnedShortcutCounts.clear();
         deepShortcutMap.clear();
@@ -157,10 +150,6 @@ public class BgDataModel {
         for (int i = 0; i < appWidgets.size(); i++) {
             writer.println(prefix + '\t' + appWidgets.get(i).toString());
         }
-        writer.println(prefix + " ---- folder items ");
-        for (int i = 0; i< folders.size(); i++) {
-            writer.println(prefix + '\t' + folders.valueAt(i).toString());
-        }
         writer.println(prefix + " ---- items id map ");
         for (int i = 0; i< itemsIdMap.size(); i++) {
             writer.println(prefix + '\t' + itemsIdMap.valueAt(i).toString());
@@ -186,26 +175,9 @@ public class BgDataModel {
                     new DumpTargetWrapper(ContainerType.WORKSPACE, i));
         }
         DumpTargetWrapper dtw;
-        // Add non leaf / non top nodes (L2)
-        for (int i = 0; i < folders.size(); i++) {
-            FolderInfo fInfo = folders.valueAt(i);
-            dtw = new DumpTargetWrapper(ContainerType.FOLDER, folders.size());
-            dtw.writeToDumpTarget(fInfo);
-            for(WorkspaceItemInfo sInfo: fInfo.contents) {
-                DumpTargetWrapper child = new DumpTargetWrapper(sInfo);
-                child.writeToDumpTarget(sInfo);
-                dtw.add(child);
-            }
-            if (fInfo.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                workspaces.get(fInfo.screenId).add(dtw);
-            }
-        }
         // Add leaf nodes (L3): *Info
         for (int i = 0; i < workspaceItems.size(); i++) {
             ItemInfo info = workspaceItems.get(i);
-            if (info instanceof FolderInfo) {
-                continue;
-            }
             dtw = new DumpTargetWrapper(info);
             dtw.writeToDumpTarget(info);
             if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
@@ -257,21 +229,6 @@ public class BgDataModel {
     public synchronized void removeItem(Context context, Iterable<? extends ItemInfo> items) {
         for (ItemInfo item : items) {
             switch (item.itemType) {
-                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
-                    folders.remove(item.id);
-                    if (FeatureFlags.IS_DOGFOOD_BUILD) {
-                        for (ItemInfo info : itemsIdMap) {
-                            if (info.container == item.id) {
-                                // We are deleting a folder which still contains items that
-                                // think they are contained by that folder.
-                                String msg = "deleting a folder (" + item + ") which still " +
-                                        "contains items (" + info + ")";
-                                Log.e(TAG, msg);
-                            }
-                        }
-                    }
-                    workspaceItems.remove(item);
-                    break;
                 case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT: {
                     // Decrement pinned shortcut count
                     ShortcutKey pinnedShortcut = ShortcutKey.fromItemInfo(item);
@@ -299,10 +256,6 @@ public class BgDataModel {
     public synchronized void addItem(Context context, ItemInfo item, boolean newItem) {
         itemsIdMap.put(item.id, item);
         switch (item.itemType) {
-            case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
-                folders.put(item.id, (FolderInfo) item);
-                workspaceItems.add(item);
-                break;
             case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT: {
                 // Increment the count for the given shortcut
                 ShortcutKey pinnedShortcut = ShortcutKey.fromItemInfo(item);
@@ -324,18 +277,6 @@ public class BgDataModel {
             case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                 if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                     workspaceItems.add(item);
-                } else {
-                    if (newItem) {
-                        if (!folders.containsKey(item.container)) {
-                            // Adding an item to a folder that doesn't exist.
-                            String msg = "adding item: " + item + " to a folder that " +
-                                    " doesn't exist";
-                            Log.e(TAG, msg);
-                        }
-                    } else {
-                        findOrMakeFolder(item.container).add((WorkspaceItemInfo) item, false);
-                    }
-
                 }
                 break;
             case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
@@ -343,21 +284,6 @@ public class BgDataModel {
                 appWidgets.add((LauncherAppWidgetInfo) item);
                 break;
         }
-    }
-
-    /**
-     * Return an existing FolderInfo object if we have encountered this ID previously,
-     * or make a new one.
-     */
-    public synchronized FolderInfo findOrMakeFolder(int id) {
-        // See if a placeholder was created for us already
-        FolderInfo folderInfo = folders.get(id);
-        if (folderInfo == null) {
-            // No placeholder -- create a new instance
-            folderInfo = new FolderInfo();
-            folders.put(id, folderInfo);
-        }
-        return folderInfo;
     }
 
     /**

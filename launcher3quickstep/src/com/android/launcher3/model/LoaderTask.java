@@ -41,7 +41,6 @@ import android.util.LongSparseArray;
 import android.util.MutableInt;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.ItemInfoWithIcon;
@@ -56,8 +55,6 @@ import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.folder.Folder;
-import com.android.launcher3.folder.FolderGridOrganizer;
 import com.android.launcher3.icons.ComponentWithLabel;
 import com.android.launcher3.icons.ComponentWithLabel.ComponentCachingLogic;
 import com.android.launcher3.icons.IconCache;
@@ -76,7 +73,6 @@ import com.android.launcher3.util.PackageUserKey;
 import com.android.launcher3.util.TraceHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -551,22 +547,6 @@ public class LoaderTask implements Runnable {
                             }
                             break;
 
-                        case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
-                            FolderInfo folderInfo = mBgDataModel.findOrMakeFolder(c.id);
-                            c.applyCommonProperties(folderInfo);
-
-                            // Do not trim the folder label, as is was set by the user.
-                            folderInfo.title = c.getString(c.titleIndex);
-                            folderInfo.spanX = 1;
-                            folderInfo.spanY = 1;
-                            folderInfo.options = c.getInt(optionsIndex);
-
-                            // no special handling required for restored folders
-                            c.markRestored();
-
-                            c.checkAndAddItem(folderInfo, mBgDataModel);
-                            break;
-
                         case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
                             if (FeatureFlags.GO_DISABLE_WIDGETS) {
                                 c.markDeleted("Only legacy shortcuts can have null package");
@@ -722,17 +702,6 @@ public class LoaderTask implements Runnable {
 
             // Remove dead items
             if (c.commitDeleted()) {
-                // Remove any empty folder
-                int[] deletedFolderIds = LauncherSettings.Settings
-                        .call(contentResolver,
-                                LauncherSettings.Settings.METHOD_DELETE_EMPTY_FOLDERS)
-                        .getIntArray(LauncherSettings.Settings.EXTRA_VALUE);
-                for (int folderId : deletedFolderIds) {
-                    mBgDataModel.workspaceItems.remove(mBgDataModel.folders.get(folderId));
-                    mBgDataModel.folders.remove(folderId);
-                    mBgDataModel.itemsIdMap.remove(folderId);
-                }
-
                 // Remove any ghost widgets
                 LauncherSettings.Settings.call(contentResolver,
                         LauncherSettings.Settings.METHOD_REMOVE_GHOST_WIDGETS);
@@ -747,29 +716,6 @@ public class LoaderTask implements Runnable {
                         && !pendingShortcuts.contains(key)) {
                     // Shortcut is pinned but doesn't exist on the workspace; unpin it.
                     mShortcutManager.unpinShortcut(key);
-                }
-            }
-
-            // Sort the folder items, update ranks, and make sure all preview items are high res.
-            FolderGridOrganizer verifier =
-                    new FolderGridOrganizer(mApp.getInvariantDeviceProfile());
-            for (FolderInfo folder : mBgDataModel.folders) {
-                Collections.sort(folder.contents, Folder.ITEM_POS_COMPARATOR);
-                verifier.setFolderInfo(folder);
-                int size = folder.contents.size();
-
-                // Update ranks here to ensure there are no gaps caused by removed folder items.
-                // Ranks are the source of truth for folder items, so cellX and cellY can be ignored
-                // for now. Database will be updated once user manually modifies folder.
-                for (int rank = 0; rank < size; ++rank) {
-                    WorkspaceItemInfo info = folder.contents.get(rank);
-                    info.rank = rank;
-
-                    if (info.usingLowResIcon()
-                            && info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION
-                            && verifier.isItemInPreview(info.rank)) {
-                        mIconCache.getTitleAndIcon(info, false);
-                    }
                 }
             }
 

@@ -197,7 +197,7 @@ public class DragView extends View implements LauncherStateManager.StateListener
 
     /**
      * Initialize {@code #mIconDrawable} if the item can be represented using
-     * an {@link AdaptiveIconDrawable} or {@link FolderAdaptiveIcon}.
+     * an {@link AdaptiveIconDrawable}.
      */
     @TargetApi(Build.VERSION_CODES.O)
     public void setItemInfo(final ItemInfo info) {
@@ -205,8 +205,7 @@ public class DragView extends View implements LauncherStateManager.StateListener
             return;
         }
         if (info.itemType != LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                info.itemType != LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT &&
-                info.itemType != LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
+                info.itemType != LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
             return;
         }
         // Load the adaptive icon on a background thread and add the view in ui thread.
@@ -232,7 +231,7 @@ public class DragView extends View implements LauncherStateManager.StateListener
                     mBadge.setBounds(badgeBounds);
 
                     // Do not draw the background in case of folder as its translucent
-                    mDrawBitmap = !(dr instanceof FolderAdaptiveIcon);
+                    mDrawBitmap = true;
 
                     try (LauncherIcons li = LauncherIcons.obtain(mLauncher)) {
                         Drawable nDr; // drawable to be normalized
@@ -338,20 +337,8 @@ public class DragView extends View implements LauncherStateManager.StateListener
         return mIntrinsicIconScale;
     }
 
-    public int getDragRegionLeft() {
-        return mDragRegion.left;
-    }
-
     public int getDragRegionTop() {
         return mDragRegion.top;
-    }
-
-    public int getDragRegionWidth() {
-        return mDragRegion.width();
-    }
-
-    public int getDragRegionHeight() {
-        return mDragRegion.height();
     }
 
     public void setDragVisualizeOffset(Point p) {

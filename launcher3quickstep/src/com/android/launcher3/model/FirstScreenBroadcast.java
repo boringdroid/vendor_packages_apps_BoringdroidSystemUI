@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.content.pm.PackageInstaller.SessionInfo;
 import android.util.Log;
 
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings;
@@ -104,18 +103,6 @@ public class FirstScreenBroadcast {
         Set<String> widgetItems = new HashSet<>();
 
         for (ItemInfo info : firstScreenItems) {
-            if (info instanceof FolderInfo) {
-                FolderInfo folderInfo = (FolderInfo) info;
-                String folderItemInfoPackage;
-                for (ItemInfo folderItemInfo : folderInfo.contents) {
-                    folderItemInfoPackage = getPackageName(folderItemInfo);
-                    if (folderItemInfoPackage != null
-                            && packages.contains(folderItemInfoPackage)) {
-                        folderItems.add(folderItemInfoPackage);
-                    }
-                }
-            }
-
             String packageName = getPackageName(info);
             if (packageName == null || !packages.contains(packageName)) {
                 continue;

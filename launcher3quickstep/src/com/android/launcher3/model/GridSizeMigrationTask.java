@@ -611,14 +611,6 @@ public class GridSizeMigrationTask {
                         }
                         break;
                     }
-                    case Favorites.ITEM_TYPE_FOLDER: {
-                        int total = getFolderItemsCount(entry.id);
-                        if (total == 0) {
-                            throw new Exception("Folder is empty");
-                        }
-                        entry.weight = WT_FOLDER_FACTOR * total;
-                        break;
-                    }
                     default:
                         throw new Exception("Invalid item type");
                 }
@@ -633,27 +625,6 @@ public class GridSizeMigrationTask {
         }
         c.close();
         return entries;
-    }
-
-    /**
-     * @return the number of valid items in the folder.
-     */
-    private int getFolderItemsCount(int folderId) {
-        Cursor c = queryWorkspace(
-                new String[]{Favorites._ID, Favorites.INTENT},
-                Favorites.CONTAINER + " = " + folderId);
-
-        int total = 0;
-        while (c.moveToNext()) {
-            try {
-                verifyIntent(c.getString(1));
-                total++;
-            } catch (Exception e) {
-                mEntryToRemove.add(c.getInt(0));
-            }
-        }
-        c.close();
-        return total;
     }
 
     protected Cursor queryWorkspace(String[] columns, String where) {

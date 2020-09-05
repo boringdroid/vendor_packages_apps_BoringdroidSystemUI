@@ -61,7 +61,6 @@ import android.view.animation.Interpolator;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.ShortcutConfigActivityInfo;
-import com.android.launcher3.dragndrop.FolderAdaptiveIcon;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.graphics.TintedDrawableSpan;
 import com.android.launcher3.icons.LauncherIcons;
@@ -89,8 +88,6 @@ public final class Utilities {
     private static final Pattern sTrimPattern =
             Pattern.compile("^[\\s|\\p{javaSpaceChar}]*(.*)[\\s|\\p{javaSpaceChar}]*$");
 
-    private static final int[] sLoc0 = new int[2];
-    private static final int[] sLoc1 = new int[2];
     private static final Matrix sMatrix = new Matrix();
     private static final Matrix sInverseMatrix = new Matrix();
 
@@ -101,9 +98,6 @@ public final class Utilities {
 
     public static final boolean ATLEAST_P =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
-
-    public static final boolean ATLEAST_OREO_MR1 =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1;
 
     public static final boolean ATLEAST_OREO =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
@@ -132,10 +126,6 @@ public final class Utilities {
 
     public static boolean IS_RUNNING_IN_TEST_HARNESS =
                     ActivityManager.isRunningInTestHarness();
-
-    public static void enableRunningInTestHarnessForTests() {
-        IS_RUNNING_IN_TEST_HARNESS = true;
-    }
 
     public static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
@@ -261,17 +251,6 @@ public final class Utilities {
                 localY < (v.getHeight() + slop);
     }
 
-    public static int[] getCenterDeltaInScreenSpace(View v0, View v1) {
-        v0.getLocationInWindow(sLoc0);
-        v1.getLocationInWindow(sLoc1);
-
-        sLoc0[0] += (v0.getMeasuredWidth() * v0.getScaleX()) / 2;
-        sLoc0[1] += (v0.getMeasuredHeight() * v0.getScaleY()) / 2;
-        sLoc1[0] += (v1.getMeasuredWidth() * v1.getScaleX()) / 2;
-        sLoc1[1] += (v1.getMeasuredHeight() * v1.getScaleY()) / 2;
-        return new int[] {sLoc1[0] - sLoc0[0], sLoc1[1] - sLoc0[1]};
-    }
-
     public static void scaleRectFAboutCenter(RectF r, float scale) {
         if (scale != 1.0f) {
             float cx = r.centerX();
@@ -302,13 +281,6 @@ public final class Utilities {
             r.right = (int) (r.right * scale + 0.5f);
             r.bottom = (int) (r.bottom * scale + 0.5f);
         }
-    }
-
-    public static void insetRect(Rect r, Rect insets) {
-        r.left = Math.min(r.right, r.left + insets.left);
-        r.top = Math.min(r.bottom, r.top + insets.top);
-        r.right = Math.max(r.left, r.right - insets.right);
-        r.bottom = Math.max(r.top, r.bottom - insets.bottom);
     }
 
     public static float shrinkRect(Rect r, float scaleX, float scaleY) {
@@ -549,14 +521,6 @@ public final class Utilities {
                 return sm.getShortcutIconDrawable(si.get(0),
                         appState.getInvariantDeviceProfile().fillResIconDpi);
             }
-        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
-            FolderAdaptiveIcon icon = FolderAdaptiveIcon.createFolderAdaptiveIcon(
-                    launcher, info.id, new Point(width, height));
-            if (icon == null) {
-                return null;
-            }
-            outObj[0] = icon;
-            return icon;
         } else {
             return null;
         }
@@ -588,8 +552,6 @@ public final class Utilities {
             float insetFraction = (iconSize - badgeSize) / iconSize;
             return new InsetDrawable(new FastBitmapDrawable(badge),
                     insetFraction, insetFraction, 0, 0);
-        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
-            return ((FolderAdaptiveIcon) obj).getBadge();
         } else {
             return launcher.getPackageManager()
                     .getUserBadgedIcon(new FixedSizeEmptyDrawable(iconSize), info.user);

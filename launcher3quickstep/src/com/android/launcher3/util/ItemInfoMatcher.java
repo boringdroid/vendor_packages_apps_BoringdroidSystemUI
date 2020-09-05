@@ -19,7 +19,6 @@ package com.android.launcher3.util;
 import android.content.ComponentName;
 import android.os.UserHandle;
 
-import com.android.launcher3.FolderInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings.Favorites;
@@ -46,14 +45,6 @@ public interface ItemInfoMatcher {
                 ComponentName cn = info.getTargetComponent();
                 if (cn != null && matches(info, cn)) {
                     filtered.add(info);
-                }
-            } else if (i instanceof FolderInfo) {
-                FolderInfo info = (FolderInfo) i;
-                for (WorkspaceItemInfo s : info.contents) {
-                    ComponentName cn = s.getTargetComponent();
-                    if (cn != null && matches(s, cn)) {
-                        filtered.add(s);
-                    }
                 }
             } else if (i instanceof LauncherAppWidgetInfo) {
                 LauncherAppWidgetInfo info = (LauncherAppWidgetInfo) i;

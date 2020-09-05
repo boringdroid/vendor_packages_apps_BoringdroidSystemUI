@@ -21,8 +21,6 @@ import static android.view.View.MeasureSpec.EXACTLY;
 import static android.view.View.MeasureSpec.getMode;
 import static android.view.View.MeasureSpec.getSize;
 
-import static com.android.launcher3.compat.AccessibilityManagerCompat.sendCustomAccessibilityEvent;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
@@ -38,7 +36,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -51,8 +48,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.ShortcutAndWidgetContainer;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.folder.Folder;
-import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.graphics.OverviewScrim;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.graphics.WorkspaceScrim;
@@ -85,8 +80,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
     @Thunk DragView mDropView = null;
     @Thunk int mAnchorViewInitialScrollX = 0;
     @Thunk View mAnchorView = null;
-
-    private boolean mHoverPointClosesFolder = false;
 
     private int mTopViewIndex;
     private int mChildCountOnLastUpdate = -1;
@@ -133,57 +126,13 @@ public class DragLayer extends BaseDragLayer<Launcher> {
         return mDragController.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
-    private boolean isEventOverAccessibleDropTargetBar(MotionEvent ev) {
-        return isInAccessibleDrag() && isEventOverView(mActivity.getDropTargetBar(), ev);
-    }
-
     @Override
     public boolean onInterceptHoverEvent(MotionEvent ev) {
         if (mActivity == null || mActivity.getWorkspace() == null) {
             return false;
         }
-        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(mActivity);
-        if (!(topView instanceof Folder)) {
-            return false;
-        } else {
-            AccessibilityManager accessibilityManager = (AccessibilityManager)
-                    getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-            if (accessibilityManager.isTouchExplorationEnabled()) {
-                Folder currentFolder = (Folder) topView;
-                final int action = ev.getAction();
-                boolean isOverFolderOrSearchBar;
-                switch (action) {
-                    case MotionEvent.ACTION_HOVER_ENTER:
-                        isOverFolderOrSearchBar = isEventOverView(topView, ev) ||
-                                isEventOverAccessibleDropTargetBar(ev);
-                        if (!isOverFolderOrSearchBar) {
-                            sendTapOutsideFolderAccessibilityEvent(currentFolder.isEditingName());
-                            mHoverPointClosesFolder = true;
-                            return true;
-                        }
-                        mHoverPointClosesFolder = false;
-                        break;
-                    case MotionEvent.ACTION_HOVER_MOVE:
-                        isOverFolderOrSearchBar = isEventOverView(topView, ev) ||
-                                isEventOverAccessibleDropTargetBar(ev);
-                        if (!isOverFolderOrSearchBar && !mHoverPointClosesFolder) {
-                            sendTapOutsideFolderAccessibilityEvent(currentFolder.isEditingName());
-                            mHoverPointClosesFolder = true;
-                            return true;
-                        } else if (!isOverFolderOrSearchBar) {
-                            return true;
-                        }
-                        mHoverPointClosesFolder = false;
-                }
-            }
-        }
+        // TODO recheck it
         return false;
-    }
-
-    private void sendTapOutsideFolderAccessibilityEvent(boolean isEditingName) {
-        int stringId = isEditingName ? R.string.folder_tap_to_rename : R.string.folder_tap_to_close;
-        sendCustomAccessibilityEvent(
-                this, AccessibilityEvent.TYPE_VIEW_FOCUSED, getContext().getString(stringId));
     }
 
     @Override
@@ -291,13 +240,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
                 toY -=  Math.round(toScale * dragView.getDragVisualizeOffset().y);
             }
 
-            toX -= (dragView.getMeasuredWidth() - Math.round(scale * child.getMeasuredWidth())) / 2;
-        } else if (child instanceof FolderIcon) {
-            // Account for holographic blur padding on the drag view
-            toY += Math.round(scale * (child.getPaddingTop() - dragView.getDragRegionTop()));
-            toY -= scale * dragView.getBlurSizeOutline() / 2;
-            toY -= (1 - scale) * dragView.getMeasuredHeight() / 2;
-            // Center in the x coordinate about the target's drawable
             toX -= (dragView.getMeasuredWidth() - Math.round(scale * child.getMeasuredWidth())) / 2;
         } else {
             toY -= (Math.round(scale * (dragView.getHeight() - child.getMeasuredHeight()))) / 2;
