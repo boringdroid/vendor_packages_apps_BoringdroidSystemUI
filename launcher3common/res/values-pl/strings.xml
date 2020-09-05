@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Nie znaleziono aplikacji pasujących do zapytania „<xliff:g id="QUERY">%1$s</xliff:g>”"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Wyszukaj więcej aplikacji"</string>
     <string name="label_application" msgid="8531721983832654978">"Aplikacja"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"Powiadomienia"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Kliknij i przytrzymaj, by wybrać skrót."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Kliknij dwukrotnie i przytrzymaj, by wybrać skrót lub użyć działań niestandardowych."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Brak miejsca na tym ekranie głównym."</string>
@@ -60,12 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"Konfiguracja"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"To aplikacja systemowa i nie można jej odinstalować."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacja <xliff:g id="APP_NAME">%1$s</xliff:g> jest wyłączona"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="few"><xliff:g id="APP_NAME_2">%1$s</xliff:g> – <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> powiadomienia</item>
-      <item quantity="many"><xliff:g id="APP_NAME_2">%1$s</xliff:g> – <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> powiadomień</item>
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g> – <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> powiadomienia</item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g> – <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g> powiadomienie</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"Strona %1$d z %2$d"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"Ekran główny %1$d z %2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"Nowa strona ekranu głównego"</string>
@@ -76,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Funkcja wyłączona przez administratora"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"Zezwalaj na obrót ekranu głównego"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"Po obróceniu telefonu"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"Plakietki z powiadomieniami"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"Włączono"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"Wyłączono"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"Wymagany jest dostęp do powiadomień"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"Aby pokazać plakietki z powiadomieniami, włącz powiadomienia aplikacji <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"Zmień ustawienia"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Pokaż plakietki z powiadomieniami"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Dodaj ikonę do ekranu głównego"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"W przypadku nowych aplikacji"</string>
@@ -113,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"Szerokość i wysokość widżetu zmieniła się na <xliff:g id="NUMBER_0">%1$s</xliff:g> x <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Skróty"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Skróty i powiadomienia"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"Zamknij"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"Powiadomienie odrzucone"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Osobiste"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Praca"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"Profil służbowy"</string>

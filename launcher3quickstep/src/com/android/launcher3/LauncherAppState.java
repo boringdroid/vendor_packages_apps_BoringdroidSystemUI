@@ -17,9 +17,7 @@
 package com.android.launcher3;
 
 import static com.android.launcher3.InvariantDeviceProfile.CHANGE_FLAG_ICON_PARAMS;
-import static com.android.launcher3.util.SecureSettingsObserver.newNotificationSettingsObserver;
 
-import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
@@ -28,15 +26,12 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.util.MainThreadInitializedObject;
 import com.android.launcher3.util.Preconditions;
-import com.android.launcher3.util.SecureSettingsObserver;
 import com.android.launcher3.widget.custom.CustomWidgetManager;
 
 public class LauncherAppState {
@@ -52,7 +47,6 @@ public class LauncherAppState {
     private final IconCache mIconCache;
     private final WidgetPreviewLoader mWidgetCache;
     private final InvariantDeviceProfile mInvariantDeviceProfile;
-    private final SecureSettingsObserver mNotificationDotsObserver;
 
     public static LauncherAppState getInstance(final Context context) {
         return INSTANCE.get(context);
@@ -101,23 +95,6 @@ public class LauncherAppState {
         UserManagerCompat.getInstance(mContext).enableAndResetCache();
         mInvariantDeviceProfile.addOnChangeListener(this::onIdpChanged);
         new Handler().post( () -> mInvariantDeviceProfile.verifyConfigChangedInBackground(context));
-
-        if (!mContext.getResources().getBoolean(R.bool.notification_dots_enabled)) {
-            mNotificationDotsObserver = null;
-        } else {
-            // Register an observer to rebind the notification listener when dots are re-enabled.
-            mNotificationDotsObserver =
-                    newNotificationSettingsObserver(mContext, this::onNotificationSettingsChanged);
-            mNotificationDotsObserver.register();
-            mNotificationDotsObserver.dispatchOnChange();
-        }
-    }
-
-    protected void onNotificationSettingsChanged(boolean areNotificationDotsEnabled) {
-        if (areNotificationDotsEnabled) {
-            NotificationListener.requestRebind(new ComponentName(
-                    mContext, NotificationListener.class));
-        }
     }
 
     private void onIdpChanged(int changeFlags, InvariantDeviceProfile idp) {
@@ -132,19 +109,6 @@ public class LauncherAppState {
         }
 
         mModel.forceReload();
-    }
-
-    /**
-     * Call from Application.onTerminate(), which is not guaranteed to ever be called.
-     */
-    public void onTerminate() {
-        mContext.unregisterReceiver(mModel);
-        final LauncherAppsCompat launcherApps = LauncherAppsCompat.getInstance(mContext);
-        launcherApps.removeOnAppsChangedCallback(mModel);
-        PackageInstallerCompat.getInstance(mContext).onStop();
-        if (mNotificationDotsObserver != null) {
-            mNotificationDotsObserver.unregister();
-        }
     }
 
     LauncherModel setLauncher(Launcher launcher) {

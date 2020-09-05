@@ -1,7 +1,6 @@
 package com.android.launcher3.util;
 
 import android.os.UserHandle;
-import android.service.notification.StatusBarNotification;
 
 import androidx.annotation.Nullable;
 
@@ -20,10 +19,6 @@ public class PackageUserKey {
     public static PackageUserKey fromItemInfo(ItemInfo info) {
         if (info.getTargetComponent() == null) return null;
         return new PackageUserKey(info.getTargetComponent().getPackageName(), info.user);
-    }
-
-    public static PackageUserKey fromNotification(StatusBarNotification notification) {
-        return new PackageUserKey(notification.getPackageName(), notification.getUser());
     }
 
     public PackageUserKey(String packageName, UserHandle user) {

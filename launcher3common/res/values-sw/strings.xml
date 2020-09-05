@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Haikupata programu zozote zinazolingana na \"<xliff:g id="QUERY">%1$s</xliff:g>\""</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Tafuta programu zaidi"</string>
     <string name="label_application" msgid="8531721983832654978">"Programu"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"Arifa"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Gusa na ushikilie ili uchague njia ya mkato."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Gusa mara mbili na ushikilie ili uchague njia ya mkato au utumie vitendo maalum."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Hakuna nafasi katika skrini hii ya Mwanzo."</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"Sanidi"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Hii ni programu ya mfumo na haiwezi kuondolewa."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> imezimwa"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, ina arifa <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g></item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g>, ina arifa <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g></item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"Ukurasa%1$d wa %2$d"</string>
     <!-- String.format failed for translation -->
     <!-- no translation found for workspace_scroll_format (8458889198184077399) -->
@@ -76,12 +71,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Imezimwa na msimamizi wako"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"Ruhusu kuzungusha skrini ya Kwanza"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"Simu inapozungushwa"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"Vitone vya arifa"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"Imewashwa"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"Imezimwa"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"Inahitaji idhini ya kufikia arifa"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"Ili kuonyesha Vitone vya Arifa, washa kipengele cha arifa za programu katika <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"Badilisha mipangilio"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Onyesha vitone vya arifa"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Ongeza aikoni kwenye Skrini ya kwanza"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"Kwa ajili ya programu mpya"</string>
@@ -113,8 +102,6 @@
     <string name="widget_resized" msgid="9130327887929620">"Wijeti imepunguzwa hadi upana <xliff:g id="NUMBER_0">%1$s</xliff:g> urefu <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Njia za mkato"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Arifa na njia za mkato"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"Ondoa"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"Arifa imeondolewa"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Binafsi"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Kazini"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"Wasifu wa kazini"</string>

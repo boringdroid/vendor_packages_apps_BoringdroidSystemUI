@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"هیچ برنامه‌ای در مطابقت با «<xliff:g id="QUERY">%1$s</xliff:g>» پیدا نشد"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"جستجوی برنامه‌های بیشتر"</string>
     <string name="label_application" msgid="8531721983832654978">"برنامه"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"اعلان‌ها"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"برای انتخاب میان‌بر، لمس کنید و نگه‌دارید."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"برای انتخاب میان‌بر، دو ضربه سریع بزنید و نگه‌دارید یا از کنش‌های سفارشی استفاده کنید."</string>
     <string name="out_of_space" msgid="4691004494942118364">"فضای بیشتری در این صفحه اصلی موجود نیست."</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"تنظیم"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"این برنامه سیستمی است و حذف نصب نمی‌شود."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> غیرفعال شد"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="one"><xliff:g id="APP_NAME_2">%1$s</xliff:g>، <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> اعلان دارد</item>
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>، <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> اعلان دارد</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"‏صفحه %1$d از %2$d"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"‏صفحه اصلی %1$d از %2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"صفحه اصلی جدید"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"توسط سرپرست سیستم غیرفعال شده است"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"امکان دادن به چرخش صفحه اصلی"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"وقتی تلفن چرخانده می‌شود"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"نقطه‌های اعلان"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"روشن"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"خاموش"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"دسترسی به اعلان نیاز است"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"برای نمایش «نقطه‌های اعلان»، اعلان‌های برنامه را برای <xliff:g id="NAME">%1$s</xliff:g> روشن کنید"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"تغییر تنظیمات"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"نمایش نقطه‌های اعلان"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"افزودن نماد به صفحه اصلی"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"برای برنامه‌های جدید"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"اندازه ابزارک به عرض <xliff:g id="NUMBER_0">%1$s</xliff:g> ارتفاع <xliff:g id="NUMBER_1">%2$s</xliff:g> تغییر کرد"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"میان‌برها"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"میان‌برها و اعلان‌ها"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"رد کردن"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"اعلان رد شد"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"شخصی"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"محل کار"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"نمایه کاری"</string>

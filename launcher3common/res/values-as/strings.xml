@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\"ৰ সৈতে মিলা কোনো এপ্ বিচাৰি পোৱা নগ\'ল"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"আৰু অধিক এপবোৰ সন্ধান কৰক"</string>
     <string name="label_application" msgid="8531721983832654978">"এপ্"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"জাননীসমূহ"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"কোনো শ্বৰ্টকাট বাছনি কৰিবলৈ স্পৰ্শ কৰি হেঁচি ধৰক।"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"কোনো শ্বৰ্টকাট বাছনি কৰিবলৈ দুবাৰ টিপি হেঁচি ধৰক, বা নিজৰ উপযোগিতা অনুসৰি সৃষ্টি কৰা কাৰ্যসমূহ ব্যৱহাৰ কৰক।"</string>
     <string name="out_of_space" msgid="4691004494942118364">"এই গৃহ স্ক্ৰীণত আৰু বেছি ঠাই নাই।"</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"ছেটআপ কৰক"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"এইটো এটা ছিষ্টেম এপ আৰু ইয়াক আনইনষ্টল কৰিব নোৱৰি"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> অক্ষম কৰা হ’ল"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="one"><xliff:g id="APP_NAME_2">%1$s</xliff:g>ৰ <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g>টা জাননী আছে</item>
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>ৰ <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g>টা জাননী আছে</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$dৰ %1$d পৃষ্ঠা"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"গৃহ স্ক্ৰীণ %2$dৰ %1$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"গৃহ স্ক্ৰীণৰ নতুন পৃষ্ঠা"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"আপোনাৰ প্ৰশাসকে অক্ষম কৰি ৰাখিছে"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"গৃহ স্ক্ৰীণ ঘূৰোৱাৰ অনুমতি দিয়ক"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"ফ\'নটো যেতিয়া ঘূৰোৱা হয়"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"জাননী বিন্দু"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"অন আছে"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"অফ আছে"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"জাননী চাবলৈ অনুমতিৰ প্ৰয়োজন"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"জাননী সম্পৰ্কীয় বিন্দুবোৰ দেখুৱাবলৈ <xliff:g id="NAME">%1$s</xliff:g>ৰ বাবে এপৰ জাননীসমূহ অন কৰক"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"ছেটিংসমূহ সলনি কৰক"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"জাননী বিন্দু দেখুৱাওক"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"গৃহ স্ক্ৰীণত আইকনটো যোগ কৰক"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"নতুন এপসমূহৰ বাবে"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"ৱিজেটৰ আকাৰ সলনি কৰি প্ৰস্থ <xliff:g id="NUMBER_0">%1$s</xliff:g> আৰু উচ্চতা <xliff:g id="NUMBER_1">%2$s</xliff:g> কৰা হ’ল"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"শ্বৰ্টকাটসমূহ"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"শ্বৰ্টকাট আৰু জাননীসমূহ"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"অগ্ৰাহ্য কৰক"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"জাননী অগ্ৰাহ্য কৰা হৈছে"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ব্যক্তিগত"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"কৰ্মস্থান"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"কৰ্মস্থানৰ প্ৰ\'ফাইল"</string>

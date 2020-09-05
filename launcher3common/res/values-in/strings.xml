@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Tidak ditemukan aplikasi yang cocok dengan \"<xliff:g id="QUERY">%1$s</xliff:g>\""</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Telusuri aplikasi lainnya"</string>
     <string name="label_application" msgid="8531721983832654978">"Aplikasi"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"Notifikasi"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Sentuh lama untuk memilih pintasan."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Ketuk dua kali &amp; tahan untuk memilih pintasan atau menggunakan tindakan khusus."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Tidak ada ruang lagi pada layar Utama ini."</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"Siapkan"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Ini adalah aplikasi sistem dan tidak dapat dicopot pemasangannya."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> dinonaktifkan"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, memiliki <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> notifikasi</item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g>, memiliki <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g> notifikasi</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"Halaman %1$d dari %2$d"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"Layar utama %1$d dari %2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"Halaman layar utama baru"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Dinonaktifkan oleh admin"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"Izinkan Layar utama diputar"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"Saat ponsel diputar"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"Titik notifikasi"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"Aktif"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"Nonaktif"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"Perlu akses notifikasi"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"Guna menampilkan Titik Notifikasi, aktifkan notifikasi aplikasi untuk <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"Ubah setelan"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Tampilkan titik notifikasi"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Tambahkan ikon ke Layar utama"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"Untuk aplikasi baru"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"Widget diubah ukurannya menjadi lebar <xliff:g id="NUMBER_0">%1$s</xliff:g> tinggi <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Pintasan"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Pintasan dan notifikasi"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"Tutup"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"Notifikasi ditutup"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Pribadi"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Kantor"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"Profil kerja"</string>

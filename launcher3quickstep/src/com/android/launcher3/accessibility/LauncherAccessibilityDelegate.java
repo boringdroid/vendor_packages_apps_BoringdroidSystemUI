@@ -37,7 +37,6 @@ import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.dragndrop.DragController.DragListener;
 import com.android.launcher3.dragndrop.DragOptions;
 import com.android.launcher3.keyboard.CustomActionsPopup;
-import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.popup.PopupContainerWithArrow;
 import com.android.launcher3.touch.ItemLongClickListener;
 import com.android.launcher3.util.IntArray;
@@ -110,13 +109,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
     public void addSupportedActions(View host, AccessibilityNodeInfo info, boolean fromKeyboard) {
         if (!(host.getTag() instanceof ItemInfo)) return;
         ItemInfo item = (ItemInfo) host.getTag();
-
-        // If the request came from keyboard, do not add custom shortcuts as that is already
-        // exposed as a direct shortcut
-        if (!fromKeyboard && ShortcutUtil.supportsShortcuts(item)) {
-            info.addAction(mActions.get(NotificationListener.getInstanceIfConnected() != null
-                    ? SHORTCUTS_AND_NOTIFICATIONS : DEEP_SHORTCUTS));
-        }
 
         for (ButtonDropTarget target : mLauncher.getDropTargetBar().getDropTargets()) {
             if (target.supportsAccessibilityDrop(item, host)) {

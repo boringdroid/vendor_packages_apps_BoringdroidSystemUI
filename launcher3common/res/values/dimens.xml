@@ -141,7 +141,6 @@
     <dimen name="deep_shortcuts_elevation">9dp</dimen>
     <dimen name="bg_popup_item_width">220dp</dimen>
     <dimen name="bg_popup_item_height">56dp</dimen>
-    <dimen name="bg_popup_item_condensed_height">48dp</dimen>
     <dimen name="pre_drag_view_scale">6dp</dimen>
     <!-- an icon with shortcuts must be dragged this far before the container is removed. -->
     <dimen name="deep_shortcuts_start_drag_threshold">16dp</dimen>
@@ -173,25 +172,10 @@
 
 <!-- Notifications -->
     <dimen name="bg_round_rect_radius">8dp</dimen>
-    <dimen name="notification_padding_start">16dp</dimen>
-    <dimen name="notification_padding_end">12dp</dimen>
     <!-- notification_padding_end + (icon_size - footer_icon_size) / 2 -->
-    <dimen name="notification_footer_icon_row_padding">15dp</dimen>
-    <dimen name="notification_header_height">36dp</dimen>
-    <dimen name="notification_main_height">84dp</dimen>
-    <dimen name="notification_footer_height">32dp</dimen>
     <!-- How much space to keep as padding for the last notification when the footer collapses -->
-    <dimen name="notification_header_text_size">13sp</dimen>
-    <dimen name="notification_header_count_text_size">12sp</dimen>
-    <dimen name="notification_main_title_size">16sp</dimen>
-    <dimen name="notification_main_text_size">14sp</dimen>
-    <dimen name="notification_icon_size">24dp</dimen>
-    <dimen name="notification_footer_icon_size">18dp</dimen>
     <!-- notification_icon_size + notification_padding_end + 16dp padding between icon and text -->
-    <dimen name="notification_main_text_padding_end">52dp</dimen>
-    <dimen name="horizontal_ellipsis_size">18dp</dimen>
     <!-- arrow_horizontal_offset_start - (ellipsis_size - arrow_width) / 2 -->
-    <dimen name="horizontal_ellipsis_offset">19dp</dimen>
     <dimen name="popup_item_divider_height">0.5dp</dimen>
 
     <!-- Overview -->

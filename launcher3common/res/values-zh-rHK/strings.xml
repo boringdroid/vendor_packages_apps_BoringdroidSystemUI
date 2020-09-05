@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"找不到與「<xliff:g id="QUERY">%1$s</xliff:g>」相符的應用程式"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"搜尋更多應用程式"</string>
     <string name="label_application" msgid="8531721983832654978">"應用程式"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"通知"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"按住捷徑即可選取。"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"連㩒兩下之後繼續㩒住，就可以揀選捷徑或者用自訂嘅操作。"</string>
     <string name="out_of_space" msgid="4691004494942118364">"主畫面已無空間。"</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"設定"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"這是系統應用程式，無法將其解除安裝。"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"「<xliff:g id="APP_NAME">%1$s</xliff:g>」已停用"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>，有 <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> 項通知</item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g>，有 <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g> 項通知</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"第 %1$d 頁，共 %2$d 頁"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"主畫面 %1$d，共 %2$d 個"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"新主畫面頁面"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"已由您的管理員停用"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"允許主畫面旋轉"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"當手機旋轉時"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"通知圓點"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"開啟"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"關閉"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"需要獲取通知存取權"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"如要顯示「通知圓點」，請開啟「<xliff:g id="NAME">%1$s</xliff:g>」的應用程式通知功能"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"變更設定"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"顯示通知圓點"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"將圖示加到主畫面"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"適用於新安裝的應用程式"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"已調整小工具的大小至闊 <xliff:g id="NUMBER_0">%1$s</xliff:g> 高 <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"捷徑"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"捷徑同通知"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"關閉"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"關閉咗通知"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"個人"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"商務"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"工作設定檔"</string>

@@ -67,7 +67,6 @@
 
     <!-- Popup items -->
     <!-- Text to display as the header above notifications. [CHAR_LIMIT=30] -->
-    <string name="notifications_header">Notifications</string>
 
     <!-- Drag and drop -->
     <!-- Message to tell the user to press and hold on a shortcut to add it [CHAR_LIMIT=50] -->
@@ -142,10 +141,6 @@
     <!-- The format string for when an app is temporarily disabled. -->
     <string name="disabled_app_label">Disabled <xliff:g id="app_name" example="Messenger">%1$s</xliff:g></string>
     <!-- The format string for when an app has a notification dot (meaning it has associated notifications). -->
-    <plurals name="dotted_app_label">
-        <item quantity="one"><xliff:g id="app_name" example="Messenger">%1$s</xliff:g>, has <xliff:g id="notification_count" example="1">%2$d</xliff:g> notification</item>
-        <item quantity="other"><xliff:g id="app_name" example="Messenger">%1$s</xliff:g>, has <xliff:g id="notification_count" example="3">%2$d</xliff:g> notifications</item>
-    </plurals>
     <skip />
 
     <!-- The format string for default page scroll text [CHAR_LIMIT=none] -->
@@ -181,17 +176,11 @@
     <!-- Text explaining when the home screen will get rotated. [CHAR LIMIT=100] -->
     <string name="allow_rotation_desc">When phone is rotated</string>
     <!-- Title for Notification dots setting. Tapping this will link to the system Notifications settings screen where the user can turn off notification dots globally. [CHAR LIMIT=50] -->
-    <string name="notification_dots_title">Notification dots</string>
     <!-- Text to indicate that the system notification dots setting is on [CHAR LIMIT=100] -->
-    <string name="notification_dots_desc_on">On</string>
     <!-- Text to indicate that the system notification dots setting is off [CHAR LIMIT=100] -->
-    <string name="notification_dots_desc_off">Off</string>
     <!-- Title for the dialog shown when the app does not has notification access, explaining the requirement for notification access [CHAR LIMIT=50] -->
-    <string name="title_missing_notification_access">Notification access needed</string>
     <!-- Message explaining to the user that the notification access is required by the app for showing 'Notification dots' [CHAR LIMIT=NONE] -->
-    <string name="msg_missing_notification_access">To show Notification Dots, turn on app notifications for <xliff:g id="name" example="My App">%1$s</xliff:g></string>
     <!-- Button text in the confirmation dialog which would take the user to the system settings [CHAR LIMIT=50] -->
-    <string name="title_change_settings">Change settings</string>
     <!-- Summary for Notification dots setting. Tapping this will link enable/disable notification dots feature on the home screen. [CHAR LIMIT=50] -->
     <string name="notification_dots_service_title">Show notification dots</string>
 
@@ -296,10 +285,8 @@
     </string>
 
     <!-- Accessibility action to dismiss a notification in the shortcuts menu for an icon. [CHAR_LIMIT=30] -->
-    <string name="action_dismiss_notification">Dismiss</string>
 
     <!-- Accessibility confirmation for notification being dismissed. -->
-    <string name="notification_dismissed">Notification dismissed</string>
 
     <!-- Label of tab to indicate personal apps -->
     <string name="all_apps_personal_tab">Personal</string>

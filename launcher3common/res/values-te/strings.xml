@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\"కి సరిపోలే అప్లికేషన్‌లేవీ కనుగొనబడలేదు"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"మరిన్ని యాప్‌ల కోసం వెతుకు"</string>
     <string name="label_application" msgid="8531721983832654978">"యాప్"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"నోటిఫికేషన్‌లు"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"షార్ట్‌కట్‌ని ఎంచుకోవడం కోసం నొక్కి, పట్టుకోండి."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"రెండుసార్లు నొక్కి, పట్టుకోవడం ద్వారా షార్ట్‌కట్‌ని ఎంచుకోండి లేదా అనుకూల చర్యలను ఉపయోగించండి."</string>
     <string name="out_of_space" msgid="4691004494942118364">"ఈ హోమ్ స్క్రీన్‌లో ఖాళీ లేదు."</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"సెటప్ చేయి"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ఇది సిస్టమ్ యాప్ మరియు దీన్ని అన్‌ఇన్‌స్టాల్ చేయడం సాధ్యపడదు."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> నిలిపివేయబడింది"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, నుంచి <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> నోటిఫికేషన్‌లు ఉన్నాయి</item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g>, నుంచి <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g> నోటిఫికేషన్ ఉంది</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$dలో %1$dవ పేజీ"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"%2$dలో %1$dవ హోమ్ స్క్రీన్"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"కొత్త హోమ్ స్క్రీన్ పేజీ"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"మీ నిర్వాహకులు నిలిపివేసారు"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"హోమ్ స్క్రీన్ భ్రమణాన్ని అనుమతించండి"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"ఫోన్‌‌ను తిప్పినప్పుడు"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"నోటిఫికేషన్ డాట్‌లు"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"ఆన్"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"ఆఫ్"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"నోటిఫికేషన్ యాక్సెస్ అవసరం"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"నోటిఫికేషన్ డాట్‌లను చూపించడానికి <xliff:g id="NAME">%1$s</xliff:g>కు యాప్ నోటిఫికేషన్‌లను ఆన్ చేయండి"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"సెట్టింగ్‌లను మార్చు"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"నోటిఫికేషన్ డాట్‌లను చూపు"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"హోమ్ స్క్రీన్‌కి చిహ్నాన్ని జోడించు"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"కొత్త యాప్‌ల కోసం"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"విడ్జెట్ పరిమాణం వెడల్పు <xliff:g id="NUMBER_0">%1$s</xliff:g>కి, ఎత్తు <xliff:g id="NUMBER_1">%2$s</xliff:g>కి మార్చబడింది"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"సత్వరమార్గాలు"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"షార్ట్‌కట్‌లు మరియు నోటిఫికేషన్‌లు"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"తీసివేయి"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"నోటిఫికేషన్ తీసివేయబడింది"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"వ్యక్తిగతం"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"కార్యాలయం"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"కార్యాలయ ప్రొఫైల్"</string>

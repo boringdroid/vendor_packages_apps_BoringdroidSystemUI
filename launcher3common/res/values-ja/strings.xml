@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"「<xliff:g id="QUERY">%1$s</xliff:g>」に一致するアプリは見つかりませんでした"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"他のアプリを検索"</string>
     <string name="label_application" msgid="8531721983832654978">"アプリ"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"通知"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"ショートカットを追加するには押し続けます。"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"ダブルタップ後に押し続けてショートカットを選択するか、カスタム操作を使用してください。"</string>
     <string name="out_of_space" msgid="4691004494942118364">"このホーム画面に空きスペースがありません。"</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"セットアップ"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"このシステムアプリはアンインストールできません。"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"「<xliff:g id="APP_NAME">%1$s</xliff:g>」は無効です"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g> の通知が <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g> 件あります</item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g> の通知が <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g> 件あります</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"%1$d/%2$dページ"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"ホーム画面: %1$d/%2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"新しいホーム画面ページ"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"管理者により無効にされています"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"ホーム画面の回転を許可"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"スマートフォンが回転したとき"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"通知ドット"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"ON"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"OFF"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"通知へのアクセス権限が必要"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"通知ドットを表示するには、「<xliff:g id="NAME">%1$s</xliff:g>」のアプリ通知を ON にしてください"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"設定を変更"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"通知ドットの表示"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"ホーム画面にアイコンを追加"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"新しいアプリをダウンロードしたとき"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"ウィジェットのサイズを幅<xliff:g id="NUMBER_0">%1$s</xliff:g>、高さ<xliff:g id="NUMBER_1">%2$s</xliff:g>に変更しました"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"ショートカット"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"ショートカットと通知"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"表示しない"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"通知を非表示にしました"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"個人用"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"仕事用"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"仕事用プロファイル"</string>

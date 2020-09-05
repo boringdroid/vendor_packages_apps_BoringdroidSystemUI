@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\" ସହିତ ମେଳ ହେଉଥିବା କୌଣସି ଆପ୍‌ ମିଳିଲା ନାହିଁ"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"ଅଧିକ ଆପ୍‌ ଖୋଜନ୍ତୁ"</string>
     <string name="label_application" msgid="8531721983832654978">"ଆପ୍"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"ବିଜ୍ଞପ୍ତି"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"ଏକ ଶର୍ଟକଟ୍ ଚୟନ କରିବାକୁ ସ୍ପର୍ଶ କରି ଧରି ରଖନ୍ତୁ।"</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"ଡବଲ୍‌-ଟାପ୍‌ କରନ୍ତୁ ଏବଂ ଏକ ଶର୍ଟକଟ୍ ଚୟନ କରିବାକୁ ଧରି ରଖନ୍ତୁ କିମ୍ୱା କଷ୍ଟମ୍ ପ୍ରକ୍ରିୟା ବ୍ୟବହାର କରନ୍ତୁ।"</string>
     <string name="out_of_space" msgid="4691004494942118364">"ହୋମ୍‌ ସ୍କ୍ରୀନ ପାଇଁ ଆଉ କୋଠରୀ ନାହିଁ"</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"ସେଟ୍ ଅପ୍ କରନ୍ତୁ"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ଏହା ଏକ ସିଷ୍ଟମ୍‌ ଆପ୍‌ ଅଟେ ଏବଂ ଏହା ଅନଇନଷ୍ଟଲ୍‌ କରାଯାଇ ପାରିବ ନାହିଁ।"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> ଅକ୍ଷମ କରାଗଲା"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, <xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g>ଟି ବିଜ୍ଞପ୍ତି ରହିଛି</item>
-      <item quantity="one"><xliff:g id="APP_NAME_0">%1$s</xliff:g>, <xliff:g id="NOTIFICATION_COUNT_1">%2$d</xliff:g>ଟି ବିଜ୍ଞପ୍ତି ରହିଛି</item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"ମୋଟ %2$dରୁ %1$d ନମ୍ବର ପୃଷ୍ଠା"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"%2$dରୁ %1$d ହୋମ୍‌ ସ୍କ୍ରୀନ୍"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"ନୂଆ ହୋମ୍‌ ସ୍କ୍ରୀନ୍‌ ପୃଷ୍ଠା"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"ଆପଣଙ୍କ ଆଡମିନଙ୍କ ଦ୍ୱାରା ଅକ୍ଷମ କରାଯାଇଛି"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"ହୋମ୍‌ ସ୍କ୍ରୀନ୍ ବୁଲାଇବା ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"ଯେତେବେଳେ ଫୋନକୁ ବୁଲାଯାଇଥାଏ"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"ବିଜ୍ଞପ୍ତି ଡଟ୍ସ"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"ଚାଲୁ"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"ବନ୍ଦ କରନ୍ତୁ"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"ବିଜ୍ଞପ୍ତି ଆକ୍ସେସ୍‌ ଆବଶ୍ୟକ ଅଟେ"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"ବିଜ୍ଞପ୍ତି ବିନ୍ଦୁ ଦେଖାଇବାକୁ, <xliff:g id="NAME">%1$s</xliff:g> ପାଇଁ ଆପ୍‌ ବିଜ୍ଞପ୍ତି ଅନ୍‌ କରନ୍ତୁ"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"ସେଟିଙ୍ଗ ପରିବର୍ତ୍ତନ କରନ୍ତୁ"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ଗୁଡ଼ିକୁ ଦେଖାନ୍ତୁ"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"ହୋମ୍‌ ସ୍କ୍ରୀନରେ ଆଇକନ୍‌କୁ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"ନୂଆ ଆପ୍‌ ପାଇଁ"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"ୱିଜେଟକୁ <xliff:g id="NUMBER_0">%1$s</xliff:g> ଓସାର ଓ <xliff:g id="NUMBER_1">%2$s</xliff:g> ଉଚ୍ଚରେ ପୁନଃଆକାର ଦିଆଗଲା"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"ଶର୍ଟକଟ୍‍"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"ଶର୍ଟକଟ୍ ଓ ବିଜ୍ଞପ୍ତି"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"ଖାରଜ କରନ୍ତୁ"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"ବିଜ୍ଞପ୍ତି ଖାରଜ କରାଗଲା"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ବ୍ୟକ୍ତିଗତ"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"କାମ"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"ୱର୍କ ପ୍ରୋଫାଇଲ୍‌"</string>

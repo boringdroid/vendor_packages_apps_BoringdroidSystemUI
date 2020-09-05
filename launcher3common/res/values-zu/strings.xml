@@ -37,7 +37,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Azikho izinhlelo zokusebenza ezitholiwe ezifana ne-\"<xliff:g id="QUERY">%1$s</xliff:g>\""</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Sesha izinhlelo zokusebenza eziningi"</string>
     <string name="label_application" msgid="8531721983832654978">"Uhlelo lokusebenza"</string>
-    <string name="notifications_header" msgid="1404149926117359025">"Izaziso"</string>
     <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Thinta futhi ubambe ukuze ukhethe isinqamuleli."</string>
     <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Thepha kabili uphinde ubambe ukuze uphakamise isinqamuleli noma usebenzise izenzo zangokwezifiso."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Asisekho isikhala kulesi sikrini Sasekhaya."</string>
@@ -60,10 +59,6 @@
     <string name="gadget_setup_text" msgid="8274003207686040488">"Ukumisa"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Lolu uhlelo lokusebenza lwesistimu futhi alikwazi ukukhishwa."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Kukhutshaziwe <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
-    <plurals name="dotted_app_label" formatted="false" msgid="5194538107138265416">
-      <item quantity="one"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, unezaziso ezingu-<xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g></item>
-      <item quantity="other"><xliff:g id="APP_NAME_2">%1$s</xliff:g>, unezaziso ezingu-<xliff:g id="NOTIFICATION_COUNT_3">%2$d</xliff:g></item>
-    </plurals>
     <string name="default_scroll_format" msgid="7475544710230993317">"Ikhasi elingu-%1$d kwangu-%2$d"</string>
     <string name="workspace_scroll_format" msgid="8458889198184077399">"Isikrini sasekhaya esingu-%1$d se-%2$d"</string>
     <string name="workspace_new_page" msgid="257366611030256142">"Ikhasi elisha lesikrini sasekhaya"</string>
@@ -74,12 +69,6 @@
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Kukhutshazwe umlawuli wakho"</string>
     <string name="allow_rotation_title" msgid="7728578836261442095">"Vumela ukuphendukiswa kwesikrini sasekhaya"</string>
     <string name="allow_rotation_desc" msgid="8662546029078692509">"Uma ifoni iphendukiswa"</string>
-    <string name="notification_dots_title" msgid="9062440428204120317">"Amacashazi esaziso"</string>
-    <string name="notification_dots_desc_on" msgid="1679848116452218908">"Vuliwe"</string>
-    <string name="notification_dots_desc_off" msgid="1760796511504341095">"Valiwe"</string>
-    <string name="title_missing_notification_access" msgid="7503287056163941064">"Ukufinyelela izaziso kuyadingeka"</string>
-    <string name="msg_missing_notification_access" msgid="281113995110910548">"Ukuze ubonisa amcashazi esaziso, vula izaziso zohlelo lokusebenza ze-<xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="title_change_settings" msgid="1376365968844349552">"Shintsha izilungiselelo"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Bonisa amacashazi esaziso"</string>
     <string name="auto_add_shortcuts_label" msgid="8222286205987725611">"Engeza isithonjana eskrinini sasekhaya"</string>
     <string name="auto_add_shortcuts_description" msgid="7117251166066978730">"Kwezinhlelo zokusebenza ezintsha"</string>
@@ -111,8 +100,6 @@
     <string name="widget_resized" msgid="9130327887929620">"Iwijethi inikezwe usayizi omusha ngobubanzi obungu-<xliff:g id="NUMBER_0">%1$s</xliff:g> ubude obungu-<xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Izinqamuleli"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Izinqamuleli nezaziso"</string>
-    <string name="action_dismiss_notification" msgid="5909461085055959187">"Cashisa"</string>
-    <string name="notification_dismissed" msgid="6002233469409822874">"Isaziso sicashisiwe"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Okomuntu siqu"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Umsebenzi"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"Iphrofayela yomsebenzi"</string>

@@ -91,7 +91,6 @@ import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.LauncherAppsCompatVO;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.dot.DotInfo;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.dragndrop.DragView;
@@ -106,7 +105,6 @@ import com.android.launcher3.logging.UserEventDispatcher.UserEventDelegate;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.model.ModelWriter;
-import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.popup.PopupContainerWithArrow;
 import com.android.launcher3.popup.PopupDataProvider;
 import com.android.launcher3.states.InternalStateHandler;
@@ -154,7 +152,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Default launcher application.
@@ -327,7 +324,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mLauncherView = LayoutInflater.from(this).inflate(R.layout.launcher, null);
 
         setupViews();
-        mPopupDataProvider = new PopupDataProvider(this);
+        mPopupDataProvider = new PopupDataProvider();
 
         mAppTransitionManager = LauncherAppTransitionManager.newInstance(this);
 
@@ -589,11 +586,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public PopupDataProvider getPopupDataProvider() {
         return mPopupDataProvider;
-    }
-
-    @Override
-    public DotInfo getDotInfoForItem(ItemInfo info) {
-        return mPopupDataProvider.getDotInfoForItem(info);
     }
 
     @Override
@@ -867,7 +859,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         mAppWidgetHost.setListenIfResumed(false);
 
-        NotificationListener.removeNotificationsChangedListener();
         getStateManager().moveToRestState();
 
         UiFactory.onLauncherStateOrResumeChanged(this);
@@ -901,9 +892,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
             // Refresh shortcuts if the permission changed.
             mModel.refreshShortcutsIfRequired();
-
-            // Set the notification listener and fetch updated notifications when we resume
-            NotificationListener.setNotificationsChangedListener(mPopupDataProvider);
 
             DiscoveryBounce.showForHomeIfNeeded(this);
 
@@ -1021,16 +1009,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     }
 
     public interface LauncherOverlayCallbacks {
-        void onScrollChanged(float progress);
     }
 
-    class LauncherOverlayCallbacksImpl implements LauncherOverlayCallbacks {
+    static class LauncherOverlayCallbacksImpl implements LauncherOverlayCallbacks {
 
-        public void onScrollChanged(float progress) {
-            if (mWorkspace != null) {
-                mWorkspace.onOverlayScrollChanged(progress);
-            }
-        }
     }
 
     public boolean isInState(LauncherState state) {
@@ -1257,11 +1239,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             }
         }
     };
-
-    public void updateNotificationDots(Predicate<PackageUserKey> updatedDots) {
-        mWorkspace.updateNotificationDots(updatedDots);
-        mAppsView.getAppsStore().updateNotificationDots(updatedDots);
-    }
 
     @Override
     public void onAttachedToWindow() {
@@ -1655,7 +1632,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     public boolean removeItem(View v, final ItemInfo itemInfo, boolean deleteFromDb) {
         if (itemInfo instanceof WorkspaceItemInfo) {
             // Remove the shortcut from the folder before removing it from launcher
-            View folderIcon = mWorkspace.getHomescreenIconByItemId(itemInfo.container);
             mWorkspace.removeWorkspaceItem(v);
             if (deleteFromDb) {
                 getModelWriter().deleteItemFromDatabase(itemInfo);

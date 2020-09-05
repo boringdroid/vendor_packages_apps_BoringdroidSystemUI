@@ -43,7 +43,6 @@ import android.widget.TextView;
 
 import com.android.launcher3.Launcher.OnResumeCallback;
 import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
-import com.android.launcher3.dot.DotInfo;
 import com.android.launcher3.graphics.DrawableFactory;
 import com.android.launcher3.graphics.IconPalette;
 import com.android.launcher3.graphics.IconShape;
@@ -119,8 +118,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
     @ViewDebug.ExportedProperty(category = "launcher")
     private float mTextAlpha = 1;
 
-    @ViewDebug.ExportedProperty(category = "launcher")
-    private DotInfo mDotInfo;
     private DotRenderer mDotRenderer;
     @ViewDebug.ExportedProperty(category = "launcher", deepExport = true)
     private DotRenderer.DrawParams mDotParams;
@@ -209,7 +206,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
      * Resets the view so it can be recycled.
      */
     public void reset() {
-        mDotInfo = null;
         mDotParams.color = Color.TRANSPARENT;
         cancelDotScaleAnim();
         mDotParams.scale = 0f;
@@ -421,7 +417,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
      * @param canvas The canvas to draw to.
      */
     protected void drawDotIfNecessary(Canvas canvas) {
-        if (!mForceHideDot && (hasDot() || mDotParams.scale > 0)) {
+        if (!mForceHideDot && mDotParams.scale > 0) {
             getIconBounds(mDotParams.iconBounds);
             Utilities.scaleRectAboutCenter(mDotParams.iconBounds, IconShape.getNormalizationScale());
             final int scrollX = getScrollX();
@@ -441,13 +437,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
 
         if (forceHideDot) {
             invalidate();
-        } else if (hasDot()) {
-            animateDotScale(0, 1);
         }
-    }
-
-    private boolean hasDot() {
-        return mDotInfo != null;
     }
 
     public void getIconBounds(Rect outBounds) {
@@ -578,33 +568,15 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
 
     public void applyDotState(ItemInfo itemInfo, boolean animate) {
         if (mIcon instanceof FastBitmapDrawable) {
-            boolean wasDotted = mDotInfo != null;
-            mDotInfo = mActivity.getDotInfoForItem(itemInfo);
-            boolean isDotted = mDotInfo != null;
-            float newDotScale = isDotted ? 1f : 0;
             if (mDisplay == DISPLAY_ALL_APPS) {
                 mDotRenderer = mActivity.getDeviceProfile().mDotRendererAllApps;
             } else {
                 mDotRenderer = mActivity.getDeviceProfile().mDotRendererWorkSpace;
             }
-            if (wasDotted || isDotted) {
-                // Animate when a dot is first added or when it is removed.
-                if (animate && (wasDotted ^ isDotted) && isShown()) {
-                    animateDotScale(newDotScale);
-                } else {
-                    cancelDotScaleAnim();
-                    mDotParams.scale = newDotScale;
-                    invalidate();
-                }
-            }
             if (itemInfo.contentDescription != null) {
                 if (itemInfo.isDisabled()) {
                     setContentDescription(getContext().getString(R.string.disabled_app_label,
                             itemInfo.contentDescription));
-                } else if (hasDot()) {
-                    int count = mDotInfo.getNotificationCount();
-                    setContentDescription(getContext().getResources().getQuantityString(
-                            R.plurals.dotted_app_label, count, itemInfo.contentDescription, count));
                 } else {
                     setContentDescription(itemInfo.contentDescription);
                 }
