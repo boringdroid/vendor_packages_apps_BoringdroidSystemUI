@@ -95,13 +95,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Intent received used to initialize a restored widget -->
-        <receiver android:name="com.android.launcher3.AppWidgetsRestoredReceiver" >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_HOST_RESTORED"/>
-            </intent-filter>
-        </receiver>
-
         <service
             android:name="com.android.launcher3.uioverrides.dynamicui.WallpaperManagerCompatVL$ColorExtractionService"
             android:exported="false"
