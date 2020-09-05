@@ -65,7 +65,6 @@ import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
 import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.provider.ImportDataTask;
 import com.android.launcher3.qsb.QsbContainerView;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.shortcuts.ShortcutKey;
@@ -260,12 +259,6 @@ public class LoaderTask implements Runnable {
         final MultiHashMap<UserHandle, String> pendingPackages = new MultiHashMap<>();
 
         boolean clearDb = false;
-        try {
-            ImportDataTask.performImportIfPossible(context);
-        } catch (Exception e) {
-            // Migration failed. Clear workspace.
-            clearDb = true;
-        }
 
         if (!clearDb && !GridSizeMigrationTask.migrateGridIfNeeded(context)) {
             // Migration failed. Clear workspace.
