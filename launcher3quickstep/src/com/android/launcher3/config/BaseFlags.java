@@ -51,10 +51,6 @@ public abstract class BaseFlags {
         throw new UnsupportedOperationException("Don't instantiate BaseFlags");
     }
 
-    public static boolean showFlagTogglerUi(Context context) {
-        return Utilities.IS_DEBUG_DEVICE && Utilities.isDevelopersOptionsEnabled(context);
-    }
-
     public static final boolean IS_DOGFOOD_BUILD = false;
 
     // When enabled the promise icon is visible in all apps while installation an app.
@@ -67,9 +63,6 @@ public abstract class BaseFlags {
 
     // Enable moving the QSB on the 0th screen of the workspace
     public static final boolean QSB_ON_FIRST_SCREEN = false;
-
-    public static final TogglableFlag EXAMPLE_FLAG = new TogglableFlag("EXAMPLE_FLAG", true,
-            "An example flag that doesn't do anything. Useful for testing");
 
     //Feature flag to enable pulling down navigation shade from workspace.
     public static final boolean PULL_DOWN_STATUS_BAR = true;
@@ -108,10 +101,6 @@ public abstract class BaseFlags {
             "FAKE_LANDSCAPE_UI", false,
             "Rotate launcher UI instead of using transposed layout");
 
-    public static final TogglableFlag FOLDER_NAME_SUGGEST = new TogglableFlag(
-            "FOLDER_NAME_SUGGEST", true,
-            "Suggests folder names instead of blank text.");
-
     public static final TogglableFlag APP_SEARCH_IMPROVEMENTS = new TogglableFlag(
             "APP_SEARCH_IMPROVEMENTS", true,
             "Adds localized title and keyword search and ranking");
@@ -135,21 +124,6 @@ public abstract class BaseFlags {
         APP_SEARCH_IMPROVEMENTS.initialize(context);
     }
 
-    static List<TogglableFlag> getTogglableFlags() {
-        // By Java Language Spec 12.4.2
-        // https://docs.oracle.com/javase/specs/jls/se7/html/jls-12.html#jls-12.4.2, the
-        // TogglableFlag instances on BaseFlags will be created before those on the FeatureFlags
-        // subclass. This code handles flags that are redeclared in FeatureFlags, ensuring the
-        // FeatureFlags one takes priority.
-        SortedMap<String, TogglableFlag> flagsByKey = new TreeMap<>();
-        synchronized (sLock) {
-            for (TogglableFlag flag : sFlags) {
-                flagsByKey.put(((BaseTogglableFlag) flag).getKey(), flag);
-            }
-        }
-        return new ArrayList<>(flagsByKey.values());
-    }
-
     public static abstract class BaseTogglableFlag {
         private final String key;
         // should be value that is hardcoded in client side.
@@ -171,12 +145,6 @@ public abstract class BaseFlags {
             }
         }
 
-        /** Set the value of this flag. This should only be used in tests. */
-        @VisibleForTesting
-        void setForTests(boolean value) {
-            currentValue = value;
-        }
-
         public String getKey() {
             return key;
         }
@@ -188,16 +156,6 @@ public abstract class BaseFlags {
         protected abstract boolean getOverridenDefaultValue(boolean value);
 
         protected abstract void addChangeListener(Context context, Runnable r);
-
-        public void updateStorage(Context context, boolean value) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(FLAGS_PREF_NAME,
-                    Context.MODE_PRIVATE).edit();
-            if (value == getDefaultValue()) {
-                editor.remove(key).apply();
-            } else {
-                editor.putBoolean(key, value).apply();
-            }
-        }
 
         boolean getFromStorage(Context context, boolean defaultValue) {
             return context.getSharedPreferences(FLAGS_PREF_NAME, Context.MODE_PRIVATE)
