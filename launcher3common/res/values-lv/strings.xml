@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Lietotne nav instalēta."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Lietotne nav pieejama."</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Lejupielādētā lietotne ir atspējota drošajā režīmā."</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"Logrīki atspējoti drošajā režīmā"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"Saīsne nav pieejama."</string>
     <string name="home_screen" msgid="806512411299847073">"Sākuma ekrāns"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Pielāgotās darbības"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"Lai izvēlētos logrīku, pieskarieties un turiet to."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"Lai atlasītu logrīku, veiciet dubultskārienu uz tā un turiet to vai arī veiciet pielāgotas darbības."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"%1$d plats un %2$d augsts"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Pieskarieties un turiet, lai manuāli pievienotu"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Pievienot automātiski"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Notiek lietotņu ielāde…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"rakstīt sākuma ekrāna iestatījumus un saīsnes"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ļauj lietotnei mainīt iestatījumus un saīsnes sākuma ekrānā."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"Lietotnei <xliff:g id="APP_NAME">%1$s</xliff:g> nav atļauts veikt tālruņa zvanus."</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"Ielādējot logrīku, radās problēma."</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Notiek iestatīšana"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Šī ir sistēmas lietotne, un to nevar atinstalēt."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Lietotne <xliff:g id="APP_NAME">%1$s</xliff:g> ir atspējota"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Šai ikonai paredzētā lietotne nav instalēta. Varat noņemt ikonu vai meklēt lietotni un instalēt to manuāli."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"Lietotnes <xliff:g id="NAME">%1$s</xliff:g> lejupielāde (<xliff:g id="PROGRESS">%2$s</xliff:g> pabeigti)"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"Notiek <xliff:g id="NAME">%1$s</xliff:g> instalēšana"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g> logrīki"</string>
-    <string name="widgets_list" msgid="796804551140113767">"Logrīku saraksts"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"Logrīku saraksts aizvērts"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Pievienot sākuma ekrānam"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Pārvietot vienumu šeit"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"Vienums pievienots sākuma ekrānam"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"Mape izveidota"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Pārvietot uz sākuma ekrānu"</string>
     <string name="action_resize" msgid="1802976324781771067">"Mainīt lielumu"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"Palielināt platumu"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"Palielināt augstumu"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"Samazināt platumu"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"Samazināt augstumu"</string>
-    <string name="widget_resized" msgid="9130327887929620">"Logrīka lielums mainīts — platums: <xliff:g id="NUMBER_0">%1$s</xliff:g>, augstums: <xliff:g id="NUMBER_1">%2$s</xliff:g>."</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Saīsnes"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Saīsnes un paziņojumi"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personīgās lietotnes"</string>

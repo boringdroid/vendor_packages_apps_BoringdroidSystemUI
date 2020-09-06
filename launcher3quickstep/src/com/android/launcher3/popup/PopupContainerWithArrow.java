@@ -35,7 +35,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
@@ -107,13 +106,11 @@ public class PopupContainerWithArrow extends ArrowPopup implements DragSource,
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mLauncher.getPopupDataProvider().setChangeListener(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        mLauncher.getPopupDataProvider().setChangeListener(null);
     }
 
     @Override
@@ -296,45 +293,6 @@ public class PopupContainerWithArrow extends ArrowPopup implements DragSource,
             view.getLayoutParams().height = originalHeight;
             view.getIconView().setScaleX(iconScale);
             view.getIconView().setScaleY(iconScale);
-        }
-    }
-
-    @Override
-    public void onWidgetsBound() {
-        ItemInfo itemInfo = (ItemInfo) mOriginalIcon.getTag();
-        SystemShortcut widgetInfo = new SystemShortcut.Widgets();
-        View.OnClickListener onClickListener = widgetInfo.getOnClickListener(mLauncher, itemInfo);
-        View widgetsView = null;
-        int count = mSystemShortcutContainer.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View systemShortcutView = mSystemShortcutContainer.getChildAt(i);
-            if (systemShortcutView.getTag() instanceof SystemShortcut.Widgets) {
-                widgetsView = systemShortcutView;
-                break;
-            }
-        }
-
-        if (onClickListener != null && widgetsView == null) {
-            // We didn't have any widgets cached but now there are some, so enable the shortcut.
-            if (mSystemShortcutContainer != this) {
-                initializeSystemShortcut(
-                        R.layout.system_shortcut_icon_only, mSystemShortcutContainer, widgetInfo);
-            } else {
-                // If using the expanded system shortcut (as opposed to just the icon), we need to
-                // reopen the container to ensure measurements etc. all work out. While this could
-                // be quite janky, in practice the user would typically see a small flicker as the
-                // animation restarts partway through, and this is a very rare edge case anyway.
-                close(false);
-                PopupContainerWithArrow.showForIcon(mOriginalIcon);
-            }
-        } else if (onClickListener == null && widgetsView != null) {
-            // No widgets exist, but we previously added the shortcut so remove it.
-            if (mSystemShortcutContainer != this) {
-                mSystemShortcutContainer.removeView(widgetsView);
-            } else {
-                close(false);
-                PopupContainerWithArrow.showForIcon(mOriginalIcon);
-            }
         }
     }
 

@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"അപ്ലിക്കേഷൻ ഇൻസ്‌റ്റാളുചെ‌യ്‌തിട്ടില്ല."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"അപ്ലിക്കേഷൻ ലഭ്യമല്ല"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ഡൗൺലോഡുചെയ്‌ത അപ്ലിക്കേഷൻ സുരക്ഷാ മോഡിൽ പ്രവർത്തനരഹിതമാക്കി"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"സുരക്ഷിത മോഡിൽ വിജറ്റുകൾ പ്രവർത്തനരഹിതമാക്കി"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"കുറുക്കുവഴി ലഭ്യമല്ല"</string>
     <string name="home_screen" msgid="806512411299847073">"ഹോം സ്‌ക്രീൻ"</string>
     <string name="custom_actions" msgid="3747508247759093328">"ഇഷ്‌ടാനുസൃത പ്രവർത്തനങ്ങൾ"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"ഒരു വിജറ്റ് ചേർക്കുന്നതിന് അത് സ്‌പർശിച്ച് പിടിക്കുക."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"വിജറ്റ് തിരഞ്ഞെടുക്കാനോ ഇഷ്ടാനുസൃത പ്രവർത്തനങ്ങൾ ഉപയോഗിക്കാനോ രണ്ടുതവണ ടാപ്പുചെയ്ത് പിടിക്കുക."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"%1$d വീതിയും %2$d ഉയരവും"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"നേരിട്ട് സ്ഥാപിക്കുന്നതിന് സ്‌പർശിച്ചുപിടിക്കുക"</string>
     <string name="place_automatically" msgid="8064208734425456485">"സ്വയമേവ ചേർക്കുക"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"ആപ്പുകൾ ലോഡുചെയ്യുന്നു..."</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"ഹോം ക്രമീകരണങ്ങളും കുറുക്കുവഴികളും റൈറ്റുചെയ്യുക"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ഹോമിലെ ക്രമീകരണങ്ങളും കുറുക്കുവഴികളും മാറ്റാൻ അപ്ലിക്കേഷനെ അനുവദിക്കുന്നു."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"ഫോൺ കോൾ ചെയ്യാൻ <xliff:g id="APP_NAME">%1$s</xliff:g> എന്നതിനെ അനുവദിച്ചിട്ടില്ല"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"വിജറ്റ് ലോഡുചെയ്യുന്നതിൽ പ്രശ്നമുണ്ട്"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"സജ്ജീകരിക്കുക"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ഇതൊരു സിസ്‌റ്റം അപ്ലിക്കേഷനായതിനാൽ അൺഇൻസ്‌റ്റാളുചെയ്യാനാവില്ല."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> പ്രവർത്തനരഹിതമാക്കി"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"ഈ ഐക്കണുവേണ്ടി അപ്ലിക്കേഷൻ ഇൻസ്റ്റാളുചെയ്‌തിട്ടില്ല. നിങ്ങൾക്കത് നീക്കംചെയ്യാനാകും അല്ലെങ്കിൽ അപ്ലിക്കേഷനുവേണ്ടി തിരഞ്ഞുകൊണ്ട് അത് സ്വമേധയാ ഇൻസ്റ്റാളുചെയ്യുക."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> ഡൗൺലോഡ് ചെയ്യുന്നു, <xliff:g id="PROGRESS">%2$s</xliff:g> പൂർത്തിയായി"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"ഇൻസ്റ്റാൾ ചെയ്യാൻ <xliff:g id="NAME">%1$s</xliff:g> കാക്കുന്നു"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g> വിജറ്റുകൾ"</string>
-    <string name="widgets_list" msgid="796804551140113767">"വിജറ്റുകളുടെ ലിസ്‌റ്റ്"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"വിജറ്റുകളുടെ ലിസ്‌റ്റ് അവസാനിപ്പിച്ചു"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"ഹോം സ്ക്രീനിൽ ചേർക്കുക"</string>
     <string name="action_move_here" msgid="2170188780612570250">"ഇനം ഇവിടേക്ക് നീക്കുക"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"ഹോം സ്‌ക്രീനിൽ ഇനം ചേർത്തു"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"ഫോൾഡർ സൃഷ്‌ടിച്ചു"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"ഹോം സ്‌ക്രീനിലേക്ക് നീക്കുക"</string>
     <string name="action_resize" msgid="1802976324781771067">"വലുപ്പംമാറ്റുക"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"വീതി കൂട്ടുക"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"ഉയരം കൂട്ടുക"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"വീതി കുറയ്‌ക്കുക"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"ഉയരം കുറയ്‌ക്കുക"</string>
-    <string name="widget_resized" msgid="9130327887929620">"വീതി <xliff:g id="NUMBER_0">%1$s</xliff:g> ഉയരം <xliff:g id="NUMBER_1">%2$s</xliff:g>-ലേക്ക് വിഡ്‌ജെറ്റിന്റെ വലുപ്പം മാറ്റി"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"കുറുക്കുവഴികൾ"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"കുറുക്കുവഴികളും അറിയിപ്പുകളും"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"വ്യക്തിപരം"</string>

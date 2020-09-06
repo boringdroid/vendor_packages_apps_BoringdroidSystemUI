@@ -210,36 +210,6 @@ public class LauncherProvider extends ContentProvider {
         // 1. Ensure that externally added items have a valid item id
         int id = mOpenHelper.generateNewItemId();
         values.put(LauncherSettings.Favorites._ID, id);
-
-        // 2. In the case of an app widget, and if no app widget id is specified, we
-        // attempt allocate and bind the widget.
-        Integer itemType = values.getAsInteger(LauncherSettings.Favorites.ITEM_TYPE);
-        if (itemType != null &&
-                itemType.intValue() == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET &&
-                !values.containsKey(LauncherSettings.Favorites.APPWIDGET_ID)) {
-
-            final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getContext());
-            ComponentName cn = ComponentName.unflattenFromString(
-                    values.getAsString(Favorites.APPWIDGET_PROVIDER));
-
-            if (cn != null) {
-                try {
-                    AppWidgetHost widgetHost = mOpenHelper.newLauncherWidgetHost();
-                    int appWidgetId = widgetHost.allocateAppWidgetId();
-                    values.put(LauncherSettings.Favorites.APPWIDGET_ID, appWidgetId);
-                    if (!appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,cn)) {
-                        widgetHost.deleteAppWidgetId(appWidgetId);
-                        return false;
-                    }
-                } catch (RuntimeException e) {
-                    Log.e(TAG, "Failed to initialize external widget", e);
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
-
         return true;
     }
 
@@ -300,10 +270,6 @@ public class LauncherProvider extends ContentProvider {
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
-        if (Binder.getCallingPid() != Process.myPid()
-                && Favorites.TABLE_NAME.equalsIgnoreCase(args.table)) {
-            mOpenHelper.removeGhostWidgets(mOpenHelper.getWritableDatabase());
-        }
         int count = db.delete(args.table, args.where, args.args);
         if (count > 0) {
             mOpenHelper.onAddOrDeleteOp(db);
@@ -362,10 +328,6 @@ public class LauncherProvider extends ContentProvider {
             case LauncherSettings.Settings.METHOD_LOAD_DEFAULT_FAVORITES: {
                 return null;
             }
-            case LauncherSettings.Settings.METHOD_REMOVE_GHOST_WIDGETS: {
-                mOpenHelper.removeGhostWidgets(mOpenHelper.getWritableDatabase());
-                return null;
-            }
             case LauncherSettings.Settings.METHOD_NEW_TRANSACTION: {
                 Bundle result = new Bundle();
                 result.putBinder(LauncherSettings.Settings.EXTRA_VALUE,
@@ -400,7 +362,6 @@ public class LauncherProvider extends ContentProvider {
      * The class is subclassed in tests to create an in-memory db.
      */
     public static class DatabaseHelper extends NoLocaleSQLiteHelper implements LayoutParserCallback {
-        private final Handler mWidgetHostResetHandler;
         private final Context mContext;
         private int mMaxItemId = -1;
         private int mMaxScreenId = -1;
@@ -428,7 +389,6 @@ public class LauncherProvider extends ContentProvider {
                 Context context, Handler widgetHostResetHandler, String tableName) {
             super(context, tableName, SCHEMA_VERSION);
             mContext = context;
-            mWidgetHostResetHandler = widgetHostResetHandler;
         }
 
         protected void initIds() {
@@ -467,13 +427,6 @@ public class LauncherProvider extends ContentProvider {
          * Overriden in tests.
          */
         protected void onEmptyDbCreated() {
-            // Database was just created, so wipe any previous widgets
-            if (mWidgetHostResetHandler != null) {
-                newLauncherWidgetHost().deleteHost();
-                mWidgetHostResetHandler.sendEmptyMessage(
-                        ChangeListenerWrapper.MSG_APP_WIDGET_HOST_RESET);
-            }
-
             // Set the flag for empty DB
             Utilities.getPrefs(mContext).edit().putBoolean(EMPTY_DATABASE_CREATED, true).commit();
         }
@@ -646,38 +599,6 @@ public class LauncherProvider extends ContentProvider {
         }
 
         /**
-         * Removes widgets which are registered to the Launcher's host, but are not present
-         * in our model.
-         */
-        @TargetApi(Build.VERSION_CODES.O)
-        public void removeGhostWidgets(SQLiteDatabase db) {
-            // Get all existing widget ids.
-            final AppWidgetHost host = newLauncherWidgetHost();
-            final int[] allWidgets;
-            try {
-                // Although the method was defined in O, it has existed since the beginning of time,
-                // so it might work on older platforms as well.
-                allWidgets = host.getAppWidgetIds();
-            } catch (IncompatibleClassChangeError e) {
-                Log.e(TAG, "getAppWidgetIds not supported", e);
-                return;
-            }
-            final IntSet validWidgets = IntSet.wrap(LauncherDbUtils.queryIntArray(db,
-                    Favorites.TABLE_NAME, Favorites.APPWIDGET_ID,
-                    "itemType=" + Favorites.ITEM_TYPE_APPWIDGET, null, null));
-            for (int widgetId : allWidgets) {
-                if (!validWidgets.contains(widgetId)) {
-                    try {
-                        FileLog.d(TAG, "Deleting invalid widget " + widgetId);
-                        host.deleteAppWidgetId(widgetId);
-                    } catch (RuntimeException e) {
-                        // Ignore
-                    }
-                }
-            }
-        }
-
-        /**
          * Replaces all shortcuts of type {@link Favorites#ITEM_TYPE_SHORTCUT} which have a valid
          * launcher activity target with {@link Favorites#ITEM_TYPE_APPLICATION}.
          */
@@ -759,10 +680,6 @@ public class LauncherProvider extends ContentProvider {
             }
             mMaxItemId += 1;
             return mMaxItemId;
-        }
-
-        public AppWidgetHost newLauncherWidgetHost() {
-            return new LauncherAppWidgetHost(mContext);
         }
 
         public void checkId(ContentValues values) {

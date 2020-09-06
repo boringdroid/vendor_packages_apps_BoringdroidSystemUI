@@ -26,7 +26,6 @@ import android.util.Log;
 import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.SessionCommitReceiver;
 import com.android.launcher3.Utilities;
@@ -43,7 +42,6 @@ import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.PackageManagerHelper;
-import com.android.launcher3.util.PackageUserKey;
 import com.android.launcher3.util.SafeCloseable;
 
 import java.util.ArrayList;
@@ -119,7 +117,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                         if (DEBUG) Log.d(TAG, "mAllAppsList.updatePackage " + packages[i]);
                         iconCache.updateIconsForPkg(packages[i], mUser);
                         appsList.updatePackage(context, packages[i], mUser);
-                        app.getWidgetCache().removePackage(packages[i], mUser);
                     }
                 }
                 // Since package was just updated, the target must be available now.
@@ -136,7 +133,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                 for (int i = 0; i < N; i++) {
                     if (DEBUG) Log.d(TAG, "mAllAppsList.removePackage " + packages[i]);
                     appsList.removePackage(packages[i], mUser);
-                    app.getWidgetCache().removePackage(packages[i], mUser);
                 }
                 flagOp = FlagOp.addFlag(WorkspaceItemInfo.FLAG_DISABLED_NOT_AVAILABLE);
                 break;
@@ -165,7 +161,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
         // Update shortcut infos
         if (mOp == OP_ADD || flagOp != FlagOp.NO_OP) {
             final ArrayList<WorkspaceItemInfo> updatedWorkspaceItems = new ArrayList<>();
-            final ArrayList<LauncherAppWidgetInfo> widgets = new ArrayList<>();
 
             // For system apps, package manager send OP_UPDATE when an app is enabled.
             final boolean isNewApkAvailable = mOp == OP_ADD || mOp == OP_UPDATE;
@@ -257,23 +252,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                         if (infoUpdated) {
                             getModelWriter().updateItemInDatabase(si);
                         }
-                    } else if (info instanceof LauncherAppWidgetInfo && isNewApkAvailable) {
-                        LauncherAppWidgetInfo widgetInfo = (LauncherAppWidgetInfo) info;
-                        if (mUser.equals(widgetInfo.user)
-                                && widgetInfo.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY)
-                                && packageSet.contains(widgetInfo.providerName.getPackageName())) {
-                            widgetInfo.restoreStatus &=
-                                    ~LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY &
-                                            ~LauncherAppWidgetInfo.FLAG_RESTORE_STARTED;
-
-                            // adding this flag ensures that launcher shows 'click to setup'
-                            // if the widget has a config activity. In case there is no config
-                            // activity, it will be marked as 'restored' during bind.
-                            widgetInfo.restoreStatus |= LauncherAppWidgetInfo.FLAG_UI_NOT_READY;
-
-                            widgets.add(widgetInfo);
-                            getModelWriter().updateItemInDatabase(widgetInfo);
-                        }
                     }
                 }
             }
@@ -281,10 +259,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
             bindUpdatedWorkspaceItems(updatedWorkspaceItems);
             if (!removedShortcuts.isEmpty()) {
                 deleteAndBindComponentsRemoved(ItemInfoMatcher.ofItemIds(removedShortcuts, false));
-            }
-
-            if (!widgets.isEmpty()) {
-                scheduleCallbackTask(c -> c.bindWidgetsRestored(widgets));
             }
         }
 
@@ -313,15 +287,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
 
             // Remove any queued items from the install queue
             InstallShortcutReceiver.removeFromInstallQueue(context, removedPackages, mUser);
-        }
-
-        if (Utilities.ATLEAST_OREO && mOp == OP_ADD) {
-            // Load widgets for the new package. Changes due to app updates are handled through
-            // AppWidgetHost events, this is just to initialize the long-press options.
-            for (int i = 0; i < N; i++) {
-                dataModel.widgetsModel.update(app, new PackageUserKey(packages[i], mUser));
-            }
-            bindUpdatedWidgets(dataModel);
         }
     }
 

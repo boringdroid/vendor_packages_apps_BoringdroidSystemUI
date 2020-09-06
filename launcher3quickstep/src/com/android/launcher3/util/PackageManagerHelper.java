@@ -28,7 +28,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -37,12 +36,10 @@ import android.os.PatternMatcher;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.PendingAddItemInfo;
 import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.R;
@@ -197,8 +194,6 @@ public class PackageManagerHelper {
             componentName = info.getTargetComponent();
         } else if (info instanceof PendingAddItemInfo) {
             componentName = ((PendingAddItemInfo) info).componentName;
-        } else if (info instanceof LauncherAppWidgetInfo) {
-            componentName = ((LauncherAppWidgetInfo) info).providerName;
         }
         if (componentName != null) {
             try {
@@ -250,28 +245,6 @@ public class PackageManagerHelper {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Finds a system apk which had a broadcast receiver listening to a particular action.
-     * @param action intent action used to find the apk
-     * @return a pair of apk package name and the resources.
-     */
-    public static Pair<String, Resources> findSystemApk(String action, PackageManager pm) {
-        final Intent intent = new Intent(action);
-        for (ResolveInfo info : pm.queryBroadcastReceivers(intent, 0)) {
-            if (info.activityInfo != null &&
-                    (info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
-                final String packageName = info.activityInfo.packageName;
-                try {
-                    final Resources res = pm.getResourcesForApplication(packageName);
-                    return Pair.create(packageName, res);
-                } catch (NameNotFoundException e) {
-                    Log.w(TAG, "Failed to find resources for " + packageName);
-                }
-            }
-        }
-        return null;
     }
 
     /**

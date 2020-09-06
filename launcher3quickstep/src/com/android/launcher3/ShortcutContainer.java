@@ -27,11 +27,8 @@ import android.view.ViewGroup;
 
 import com.android.launcher3.CellLayout.ContainerType;
 import com.android.launcher3.views.ActivityContext;
-import com.android.launcher3.widget.LauncherAppWidgetHostView;
 
-public class ShortcutAndWidgetContainer extends ViewGroup {
-    static final String TAG = "ShortcutAndWidgetContainer";
-
+public class ShortcutContainer extends ViewGroup {
     // These are temporary variables to prevent having to allocate a new object just to
     // return an (x, y) value from helper functions. Do NOT use them to maintain other state.
     private final int[] mTmpCellXY = new int[2];
@@ -47,7 +44,7 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
     private ActivityContext mActivity;
     private boolean mInvertIfRtl = false;
 
-    public ShortcutAndWidgetContainer(Context context, @ContainerType int containerType) {
+    public ShortcutContainer(Context context, @ContainerType int containerType) {
         super(context);
         mActivity = ActivityContext.lookupContext(context);
         mWallpaperManager = WallpaperManager.getInstance(context);
@@ -92,13 +89,7 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
     public void setupLp(View child) {
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
-        if (child instanceof LauncherAppWidgetHostView) {
-            DeviceProfile profile = mActivity.getWallpaperDeviceProfile();
-            lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX,
-                    profile.appWidgetScale.x, profile.appWidgetScale.y);
-        } else {
-            lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX);
-        }
+        lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX);
     }
 
     // Set whether or not to invert the layout horizontally if the layout is in RTL mode.
@@ -115,20 +106,14 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
         final DeviceProfile profile = mActivity.getWallpaperDeviceProfile();
 
-        if (child instanceof LauncherAppWidgetHostView) {
-            lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX,
-                    profile.appWidgetScale.x, profile.appWidgetScale.y);
-            // Widgets have their own padding
-        } else {
-            lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX);
-            // Center the icon/folder
-            int cHeight = getCellContentHeight();
-            int cellPaddingY = (int) Math.max(0, ((lp.height - cHeight) / 2f));
-            int cellPaddingX = mContainerType == CellLayout.WORKSPACE
-                    ? profile.workspaceCellPaddingXPx
-                    : (int) (profile.edgeMarginPx / 2f);
-            child.setPadding(cellPaddingX, cellPaddingY, cellPaddingX, 0);
-        }
+        lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX);
+        // Center the icon/folder
+        int cHeight = getCellContentHeight();
+        int cellPaddingY = (int) Math.max(0, ((lp.height - cHeight) / 2f));
+        int cellPaddingX = mContainerType == CellLayout.WORKSPACE
+                ? profile.workspaceCellPaddingXPx
+                : (int) (profile.edgeMarginPx / 2f);
+        child.setPadding(cellPaddingX, cellPaddingY, cellPaddingX, 0);
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
         int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
         child.measure(childWidthMeasureSpec, childheightMeasureSpec);
@@ -145,19 +130,6 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
             final View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
                 CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
-
-                if (child instanceof LauncherAppWidgetHostView) {
-                    LauncherAppWidgetHostView lahv = (LauncherAppWidgetHostView) child;
-
-                    // Scale and center the widget to fit within its cells.
-                    DeviceProfile profile = mActivity.getDeviceProfile();
-                    float scaleX = profile.appWidgetScale.x;
-                    float scaleY = profile.appWidgetScale.y;
-
-                    lahv.setScaleToFit(Math.min(scaleX, scaleY));
-                    lahv.setTranslationForCentering(-(lp.width - (lp.width * scaleX)) / 2.0f,
-                            -(lp.height - (lp.height * scaleY)) / 2.0f);
-                }
 
                 int childLeft = lp.x;
                 int childTop = lp.y;

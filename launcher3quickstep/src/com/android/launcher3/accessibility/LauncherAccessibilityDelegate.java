@@ -4,10 +4,6 @@ import static android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK
 
 import static com.android.launcher3.LauncherState.NORMAL;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.appwidget.AppWidgetProviderInfo;
-import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,14 +16,12 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.AppWidgetResizeFrame;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.ButtonDropTarget;
 import com.android.launcher3.CellLayout;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.PendingAddItemInfo;
@@ -42,7 +36,6 @@ import com.android.launcher3.touch.ItemLongClickListener;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.ShortcutUtil;
 import com.android.launcher3.util.Thunk;
-import com.android.launcher3.widget.LauncherAppWidgetHostView;
 
 import java.util.ArrayList;
 
@@ -62,8 +55,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
 
     public enum DragType {
         ICON,
-        FOLDER,
-        WIDGET
     }
 
     public static class DragInfo {
@@ -122,10 +113,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
 
             if (item.container >= 0) {
                 info.addAction(mActions.get(MOVE_TO_WORKSPACE));
-            } else if (item instanceof LauncherAppWidgetInfo) {
-                if (!getSupportedResizeActions(host, (LauncherAppWidgetInfo) item).isEmpty()) {
-                    info.addAction(mActions.get(RESIZE));
-                }
             }
         }
 
@@ -139,7 +126,7 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
             // Support the action unless the item is in a context menu.
             return item.screenId >= 0;
         }
-        return item instanceof LauncherAppWidgetInfo;
+        return false;
     }
 
     @Override
@@ -210,24 +197,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
                 }
             });
         } else if (action == RESIZE) {
-            final LauncherAppWidgetInfo info = (LauncherAppWidgetInfo) item;
-            final IntArray actions = getSupportedResizeActions(host, info);
-            CharSequence[] labels = new CharSequence[actions.size()];
-            for (int i = 0; i < actions.size(); i++) {
-                labels[i] = mLauncher.getText(actions.get(i));
-            }
-
-            new AlertDialog.Builder(mLauncher)
-                .setTitle(R.string.action_resize)
-                .setItems(labels, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        performResizeAction(actions.get(which), host, info);
-                        dialog.dismiss();
-                    }
-                })
-                .show();
             return true;
         } else if (action == DEEP_SHORTCUTS) {
             return PopupContainerWithArrow.showForIcon((BubbleTextView) host) != null;
@@ -241,79 +210,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
             }
         }
         return false;
-    }
-
-    private IntArray getSupportedResizeActions(View host, LauncherAppWidgetInfo info) {
-        IntArray actions = new IntArray();
-
-        AppWidgetProviderInfo providerInfo = ((LauncherAppWidgetHostView) host).getAppWidgetInfo();
-        if (providerInfo == null) {
-            return actions;
-        }
-
-        CellLayout layout = (CellLayout) host.getParent().getParent();
-        if ((providerInfo.resizeMode & AppWidgetProviderInfo.RESIZE_HORIZONTAL) != 0) {
-            if (layout.isRegionVacant(info.cellX + info.spanX, info.cellY, 1, info.spanY) ||
-                    layout.isRegionVacant(info.cellX - 1, info.cellY, 1, info.spanY)) {
-                actions.add(R.string.action_increase_width);
-            }
-
-            if (info.spanX > info.minSpanX && info.spanX > 1) {
-                actions.add(R.string.action_decrease_width);
-            }
-        }
-
-        if ((providerInfo.resizeMode & AppWidgetProviderInfo.RESIZE_VERTICAL) != 0) {
-            if (layout.isRegionVacant(info.cellX, info.cellY + info.spanY, info.spanX, 1) ||
-                    layout.isRegionVacant(info.cellX, info.cellY - 1, info.spanX, 1)) {
-                actions.add(R.string.action_increase_height);
-            }
-
-            if (info.spanY > info.minSpanY && info.spanY > 1) {
-                actions.add(R.string.action_decrease_height);
-            }
-        }
-        return actions;
-    }
-
-    @SuppressLint("StringFormatMatches")
-    @Thunk void performResizeAction(int action, View host, LauncherAppWidgetInfo info) {
-        CellLayout.LayoutParams lp = (CellLayout.LayoutParams) host.getLayoutParams();
-        CellLayout layout = (CellLayout) host.getParent().getParent();
-        layout.markCellsAsUnoccupiedForView(host);
-
-        if (action == R.string.action_increase_width) {
-            if (((host.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL)
-                    && layout.isRegionVacant(info.cellX - 1, info.cellY, 1, info.spanY))
-                    || !layout.isRegionVacant(info.cellX + info.spanX, info.cellY, 1, info.spanY)) {
-                lp.cellX --;
-                info.cellX --;
-            }
-            lp.cellHSpan ++;
-            info.spanX ++;
-        } else if (action == R.string.action_decrease_width) {
-            lp.cellHSpan --;
-            info.spanX --;
-        } else if (action == R.string.action_increase_height) {
-            if (!layout.isRegionVacant(info.cellX, info.cellY + info.spanY, info.spanX, 1)) {
-                lp.cellY --;
-                info.cellY --;
-            }
-            lp.cellVSpan ++;
-            info.spanY ++;
-        } else if (action == R.string.action_decrease_height) {
-            lp.cellVSpan --;
-            info.spanY --;
-        }
-
-        layout.markCellsAsOccupiedForView(host);
-        Rect sizeRange = new Rect();
-        AppWidgetResizeFrame.getWidgetSizeRanges(mLauncher, info.spanX, info.spanY, sizeRange);
-        ((LauncherAppWidgetHostView) host).updateAppWidgetSize(null,
-                sizeRange.left, sizeRange.top, sizeRange.right, sizeRange.bottom);
-        host.requestLayout();
-        mLauncher.getModelWriter().updateItemInDatabase(info);
-        announceConfirmation(mLauncher.getString(R.string.widget_resized, info.spanX, info.spanY));
     }
 
     @Thunk void announceConfirmation(int resId) {
@@ -364,9 +260,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
         mDragInfo.info = info;
         mDragInfo.item = item;
         mDragInfo.dragType = DragType.ICON;
-        if (info instanceof LauncherAppWidgetInfo) {
-            mDragInfo.dragType = DragType.WIDGET;
-        }
 
         Rect pos = new Rect();
         mLauncher.getDragLayer().getDescendantRectRelativeToSelf(item, pos);

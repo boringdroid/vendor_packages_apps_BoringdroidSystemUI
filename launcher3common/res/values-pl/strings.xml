@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Aplikacja nie jest zainstalowana."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Aplikacja niedostępna"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Pobrana aplikacja została wyłączona w trybie awaryjnym"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"Widżety są wyłączone w trybie bezpiecznym"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"Skrót nie jest dostępny"</string>
     <string name="home_screen" msgid="806512411299847073">"Ekran główny"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Działania niestandardowe"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"Aby dodać widżet, kliknij go i przytrzymaj."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"Kliknij dwukrotnie i przytrzymaj, by wybrać widżet lub użyć działań niestandardowych."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"Szerokość %1$d, wysokość %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Kliknij i przytrzymaj, by umieścić ręcznie"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Dodaj automatycznie"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Ładuję aplikacje…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"zapisywanie ustawień i skrótów na ekranie głównym"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Umożliwia aplikacji zmianę ustawień i skrótów na ekranie głównym."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> nie może wykonywać połączeń telefonicznych"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"Problem podczas ładowania widżetu"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Konfiguracja"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"To aplikacja systemowa i nie można jej odinstalować."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacja <xliff:g id="APP_NAME">%1$s</xliff:g> jest wyłączona"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Aplikacja, której odpowiada ta ikona, nie jest zainstalowana. Możesz usunąć ikonę lub wyszukać aplikację i zainstalować ją ręcznie."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"Pobieranie elementu <xliff:g id="NAME">%1$s</xliff:g>, ukończono: <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> oczekuje na instalację"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g> – widżety"</string>
-    <string name="widgets_list" msgid="796804551140113767">"Lista widgetów"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"Lista widgetów zamknięta"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Dodaj do ekranu głównego"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Przenieś element tutaj"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"Element został dodany do ekranu głównego"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"Folder został utworzony"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Przenieś na ekran główny"</string>
     <string name="action_resize" msgid="1802976324781771067">"Zmień rozmiar"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"Zwiększ szerokość"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"Zwiększ wysokość"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"Zmniejsz szerokość"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"Zmniejsz wysokość"</string>
-    <string name="widget_resized" msgid="9130327887929620">"Szerokość i wysokość widżetu zmieniła się na <xliff:g id="NUMBER_0">%1$s</xliff:g> x <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Skróty"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Skróty i powiadomienia"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Osobiste"</string>

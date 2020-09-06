@@ -139,8 +139,6 @@ public class LauncherSettings {
             switch(type) {
                 case ITEM_TYPE_APPLICATION: return "APP";
                 case ITEM_TYPE_SHORTCUT: return "SHORTCUT";
-                case ITEM_TYPE_APPWIDGET: return "WIDGET";
-                case ITEM_TYPE_CUSTOM_APPWIDGET: return "CUSTOMWIDGET";
                 case ITEM_TYPE_DEEP_SHORTCUT: return "DEEPSHORTCUT";
                 default: return String.valueOf(type);
             }
@@ -186,33 +184,9 @@ public class LauncherSettings {
         public static final String PROFILE_ID = "profileId";
 
         /**
-         * The favorite is a widget
-         */
-        public static final int ITEM_TYPE_APPWIDGET = 4;
-
-        /**
-         * The favorite is a custom widget provided by the launcher
-         */
-        public static final int ITEM_TYPE_CUSTOM_APPWIDGET = 5;
-
-        /**
          * The gesture is an application created deep shortcut
          */
         public static final int ITEM_TYPE_DEEP_SHORTCUT = 6;
-
-        /**
-         * The appWidgetId of the widget
-         *
-         * <P>Type: INTEGER</P>
-         */
-        public static final String APPWIDGET_ID = "appWidgetId";
-
-        /**
-         * The ComponentName of the widget provider
-         *
-         * <P>Type: STRING</P>
-         */
-        public static final String APPWIDGET_PROVIDER = "appWidgetProvider";
 
         /**
          * Boolean indicating that his item was restored and not yet successfully bound.
@@ -281,8 +255,6 @@ public class LauncherSettings {
         public static final String METHOD_CREATE_EMPTY_DB = "create_empty_db";
 
         public static final String METHOD_LOAD_DEFAULT_FAVORITES = "load_default_favorites";
-
-        public static final String METHOD_REMOVE_GHOST_WIDGETS = "remove_ghost_widgets";
 
         public static final String METHOD_NEW_TRANSACTION = "new_db_transaction";
 

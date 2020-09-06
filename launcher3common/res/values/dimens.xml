@@ -37,10 +37,8 @@
     <dimen name="drop_target_vertical_gap">20dp</dimen>
 
 <!-- App Widget resize frame -->
-    <dimen name="widget_handle_margin">13dp</dimen>
-    <dimen name="resize_frame_background_padding">24dp</dimen>
 
-<!-- Fast scroll -->
+    <!-- Fast scroll -->
     <dimen name="fastscroll_track_min_width">6dp</dimen>
     <dimen name="fastscroll_track_max_width">8dp</dimen>
     <dimen name="fastscroll_thumb_padding">1dp</dimen>
@@ -82,20 +80,6 @@
     <dimen name="widget_preview_label_vertical_padding">8dp</dimen>
     <dimen name="widget_preview_label_horizontal_padding">16dp</dimen>
 
-    <dimen name="widget_preview_shadow_blur">0.5dp</dimen>
-    <dimen name="widget_preview_key_shadow_distance">1dp</dimen>
-    <dimen name="widget_preview_corner_radius">2dp</dimen>
-    <dimen name="widget_preview_cell_divider_width">0.5dp</dimen>
-    <dimen name="widget_preview_shortcut_padding">8dp</dimen>
-
-    <dimen name="widget_section_height">56dp</dimen>
-    <dimen name="widget_section_icon_size">40dp</dimen>
-    <dimen name="widget_section_vertical_padding">8dp</dimen>
-    <dimen name="widget_section_horizontal_padding">16dp</dimen>
-    <dimen name="widget_section_indent">0dp</dimen>
-
-    <dimen name="widget_row_divider">2dp</dimen>
-
     <!-- Padding applied to shortcut previews -->
 
     <!-- Dragging -->
@@ -127,17 +111,14 @@
 
 <!-- Sizes for managed profile badges -->
     <dimen name="profile_badge_size">24dp</dimen>
-    <dimen name="profile_badge_margin">5dp</dimen>
 
     <!-- Shadows and outlines -->
     <dimen name="blur_size_thin_outline">1dp</dimen>
     <dimen name="blur_size_medium_outline">2dp</dimen>
 
     <!-- Pending widget -->
-    <dimen name="pending_widget_min_padding">8dp</dimen>
-    <dimen name="pending_widget_elevation">2dp</dimen>
 
-<!-- Deep shortcuts -->
+    <!-- Deep shortcuts -->
     <dimen name="deep_shortcuts_elevation">9dp</dimen>
     <dimen name="bg_popup_item_width">220dp</dimen>
     <dimen name="bg_popup_item_height">56dp</dimen>

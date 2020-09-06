@@ -22,7 +22,6 @@ import android.content.pm.PackageInstaller.SessionInfo;
 import android.util.Log;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.util.MultiHashMap;
 import com.android.launcher3.util.PackageUserKey;
@@ -53,9 +52,7 @@ public class FirstScreenBroadcast {
     private static final String ACTION_FIRST_SCREEN_ACTIVE_INSTALLS
             = "com.android.launcher3.action.FIRST_SCREEN_ACTIVE_INSTALLS";
 
-    private static final String FOLDER_ITEM_EXTRA = "folderItem";
     private static final String WORKSPACE_ITEM_EXTRA = "workspaceItem";
-    private static final String WIDGET_ITEM_EXTRA = "widgetItem";
 
     private static final String VERIFICATION_TOKEN_EXTRA = "verificationToken";
 
@@ -100,16 +97,13 @@ public class FirstScreenBroadcast {
             List<String> packages, List<ItemInfo> firstScreenItems) {
         Set<String> folderItems = new HashSet<>();
         Set<String> workspaceItems = new HashSet<>();
-        Set<String> widgetItems = new HashSet<>();
 
         for (ItemInfo info : firstScreenItems) {
             String packageName = getPackageName(info);
             if (packageName == null || !packages.contains(packageName)) {
                 continue;
             }
-            if (info instanceof LauncherAppWidgetInfo) {
-                widgetItems.add(packageName);
-            } else if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+            if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 workspaceItems.add(packageName);
             }
         }
@@ -117,26 +111,18 @@ public class FirstScreenBroadcast {
         if (DEBUG) {
             printList(installerPackageName, "Folder item", folderItems);
             printList(installerPackageName, "Workspace item", workspaceItems);
-            printList(installerPackageName, "Widget item", widgetItems);
         }
 
         context.sendBroadcast(new Intent(ACTION_FIRST_SCREEN_ACTIVE_INSTALLS)
                 .setPackage(installerPackageName)
-                .putStringArrayListExtra(FOLDER_ITEM_EXTRA, new ArrayList<>(folderItems))
                 .putStringArrayListExtra(WORKSPACE_ITEM_EXTRA, new ArrayList<>(workspaceItems))
-                .putStringArrayListExtra(WIDGET_ITEM_EXTRA, new ArrayList<>(widgetItems))
                 .putExtra(VERIFICATION_TOKEN_EXTRA, PendingIntent.getActivity(context, 0,
                         new Intent(), PendingIntent.FLAG_ONE_SHOT)));
     }
 
     private static String getPackageName(ItemInfo info) {
         String packageName = null;
-        if (info instanceof LauncherAppWidgetInfo) {
-            LauncherAppWidgetInfo widgetInfo = (LauncherAppWidgetInfo) info;
-            if (widgetInfo.providerName != null) {
-                packageName = widgetInfo.providerName.getPackageName();
-            }
-        } else if (info.getTargetComponent() != null){
+        if (info.getTargetComponent() != null){
             packageName = info.getTargetComponent().getPackageName();
         }
         return packageName;

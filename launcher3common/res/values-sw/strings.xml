@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Programu haijasakinishwa."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Programu haipatikani"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Programu iliyopakuliwa imezimwa katika Hali Salama"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"Wijeti zimezimwa katika hali ya Usalama"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"Hakuna njia ya mkato"</string>
     <string name="home_screen" msgid="806512411299847073">"Skrini ya kwanza"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Vitendo maalum"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"Gusa na ushikilie ili kuteua wijeti."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"Gusa mara mbili na ushikilie ile uchague wijeti au utumie vitendo maalum."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"Upana wa %1$d na kimo cha %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Gusa na ushikilie ili uweke mwenyewe"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Ongeza kiotomatiki"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Inapakia programu..."</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"andika mipangilio ya skrini ya Mwanzo na njia za mkato"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Huruhusu programu kubadilisha mipangilio na njia za mkato katika skrini ya Mwanzo."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> hairuhusiwi kupiga simu"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"Tatizo la kupakia wijeti"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Sanidi"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Hii ni programu ya mfumo na haiwezi kuondolewa."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> imezimwa"</string>
@@ -76,9 +70,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Programu ya aikoni hii haijasakinishwa. Unaweza kuiondoa, au utafute programu na uisakinishe wewe mwenyewe."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> inapakuliwa, <xliff:g id="PROGRESS">%2$s</xliff:g> imekamilika"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> inasubiri kusakinisha"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"Wijeti za <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="widgets_list" msgid="796804551140113767">"Orodha ya wijeti"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"Orodha ya wijeti imefungwa"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Ongeza kwenye Skrini ya Kwanza"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Hamishia kipengee hapa"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"Kipengee kimeongezwa kwenye skrini ya kwanza"</string>
@@ -91,11 +82,6 @@
     <string name="folder_created" msgid="6409794597405184510">"Folda imeundwa"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Hamishia Skrini ya kwanza"</string>
     <string name="action_resize" msgid="1802976324781771067">"Badilisha ukubwa"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"Ongeza upana"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"Ongeza urefu"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"Punguza upana"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"Punguza urefu"</string>
-    <string name="widget_resized" msgid="9130327887929620">"Wijeti imepunguzwa hadi upana <xliff:g id="NUMBER_0">%1$s</xliff:g> urefu <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Njia za mkato"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Arifa na njia za mkato"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Binafsi"</string>

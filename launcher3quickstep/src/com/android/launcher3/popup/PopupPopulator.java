@@ -27,7 +27,6 @@ import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.shortcuts.DeepShortcutView;
-import com.android.launcher3.util.PackageUserKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +45,6 @@ public class PopupPopulator {
 
     public static final int MAX_SHORTCUTS = 4;
     @VisibleForTesting static final int NUM_DYNAMIC = 2;
-    public static final int MAX_SHORTCUTS_IF_NOTIFICATIONS = 2;
 
     /**
      * Sorts shortcuts in rank order, with manifest shortcuts coming before dynamic shortcuts.
@@ -141,11 +139,6 @@ public class PopupPopulator {
                 final DeepShortcutView view = shortcutViews.get(i);
                 uiHandler.post(() -> view.applyShortcutInfo(si, shortcut, container));
             }
-
-            // This ensures that mLauncher.getWidgetsForPackageUser()
-            // doesn't return null (it puts all the widgets in memory).
-            uiHandler.post(() -> launcher.refreshAndBindWidgetsForPackageUser(
-                    PackageUserKey.fromItemInfo(originalInfo)));
         };
     }
 }

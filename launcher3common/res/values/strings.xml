@@ -31,7 +31,6 @@
     <!-- SafeMode shortcut error string -->
     <string name="safemode_shortcut_error">Downloaded app disabled in Safe mode</string>
     <!-- SafeMode widget error string -->
-    <string name="safemode_widget_error">Widgets disabled in Safe mode</string>
     <!-- Message shown when a shortcut is not available. It could have been temporarily disabled and may start working again after some time. -->
     <string name="shortcut_not_available">Shortcut isn\'t available</string>
     <!-- User visible name for the launcher/home screen. [CHAR_LIMIT=30] -->
@@ -41,14 +40,10 @@
 
     <!-- Widgets -->
     <!-- Message to tell the user to press and hold on a widget to add it [CHAR_LIMIT=50] -->
-    <string name="long_press_widget_to_add">Touch &amp; hold to pick up a widget.</string>
     <!-- Accessibility spoken hint message in widget picker, which allows user to add a widget. Custom action is the label for additional accessibility actions available in this mode [CHAR_LIMIT=100] -->
-    <string name="long_accessible_way_to_add">Double-tap &amp; hold to pick up a widget or use custom actions.</string>
     <!-- The format string for the dimensions of a widget in the drawer -->
     <!-- There is a special version of this format string for Farsi -->
-    <string name="widget_dims_format">%1$d \u00d7 %2$d</string>
     <!-- Accessibility spoken message format for the dimensions of a widget in the drawer -->
-    <string name="widget_accessible_dims_format">%1$d wide by %2$d high</string>
     <!-- Message to tell the user to press and hold a widget/icon to add it  -->
     <string name="add_item_request_drag_hint">Touch &amp; hold to place manually</string>
     <!-- Button label to automatically add icon on home screen [CHAR_LIMIT=50] -->
@@ -127,7 +122,6 @@
     <skip />    
 
     <!-- Text to show user in place of a gadget when we can't display it properly -->
-    <string name="gadget_error_text">Problem loading widget</string>
 
     <!-- Text to show user in place of a gadget when it is not yet initialized. -->
     <string name="gadget_setup_text">Setup</string>
@@ -205,14 +199,11 @@
 
     <!-- Strings for widgets & more in the popup container/bottom sheet -->
     <!-- Title for a bottom sheet that shows widgets for a particular app -->
-    <string name="widgets_bottom_sheet_title"><xliff:g id="name" example="Messenger">%1$s</xliff:g> widgets</string>
 
     <!-- Accessibility title for the popup containing a list of widgets. [CHAR_LIMIT=50] -->
-    <string name="widgets_list">Widgets list</string>
     <!-- Text announced by accessibility when the popup containing the list of widgets is closed. [CHAR_LIMIT=100] -->
-    <string name="widgets_list_closed">Widgets list closed</string>
 
-<!-- Strings for accessibility actions -->
+    <!-- Strings for accessibility actions -->
     <!-- Accessibility action to add an app to workspace. [CHAR_LIMIT=30] -->
     <string name="action_add_to_workspace">Add to Home screen</string>
 
@@ -260,19 +251,14 @@
     <string name="action_resize">Resize</string>
 
     <!-- Accessibility action to increase width of a widget. [CHAR_LIMIT=30] -->
-    <string name="action_increase_width">Increase width</string>
 
     <!-- Accessibility action to increase height of a widget. [CHAR_LIMIT=30] -->
-    <string name="action_increase_height">Increase height</string>
 
     <!-- Accessibility action to decrease width of a widget. [CHAR_LIMIT=30] -->
-    <string name="action_decrease_width">Decrease width</string>
 
     <!-- Accessibility action to decrease height of a widget. [CHAR_LIMIT=30] -->
-    <string name="action_decrease_height">Decrease height</string>
 
     <!-- Accessibility confirmation for widget resize. -->
-    <string name="widget_resized">Widget resized to width <xliff:g id="number" example="2">%1$s</xliff:g> height <xliff:g id="number" example="1">%2$s</xliff:g></string>
 
     <!-- Accessibility action to show quick actions menu for an icon. [CHAR_LIMIT=30] -->
     <string name="action_deep_shortcut">Shortcuts</string>

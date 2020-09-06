@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Aplikacija ni nameščena."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Aplikacija ni na voljo"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Prenesena aplikacija je onemogočena v Varnem načinu"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"Pripomočki so onemogočeni v varnem načinu"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"Bližnjica ni na voljo"</string>
     <string name="home_screen" msgid="806512411299847073">"Začetni zaslon"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Dejanja po meri"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"Za izbiro pripomočka se ga dotaknite in pridržite."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"Če želite izbrati pripomoček ali uporabiti dejanja po meri, se ga dvakrat dotaknite in ga pridržite."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"Širina %1$d, višina %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Dotaknite se elementa in ga pridržite, da ga ročno dodate"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Samodejno dodaj"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Nalaganje aplikacij …"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"zapis nastavitev in bližnjic na začetnem zaslonu"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Aplikaciji dovoli spreminjanje nastavitev in bližnjic na začetnem zaslonu."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"Aplikaciji <xliff:g id="APP_NAME">%1$s</xliff:g> ni dovoljeno opravljanje klicev"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"Težava pri nalaganju pripomočka"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Nastavitev"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"To je sistemska aplikacija in je ni mogoče odstraniti."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> je onemogočena"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Aplikacija za to ikono ni nameščena. Lahko jo odstranite ali poiščete aplikacijo in to namestite ročno."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"Prenašanje aplikacije <xliff:g id="NAME">%1$s</xliff:g>; preneseno <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"Aplikacija <xliff:g id="NAME">%1$s</xliff:g> čaka na namestitev"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"Pripomočki za <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="widgets_list" msgid="796804551140113767">"Seznam pripomočkov"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"Seznam pripomočkov se je zaprl"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Dodajanje na začetni zaslon"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Premik elementa sem"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"Element je bil dodan na začetni zaslon"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"Mapa je ustvarjena"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Premik na začetni zaslon"</string>
     <string name="action_resize" msgid="1802976324781771067">"Spreminjanje velikosti"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"Povečanje širine"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"Povečanje višine"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"Zmanjšanje širine"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"Zmanjšanje višine"</string>
-    <string name="widget_resized" msgid="9130327887929620">"Velikost pripomočka je bila spremenjena na <xliff:g id="NUMBER_0">%1$s</xliff:g> širine in <xliff:g id="NUMBER_1">%2$s</xliff:g> višine"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Bližnjice"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Bližnjice in obvestila"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Osebno"</string>

@@ -41,12 +41,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
-import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.TransactionTooLargeException;
-import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -60,7 +57,6 @@ import android.view.ViewConfiguration;
 import android.view.animation.Interpolator;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.ShortcutConfigActivityInfo;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.graphics.TintedDrawableSpan;
 import com.android.launcher3.icons.LauncherIcons;
@@ -69,7 +65,6 @@ import com.android.launcher3.shortcuts.ShortcutKey;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.views.Transposable;
-import com.android.launcher3.widget.PendingAddShortcutInfo;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -114,11 +109,6 @@ public final class Utilities {
     public static final boolean IS_DEBUG_DEVICE =
             Build.TYPE.toLowerCase(Locale.ROOT).contains("debug") ||
             Build.TYPE.toLowerCase(Locale.ROOT).equals("eng");
-
-    public static boolean isDevelopersOptionsEnabled(Context context) {
-        return Settings.Global.getInt(context.getApplicationContext().getContentResolver(),
-                        Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0;
-    }
 
     // An intent extra to indicate the horizontal scroll of the wallpaper.
     public static final String EXTRA_WALLPAPER_OFFSET = "com.android.launcher3.WALLPAPER_OFFSET";
@@ -283,20 +273,6 @@ public final class Utilities {
         }
     }
 
-    public static float shrinkRect(Rect r, float scaleX, float scaleY) {
-        float scale = Math.min(Math.min(scaleX, scaleY), 1.0f);
-        if (scale < 1.0f) {
-            int deltaX = (int) (r.width() * (scaleX - scale) * 0.5f);
-            r.left += deltaX;
-            r.right -= deltaX;
-
-            int deltaY = (int) (r.height() * (scaleY - scale) * 0.5f);
-            r.top += deltaY;
-            r.bottom -= deltaY;
-        }
-        return scale;
-    }
-
     /**
      * Maps t from one range to another range.
      * @param t The value to map.
@@ -454,11 +430,6 @@ public final class Utilities {
         return context.getSystemService(WallpaperManager.class).isSetWallpaperAllowed();
     }
 
-    public static boolean isBinderSizeError(Exception e) {
-        return e.getCause() instanceof TransactionTooLargeException
-                || e.getCause() instanceof DeadObjectException;
-    }
-
     /**
      * Utility method to post a runnable on the handler, skipping the synchronization barriers.
      */
@@ -504,12 +475,6 @@ public final class Utilities {
             return (activityInfo != null) ? appState.getIconCache()
                     .getFullResIcon(activityInfo, flattenDrawable) : null;
         } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-            if (info instanceof PendingAddShortcutInfo) {
-                ShortcutConfigActivityInfo activityInfo =
-                        ((PendingAddShortcutInfo) info).activityInfo;
-                outObj[0] = activityInfo;
-                return activityInfo.getFullResIcon(appState.getIconCache());
-            }
             ShortcutKey key = ShortcutKey.fromItemInfo(info);
             DeepShortcutManager sm = DeepShortcutManager.getInstance(launcher);
             List<ShortcutInfo> si = sm.queryForFullDetails(

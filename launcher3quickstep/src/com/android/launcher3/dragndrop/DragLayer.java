@@ -45,7 +45,7 @@ import com.android.launcher3.CellLayout;
 import com.android.launcher3.DropTargetBar;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
-import com.android.launcher3.ShortcutAndWidgetContainer;
+import com.android.launcher3.ShortcutContainer;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.graphics.OverviewScrim;
@@ -203,7 +203,7 @@ public class DragLayer extends BaseDragLayer<Launcher> {
 
     public void animateViewIntoPosition(DragView dragView, final View child, int duration,
             View anchorView) {
-        ShortcutAndWidgetContainer parentChildren = (ShortcutAndWidgetContainer) child.getParent();
+        ShortcutContainer parentChildren = (ShortcutContainer) child.getParent();
         CellLayout.LayoutParams lp =  (CellLayout.LayoutParams) child.getLayoutParams();
         parentChildren.measureChild(child);
 

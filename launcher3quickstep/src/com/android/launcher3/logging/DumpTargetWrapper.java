@@ -22,7 +22,6 @@ import android.os.Process;
 import android.text.TextUtils;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.model.nano.LauncherDumpProto;
@@ -56,10 +55,6 @@ public class DumpTargetWrapper {
         node = newItemTarget(info);
     }
 
-    public DumpTarget getDumpTarget() {
-        return node;
-    }
-
     public void add(DumpTargetWrapper child) {
         children.add(child);
     }
@@ -84,9 +79,6 @@ public class DumpTargetWrapper {
         switch (info.itemType) {
             case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                 dt.itemType = ItemType.APP_ICON;
-                break;
-            case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
-                dt.itemType = ItemType.WIDGET;
                 break;
             case ITEM_TYPE_DEEP_SHORTCUT:
             case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
@@ -154,10 +146,6 @@ public class DumpTargetWrapper {
         }
         node.packageName = info.getTargetComponent() == null? "":
                 info.getTargetComponent().getPackageName();
-        if (info instanceof LauncherAppWidgetInfo) {
-            node.component = ((LauncherAppWidgetInfo) info).providerName.flattenToString();
-            node.packageName = ((LauncherAppWidgetInfo) info).providerName.getPackageName();
-        }
 
         node.gridX = info.cellX;
         node.gridY = info.cellY;

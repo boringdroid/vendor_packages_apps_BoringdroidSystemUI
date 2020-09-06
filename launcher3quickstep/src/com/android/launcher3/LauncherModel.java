@@ -25,13 +25,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
-import android.os.Process;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
-
-import androidx.annotation.Nullable;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
@@ -55,7 +52,6 @@ import com.android.launcher3.model.UserLockStateChangedTask;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
-import com.android.launcher3.util.PackageUserKey;
 import com.android.launcher3.util.Preconditions;
 import com.android.launcher3.util.Thunk;
 
@@ -247,11 +243,6 @@ public class LauncherModel extends BroadcastReceiver
         enqueueModelUpdateTask(new ShortcutsChangedTask(packageName, shortcuts, user, true));
     }
 
-    public void updatePinnedShortcuts(String packageName, List<ShortcutInfo> shortcuts,
-            UserHandle user) {
-        enqueueModelUpdateTask(new ShortcutsChangedTask(packageName, shortcuts, user, false));
-    }
-
     /**
      * Call from the handler for ACTION_PACKAGE_ADDED, ACTION_PACKAGE_REMOVED and
      * ACTION_PACKAGE_CHANGED.
@@ -348,7 +339,6 @@ public class LauncherModel extends BroadcastReceiver
                     // issues that arise from that.
                     loaderResults.bindAllApps();
                     loaderResults.bindDeepShortcuts();
-                    loaderResults.bindWidgets();
                     return true;
                 } else {
                     startLoaderForResults(loaderResults);
@@ -459,19 +449,6 @@ public class LauncherModel extends BroadcastReceiver
                 CacheDataUpdatedTask.OP_CACHE_UPDATE, user, updatedPackages));
     }
 
-    /**
-     * Called when the labels for the widgets has updated in the icon cache.
-     */
-    public void onWidgetLabelsUpdated(HashSet<String> updatedPackages, UserHandle user) {
-        enqueueModelUpdateTask(new BaseModelUpdateTask() {
-            @Override
-            public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
-                dataModel.widgetsModel.onPackageIconsUpdated(updatedPackages, user, app);
-                bindUpdatedWidgets(dataModel);
-            }
-        });
-    }
-
     public void enqueueModelUpdateTask(ModelUpdateTask task) {
         task.init(mApp, this, sBgDataModel, mBgAllAppsList, MAIN_EXECUTOR);
         MODEL_EXECUTOR.execute(task);
@@ -521,16 +498,6 @@ public class LauncherModel extends BroadcastReceiver
                 ArrayList<WorkspaceItemInfo> update = new ArrayList<>();
                 update.add(info);
                 bindUpdatedWorkspaceItems(update);
-            }
-        });
-    }
-
-    public void refreshAndBindWidgetsAndShortcuts(@Nullable final PackageUserKey packageUser) {
-        enqueueModelUpdateTask(new BaseModelUpdateTask() {
-            @Override
-            public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
-                dataModel.widgetsModel.update(app, packageUser);
-                bindUpdatedWidgets(dataModel);
             }
         });
     }

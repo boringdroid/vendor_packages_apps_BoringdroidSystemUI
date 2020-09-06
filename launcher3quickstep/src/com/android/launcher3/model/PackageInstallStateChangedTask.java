@@ -19,10 +19,8 @@ import android.content.ComponentName;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
-import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherModel.CallbackTask;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.PromiseAppInfo;
@@ -85,13 +83,6 @@ public class PackageInstallStateChangedTask extends BaseModelUpdateTask {
                         }
                         updates.add(si);
                     }
-                }
-            }
-
-            for (LauncherAppWidgetInfo widget : dataModel.appWidgets) {
-                if (widget.providerName.getPackageName().equals(mInstallInfo.packageName)) {
-                    widget.installProgress = mInstallInfo.progress;
-                    updates.add(widget);
                 }
             }
 

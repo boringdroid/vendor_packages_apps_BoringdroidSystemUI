@@ -18,19 +18,14 @@ package com.android.launcher3.model;
 
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppWidgetHost;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherModel;
-import com.android.launcher3.LauncherProvider;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.LauncherSettings.Settings;
 import com.android.launcher3.Utilities;
@@ -243,18 +238,6 @@ public class ModelWriter {
                 verifier.verifyModel();
             }
         });
-    }
-
-    /**
-     * Deletes the widget info and the widget id.
-     */
-    public void deleteWidgetInfo(final LauncherAppWidgetInfo info, LauncherAppWidgetHost host) {
-        if (host != null && !info.isCustomWidget() && info.isWidgetIdAllocated()) {
-            // Deleting an app widget ID is a void call but writes to disk before returning
-            // to the caller...
-            enqueueDeleteRunnable(() -> host.deleteAppWidgetId(info.appWidgetId));
-        }
-        deleteItemFromDatabase(info);
     }
 
     /**

@@ -26,7 +26,6 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.android.launcher3.CellLayout;
 import com.android.launcher3.DeviceProfile;
@@ -35,7 +34,7 @@ import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager;
 import com.android.launcher3.LauncherStateManager.AnimationConfig;
 import com.android.launcher3.R;
-import com.android.launcher3.ShortcutAndWidgetContainer;
+import com.android.launcher3.ShortcutContainer;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.PropertySetter;
@@ -80,7 +79,7 @@ public class StaggeredWorkspaceAnim {
         DeviceProfile grid = launcher.getDeviceProfile();
         Workspace workspace = launcher.getWorkspace();
         CellLayout cellLayout = (CellLayout) workspace.getChildAt(workspace.getCurrentPage());
-        ShortcutAndWidgetContainer currentPage = cellLayout.getShortcutsAndWidgets();
+        ShortcutContainer currentPage = cellLayout.getShortcutsAndWidgets();
 
         boolean workspaceClipChildren = workspace.getClipChildren();
         boolean workspaceClipToPadding = workspace.getClipToPadding();

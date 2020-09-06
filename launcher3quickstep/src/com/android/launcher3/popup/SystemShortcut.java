@@ -22,16 +22,11 @@ import com.android.launcher3.R;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.model.AppLaunchTracker;
-import com.android.launcher3.model.WidgetItem;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ControlType;
 import com.android.launcher3.util.InstantAppResolver;
 import com.android.launcher3.util.PackageManagerHelper;
-import com.android.launcher3.util.PackageUserKey;
-import com.android.launcher3.widget.WidgetsBottomSheet;
-
-import java.util.List;
 /**
  * Represents a system shortcut for a given app. The shortcut should have a label and icon, and an
  * onClickListener that depends on the item that the shortcut services.
@@ -136,18 +131,8 @@ public abstract class SystemShortcut<T extends BaseDraggingActivity>
         public View.OnClickListener getOnClickListener(final Launcher launcher,
                 final ItemInfo itemInfo) {
             if (itemInfo.getTargetComponent() == null) return null;
-            final List<WidgetItem> widgets =
-                    launcher.getPopupDataProvider().getWidgetsForPackageUser(new PackageUserKey(
-                            itemInfo.getTargetComponent().getPackageName(), itemInfo.user));
-            if (widgets == null) {
-                return null;
-            }
             return (view) -> {
                 AbstractFloatingView.closeAllOpenViews(launcher);
-                WidgetsBottomSheet widgetsBottomSheet =
-                        (WidgetsBottomSheet) launcher.getLayoutInflater().inflate(
-                                R.layout.widgets_bottom_sheet, launcher.getDragLayer(), false);
-                widgetsBottomSheet.populateAndShow(itemInfo);
                 launcher.getUserEventDispatcher().logActionOnControl(Action.Touch.TAP,
                         ControlType.WIDGETS_BUTTON, view);
             };

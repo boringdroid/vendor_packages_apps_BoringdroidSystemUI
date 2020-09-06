@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Aplikacija nije instalirana."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Aplikacija nije dostupna"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Preuzeta aplikacija je onemogućena u Bezbednom režimu"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"Vidžeti su onemogućeni u Bezbednom režimu"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"Prečica nije dostupna"</string>
     <string name="home_screen" msgid="806512411299847073">"Početni ekran"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Prilagođene radnje"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"Dodirnite i zadržite da biste izabrali vidžet."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"Dvaput dodirnite i zadržite da biste izabrali vidžet ili koristite prilagođene radnje."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d×%2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"širina od %1$d i visina od %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Dodirnite i zadržite da biste postavili ručno"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Automatski dodaj"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Aplikacije se učitavaju…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"upisivanje podešavanja i prečica na početnom ekranu"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Dozvoljava aplikaciji da menja podešavanja i prečice na početnom ekranu."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> nema dozvolu za upućivanje telefonskih poziva"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"Problem pri učitavanju vidžeta"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Podešavanje"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Ovo je sistemska aplikacija i ne može da se deinstalira."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> je onemogućena"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Aplikacija za ovu ikonu nije instalirana. Možete da je uklonite ili da potražite aplikaciju i instalirate je ručno."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> se preuzima, završeno je <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> čeka na instaliranje"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"Vidžeti za <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="widgets_list" msgid="796804551140113767">"Lista vidžeta"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"Lista vidžeta je zatvorena"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Dodajte na početni ekran"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Premesti stavku ovde"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"Stavka je dodata na početni ekran"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"Direktorijum je napravljen"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Premesti na početni ekran"</string>
     <string name="action_resize" msgid="1802976324781771067">"Promeni veličinu"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"Povećaj širinu"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"Povećaj visinu"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"Smanji širinu"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"Smanji visinu"</string>
-    <string name="widget_resized" msgid="9130327887929620">"Veličina vidžeta je promenjena na širinu <xliff:g id="NUMBER_0">%1$s</xliff:g> i visinu <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Prečice"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Prečice i obaveštenja"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Lične"</string>

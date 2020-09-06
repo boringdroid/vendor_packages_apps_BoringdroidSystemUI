@@ -1,16 +1,10 @@
 package com.android.launcher3;
 
-import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
-import static android.appwidget.AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE;
-
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_SYSTEM_MASK;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_SYSTEM_NO;
-import static com.android.launcher3.LauncherSettings.Favorites.CONTAINER_DESKTOP;
 import static com.android.launcher3.accessibility.LauncherAccessibilityDelegate.RECONFIGURE;
 import static com.android.launcher3.accessibility.LauncherAccessibilityDelegate.UNINSTALL;
 
-import android.appwidget.AppWidgetHostView;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -112,14 +106,6 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
 
     @Override
     public boolean supportsAccessibilityDrop(ItemInfo info, View view) {
-        if (view instanceof AppWidgetHostView) {
-            if (getReconfigurableWidgetId(view) != INVALID_APPWIDGET_ID) {
-                setupUi(RECONFIGURE);
-                return true;
-            }
-            return false;
-        }
-
         setupUi(UNINSTALL);
         Boolean uninstallDisabled = mUninstallDisabledCache.get(info.user);
         if (uninstallDisabled == null) {
@@ -189,31 +175,7 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
     }
 
     private View getViewUnderDrag(ItemInfo info) {
-        if (info instanceof LauncherAppWidgetInfo && info.container == CONTAINER_DESKTOP &&
-                mLauncher.getWorkspace().getDragInfo() != null) {
-            return mLauncher.getWorkspace().getDragInfo().cell;
-        }
         return null;
-    }
-
-    /**
-     * Verifies that the view is an reconfigurable widget and returns the corresponding widget Id,
-     * otherwise return {@code INVALID_APPWIDGET_ID}
-     */
-    private int getReconfigurableWidgetId(View view) {
-        if (!(view instanceof AppWidgetHostView)) {
-            return INVALID_APPWIDGET_ID;
-        }
-        AppWidgetHostView hostView = (AppWidgetHostView) view;
-        AppWidgetProviderInfo widgetInfo = hostView.getAppWidgetInfo();
-        if (widgetInfo == null || widgetInfo.configure == null) {
-            return INVALID_APPWIDGET_ID;
-        }
-        if ( (LauncherAppWidgetProviderInfo.fromProviderInfo(getContext(), widgetInfo)
-                .getWidgetFeatures() & WIDGET_FEATURE_RECONFIGURABLE) == 0) {
-            return INVALID_APPWIDGET_ID;
-        }
-        return hostView.getAppWidgetId();
     }
 
     /**
@@ -222,10 +184,6 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
      */
     protected ComponentName performDropAction(View view, ItemInfo info) {
         if (mCurrentAccessibilityAction == RECONFIGURE) {
-            int widgetId = getReconfigurableWidgetId(view);
-            if (widgetId != INVALID_APPWIDGET_ID) {
-                mLauncher.getAppWidgetHost().startConfigActivity(mLauncher, widgetId, -1);
-            }
             return null;
         }
         // else: mCurrentAccessibilityAction == UNINSTALL

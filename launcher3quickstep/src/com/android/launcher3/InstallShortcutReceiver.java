@@ -71,7 +71,6 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
     public static final int FLAG_ACTIVITY_PAUSED = 1;
     public static final int FLAG_LOADER_RUNNING = 2;
     public static final int FLAG_DRAG_AND_DROP = 4;
-    public static final int FLAG_BULK_ADD = 4;
 
     // Determines whether to defer installing shortcuts immediately until
     // processAllPendingInstalls() is called.
@@ -239,14 +238,6 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
     public static WorkspaceItemInfo fromShortcutIntent(Context context, Intent data) {
         PendingInstallShortcutInfo info = createPendingInfo(context, data);
         return info == null ? null : (WorkspaceItemInfo) info.getItemInfo().first;
-    }
-
-    public static void queueShortcut(ShortcutInfo info, Context context) {
-        queuePendingShortcutInfo(new PendingInstallShortcutInfo(info, context), context);
-    }
-
-    public static void queueWidget(AppWidgetProviderInfo info, int widgetId, Context context) {
-        queuePendingShortcutInfo(new PendingInstallShortcutInfo(info, widgetId, context), context);
     }
 
     public static void queueApplication(Intent data, UserHandle user, Context context) {
@@ -494,18 +485,6 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
                 itemInfo.applyFrom(li.createShortcutIcon(shortcutInfo));
                 li.recycle();
                 return Pair.create(itemInfo, shortcutInfo);
-            } else if (providerInfo != null) {
-                LauncherAppWidgetProviderInfo info = LauncherAppWidgetProviderInfo
-                        .fromProviderInfo(mContext, providerInfo);
-                LauncherAppWidgetInfo widgetInfo = new LauncherAppWidgetInfo(
-                        launchIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 0),
-                        info.provider);
-                InvariantDeviceProfile idp = LauncherAppState.getIDP(mContext);
-                widgetInfo.minSpanX = info.minSpanX;
-                widgetInfo.minSpanY = info.minSpanY;
-                widgetInfo.spanX = Math.min(info.spanX, idp.numColumns);
-                widgetInfo.spanY = Math.min(info.spanY, idp.numRows);
-                return Pair.create(widgetInfo, providerInfo);
             } else {
                 WorkspaceItemInfo itemInfo =
                         createWorkspaceItemInfo(data, user, LauncherAppState.getInstance(mContext));

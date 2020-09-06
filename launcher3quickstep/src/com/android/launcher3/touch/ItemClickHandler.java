@@ -20,8 +20,6 @@ import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_LOCKED_USER;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_QUIET_USER;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SAFEMODE;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SUSPENDED;
-import static com.android.launcher3.Launcher.REQUEST_BIND_PENDING_APPWIDGET;
-import static com.android.launcher3.Launcher.REQUEST_RECONFIGURE_APPWIDGET;
 import static com.android.launcher3.model.AppLaunchTracker.CONTAINER_ALL_APPS;
 
 import android.app.AlertDialog;
@@ -42,18 +40,13 @@ import com.android.launcher3.AppInfo;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherAppWidgetInfo;
-import com.android.launcher3.LauncherAppWidgetProviderInfo;
 import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.views.FloatingIconView;
-import com.android.launcher3.widget.PendingAppWidgetHostView;
-import com.android.launcher3.widget.WidgetAddFlowHandler;
 
 /**
  * Class for handling clicks on workspace and all-apps items
@@ -85,44 +78,6 @@ public class ItemClickHandler {
         } else if (tag instanceof AppInfo) {
             startAppShortcutOrInfoActivity(v, (AppInfo) tag, launcher,
                     sourceContainer == null ? CONTAINER_ALL_APPS: sourceContainer);
-        } else if (tag instanceof LauncherAppWidgetInfo) {
-            if (v instanceof PendingAppWidgetHostView) {
-                onClickPendingWidget((PendingAppWidgetHostView) v, launcher);
-            }
-        }
-    }
-
-    /**
-     * Event handler for the app widget view which has not fully restored.
-     */
-    private static void onClickPendingWidget(PendingAppWidgetHostView v, Launcher launcher) {
-        if (launcher.getPackageManager().isSafeMode()) {
-            Toast.makeText(launcher, R.string.safemode_widget_error, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        final LauncherAppWidgetInfo info = (LauncherAppWidgetInfo) v.getTag();
-        if (v.isReadyForClickSetup()) {
-            LauncherAppWidgetProviderInfo appWidgetInfo = AppWidgetManagerCompat
-                    .getInstance(launcher).findProvider(info.providerName, info.user);
-            if (appWidgetInfo == null) {
-                return;
-            }
-            WidgetAddFlowHandler addFlowHandler = new WidgetAddFlowHandler(appWidgetInfo);
-
-            if (info.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_ID_NOT_VALID)) {
-                if (!info.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_ID_ALLOCATED)) {
-                    // This should not happen, as we make sure that an Id is allocated during bind.
-                    return;
-                }
-                addFlowHandler.startBindFlow(launcher, info.appWidgetId, info,
-                        REQUEST_BIND_PENDING_APPWIDGET);
-            } else {
-                addFlowHandler.startConfigActivity(launcher, info, REQUEST_RECONFIGURE_APPWIDGET);
-            }
-        } else {
-            final String packageName = info.providerName.getPackageName();
-            onClickPendingAppItem(v, launcher, packageName, info.installProgress >= 0);
         }
     }
 

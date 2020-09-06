@@ -66,7 +66,6 @@ import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.views.ActivityContext;
 import com.android.launcher3.views.Transposable;
-import com.android.launcher3.widget.LauncherAppWidgetHostView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -141,7 +140,7 @@ public class CellLayout extends ViewGroup implements Transposable {
     private boolean mDragging = false;
 
     private final TimeInterpolator mEaseOutInterpolator;
-    private final ShortcutAndWidgetContainer mShortcutsAndWidgets;
+    private final ShortcutContainer mShortcutsAndWidgets;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({WORKSPACE, FOLDER})
@@ -278,7 +277,7 @@ public class CellLayout extends ViewGroup implements Transposable {
             mDragOutlineAnims[i] = anim;
         }
 
-        mShortcutsAndWidgets = new ShortcutAndWidgetContainer(context, mContainerType);
+        mShortcutsAndWidgets = new ShortcutContainer(context, mContainerType);
         mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mCountX, mCountY);
         addView(mShortcutsAndWidgets);
     }
@@ -790,7 +789,7 @@ public class CellLayout extends ViewGroup implements Transposable {
         return super.verifyDrawable(who) || (who == mBackground);
     }
 
-    public ShortcutAndWidgetContainer getShortcutsAndWidgets() {
+    public ShortcutContainer getShortcutsAndWidgets() {
         return mShortcutsAndWidgets;
     }
 
@@ -800,7 +799,7 @@ public class CellLayout extends ViewGroup implements Transposable {
 
     public boolean animateChildToPosition(final View child, int cellX, int cellY, int duration,
             int delay, boolean permanent, boolean adjustOccupied) {
-        ShortcutAndWidgetContainer clc = getShortcutsAndWidgets();
+        ShortcutContainer clc = getShortcutsAndWidgets();
 
         if (clc.indexOfChild(child) != -1) {
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -903,10 +902,6 @@ public class CellLayout extends ViewGroup implements Transposable {
 
             if (resize) {
                 cellToRect(cellX, cellY, spanX, spanY, r);
-                if (v instanceof LauncherAppWidgetHostView) {
-                    DeviceProfile profile = mActivity.getWallpaperDeviceProfile();
-                    Utilities.shrinkRect(r, profile.appWidgetScale.x, profile.appWidgetScale.y);
-                }
             } else {
                 // Find the top left corner of the rect the object will occupy
                 final int[] topLeft = mTmpPoint;
@@ -1092,9 +1087,6 @@ public class CellLayout extends ViewGroup implements Transposable {
                         hitMaxY |= ySize >= spanY;
                         incX = !incX;
                     }
-                    incX = true;
-                    hitMaxX = xSize >= spanX;
-                    hitMaxY = ySize >= spanY;
                 }
                 final int[] cellXY = mTmpPoint;
                 cellToCenterPoint(x, y, cellXY);
@@ -1915,16 +1907,9 @@ public class CellLayout extends ViewGroup implements Transposable {
 
         void setInitialAnimationValues(boolean restoreOriginalValues) {
             if (restoreOriginalValues) {
-                if (child instanceof LauncherAppWidgetHostView) {
-                    LauncherAppWidgetHostView lahv = (LauncherAppWidgetHostView) child;
-                    initScale = lahv.getScaleToFit();
-                    initDeltaX = lahv.getTranslationForCentering().x;
-                    initDeltaY = lahv.getTranslationForCentering().y;
-                } else {
-                    initScale = mChildScale;
-                    initDeltaX = 0;
-                    initDeltaY = 0;
-                }
+                initScale = mChildScale;
+                initDeltaX = 0;
+                initDeltaY = 0;
             } else {
                 initScale = child.getScaleX();
                 initDeltaX = child.getTranslationX();

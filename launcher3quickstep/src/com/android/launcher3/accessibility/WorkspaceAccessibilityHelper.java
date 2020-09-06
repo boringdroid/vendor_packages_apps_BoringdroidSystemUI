@@ -26,7 +26,6 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.accessibility.LauncherAccessibilityDelegate.DragType;
 import com.android.launcher3.dragndrop.DragLayer;
 
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -50,65 +49,17 @@ public class WorkspaceAccessibilityHelper extends DragAndDropAccessibilityDelega
     @Override
     protected int intersectsValidDropTarget(int id) {
         int mCountX = mView.getCountX();
-        int mCountY = mView.getCountY();
 
         int x = id % mCountX;
         int y = id / mCountX;
         LauncherAccessibilityDelegate.DragInfo dragInfo = mDelegate.getDragInfo();
-
-        if (dragInfo.dragType == DragType.WIDGET && !mView.acceptsWidget()) {
-            return INVALID_POSITION;
+        // For an icon, we simply check the view directly below
+        View child = mView.getChildAt(x, y);
+        if (child == null || child == dragInfo.item) {
+            // Empty cell. Good for an icon or folder.
+            return id;
         }
-
-        if (dragInfo.dragType == DragType.WIDGET) {
-            // For a widget, every cell must be vacant. In addition, we will return any valid
-            // drop target by which the passed id is contained.
-            boolean fits = false;
-
-            // These represent the amount that we can back off if we hit a problem. They
-            // get consumed as we move up and to the right, trying new regions.
-            int spanX = dragInfo.info.spanX;
-            int spanY = dragInfo.info.spanY;
-
-            for (int m = 0; m < spanX; m++) {
-                for (int n = 0; n < spanY; n++) {
-
-                    fits = true;
-                    int x0 = x - m;
-                    int y0 = y - n;
-
-                    if (x0 < 0 || y0 < 0) continue;
-
-                    for (int i = x0; i < x0 + spanX; i++) {
-                        if (!fits) break;
-                        for (int j = y0; j < y0 + spanY; j++) {
-                            if (i >= mCountX || j >= mCountY || mView.isOccupied(i, j)) {
-                                fits = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (fits) {
-                        return x0 + mCountX * y0;
-                    }
-                }
-            }
-            return INVALID_POSITION;
-        } else {
-            // For an icon, we simply check the view directly below
-            View child = mView.getChildAt(x, y);
-            if (child == null || child == dragInfo.item) {
-                // Empty cell. Good for an icon or folder.
-                return id;
-            } else if (dragInfo.dragType != DragType.FOLDER) {
-                // For icons, we can consider cells that have another icon or a folder.
-                ItemInfo info = (ItemInfo) child.getTag();
-                if (info instanceof AppInfo || info instanceof WorkspaceItemInfo) {
-                    return id;
-                }
-            }
-            return INVALID_POSITION;
-        }
+        return INVALID_POSITION;
     }
 
     @Override

@@ -17,10 +17,7 @@ package com.android.launcher3.util;
 
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
-import com.android.launcher3.Utilities;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.shortcuts.ShortcutKey;
 
 public class ShortcutUtil {
     /**
@@ -38,22 +35,6 @@ public class ShortcutUtil {
     }
 
     /**
-     * Returns the shortcut id if the item is a pinned shortcut.
-     */
-    public static String getShortcutIdIfPinnedShortcut(ItemInfo info) {
-        return isActive(info) && isPinnedShortcut(info)
-                ? ShortcutKey.fromItemInfo(info).getId() : null;
-    }
-
-    /**
-     * Returns the person keys associated with the item. (Has no function right now.)
-     */
-    public static String[] getPersonKeysIfPinnedShortcut(ItemInfo info) {
-        return isActive(info) && isPinnedShortcut(info)
-                ? ((WorkspaceItemInfo) info).getPersonKeys() : Utilities.EMPTY_STRING_ARRAY;
-    }
-
-    /**
      * Returns true if the item is a deep shortcut.
      */
     public static boolean isDeepShortcut(ItemInfo info) {
@@ -64,7 +45,7 @@ public class ShortcutUtil {
     private static boolean isActive(ItemInfo info) {
         boolean isLoading = info instanceof WorkspaceItemInfo
                 && ((WorkspaceItemInfo) info).hasPromiseIconUi();
-        return !isLoading && !info.isDisabled() && !FeatureFlags.GO_DISABLE_WIDGETS;
+        return !isLoading && !info.isDisabled();
     }
 
     private static boolean isApp(ItemInfo info) {

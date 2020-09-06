@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"యాప్ ఇన్‌స్టాల్ చేయబడలేదు."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"యాప్ అందుబాటులో లేదు"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"డౌన్‌లోడ్ చేసిన యాప్ సురక్షిత మోడ్‌లో నిలిపివేయబడింది"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"సురక్షిత మోడ్‌లో విడ్జెట్‌లు నిలిపివేయబడ్డాయి"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"షార్ట్‌కట్ అందుబాటులో లేదు"</string>
     <string name="home_screen" msgid="806512411299847073">"హోమ్ స్క్రీన్"</string>
     <string name="custom_actions" msgid="3747508247759093328">"అనుకూల చర్యలు"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"విడ్జెట్‌ను ఎంచుకోవడానికి తాకి &amp; నొక్కి పెట్టండి."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"విడ్జెట్‌ను ఎంచుకోవడానికి లేదా అనుకూల చర్యలను ఉపయోగించడానికి రెండుసార్లు నొక్కి, ఉంచండి."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"%1$d వెడల్పు X %2$d ఎత్తు"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"మాన్యువల్‌గా ఉంచడానికి నొక్కి, పట్టుకోండి"</string>
     <string name="place_automatically" msgid="8064208734425456485">"ఆటోమేటిక్‌గా జోడించు"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"అప్లికేషన్‌లను లోడ్ చేస్తోంది…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"హోమ్ సెట్టింగ్‌లు మరియు సత్వరమార్గాలను వ్రాయడం"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"హోమ్‌లో సెట్టింగ్‌లు మరియు సత్వరమార్గాలను మార్చడానికి అనువర్తనాన్ని అనుమతిస్తుంది."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"ఫోన్ కాల్‌లను చేసేందుకు <xliff:g id="APP_NAME">%1$s</xliff:g>కి అనుమతి లేదు"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"విడ్జెట్‌ను లోడ్ చేయడంలో సమస్య"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"సెటప్ చేయి"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ఇది సిస్టమ్ యాప్ మరియు దీన్ని అన్‌ఇన్‌స్టాల్ చేయడం సాధ్యపడదు."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> నిలిపివేయబడింది"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"ఈ చిహ్నం యొక్క యాప్ ఇన్‌స్టాల్ చేయబడలేదు. మీరు దీన్ని తీసివేయవచ్చు లేదా ఆ యాప్ కోసం శోధించి దాన్ని మాన్యువల్‌గా ఇన్‌స్టాల్ చేయవచ్చు."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> డౌన్‌లోడ్ అవుతోంది, <xliff:g id="PROGRESS">%2$s</xliff:g> పూర్తయింది"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ఇన్‌స్టాల్ కావడానికి వేచి ఉంది"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g> విడ్జెట్‌లు"</string>
-    <string name="widgets_list" msgid="796804551140113767">"విడ్జెట్‌ల జాబితా"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"విడ్జెట్‌ల జాబితా మూసివేయబడింది"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"హోమ్ స్క్రీన్‌కు జోడించు"</string>
     <string name="action_move_here" msgid="2170188780612570250">"అంశాన్ని ఇక్కడికి తరలించు"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"అంశం హోమ్‌స్క్రీన్‌కి జోడించబడింది"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"ఫోల్డర్ సృష్టించబడింది"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"హోమ్‌స్క్రీన్‌కు తరలించు"</string>
     <string name="action_resize" msgid="1802976324781771067">"పరిమాణం మార్చు"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"వెడల్పును పెంచు"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"ఎత్తును పెంచు"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"వెడల్పును తగ్గించు"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"ఎత్తును తగ్గించు"</string>
-    <string name="widget_resized" msgid="9130327887929620">"విడ్జెట్ పరిమాణం వెడల్పు <xliff:g id="NUMBER_0">%1$s</xliff:g>కి, ఎత్తు <xliff:g id="NUMBER_1">%2$s</xliff:g>కి మార్చబడింది"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"సత్వరమార్గాలు"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"షార్ట్‌కట్‌లు మరియు నోటిఫికేషన్‌లు"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"వ్యక్తిగతం"</string>

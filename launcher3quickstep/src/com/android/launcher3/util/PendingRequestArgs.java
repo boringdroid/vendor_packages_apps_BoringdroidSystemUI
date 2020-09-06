@@ -21,7 +21,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.widget.WidgetAddFlowHandler;
 
 /**
  * Utility class to store information regarding a pending request made by launcher. This information
@@ -29,21 +28,11 @@ import com.android.launcher3.widget.WidgetAddFlowHandler;
  */
 public class PendingRequestArgs extends ItemInfo implements Parcelable {
 
-    private static final int TYPE_NONE = 0;
     private static final int TYPE_INTENT = 1;
-    private static final int TYPE_APP_WIDGET = 2;
 
     private final int mArg1;
     private final int mObjectType;
     private final Parcelable mObject;
-
-    public PendingRequestArgs(ItemInfo info) {
-        mArg1 = 0;
-        mObjectType = TYPE_NONE;
-        mObject = null;
-
-        copyFrom(info);
-    }
 
     private PendingRequestArgs(int arg1, int objectType, Parcelable object) {
         mArg1 = arg1;
@@ -77,28 +66,12 @@ public class PendingRequestArgs extends ItemInfo implements Parcelable {
         dest.writeParcelable(mObject, flags);
     }
 
-    public WidgetAddFlowHandler getWidgetHandler() {
-        return mObjectType == TYPE_APP_WIDGET ? (WidgetAddFlowHandler) mObject : null;
-    }
-
-    public int getWidgetId() {
-        return mObjectType == TYPE_APP_WIDGET ? mArg1 : 0;
-    }
-
     public Intent getPendingIntent() {
         return mObjectType == TYPE_INTENT ? (Intent) mObject : null;
     }
 
     public int getRequestCode() {
         return mObjectType == TYPE_INTENT ? mArg1 : 0;
-    }
-
-    public static PendingRequestArgs forWidgetInfo(
-            int appWidgetId, WidgetAddFlowHandler widgetHandler, ItemInfo info) {
-        PendingRequestArgs args =
-                new PendingRequestArgs(appWidgetId, TYPE_APP_WIDGET, widgetHandler);
-        args.copyFrom(info);
-        return args;
     }
 
     public static PendingRequestArgs forIntent(int requestCode, Intent intent, ItemInfo info) {

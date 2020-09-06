@@ -26,11 +26,9 @@ import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.ItemInfoMatcher;
-import com.android.launcher3.widget.WidgetListRowEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -102,12 +100,6 @@ public abstract class BaseModelUpdateTask implements ModelUpdateTask {
         final HashMap<ComponentKey, Integer> shortcutMapCopy =
                 new HashMap<>(dataModel.deepShortcutMap);
         scheduleCallbackTask(callbacks -> callbacks.bindDeepShortcutMap(shortcutMapCopy));
-    }
-
-    public void bindUpdatedWidgets(BgDataModel dataModel) {
-        final ArrayList<WidgetListRowEntry> widgets =
-                dataModel.widgetsModel.getWidgetsList(mApp.getContext());
-        scheduleCallbackTask(c -> c.bindAllWidgets(widgets));
     }
 
     public void deleteAndBindComponentsRemoved(final ItemInfoMatcher matcher) {

@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"ଆପ୍‌ ଇନଷ୍ଟଲ୍‌ ହୋଇନାହିଁ"</string>
     <string name="activity_not_available" msgid="7456344436509528827">"ଆପ୍‌ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ନିରାପଦ ମୋଡରେ ଡାଉନଲୋଡ୍‌ ହେଇଥିବା ଆପ୍‌ ଅକ୍ଷମ କରାଗଲା"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"ନିରାପଦ ମୋଡରେ ୱିଜେଟ୍‌ ଅକ୍ଷମ କରାଗଲା"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"ଶର୍ଟକଟ୍‌ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="home_screen" msgid="806512411299847073">"ହୋମ୍‌ ସ୍କ୍ରୀନ୍‌"</string>
     <string name="custom_actions" msgid="3747508247759093328">"କାର୍ଯ୍ୟ କଷ୍ଟମ୍ କରନ୍ତୁ"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"ୱିଜେଟ୍‌ ନେବାକୁ ସ୍ପର୍ଶ କରନ୍ତୁ ଏବଂ ଧରି ରଖନ୍ତୁ।"</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"ଡବଲ୍‌-ଟାପ୍‌ କରନ୍ତୁ ଏବଂ ଏକ ୱିଜେଟ୍‌ ନେବାକୁ ଧରି ରଖନ୍ତୁ କିମ୍ୱା କଷ୍ଟମ୍ କାର୍ଯ୍ୟପ୍ରକ୍ରିୟା ବ୍ୟବହାର କରନ୍ତୁ।"</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"%1$d ଓସାର ଓ %2$d ଉଚ୍ଚ"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"ମାନୁଆଲ୍‌ ଭାବରେ ରଖିବାକୁ ସ୍ପର୍ଶ କରନ୍ତୁ ଏବଂ ଧରି ରଖନ୍ତୁ"</string>
     <string name="place_automatically" msgid="8064208734425456485">"ସ୍ୱଚାଳିତ ଭାବେ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"ଆପ୍‌ ଲୋଡ୍‌ ହେଉଛି..."</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"ହୋମ୍‌ ସେଟିଙ୍ଗ ଏବଂ ଶର୍ଟକଟ୍‌ ଲେଖନ୍ତୁ"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ହୋମରେ ସେଟିଙ୍ଗ ଏବଂ ଶର୍ଟକଟ୍‌ ପରିବର୍ତ୍ତନ କରିବାକୁ ଆପକୁ ଅନୁମତି ଦିଏ।"</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"ଫୋନ୍‌ କଲ୍‌ କରିବାକୁ <xliff:g id="APP_NAME">%1$s</xliff:g>କୁ ଅନୁମତି ଦିଆଯାଇ ନାହିଁ"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"ୱିଜେଟ୍‌ ଲୋଡ୍‌ ହେବାରେ ସମସ୍ୟା ଅଛି"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"ସେଟ୍ ଅପ୍ କରନ୍ତୁ"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ଏହା ଏକ ସିଷ୍ଟମ୍‌ ଆପ୍‌ ଅଟେ ଏବଂ ଏହା ଅନଇନଷ୍ଟଲ୍‌ କରାଯାଇ ପାରିବ ନାହିଁ।"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> ଅକ୍ଷମ କରାଗଲା"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"ଏହି ଆଇକନ୍‌ ପାଇଁ ଆପ୍‌ ଇନଷ୍ଟଲ୍‌ ହୋଇନାହିଁ। ଏହାକୁ ଆପଣ ଆପ୍‌ ପାଇଁ ବାହାର କରିପାରିବେ କିମ୍ୱା ସର୍ଚ୍ଚ କରି ପାରିବେ ଏବଂ ଏହାକୁ ମାନୁଆଲ୍‌ ଭାବରେ ଇନଷ୍ଟଲ୍‌ କରିପାରିବେ।"</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> ଡାଉନଲୋଡ୍‌ ହେଉଛି, <xliff:g id="PROGRESS">%2$s</xliff:g> ସମ୍ପୂର୍ଣ୍ଣ"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ଇନଷ୍ଟଲ୍‌ ହେବାକୁ ଅପେକ୍ଷା କରିଛି"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g> ୱିଜେଟ୍‌"</string>
-    <string name="widgets_list" msgid="796804551140113767">"ୱିଜେଟ୍ ତାଲିକା"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"ୱିଜେଟ୍ ତାଲିକା ବନ୍ଦ ହୋଇଛି"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"ହୋମ୍‌ ସ୍କ୍ରୀନରେ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="action_move_here" msgid="2170188780612570250">"ଆଇଟମ୍‌କୁ ଏଠାକୁ ଘୁଞ୍ଚାନ୍ତୁ"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"ହୋମ୍‌ ସ୍କ୍ରୀନରେ ଆଇଟମ୍‌ ଯୋଡ଼ାଗଲା"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"ଫୋଲ୍ଡର ତିଆରି କରାଗଲା"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"ହାମ୍‌ ସ୍କ୍ରୀନକୁ ଘୁଞ୍ଚାନ୍ତୁ"</string>
     <string name="action_resize" msgid="1802976324781771067">"ଆକାର ବଦଳାନ୍ତୁ"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"ଚଉଡ଼ା ବଢ଼ାନ୍ତୁ"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"ଉଚ୍ଚତା ବଢ଼ାନ୍ତୁ"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"ଚଉଡ଼ା କମ୍‌ କରନ୍ତୁ"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"ଉଚ୍ଚତା କମ୍‌ କରନ୍ତୁ"</string>
-    <string name="widget_resized" msgid="9130327887929620">"ୱିଜେଟକୁ <xliff:g id="NUMBER_0">%1$s</xliff:g> ଓସାର ଓ <xliff:g id="NUMBER_1">%2$s</xliff:g> ଉଚ୍ଚରେ ପୁନଃଆକାର ଦିଆଗଲା"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"ଶର୍ଟକଟ୍‍"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"ଶର୍ଟକଟ୍ ଓ ବିଜ୍ଞପ୍ତି"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ବ୍ୟକ୍ତିଗତ"</string>

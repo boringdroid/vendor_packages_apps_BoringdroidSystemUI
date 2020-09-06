@@ -35,8 +35,6 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.BitmapRenderer;
-import com.android.launcher3.widget.LauncherAppWidgetHostView;
-import com.android.launcher3.widget.PendingAppWidgetHostView;
 
 import java.nio.ByteBuffer;
 
@@ -116,20 +114,6 @@ public class DragPreviewProvider {
             Rect bounds = getDrawableBounds(d);
             width = bounds.width();
             height = bounds.height();
-        } else if (mView instanceof LauncherAppWidgetHostView) {
-            float scale = ((LauncherAppWidgetHostView) mView).getScaleToFit();
-            width = (int) (mView.getWidth() * scale);
-            height = (int) (mView.getHeight() * scale);
-
-            if (mView instanceof PendingAppWidgetHostView) {
-                // Use hardware renderer as the icon for the pending app widget may be a hw bitmap
-                return BitmapRenderer.createHardwareBitmap(width + blurSizeOutline,
-                        height + blurSizeOutline, (c) -> drawDragView(c, scale));
-            } else {
-                // Use software renderer for widgets as we know that they already work
-                return BitmapRenderer.createSoftwareBitmap(width + blurSizeOutline,
-                        height + blurSizeOutline, (c) -> drawDragView(c, scale));
-            }
         }
 
         return BitmapRenderer.createHardwareBitmap(width + blurSizeOutline,
@@ -159,12 +143,6 @@ public class DragPreviewProvider {
     public float getScaleAndPosition(Bitmap preview, int[] outPos) {
         float scale = Launcher.getLauncher(mView.getContext())
                 .getDragLayer().getLocationInDragLayer(mView, outPos);
-        if (mView instanceof LauncherAppWidgetHostView) {
-            // App widgets are technically scaled, but are drawn at their expected size -- so the
-            // app widget scale should not affect the scale of the preview.
-            scale /= ((LauncherAppWidgetHostView) mView).getScaleToFit();
-        }
-
         outPos[0] = Math.round(outPos[0] -
                 (preview.getWidth() - scale * mView.getWidth() * mView.getScaleX()) / 2);
         outPos[1] = Math.round(outPos[1] - (1 - scale) * preview.getHeight() / 2

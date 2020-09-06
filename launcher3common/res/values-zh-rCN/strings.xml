@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"未安装该应用。"</string>
     <string name="activity_not_available" msgid="7456344436509528827">"应用不可用"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"安全模式下不允许使用下载的此应用"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"安全模式下不允许使用微件"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"无法使用快捷方式"</string>
     <string name="home_screen" msgid="806512411299847073">"主屏幕"</string>
     <string name="custom_actions" msgid="3747508247759093328">"自定义操作"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"触摸并按住微件即可选择。"</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"点按两次并按住微件即可选择微件，您也可以使用自定义操作。"</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"宽 %1$d，高 %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"轻触并按住即可手动放置"</string>
     <string name="place_automatically" msgid="8064208734425456485">"自动添加"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"正在加载应用…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"写入主屏幕设置和快捷方式"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"允许应用更改主屏幕中的设置和快捷方式。"</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"不允许使用“<xliff:g id="APP_NAME">%1$s</xliff:g>”拨打电话"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"加载微件时出现问题"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"设置"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"这是系统应用，无法卸载。"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"已停用<xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"未安装此图标对应的应用。您可以移除此图标，也可以尝试搜索相应的应用并手动安装。"</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"正在下载<xliff:g id="NAME">%1$s</xliff:g>，已完成 <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g>正在等待安装"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g>微件"</string>
-    <string name="widgets_list" msgid="796804551140113767">"微件列表"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"微件列表已关闭"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"添加到主屏幕"</string>
     <string name="action_move_here" msgid="2170188780612570250">"将项目移至此处"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"已将项目添加到主屏幕"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"文件夹已创建"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"移至主屏幕"</string>
     <string name="action_resize" msgid="1802976324781771067">"调整大小"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"增加宽度"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"增加高度"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"减小宽度"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"减小高度"</string>
-    <string name="widget_resized" msgid="9130327887929620">"微件尺寸已调整为：宽度 <xliff:g id="NUMBER_0">%1$s</xliff:g>，高度 <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"快捷方式"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"快捷方式和通知"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"个人"</string>

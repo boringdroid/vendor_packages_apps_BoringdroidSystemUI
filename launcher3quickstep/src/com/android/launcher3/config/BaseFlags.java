@@ -67,9 +67,6 @@ public abstract class BaseFlags {
     //Feature flag to enable pulling down navigation shade from workspace.
     public static final boolean PULL_DOWN_STATUS_BAR = true;
 
-    // Features to control Launcher3Go behavior
-    public static final boolean GO_DISABLE_WIDGETS = false;
-
     // When enabled shows a work profile tab in all apps
     public static final boolean ALL_APPS_TABS_ENABLED = true;
 

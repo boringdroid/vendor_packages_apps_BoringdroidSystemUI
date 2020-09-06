@@ -69,7 +69,6 @@ import com.android.launcher3.userevent.nano.LauncherLogProto.ControlType;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
 import com.android.launcher3.util.Themes;
-import com.android.launcher3.widget.WidgetsFullSheet;
 
 import java.util.List;
 
@@ -440,23 +439,7 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
             } else if (action == WALLPAPERS) {
                 return OptionsPopupView.startWallpaperPicker(ScrimView.this);
             } else if (action == WIDGETS) {
-                int originalImportanceForAccessibility = getImportantForAccessibility();
                 setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-                WidgetsFullSheet widgetsFullSheet = OptionsPopupView.openWidgets(mLauncher);
-                if (widgetsFullSheet == null) {
-                    setImportantForAccessibility(originalImportanceForAccessibility);
-                    return false;
-                }
-                widgetsFullSheet.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
-                    @Override
-                    public void onViewAttachedToWindow(View view) {}
-
-                    @Override
-                    public void onViewDetachedFromWindow(View view) {
-                        setImportantForAccessibility(originalImportanceForAccessibility);
-                        widgetsFullSheet.removeOnAttachStateChangeListener(this);
-                    }
-                });
                 return true;
             } else if (action == SETTINGS) {
                 return OptionsPopupView.startSettings(ScrimView.this);

@@ -32,7 +32,6 @@ import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.util.MainThreadInitializedObject;
 import com.android.launcher3.util.Preconditions;
-import com.android.launcher3.widget.custom.CustomWidgetManager;
 
 public class LauncherAppState {
 
@@ -45,7 +44,6 @@ public class LauncherAppState {
     private final Context mContext;
     private final LauncherModel mModel;
     private final IconCache mIconCache;
-    private final WidgetPreviewLoader mWidgetCache;
     private final InvariantDeviceProfile mInvariantDeviceProfile;
 
     public static LauncherAppState getInstance(final Context context) {
@@ -71,7 +69,6 @@ public class LauncherAppState {
 
         mInvariantDeviceProfile = InvariantDeviceProfile.INSTANCE.get(mContext);
         mIconCache = new IconCache(mContext, mInvariantDeviceProfile);
-        mWidgetCache = new WidgetPreviewLoader(mContext, mIconCache);
         mModel = new LauncherModel(this, mIconCache, AppFilter.newInstance(mContext));
 
         LauncherAppsCompat.getInstance(mContext).addOnAppsChangedCallback(mModel);
@@ -105,7 +102,6 @@ public class LauncherAppState {
         if ((changeFlags & CHANGE_FLAG_ICON_PARAMS) != 0) {
             LauncherIcons.clearPool();
             mIconCache.updateIconParams(idp.fillResIconDpi, idp.iconBitmapSize);
-            mWidgetCache.refresh();
         }
 
         mModel.forceReload();
@@ -114,8 +110,6 @@ public class LauncherAppState {
     LauncherModel setLauncher(Launcher launcher) {
         getLocalProvider(mContext).setLauncherProviderChangeListener(launcher);
         mModel.initialize(launcher);
-        CustomWidgetManager.INSTANCE.get(launcher)
-                .setWidgetRefreshCallback(mModel::refreshAndBindWidgetsAndShortcuts);
         return mModel;
     }
 
@@ -125,10 +119,6 @@ public class LauncherAppState {
 
     public LauncherModel getModel() {
         return mModel;
-    }
-
-    public WidgetPreviewLoader getWidgetCache() {
-        return mWidgetCache;
     }
 
     public InvariantDeviceProfile getInvariantDeviceProfile() {

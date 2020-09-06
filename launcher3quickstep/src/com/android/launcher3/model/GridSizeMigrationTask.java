@@ -4,7 +4,6 @@ import static com.android.launcher3.LauncherSettings.Settings.EXTRA_VALUE;
 import static com.android.launcher3.Utilities.getPointString;
 import static com.android.launcher3.Utilities.parsePoint;
 
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -20,13 +19,11 @@ import android.util.SparseArray;
 import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherAppWidgetProviderInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.LauncherSettings.Settings;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.Workspace;
-import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.provider.LauncherDbUtils;
@@ -56,9 +53,6 @@ public class GridSizeMigrationTask {
     // the least absurd migration experience.
     private static final float WT_SHORTCUT = 1;
     private static final float WT_APPLICATION = 0.8f;
-    private static final float WT_WIDGET_MIN = 2;
-    private static final float WT_WIDGET_FACTOR = 0.6f;
-    private static final float WT_FOLDER_FACTOR = 0.5f;
 
     protected final SQLiteDatabase mDb;
     protected final Context mContext;
@@ -546,9 +540,7 @@ public class GridSizeMigrationTask {
                         Favorites.CELLY,                // 3
                         Favorites.SPANX,                // 4
                         Favorites.SPANY,                // 5
-                        Favorites.INTENT,               // 6
-                        Favorites.APPWIDGET_PROVIDER,   // 7
-                        Favorites.APPWIDGET_ID},        // 8
+                        Favorites.INTENT},              // 6
                 Favorites.CONTAINER + " = " + Favorites.CONTAINER_DESKTOP
                         + " AND " + Favorites.SCREEN + " = " + screen);
 
@@ -559,8 +551,6 @@ public class GridSizeMigrationTask {
         final int indexSpanX = c.getColumnIndexOrThrow(Favorites.SPANX);
         final int indexSpanY = c.getColumnIndexOrThrow(Favorites.SPANY);
         final int indexIntent = c.getColumnIndexOrThrow(Favorites.INTENT);
-        final int indexAppWidgetProvider = c.getColumnIndexOrThrow(Favorites.APPWIDGET_PROVIDER);
-        final int indexAppWidgetId = c.getColumnIndexOrThrow(Favorites.APPWIDGET_ID);
 
         ArrayList<DbEntry> entries = new ArrayList<>();
         while (c.moveToNext()) {
@@ -582,33 +572,6 @@ public class GridSizeMigrationTask {
                         verifyIntent(c.getString(indexIntent));
                         entry.weight = entry.itemType == Favorites.ITEM_TYPE_APPLICATION ?
                                 WT_APPLICATION : WT_SHORTCUT;
-                        break;
-                    }
-                    case Favorites.ITEM_TYPE_APPWIDGET: {
-                        String provider = c.getString(indexAppWidgetProvider);
-                        ComponentName cn = ComponentName.unflattenFromString(provider);
-                        verifyPackage(cn.getPackageName());
-                        entry.weight = Math.max(WT_WIDGET_MIN, WT_WIDGET_FACTOR
-                                * entry.spanX * entry.spanY);
-
-                        int widgetId = c.getInt(indexAppWidgetId);
-                        LauncherAppWidgetProviderInfo pInfo = AppWidgetManagerCompat.getInstance(
-                                mContext).getLauncherAppWidgetInfo(widgetId);
-                        Point spans = null;
-                        if (pInfo != null) {
-                            spans = pInfo.getMinSpans();
-                        }
-                        if (spans != null) {
-                            entry.minSpanX = spans.x > 0 ? spans.x : entry.spanX;
-                            entry.minSpanY = spans.y > 0 ? spans.y : entry.spanY;
-                        } else {
-                            // Assume that the widget be resized down to 2x2
-                            entry.minSpanX = entry.minSpanY = 2;
-                        }
-
-                        if (entry.minSpanX > mTrgX || entry.minSpanY > mTrgY) {
-                            throw new Exception("Widget can't be resized down to fit the grid");
-                        }
                         break;
                     }
                     default:
@@ -675,18 +638,7 @@ public class GridSizeMigrationTask {
          */
         @Override
         public int compareTo(DbEntry another) {
-            if (itemType == Favorites.ITEM_TYPE_APPWIDGET) {
-                if (another.itemType == Favorites.ITEM_TYPE_APPWIDGET) {
-                    return another.spanY * another.spanX - spanX * spanY;
-                } else {
-                    return -1;
-                }
-            } else if (another.itemType == Favorites.ITEM_TYPE_APPWIDGET) {
-                return 1;
-            } else {
-                // Place higher weight before lower weight.
-                return Float.compare(another.weight, weight);
-            }
+            return Float.compare(another.weight, weight);
         }
 
         public boolean columnsSame(DbEntry org) {

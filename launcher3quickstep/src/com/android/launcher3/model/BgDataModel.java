@@ -25,7 +25,6 @@ import android.util.MutableInt;
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.WorkspaceItemInfo;
@@ -43,7 +42,6 @@ import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.ViewOnDrawExecutor;
-import com.android.launcher3.widget.WidgetListRowEntry;
 
 import com.google.protobuf.nano.MessageNano;
 
@@ -79,11 +77,6 @@ public class BgDataModel {
     public final ArrayList<ItemInfo> workspaceItems = new ArrayList<>();
 
     /**
-     * All LauncherAppWidgetInfo created by LauncherModel.
-     */
-    public final ArrayList<LauncherAppWidgetInfo> appWidgets = new ArrayList<>();
-
-    /**
      * Map of ShortcutKey to the number of times it is pinned.
      */
     public final Map<ShortcutKey, MutableInt> pinnedShortcutCounts = new HashMap<>();
@@ -99,11 +92,6 @@ public class BgDataModel {
     public final HashMap<ComponentKey, Integer> deepShortcutMap = new HashMap<>();
 
     /**
-     * Entire list of widgets.
-     */
-    public final WidgetsModel widgetsModel = new WidgetsModel();
-
-    /**
      * Id when the model was last bound
      */
     public int lastBindId = 0;
@@ -113,7 +101,6 @@ public class BgDataModel {
      */
     public synchronized void clear() {
         workspaceItems.clear();
-        appWidgets.clear();
         itemsIdMap.clear();
         pinnedShortcutCounts.clear();
         deepShortcutMap.clear();
@@ -145,10 +132,6 @@ public class BgDataModel {
         writer.println(prefix + " ---- workspace items ");
         for (int i = 0; i < workspaceItems.size(); i++) {
             writer.println(prefix + '\t' + workspaceItems.get(i).toString());
-        }
-        writer.println(prefix + " ---- appwidget items ");
-        for (int i = 0; i < appWidgets.size(); i++) {
-            writer.println(prefix + '\t' + appWidgets.get(i).toString());
         }
         writer.println(prefix + " ---- items id map ");
         for (int i = 0; i< itemsIdMap.size(); i++) {
@@ -184,15 +167,6 @@ public class BgDataModel {
                 workspaces.get(info.screenId).add(dtw);
             }
         }
-        for (int i = 0; i < appWidgets.size(); i++) {
-            ItemInfo info = appWidgets.get(i);
-            dtw = new DumpTargetWrapper(info);
-            dtw.writeToDumpTarget(info);
-            if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                workspaces.get(info.screenId).add(dtw);
-            }
-        }
-
 
         // Traverse target wrapper
         ArrayList<DumpTarget> targetList = new ArrayList<>();
@@ -244,10 +218,6 @@ public class BgDataModel {
                 case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                     workspaceItems.remove(item);
                     break;
-                case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
-                case LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET:
-                    appWidgets.remove(item);
-                    break;
             }
             itemsIdMap.remove(item.id);
         }
@@ -278,10 +248,6 @@ public class BgDataModel {
                 if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                     workspaceItems.add(item);
                 }
-                break;
-            case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
-            case LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET:
-                appWidgets.add((LauncherAppWidgetInfo) item);
                 break;
         }
     }
@@ -331,10 +297,8 @@ public class BgDataModel {
                 ArrayList<ItemInfo> addNotAnimated, ArrayList<ItemInfo> addAnimated);
         void bindPromiseAppProgressUpdated(PromiseAppInfo app);
         void bindWorkspaceItemsChanged(ArrayList<WorkspaceItemInfo> updated);
-        void bindWidgetsRestored(ArrayList<LauncherAppWidgetInfo> widgets);
         void bindRestoreItemsChange(HashSet<ItemInfo> updates);
         void bindWorkspaceComponentsRemoved(ItemInfoMatcher matcher);
-        void bindAllWidgets(ArrayList<WidgetListRowEntry> widgets);
         void onPageBoundSynchronously(int page);
         void executeOnNextDraw(ViewOnDrawExecutor executor);
         void bindDeepShortcutMap(HashMap<ComponentKey, Integer> deepShortcutMap);

@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"មិន​បាន​ដំឡើង​កម្មវិធី។"</string>
     <string name="activity_not_available" msgid="7456344436509528827">"មិន​មាន​កម្មវិធី"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"បាន​បិទ​កម្មវិធី​ដែល​បាន​ទាញ​យក​ក្នុង​របៀប​សុវត្ថិភាព"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"បាន​បិទ​ធាតុ​ក្រាហ្វិក​ក្នុង​របៀប​សុវត្ថិភាព"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"ផ្លូវកាត់មិនអាចប្រើបានទេ"</string>
     <string name="home_screen" msgid="806512411299847073">"អេក្រង់ដើម"</string>
     <string name="custom_actions" msgid="3747508247759093328">"សកម្មភាព​ផ្ទាល់ខ្លួន"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"ប៉ះ &amp; សង្កត់ ដើម្បី​ជ្រើស​ធាតុ​ក្រាហ្វិក។"</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"ប៉ះពីរដង ហើយចុចឲ្យជាប់ដើម្បីជ្រើសយកធាតុក្រាហ្វិក ឬប្រើសកម្មភាពផ្ទាល់ខ្លួន។"</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"ទទឺង %1$d គុណនឹងកម្ពស់ %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"ចុច​ឲ្យជាប់​ដើម្បី​បញ្ចូលវា​ដោយផ្ទាល់"</string>
     <string name="place_automatically" msgid="8064208734425456485">"បញ្ចូល​ដោយ​ស្វ័យ​ប្រវត្តិ"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"កំពុងផ្ទុកកម្មវិធី…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"សរសេរ​ការ​កំណត់ ​និង​ផ្លូវកាត់​​លើ​អេក្រង់​ដើម"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"អនុញ្ញាត​ឲ្យ​កម្មវិធី​ប្ដូរ​ការ​កំណត់ និង​ផ្លូវ​កាត់​ក្នុង​អេក្រង់​ដើម។"</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> មិនត្រូវបានអនុញ្ញាតឲ្យធ្វើការហៅទូរស័ព្ទទេ"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"បញ្ហា​ក្នុង​ការ​ផ្ទុក​ធាតុ​​ក្រាហ្វិក"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"រៀបចំ"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"នេះ​​​ជា​កម្មវិធី​ប្រព័ន្ធ មិន​អាច​លុប​បាន​ទេ។"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"បានបិទដំណើរការ <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"មិន​បាន​ដំឡើង​កម្មវិធី​សម្រាប់​រូបតំណាង​នេះ។ អ្នក​អាច​លុប​វា ឬ​ស្វែងរក​កម្មវិធី និង​ដំឡើង​វា​ដោយ​ដៃ។"</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"កំពុងដោនឡូត <xliff:g id="NAME">%1$s</xliff:g> បានបញ្ចប់ <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> កំពុងរង់ចាំការដំឡើង"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"ធាតុ​ក្រាហ្វិក <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="widgets_list" msgid="796804551140113767">"បញ្ជីធាតុ​ក្រាហ្វិក"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"បាន​បិទ​បញ្ជីធាតុ​ក្រាហ្វិក"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"បញ្ចូលទៅអេក្រង់ដើម"</string>
     <string name="action_move_here" msgid="2170188780612570250">"ផ្លាស់ធាតុមកទីនេះ"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"ធាតុដែលត្រូវបានបន្ថែមទៅអេក្រង់ដើម"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"បានបង្កើតថតឯកសារ"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"ផ្លាស់ទៅអេក្រង់ដើម"</string>
     <string name="action_resize" msgid="1802976324781771067">"ប្ដូរទំហំ"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"បង្កើនទទឹង"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"បង្កើនកម្ពស់"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"បន្ថយទទឹង"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"បន្ថយកម្ពស់"</string>
-    <string name="widget_resized" msgid="9130327887929620">"ធាតុក្រាហ្វិកដែលបានប្តូរទំហំទៅទទឹងប្រវែង <xliff:g id="NUMBER_0">%1$s</xliff:g> កម្ពស់ប្រវែង <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"ផ្លូវកាត់"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"ផ្លូវកាត់ និង​ការជូនដំណឹង"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ផ្ទាល់ខ្លួន"</string>

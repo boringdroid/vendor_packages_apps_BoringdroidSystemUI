@@ -23,7 +23,6 @@ import static com.android.launcher3.model.LoaderResults.filterCurrentWorkspaceIt
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 import static com.android.launcher3.util.PackageManagerHelper.isSystemApp;
 
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -45,18 +44,14 @@ import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.icons.ComponentWithLabel;
-import com.android.launcher3.icons.ComponentWithLabel.ComponentCachingLogic;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.LauncherIcons;
@@ -64,7 +59,6 @@ import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
 import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.shortcuts.ShortcutKey;
-import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.IOUtils;
 import com.android.launcher3.util.LooperIdleLock;
 import com.android.launcher3.util.MultiHashMap;
@@ -102,7 +96,6 @@ public class LoaderTask implements Runnable {
     private final UserManagerCompat mUserManager;
     private final DeepShortcutManager mShortcutManager;
     private final PackageInstallerCompat mPackageInstaller;
-    private final AppWidgetManagerCompat mAppWidgetManager;
     private final IconCache mIconCache;
 
     private boolean mStopped;
@@ -118,7 +111,6 @@ public class LoaderTask implements Runnable {
         mUserManager = UserManagerCompat.getInstance(mApp.getContext());
         mShortcutManager = DeepShortcutManager.getInstance(mApp.getContext());
         mPackageInstaller = PackageInstallerCompat.getInstance(mApp.getContext());
-        mAppWidgetManager = AppWidgetManagerCompat.getInstance(mApp.getContext());
         mIconCache = mApp.getIconCache();
     }
 
@@ -144,7 +136,6 @@ public class LoaderTask implements Runnable {
         ArrayList<ItemInfo> allItems = new ArrayList<>();
         synchronized (mBgDataModel) {
             allItems.addAll(mBgDataModel.workspaceItems);
-            allItems.addAll(mBgDataModel.appWidgets);
         }
         // Screen set is never empty
         final int firstScreen = mBgDataModel.collectWorkspaceScreens().get(0);
@@ -214,21 +205,6 @@ public class LoaderTask implements Runnable {
             waitForIdle();
             verifyNotStopped();
 
-            // fourth step
-            TraceHelper.partitionSection(TAG, "step 4.1: loading widgets");
-            List<ComponentWithLabel> allWidgetsList = mBgDataModel.widgetsModel.update(mApp, null);
-
-            verifyNotStopped();
-            TraceHelper.partitionSection(TAG, "step 4.2: Binding widgets");
-            mResults.bindWidgets();
-
-            verifyNotStopped();
-
-            TraceHelper.partitionSection(TAG, "step 4.3: save widgets in icon cache");
-            updateHandler.updateIcons(allWidgetsList, new ComponentCachingLogic(
-                    mApp.getContext(), true), mApp.getModel()::onWidgetLabelsUpdated);
-
-            verifyNotStopped();
             TraceHelper.partitionSection(TAG, "step 5: Finish icon cache update");
             updateHandler.finish();
 
@@ -282,21 +258,9 @@ public class LoaderTask implements Runnable {
             final LoaderCursor c = new LoaderCursor(contentResolver.query(
                     LauncherSettings.Favorites.CONTENT_URI, null, null, null, null), mApp);
 
-            HashMap<ComponentKey, AppWidgetProviderInfo> widgetProvidersMap = null;
-
             try {
-                final int appWidgetIdIndex = c.getColumnIndexOrThrow(
-                        LauncherSettings.Favorites.APPWIDGET_ID);
-                final int appWidgetProviderIndex = c.getColumnIndexOrThrow(
-                        LauncherSettings.Favorites.APPWIDGET_PROVIDER);
-                final int spanXIndex = c.getColumnIndexOrThrow
-                        (LauncherSettings.Favorites.SPANX);
-                final int spanYIndex = c.getColumnIndexOrThrow(
-                        LauncherSettings.Favorites.SPANY);
                 final int rankIndex = c.getColumnIndexOrThrow(
                         LauncherSettings.Favorites.RANK);
-                final int optionsIndex = c.getColumnIndexOrThrow(
-                        LauncherSettings.Favorites.OPTIONS);
 
                 final LongSparseArray<UserHandle> allUsers = c.allUsers;
                 final LongSparseArray<Boolean> quietMode = new LongSparseArray<>();
@@ -328,7 +292,6 @@ public class LoaderTask implements Runnable {
                 }
 
                 WorkspaceItemInfo info;
-                LauncherAppWidgetInfo appWidgetInfo;
                 Intent intent;
                 String targetPkg;
 
@@ -395,7 +358,6 @@ public class LoaderTask implements Runnable {
                                         c.updater().put(
                                                 LauncherSettings.Favorites.INTENT,
                                                 intent.toUri(0)).commit();
-                                        cn = intent.getComponent();
                                     } else {
                                         c.markDeleted("Unable to find a launch target");
                                         continue;
@@ -546,145 +508,6 @@ public class LoaderTask implements Runnable {
                                 throw new RuntimeException("Unexpected null WorkspaceItemInfo");
                             }
                             break;
-
-                        case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
-                            if (FeatureFlags.GO_DISABLE_WIDGETS) {
-                                c.markDeleted("Only legacy shortcuts can have null package");
-                                continue;
-                            }
-                            // Follow through
-                        case LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET:
-                            // Read all Launcher-specific widget details
-                            boolean customWidget = c.itemType ==
-                                LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET;
-
-                            int appWidgetId = c.getInt(appWidgetIdIndex);
-                            String savedProvider = c.getString(appWidgetProviderIndex);
-                            final ComponentName component;
-
-                            boolean isSearchWidget = (c.getInt(optionsIndex)
-                                    & LauncherAppWidgetInfo.OPTION_SEARCH_WIDGET) != 0;
-                            if (isSearchWidget) {
-                                // TODO remove it
-                                component = null;
-                            } else {
-                                component = ComponentName.unflattenFromString(savedProvider);
-                            }
-                            final boolean isIdValid = !c.hasRestoreFlag(
-                                    LauncherAppWidgetInfo.FLAG_ID_NOT_VALID);
-                            final boolean wasProviderReady = !c.hasRestoreFlag(
-                                    LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY);
-
-                            if (widgetProvidersMap == null) {
-                                widgetProvidersMap = mAppWidgetManager.getAllProvidersMap();
-                            }
-                            final AppWidgetProviderInfo provider = widgetProvidersMap.get(
-                                    new ComponentKey(component, c.user));
-
-                            final boolean isProviderReady = isValidProvider(provider);
-                            if (!isSafeMode && !customWidget &&
-                                    wasProviderReady && !isProviderReady) {
-                                c.markDeleted(
-                                        "Deleting widget that isn't installed anymore: "
-                                        + provider);
-                            } else {
-                                if (isProviderReady) {
-                                    appWidgetInfo = new LauncherAppWidgetInfo(appWidgetId,
-                                            provider.provider);
-
-                                    // The provider is available. So the widget is either
-                                    // available or not available. We do not need to track
-                                    // any future restore updates.
-                                    int status = c.restoreFlag &
-                                            ~LauncherAppWidgetInfo.FLAG_RESTORE_STARTED &
-                                            ~LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY;
-                                    if (!wasProviderReady) {
-                                        // If provider was not previously ready, update the
-                                        // status and UI flag.
-
-                                        // Id would be valid only if the widget restore broadcast was received.
-                                        if (isIdValid) {
-                                            status |= LauncherAppWidgetInfo.FLAG_UI_NOT_READY;
-                                        }
-                                    }
-                                    appWidgetInfo.restoreStatus = status;
-                                } else {
-                                    Log.v(TAG, "Widget restore pending id=" + c.id
-                                            + " appWidgetId=" + appWidgetId
-                                            + " status =" + c.restoreFlag);
-                                    appWidgetInfo = new LauncherAppWidgetInfo(appWidgetId,
-                                            component);
-                                    appWidgetInfo.restoreStatus = c.restoreFlag;
-
-                                    tempPackageKey.update(component.getPackageName(), c.user);
-                                    SessionInfo si =
-                                            installingPkgs.get(tempPackageKey);
-                                    Integer installProgress = si == null
-                                            ? null
-                                            : (int) (si.getProgress() * 100);
-
-                                    if (c.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_RESTORE_STARTED)) {
-                                        // Restore has started once.
-                                    } else if (installProgress != null) {
-                                        // App restore has started. Update the flag
-                                        appWidgetInfo.restoreStatus |=
-                                                LauncherAppWidgetInfo.FLAG_RESTORE_STARTED;
-                                    } else if (!isSafeMode) {
-                                        c.markDeleted("Unrestored widget removed: " + component);
-                                        continue;
-                                    }
-
-                                    appWidgetInfo.installProgress =
-                                            installProgress == null ? 0 : installProgress;
-                                }
-                                if (appWidgetInfo.hasRestoreFlag(
-                                        LauncherAppWidgetInfo.FLAG_DIRECT_CONFIG)) {
-                                    appWidgetInfo.bindOptions = c.parseIntent();
-                                }
-
-                                c.applyCommonProperties(appWidgetInfo);
-                                appWidgetInfo.spanX = c.getInt(spanXIndex);
-                                appWidgetInfo.spanY = c.getInt(spanYIndex);
-                                appWidgetInfo.options = c.getInt(optionsIndex);
-                                appWidgetInfo.user = c.user;
-
-                                if (appWidgetInfo.spanX <= 0 || appWidgetInfo.spanY <= 0) {
-                                    c.markDeleted("Widget has invalid size: "
-                                            + appWidgetInfo.spanX + "x" + appWidgetInfo.spanY);
-                                    continue;
-                                }
-                                if (!c.isOnWorkspace()) {
-                                    c.markDeleted("Widget found where container != " +
-                                            "CONTAINER_DESKTOP nor CONTAINER_HOTSEAT - ignoring!");
-                                    continue;
-                                }
-
-                                if (!customWidget) {
-                                    String providerName =
-                                            appWidgetInfo.providerName.flattenToString();
-                                    if (!providerName.equals(savedProvider) ||
-                                            (appWidgetInfo.restoreStatus != c.restoreFlag)) {
-                                        c.updater()
-                                                .put(LauncherSettings.Favorites.APPWIDGET_PROVIDER,
-                                                        providerName)
-                                                .put(LauncherSettings.Favorites.RESTORED,
-                                                        appWidgetInfo.restoreStatus)
-                                                .commit();
-                                    }
-                                }
-
-                                if (appWidgetInfo.restoreStatus !=
-                                        LauncherAppWidgetInfo.RESTORE_COMPLETED) {
-                                    String pkg = appWidgetInfo.providerName.getPackageName();
-                                    appWidgetInfo.pendingItemInfo = new PackageItemInfo(pkg);
-                                    appWidgetInfo.pendingItemInfo.user = appWidgetInfo.user;
-                                    mIconCache.getTitleAndIconForApp(
-                                            appWidgetInfo.pendingItemInfo, false);
-                                }
-
-                                c.checkAndAddItem(appWidgetInfo, mBgDataModel);
-                            }
-                            break;
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Desktop items loading interrupted", e);
@@ -698,13 +521,6 @@ public class LoaderTask implements Runnable {
             if (mStopped) {
                 mBgDataModel.clear();
                 return;
-            }
-
-            // Remove dead items
-            if (c.commitDeleted()) {
-                // Remove any ghost widgets
-                LauncherSettings.Settings.call(contentResolver,
-                        LauncherSettings.Settings.METHOD_REMOVE_GHOST_WIDGETS);
             }
 
             // Unpin shortcuts that don't exist on the workspace.
@@ -739,11 +555,6 @@ public class LoaderTask implements Runnable {
                     WorkspaceItemInfo si = (WorkspaceItemInfo) info;
                     if (si.isPromise() && si.getTargetComponent() != null) {
                         packagesToIgnore.add(si.getTargetComponent().getPackageName());
-                    }
-                } else if (info instanceof LauncherAppWidgetInfo) {
-                    LauncherAppWidgetInfo lawi = (LauncherAppWidgetInfo) info;
-                    if (lawi.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY)) {
-                        packagesToIgnore.add(lawi.providerName.getPackageName());
                     }
                 }
             }
@@ -799,10 +610,5 @@ public class LoaderTask implements Runnable {
                 }
             }
         }
-    }
-
-    public static boolean isValidProvider(AppWidgetProviderInfo provider) {
-        return (provider != null) && (provider.provider != null)
-                && (provider.provider.getPackageName() != null);
     }
 }

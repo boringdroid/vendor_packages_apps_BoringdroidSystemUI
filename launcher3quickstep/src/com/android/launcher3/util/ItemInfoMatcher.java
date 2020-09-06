@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.os.UserHandle;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.shortcuts.ShortcutKey;
@@ -43,12 +42,6 @@ public interface ItemInfoMatcher {
             if (i instanceof WorkspaceItemInfo) {
                 WorkspaceItemInfo info = (WorkspaceItemInfo) i;
                 ComponentName cn = info.getTargetComponent();
-                if (cn != null && matches(info, cn)) {
-                    filtered.add(info);
-                }
-            } else if (i instanceof LauncherAppWidgetInfo) {
-                LauncherAppWidgetInfo info = (LauncherAppWidgetInfo) i;
-                ComponentName cn = info.providerName;
                 if (cn != null && matches(info, cn)) {
                     filtered.add(info);
                 }

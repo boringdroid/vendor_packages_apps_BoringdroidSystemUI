@@ -25,7 +25,6 @@ import com.android.launcher3.AppInfo;
 import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherAppWidgetInfo;
 import com.android.launcher3.LauncherModel.CallbackTask;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.PagedView;
@@ -88,12 +87,10 @@ public abstract class BaseLoaderResults {
 
         // Save a copy of all the bg-thread collections
         ArrayList<ItemInfo> workspaceItems = new ArrayList<>();
-        ArrayList<LauncherAppWidgetInfo> appWidgets = new ArrayList<>();
         final IntArray orderedScreenIds = new IntArray();
 
         synchronized (mBgDataModel) {
             workspaceItems.addAll(mBgDataModel.workspaceItems);
-            appWidgets.addAll(mBgDataModel.appWidgets);
             orderedScreenIds.addAll(mBgDataModel.collectWorkspaceScreens());
             mBgDataModel.lastBindId++;
             mMyBindingId = mBgDataModel.lastBindId;
@@ -116,13 +113,9 @@ public abstract class BaseLoaderResults {
         // Separate the items that are on the current screen, and all the other remaining items
         ArrayList<ItemInfo> currentWorkspaceItems = new ArrayList<>();
         ArrayList<ItemInfo> otherWorkspaceItems = new ArrayList<>();
-        ArrayList<LauncherAppWidgetInfo> currentAppWidgets = new ArrayList<>();
-        ArrayList<LauncherAppWidgetInfo> otherAppWidgets = new ArrayList<>();
 
         filterCurrentWorkspaceItems(currentScreenId, workspaceItems, currentWorkspaceItems,
                 otherWorkspaceItems);
-        filterCurrentWorkspaceItems(currentScreenId, appWidgets, currentAppWidgets,
-                otherAppWidgets);
         sortWorkspaceItemsSpatially(currentWorkspaceItems);
         sortWorkspaceItemsSpatially(otherWorkspaceItems);
 
@@ -138,7 +131,6 @@ public abstract class BaseLoaderResults {
         Executor mainExecutor = mUiExecutor;
         // Load items on the current page.
         bindWorkspaceItems(currentWorkspaceItems, mainExecutor);
-        bindAppWidgets(currentAppWidgets, mainExecutor);
         // In case of validFirstPage, only bind the first screen, and defer binding the
         // remaining screens after first onDraw (and an optional the fade animation whichever
         // happens later).
@@ -151,7 +143,6 @@ public abstract class BaseLoaderResults {
                 validFirstPage ? (ViewOnDrawExecutor) deferredExecutor : null), mainExecutor);
 
         bindWorkspaceItems(otherWorkspaceItems, deferredExecutor);
-        bindAppWidgets(otherAppWidgets, deferredExecutor);
         // Tell the workspace that we're done binding items
         executeCallbacksTask(c -> c.finishBindingItems(mPageToBindFirst), deferredExecutor);
 
@@ -258,16 +249,6 @@ public abstract class BaseLoaderResults {
         }
     }
 
-    private void bindAppWidgets(ArrayList<LauncherAppWidgetInfo> appWidgets, Executor executor) {
-        int N;// Bind the widgets, one at a time
-        N = appWidgets.size();
-        for (int i = 0; i < N; i++) {
-            final ItemInfo widget = appWidgets.get(i);
-            executeCallbacksTask(
-                    c -> c.bindItems(Collections.singletonList(widget), false), executor);
-        }
-    }
-
     public abstract void bindDeepShortcuts();
 
     public void bindAllApps() {
@@ -275,8 +256,6 @@ public abstract class BaseLoaderResults {
         AppInfo[] apps = mBgAllAppsList.copyData();
         executeCallbacksTask(c -> c.bindAllApplications(apps), mUiExecutor);
     }
-
-    public abstract void bindWidgets();
 
     protected void executeCallbacksTask(CallbackTask task, Executor executor) {
         executor.execute(() -> {

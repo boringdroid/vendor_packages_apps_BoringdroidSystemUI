@@ -23,14 +23,9 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Ilova o‘rnatilmadi."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Ilova mavjud emas"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Yuklab olingan ilova xavfsiz rejimda o‘chirib qo‘yildi"</string>
-    <string name="safemode_widget_error" msgid="4863470563535682004">"Xavfsiz rejimda vidjetlar o‘chirib qo‘yilgan"</string>
     <string name="shortcut_not_available" msgid="2536503539825726397">"Tezkor tugmadan foydalanib bo‘lmaydi"</string>
     <string name="home_screen" msgid="806512411299847073">"Bosh ekran"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Maxsus amallar"</string>
-    <string name="long_press_widget_to_add" msgid="7699152356777458215">"Vidjetni tanlash uchun bosib turing."</string>
-    <string name="long_accessible_way_to_add" msgid="4289502106628154155">"Ikki marta bosib va bosib turgan holatda vidjetni tanlang yoki maxsus amaldan foydalaning."</string>
-    <string name="widget_dims_format" msgid="2370757736025621599">"%1$d × %2$d"</string>
-    <string name="widget_accessible_dims_format" msgid="3640149169885301790">"Eni %1$d, bo‘yi %2$d"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Joylash uchun bosib turing"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Avtomatik chiqarish"</string>
     <string name="all_apps_loading_message" msgid="5813968043155271636">"Ilovalar yuklanmoqda…"</string>
@@ -55,7 +50,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Uy sozlamalari va yorliqlarini yozish"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ilovaga \"Uy\" ekranidagi yorliqlar va sozlamalrni o‘zgartirish uchun ruxsat beradi."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> ilovasiga qo‘ng‘iroqlarni amalga oshirishga ruxsat berilmagan"</string>
-    <string name="gadget_error_text" msgid="6081085226050792095">"Vidjetni yuklashda muammo"</string>
     <string name="gadget_setup_text" msgid="8274003207686040488">"Sozlash"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Bu tizim ilovasi, shuning uchun o‘chirib bo‘lmaydi."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> ilovasi o‘chirib qo‘yildi"</string>
@@ -74,9 +68,6 @@
     <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Ilova o‘rnatilmagan. Belgini o‘chirib tashlashingiz yoki ilovani topib, uni qo‘lda o‘rnatishingiz mumkin."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> yuklab olinmoqda, <xliff:g id="PROGRESS">%2$s</xliff:g> bajarildi"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ilovasi o‘rnatilishi kutilmoqda"</string>
-    <string name="widgets_bottom_sheet_title" msgid="2904559530954183366">"<xliff:g id="NAME">%1$s</xliff:g> vidjetlari"</string>
-    <string name="widgets_list" msgid="796804551140113767">"Vidjetlar ro‘yxati"</string>
-    <string name="widgets_list_closed" msgid="6141506579418771922">"Vidjetlar ro‘yxati yopildi"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Bosh ekranga chiqarish"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Obyektni bu yerga ko‘chirish"</string>
     <string name="item_added_to_workspace" msgid="4211073925752213539">"Obyekt bosh ekranga qo‘shildi"</string>
@@ -89,11 +80,6 @@
     <string name="folder_created" msgid="6409794597405184510">"Jild yaratildi"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Bosh ekranga ko‘chirish"</string>
     <string name="action_resize" msgid="1802976324781771067">"O‘lchamini o‘zgartirish"</string>
-    <string name="action_increase_width" msgid="8773715375078513326">"Enini uzaytirish"</string>
-    <string name="action_increase_height" msgid="459390020612501122">"Bo‘yini uzaytirish"</string>
-    <string name="action_decrease_width" msgid="1374549771083094654">"Enini kichraytirish"</string>
-    <string name="action_decrease_height" msgid="282377193880900022">"Bo‘yini kichraytirish"</string>
-    <string name="widget_resized" msgid="9130327887929620">"Vidjetning eni <xliff:g id="NUMBER_0">%1$s</xliff:g>, bo‘yi <xliff:g id="NUMBER_1">%2$s</xliff:g> qilib o‘zgartirildi"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Tezkor tugmalar"</string>
     <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"Yorliqlar va bildirishnomalar"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Shaxsiy"</string>

@@ -41,8 +41,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
-import android.appwidget.AppWidgetHostView;
-import android.appwidget.AppWidgetManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
@@ -88,14 +86,11 @@ import com.android.launcher3.allapps.AllAppsStore;
 import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.allapps.DiscoveryBounce;
 import com.android.launcher3.anim.PropertyListBuilder;
-import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.LauncherAppsCompatVO;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragLayer;
-import com.android.launcher3.dragndrop.DragView;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.keyboard.CustomActionsPopup;
 import com.android.launcher3.keyboard.ViewGroupFocusHelper;
 import com.android.launcher3.logging.FileLog;
@@ -122,7 +117,6 @@ import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
 import com.android.launcher3.util.PackageManagerHelper;
-import com.android.launcher3.util.PackageUserKey;
 import com.android.launcher3.util.PendingRequestArgs;
 import com.android.launcher3.util.RaceConditionTracker;
 import com.android.launcher3.util.ShortcutUtil;
@@ -135,15 +129,6 @@ import com.android.launcher3.util.ViewOnDrawExecutor;
 import com.android.launcher3.views.ActivityContext;
 import com.android.launcher3.views.OptionsPopupView;
 import com.android.launcher3.views.ScrimView;
-import com.android.launcher3.widget.LauncherAppWidgetHostView;
-import com.android.launcher3.widget.PendingAddShortcutInfo;
-import com.android.launcher3.widget.PendingAddWidgetInfo;
-import com.android.launcher3.widget.PendingAppWidgetHostView;
-import com.android.launcher3.widget.WidgetAddFlowHandler;
-import com.android.launcher3.widget.WidgetHostViewLoader;
-import com.android.launcher3.widget.WidgetListRowEntry;
-import com.android.launcher3.widget.WidgetsFullSheet;
-import com.android.launcher3.widget.custom.CustomWidgetManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -160,18 +145,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         Callbacks, LauncherProviderChangeListener, UserEventDelegate,
         InvariantDeviceProfile.OnIDPChangeListener {
     public static final String TAG = "Launcher";
-    static final boolean LOGD = false;
 
     static final boolean DEBUG_STRICT_MODE = false;
 
     private static final int REQUEST_CREATE_SHORTCUT = 1;
-    private static final int REQUEST_CREATE_APPWIDGET = 5;
-
-    private static final int REQUEST_PICK_APPWIDGET = 9;
-
-    private static final int REQUEST_BIND_APPWIDGET = 11;
-    public static final int REQUEST_BIND_PENDING_APPWIDGET = 12;
-    public static final int REQUEST_RECONFIGURE_APPWIDGET = 13;
 
     private static final int REQUEST_PERMISSION_CALL_PHONE = 14;
 
@@ -215,9 +192,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     DragLayer mDragLayer;
     private DragController mDragController;
 
-    private AppWidgetManagerCompat mAppWidgetManager;
-    private LauncherAppWidgetHost mAppWidgetHost;
-
     private final int[] mTmpAddItemCellCoordinates = new int[2];
 
     private DropTargetBar mDropTargetBar;
@@ -243,7 +217,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private LauncherModel mModel;
     private ModelWriter mModelWriter;
-    private IconCache mIconCache;
     private LauncherAccessibilityDelegate mAccessibilityDelegate;
 
     private PopupDataProvider mPopupDataProvider;
@@ -308,18 +281,12 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         initDeviceProfile(idp);
         idp.addOnChangeListener(this);
         mSharedPrefs = Utilities.getPrefs(this);
-        mIconCache = app.getIconCache();
         mAccessibilityDelegate = new LauncherAccessibilityDelegate(this);
 
         mDragController = new DragController(this);
         mAllAppsController = new AllAppsTransitionController(this);
         mStateManager = new LauncherStateManager(this);
         UiFactory.onCreate(this);
-
-        mAppWidgetManager = AppWidgetManagerCompat.getInstance(this);
-        mAppWidgetHost = new LauncherAppWidgetHost(this,
-                appWidgetId -> getWorkspace().removeWidget(appWidgetId));
-        mAppWidgetHost.startListening();
 
         mLauncherView = LayoutInflater.from(this).inflate(R.layout.launcher, null);
 
@@ -549,9 +516,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     @Override
     public void onAppWidgetHostReset() {
-        if (mAppWidgetHost != null) {
-            mAppWidgetHost.startListening();
-        }
     }
 
     private LauncherCallbacks mLauncherCallbacks;
@@ -578,12 +542,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    public boolean isDraggingEnabled() {
-        // We prevent dragging when we are loading the workspace as it is possible to pick up a view
-        // that is subsequently removed from the workspace in startBinding().
-        return !isWorkspaceLoading();
-    }
-
     public PopupDataProvider getPopupDataProvider() {
         return mPopupDataProvider;
     }
@@ -597,7 +555,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
      * a configuration step, this allows the proper animations to run after other transitions.
      */
     private int completeAdd(
-            int requestCode, Intent intent, int appWidgetId, PendingRequestArgs info) {
+            int requestCode, Intent intent, PendingRequestArgs info) {
         int screenId = info.screenId;
         if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
             // When the screen id represents an actual screen (as opposed to a rank) we make sure
@@ -609,28 +567,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             case REQUEST_CREATE_SHORTCUT:
                 completeAddShortcut(intent, info.container, screenId, info.cellX, info.cellY, info);
                 break;
-            case REQUEST_CREATE_APPWIDGET:
-                completeAddAppWidget(appWidgetId, info, null, null);
-                break;
-            case REQUEST_RECONFIGURE_APPWIDGET:
-                completeRestoreAppWidget(appWidgetId, LauncherAppWidgetInfo.RESTORE_COMPLETED);
-                break;
-            case REQUEST_BIND_PENDING_APPWIDGET: {
-                int widgetId = appWidgetId;
-                LauncherAppWidgetInfo widgetInfo =
-                        completeRestoreAppWidget(widgetId, LauncherAppWidgetInfo.FLAG_UI_NOT_READY);
-                if (widgetInfo != null) {
-                    // Since the view was just bound, also launch the configure activity if needed
-                    LauncherAppWidgetProviderInfo provider = mAppWidgetManager
-                            .getLauncherAppWidgetInfo(widgetId);
-                    if (provider != null) {
-                        new WidgetAddFlowHandler(provider)
-                                .startConfigActivity(this, widgetInfo,
-                                        REQUEST_RECONFIGURE_APPWIDGET);
-                    }
-                }
-                break;
-            }
         }
 
         return screenId;
@@ -652,8 +588,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             return;
         }
 
-        final int pendingAddWidgetId = requestArgs.getWidgetId();
-
         Runnable exitSpringLoaded = new Runnable() {
             @Override
             public void run() {
@@ -661,90 +595,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             }
         };
 
-        if (requestCode == REQUEST_BIND_APPWIDGET) {
-            // This is called only if the user did not previously have permissions to bind widgets
-            final int appWidgetId = data != null ?
-                    data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) : -1;
-            if (resultCode == RESULT_CANCELED) {
-                completeTwoStageWidgetDrop(RESULT_CANCELED, appWidgetId, requestArgs);
-                mWorkspace.removeExtraEmptyScreenDelayed(true, exitSpringLoaded,
-                        ON_ACTIVITY_RESULT_ANIMATION_DELAY, false);
-            } else if (resultCode == RESULT_OK) {
-                addAppWidgetImpl(
-                        appWidgetId, requestArgs, null,
-                        requestArgs.getWidgetHandler(),
-                        ON_ACTIVITY_RESULT_ANIMATION_DELAY);
-            }
-            return;
-        }
-
-        boolean isWidgetDrop = (requestCode == REQUEST_PICK_APPWIDGET ||
-                requestCode == REQUEST_CREATE_APPWIDGET);
-
-        // We have special handling for widgets
-        if (isWidgetDrop) {
-            final int appWidgetId;
-            int widgetId = data != null ? data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-                    : -1;
-            if (widgetId < 0) {
-                appWidgetId = pendingAddWidgetId;
-            } else {
-                appWidgetId = widgetId;
-            }
-
-            final int result;
-            if (appWidgetId < 0 || resultCode == RESULT_CANCELED) {
-                Log.e(TAG, "Error: appWidgetId (EXTRA_APPWIDGET_ID) was not " +
-                        "returned from the widget configuration activity.");
-                result = RESULT_CANCELED;
-                completeTwoStageWidgetDrop(result, appWidgetId, requestArgs);
-                final Runnable onComplete = new Runnable() {
-                    @Override
-                    public void run() {
-                        getStateManager().goToState(NORMAL);
-                    }
-                };
-
-                mWorkspace.removeExtraEmptyScreenDelayed(true, onComplete,
-                        ON_ACTIVITY_RESULT_ANIMATION_DELAY, false);
-            } else {
-                if (requestArgs.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                    // When the screen id represents an actual screen (as opposed to a rank)
-                    // we make sure that the drop page actually exists.
-                    requestArgs.screenId =
-                            ensurePendingDropLayoutExists(requestArgs.screenId);
-                }
-                final CellLayout dropLayout =
-                        mWorkspace.getScreenWithId(requestArgs.screenId);
-
-                dropLayout.setDropPending(true);
-                final Runnable onComplete = new Runnable() {
-                    @Override
-                    public void run() {
-                        completeTwoStageWidgetDrop(resultCode, appWidgetId, requestArgs);
-                        dropLayout.setDropPending(false);
-                    }
-                };
-                mWorkspace.removeExtraEmptyScreenDelayed(true, onComplete,
-                        ON_ACTIVITY_RESULT_ANIMATION_DELAY, false);
-            }
-            return;
-        }
-
-        if (requestCode == REQUEST_RECONFIGURE_APPWIDGET
-                || requestCode == REQUEST_BIND_PENDING_APPWIDGET) {
-            if (resultCode == RESULT_OK) {
-                // Update the widget view.
-                completeAdd(requestCode, data, pendingAddWidgetId, requestArgs);
-            }
-            // Leave the widget in the pending state if the user canceled the configure.
-            return;
-        }
-
         if (requestCode == REQUEST_CREATE_SHORTCUT) {
             // Handle custom shortcuts created using ACTION_CREATE_SHORTCUT.
             if (resultCode == RESULT_OK && requestArgs.container != ItemInfo.NO_ID) {
-                completeAdd(requestCode, data, -1, requestArgs);
+                completeAdd(requestCode, data, requestArgs);
                 mWorkspace.removeExtraEmptyScreenDelayed(true, exitSpringLoaded,
                         ON_ACTIVITY_RESULT_ANIMATION_DELAY, false);
 
@@ -814,40 +668,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    @Thunk
-    void completeTwoStageWidgetDrop(
-            final int resultCode, final int appWidgetId, final PendingRequestArgs requestArgs) {
-        CellLayout cellLayout = mWorkspace.getScreenWithId(requestArgs.screenId);
-        Runnable onCompleteRunnable = null;
-        int animationType = 0;
-
-        AppWidgetHostView boundWidget = null;
-        if (resultCode == RESULT_OK) {
-            animationType = Workspace.COMPLETE_TWO_STAGE_WIDGET_DROP_ANIMATION;
-            final AppWidgetHostView layout = mAppWidgetHost.createView(this, appWidgetId,
-                    requestArgs.getWidgetHandler().getProviderInfo(this));
-            boundWidget = layout;
-            onCompleteRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    completeAddAppWidget(appWidgetId, requestArgs, layout, null);
-                    mStateManager.goToState(NORMAL, SPRING_LOADED_EXIT_DELAY);
-                }
-            };
-        } else if (resultCode == RESULT_CANCELED) {
-            mAppWidgetHost.deleteAppWidgetId(appWidgetId);
-            animationType = Workspace.CANCEL_TWO_STAGE_WIDGET_DROP_ANIMATION;
-        }
-        if (mDragLayer.getAnimatedView() != null) {
-            mWorkspace.animateWidgetDrop(requestArgs, cellLayout,
-                    (DragView) mDragLayer.getAnimatedView(), onCompleteRunnable,
-                    animationType, boundWidget, true);
-        } else if (onCompleteRunnable != null) {
-            // The animated view may be null in the case of a rotation during widget configuration
-            onCompleteRunnable.run();
-        }
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -856,8 +676,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             mLauncherCallbacks.onStop();
         }
         logStopAndResume(Action.Command.STOP);
-
-        mAppWidgetHost.setListenIfResumed(false);
 
         getStateManager().moveToRestState();
 
@@ -874,7 +692,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onStart();
         }
-        mAppWidgetHost.setListenIfResumed(true);
         RaceConditionTracker.onEvent(ON_START_EVT, EXIT);
     }
 
@@ -925,7 +742,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     }
 
     public void onStateSetEnd(LauncherState state) {
-        getAppWidgetHost().setResumed(state == LauncherState.NORMAL);
         getWorkspace().setClipChildren(!state.disablePageClipping);
         finishAutoCancelActionMode();
     }
@@ -1044,12 +860,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mPendingActivityRequestCode = savedState.getInt(RUNTIME_STATE_PENDING_REQUEST_CODE);
 
         mPendingActivityResult = savedState.getParcelable(RUNTIME_STATE_PENDING_ACTIVITY_RESULT);
-
-        SparseArray<Parcelable> widgetsState =
-                savedState.getSparseParcelableArray(RUNTIME_STATE_WIDGET_PANEL);
-        if (widgetsState != null) {
-            WidgetsFullSheet.show(this, false).restoreHierarchyState(widgetsState);
-        }
     }
 
     /**
@@ -1189,46 +999,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    /**
-     * Add a widget to the workspace.
-     *
-     * @param appWidgetId The app widget id
-     */
-    @Thunk
-    void completeAddAppWidget(int appWidgetId, ItemInfo itemInfo,
-            AppWidgetHostView hostView, LauncherAppWidgetProviderInfo appWidgetInfo) {
-
-        if (appWidgetInfo == null) {
-            appWidgetInfo = mAppWidgetManager.getLauncherAppWidgetInfo(appWidgetId);
-        }
-
-        LauncherAppWidgetInfo launcherInfo;
-        launcherInfo = new LauncherAppWidgetInfo(appWidgetId, appWidgetInfo.provider);
-        launcherInfo.spanX = itemInfo.spanX;
-        launcherInfo.spanY = itemInfo.spanY;
-        launcherInfo.minSpanX = itemInfo.minSpanX;
-        launcherInfo.minSpanY = itemInfo.minSpanY;
-        launcherInfo.user = appWidgetInfo.getProfile();
-
-        getModelWriter().addItemToDatabase(launcherInfo,
-                itemInfo.container, itemInfo.screenId, itemInfo.cellX, itemInfo.cellY);
-
-        if (hostView == null) {
-            // Perform actual inflation because we're live
-            hostView = mAppWidgetHost.createView(this, appWidgetId, appWidgetInfo);
-        }
-        hostView.setVisibility(View.VISIBLE);
-        prepareAppWidget(hostView, launcherInfo);
-        mWorkspace.addInScreen(hostView, launcherInfo);
-    }
-
-    private void prepareAppWidget(AppWidgetHostView hostView, LauncherAppWidgetInfo item) {
-        hostView.setTag(item);
-        item.onBindAppWidget(this, hostView);
-        hostView.setFocusable(true);
-        hostView.setOnFocusChangeListener(mFocusHandler);
-    }
-
     private final BroadcastReceiver mScreenOffReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1286,10 +1056,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public DropTargetBar getDropTargetBar() {
         return mDropTargetBar;
-    }
-
-    public LauncherAppWidgetHost getAppWidgetHost() {
-        return mAppWidgetHost;
     }
 
     public LauncherModel getModel() {
@@ -1432,12 +1198,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
         mRotationHelper.destroy();
 
-        try {
-            mAppWidgetHost.stopListening();
-        } catch (NullPointerException ex) {
-            Log.w(TAG, "problem while stopping AppWidgetHost during Launcher destruction", ex);
-        }
-
         TextKeyListener.getInstance().release();
         clearPendingBinds();
         LauncherAppState.getIDP(this).removeOnChangeListener(this);
@@ -1520,33 +1280,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mPendingRequestArgs = args;
     }
 
-    void addAppWidgetFromDropImpl(int appWidgetId, ItemInfo info, AppWidgetHostView boundWidget,
-            WidgetAddFlowHandler addFlowHandler) {
-        if (LOGD) {
-            Log.d(TAG, "Adding widget from drop");
-        }
-        addAppWidgetImpl(appWidgetId, info, boundWidget, addFlowHandler, 0);
-    }
-
-    void addAppWidgetImpl(int appWidgetId, ItemInfo info,
-            AppWidgetHostView boundWidget, WidgetAddFlowHandler addFlowHandler, int delay) {
-        if (!addFlowHandler.startConfigActivity(this, appWidgetId, info,
-                REQUEST_CREATE_APPWIDGET)) {
-            // If the configuration flow was not started, add the widget
-
-            Runnable onComplete = new Runnable() {
-                @Override
-                public void run() {
-                    // Exit spring loaded mode if necessary after adding the widget
-                    mStateManager.goToState(NORMAL, SPRING_LOADED_EXIT_DELAY);
-                }
-            };
-            completeAddAppWidget(appWidgetId, info, boundWidget,
-                    addFlowHandler.getProviderInfo(this));
-            mWorkspace.removeExtraEmptyScreenDelayed(true, onComplete, delay, false);
-        }
-    }
-
     public void addPendingItem(PendingAddItemInfo info, int container, int screenId,
             int[] cell, int spanX, int spanY) {
         info.container = container;
@@ -1557,69 +1290,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
         info.spanX = spanX;
         info.spanY = spanY;
-
-        switch (info.itemType) {
-            case LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET:
-            case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
-                addAppWidgetFromDrop((PendingAddWidgetInfo) info);
-                break;
-            case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                processShortcutFromDrop((PendingAddShortcutInfo) info);
-                break;
-            default:
-                throw new IllegalStateException("Unknown item type: " + info.itemType);
-        }
-    }
-
-    /**
-     * Process a shortcut drop.
-     */
-    private void processShortcutFromDrop(PendingAddShortcutInfo info) {
-        Intent intent = new Intent(Intent.ACTION_CREATE_SHORTCUT).setComponent(info.componentName);
-        setWaitingForResult(PendingRequestArgs.forIntent(REQUEST_CREATE_SHORTCUT, intent, info));
-        if (!info.activityInfo.startConfigActivity(this, REQUEST_CREATE_SHORTCUT)) {
-            handleActivityResult(REQUEST_CREATE_SHORTCUT, RESULT_CANCELED, null);
-        }
-    }
-
-    /**
-     * Process a widget drop.
-     */
-    private void addAppWidgetFromDrop(PendingAddWidgetInfo info) {
-        AppWidgetHostView hostView = info.boundWidget;
-        final int appWidgetId;
-        WidgetAddFlowHandler addFlowHandler = info.getHandler();
-        if (hostView != null) {
-            // In the case where we've prebound the widget, we remove it from the DragLayer
-            if (LOGD) {
-                Log.d(TAG, "Removing widget view from drag layer and setting boundWidget to null");
-            }
-            getDragLayer().removeView(hostView);
-
-            appWidgetId = hostView.getAppWidgetId();
-            addAppWidgetFromDropImpl(appWidgetId, info, hostView, addFlowHandler);
-
-            // Clear the boundWidget so that it doesn't get destroyed.
-            info.boundWidget = null;
-        } else {
-            // In this case, we either need to start an activity to get permission to bind
-            // the widget, or we need to start an activity to configure the widget, or both.
-            if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET) {
-                appWidgetId = CustomWidgetManager.INSTANCE.get(this).getWidgetIdForCustomProvider(
-                        info.componentName);
-            } else {
-                appWidgetId = getAppWidgetHost().allocateAppWidgetId();
-            }
-            Bundle options = info.bindOptions;
-
-            boolean success = mAppWidgetManager.bindAppWidgetIdIfAllowed(
-                    appWidgetId, info.info, options);
-            if (success) {
-                addAppWidgetFromDropImpl(appWidgetId, info, null, addFlowHandler);
-            } else {
-                addFlowHandler.startBindFlow(this, appWidgetId, info, REQUEST_BIND_APPWIDGET);
-            }
-        }
     }
 
     /**
@@ -1635,12 +1305,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             mWorkspace.removeWorkspaceItem(v);
             if (deleteFromDb) {
                 getModelWriter().deleteItemFromDatabase(itemInfo);
-            }
-        } else if (itemInfo instanceof LauncherAppWidgetInfo) {
-            final LauncherAppWidgetInfo widgetInfo = (LauncherAppWidgetInfo) itemInfo;
-            mWorkspace.removeWorkspaceItem(v);
-            if (deleteFromDb) {
-                getModelWriter().deleteWidgetInfo(widgetInfo, getAppWidgetHost());
             }
         } else {
             return false;
@@ -1848,7 +1512,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         mWorkspace.clearDropTargets();
         mWorkspace.removeAllWorkspaceScreens();
-        mAppWidgetHost.clearViews();
 
         TraceHelper.endSection("startBinding");
     }
@@ -1940,14 +1603,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                     view = createShortcut(info);
                     break;
                 }
-                case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
-                case LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET: {
-                    view = inflateAppWidget((LauncherAppWidgetInfo) item);
-                    if (view == null) {
-                        continue;
-                    }
-                    break;
-                }
                 default:
                     throw new RuntimeException("Invalid Item Type");
             }
@@ -2010,152 +1665,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             }
         }
         workspace.requestLayout();
-    }
-
-    /**
-     * Add the views for a widget to the workspace.
-     */
-    public void bindAppWidget(LauncherAppWidgetInfo item) {
-        View view = inflateAppWidget(item);
-        if (view != null) {
-            mWorkspace.addInScreen(view, item);
-            mWorkspace.requestLayout();
-        }
-    }
-
-    private View inflateAppWidget(LauncherAppWidgetInfo item) {
-        if (mIsSafeModeEnabled) {
-            PendingAppWidgetHostView view =
-                    new PendingAppWidgetHostView(this, item, mIconCache, true);
-            prepareAppWidget(view, item);
-            return view;
-        }
-
-        TraceHelper.beginSection("BIND_WIDGET");
-
-        final LauncherAppWidgetProviderInfo appWidgetInfo;
-
-        if (item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY)) {
-            // If the provider is not ready, bind as a pending widget.
-            appWidgetInfo = null;
-        } else if (item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_ID_NOT_VALID)) {
-            // The widget id is not valid. Try to find the widget based on the provider info.
-            appWidgetInfo = mAppWidgetManager.findProvider(item.providerName, item.user);
-        } else {
-            appWidgetInfo = mAppWidgetManager.getLauncherAppWidgetInfo(item.appWidgetId);
-        }
-
-        // If the provider is ready, but the width is not yet restored, try to restore it.
-        if (!item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_PROVIDER_NOT_READY) &&
-                (item.restoreStatus != LauncherAppWidgetInfo.RESTORE_COMPLETED)) {
-            if (appWidgetInfo == null) {
-                Log.d(TAG, "Removing restored widget: id=" + item.appWidgetId
-                        + " belongs to component " + item.providerName
-                        + ", as the provider is null");
-                getModelWriter().deleteItemFromDatabase(item);
-                return null;
-            }
-
-            // If we do not have a valid id, try to bind an id.
-            if (item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_ID_NOT_VALID)) {
-                if (!item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_ID_ALLOCATED)) {
-                    // Id has not been allocated yet. Allocate a new id.
-                    item.appWidgetId = mAppWidgetHost.allocateAppWidgetId();
-                    item.restoreStatus |= LauncherAppWidgetInfo.FLAG_ID_ALLOCATED;
-
-                    // Also try to bind the widget. If the bind fails, the user will be shown
-                    // a click to setup UI, which will ask for the bind permission.
-                    PendingAddWidgetInfo pendingInfo = new PendingAddWidgetInfo(appWidgetInfo);
-                    pendingInfo.spanX = item.spanX;
-                    pendingInfo.spanY = item.spanY;
-                    pendingInfo.minSpanX = item.minSpanX;
-                    pendingInfo.minSpanY = item.minSpanY;
-                    Bundle options = WidgetHostViewLoader.getDefaultOptionsForWidget(this,
-                            pendingInfo);
-
-                    boolean isDirectConfig =
-                            item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_DIRECT_CONFIG);
-                    if (isDirectConfig && item.bindOptions != null) {
-                        Bundle newOptions = item.bindOptions.getExtras();
-                        if (options != null) {
-                            newOptions.putAll(options);
-                        }
-                        options = newOptions;
-                    }
-                    boolean success = mAppWidgetManager.bindAppWidgetIdIfAllowed(
-                            item.appWidgetId, appWidgetInfo, options);
-
-                    // We tried to bind once. If we were not able to bind, we would need to
-                    // go through the permission dialog, which means we cannot skip the config
-                    // activity.
-                    item.bindOptions = null;
-                    item.restoreStatus &= ~LauncherAppWidgetInfo.FLAG_DIRECT_CONFIG;
-
-                    // Bind succeeded
-                    if (success) {
-                        // If the widget has a configure activity, it is still needs to set it up,
-                        // otherwise the widget is ready to go.
-                        item.restoreStatus = (appWidgetInfo.configure == null) || isDirectConfig
-                                ? LauncherAppWidgetInfo.RESTORE_COMPLETED
-                                : LauncherAppWidgetInfo.FLAG_UI_NOT_READY;
-                    }
-
-                    getModelWriter().updateItemInDatabase(item);
-                }
-            } else if (item.hasRestoreFlag(LauncherAppWidgetInfo.FLAG_UI_NOT_READY)
-                    && (appWidgetInfo.configure == null)) {
-                // The widget was marked as UI not ready, but there is no configure activity to
-                // update the UI.
-                item.restoreStatus = LauncherAppWidgetInfo.RESTORE_COMPLETED;
-                getModelWriter().updateItemInDatabase(item);
-            }
-        }
-
-        final AppWidgetHostView view;
-        if (item.restoreStatus == LauncherAppWidgetInfo.RESTORE_COMPLETED) {
-            // Verify that we own the widget
-            if (appWidgetInfo == null) {
-                FileLog.e(TAG, "Removing invalid widget: id=" + item.appWidgetId);
-                getModelWriter().deleteWidgetInfo(item, getAppWidgetHost());
-                return null;
-            }
-
-            item.minSpanX = appWidgetInfo.minSpanX;
-            item.minSpanY = appWidgetInfo.minSpanY;
-            view = mAppWidgetHost.createView(this, item.appWidgetId, appWidgetInfo);
-        } else {
-            view = new PendingAppWidgetHostView(this, item, mIconCache, false);
-        }
-        prepareAppWidget(view, item);
-
-        TraceHelper.endSection("BIND_WIDGET", "id=" + item.appWidgetId);
-        return view;
-    }
-
-    /**
-     * Restores a pending widget.
-     *
-     * @param appWidgetId The app widget id
-     */
-    private LauncherAppWidgetInfo completeRestoreAppWidget(int appWidgetId, int finalRestoreFlag) {
-        LauncherAppWidgetHostView view = mWorkspace.getWidgetForAppWidgetId(appWidgetId);
-        if ((view == null) || !(view instanceof PendingAppWidgetHostView)) {
-            Log.e(TAG, "Widget update called, when the widget no longer exists.");
-            return null;
-        }
-
-        LauncherAppWidgetInfo info = (LauncherAppWidgetInfo) view.getTag();
-        info.restoreStatus = finalRestoreFlag;
-        if (info.restoreStatus == LauncherAppWidgetInfo.RESTORE_COMPLETED) {
-            info.pendingItemInfo = null;
-        }
-
-        if (((PendingAppWidgetHostView) view).isReinflateIfNeeded()) {
-            view.reInflate();
-        }
-
-        getModelWriter().updateItemInDatabase(info);
-        return info;
     }
 
     public void onPageBoundSynchronously(int page) {
@@ -2269,11 +1778,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mAppsView.getAppsStore().updatePromiseAppProgress(app);
     }
 
-    @Override
-    public void bindWidgetsRestored(ArrayList<LauncherAppWidgetInfo> widgets) {
-        mWorkspace.widgetsRestored(widgets);
-    }
-
     /**
      * Some shortcuts were updated in the background.
      * Implementation of the method from LauncherModel.Callbacks.
@@ -2310,19 +1814,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mDragController.onAppsRemoved(matcher);
     }
 
-    @Override
-    public void bindAllWidgets(final ArrayList<WidgetListRowEntry> allWidgets) {
-        mPopupDataProvider.setAllWidgets(allWidgets);
-    }
-
-    /**
-     * @param packageUser if null, refreshes all widgets and shortcuts, otherwise only
-     *                    refreshes the widgets and shortcuts associated with the given package/user
-     */
-    public void refreshAndBindWidgetsForPackageUser(@Nullable PackageUserKey packageUser) {
-        mModel.refreshAndBindWidgetsAndShortcuts(packageUser);
-    }
-
     /**
      * $ adb shell dumpsys activity com.android.launcher3.Launcher [--all]
      */
@@ -2351,7 +1842,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         writer.println(prefix + "\tmPendingRequestArgs=" + mPendingRequestArgs
                 + " mPendingActivityResult=" + mPendingActivityResult);
         writer.println(prefix + "\tmRotationHelper: " + mRotationHelper);
-        writer.println(prefix + "\tmAppWidgetHost.isListening: " + mAppWidgetHost.isListening());
 
         // Extra logging for b/116853349
         mDragLayer.dump(prefix, writer);
@@ -2430,7 +1920,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                     break;
                 case KeyEvent.KEYCODE_W:
                     if (isInState(NORMAL)) {
-                        OptionsPopupView.openWidgets(this);
                         return true;
                     }
                     break;
