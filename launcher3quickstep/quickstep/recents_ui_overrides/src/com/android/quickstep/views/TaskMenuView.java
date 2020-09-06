@@ -16,7 +16,6 @@
 
 package com.android.quickstep.views;
 
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.quickstep.views.TaskThumbnailView.DIM_ALPHA;
 
 import android.animation.Animator;
@@ -26,10 +25,8 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,7 +38,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.anim.RoundedRectRevealOutlineProvider;
-import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.views.BaseDragLayer;
 import com.android.quickstep.TaskOverlayFactory;
@@ -278,15 +274,5 @@ public class TaskMenuView extends AbstractFloatingView {
         Rect fromRect = new Rect(0, 0, getWidth(), 0);
         Rect toRect = new Rect(0, 0, getWidth(), getHeight());
         return new RoundedRectRevealOutlineProvider(radius, radius, fromRect, toRect);
-    }
-
-    public View findMenuItemByText(String text) {
-        for (int i = mOptionLayout.getChildCount() - 1; i >= 0; --i) {
-            final ViewGroup menuOptionView = (ViewGroup) mOptionLayout.getChildAt(i);
-            if (text.equals(menuOptionView.<TextView>findViewById(R.id.text).getText())) {
-                return menuOptionView;
-            }
-        }
-        return null;
     }
 }

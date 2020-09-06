@@ -77,7 +77,6 @@ import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.logging.EventLogArray;
 import com.android.launcher3.logging.UserEventDispatcher;
 import com.android.launcher3.model.AppLaunchTracker;
-import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.util.DefaultDisplay;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.SysUINavigationMode.NavigationModeChangeListener;
@@ -344,9 +343,6 @@ public class TouchInteractionService extends Service implements
         if (mInputEventReceiver != null) {
             mInputEventReceiver.dispose();
             mInputEventReceiver = null;
-            if (TestProtocol.sDebugTracing) {
-                Log.d(TestProtocol.NO_BACKGROUND_TO_OVERVIEW_TAG, "disposeEventHandlers");
-            }
         }
         if (mInputMonitorCompat != null) {
             mInputMonitorCompat.dispose();
@@ -355,25 +351,16 @@ public class TouchInteractionService extends Service implements
     }
 
     private void initInputMonitor() {
-        if (TestProtocol.sDebugTracing) {
-            Log.d(TestProtocol.NO_BACKGROUND_TO_OVERVIEW_TAG, "initInputMonitor 1");
-        }
         if (!mMode.hasGestures || mISystemUiProxy == null) {
             return;
         }
         disposeEventHandlers();
-        if (TestProtocol.sDebugTracing) {
-            Log.d(TestProtocol.NO_BACKGROUND_TO_OVERVIEW_TAG, "initInputMonitor 2");
-        }
 
         try {
             mInputMonitorCompat = InputMonitorCompat.fromBundle(mISystemUiProxy
                     .monitorGestureInput("swipe-up", mDefaultDisplayId), KEY_EXTRA_INPUT_MONITOR);
             mInputEventReceiver = mInputMonitorCompat.getInputReceiver(Looper.getMainLooper(),
                     mMainChoreographer, this::onInputEvent);
-            if (TestProtocol.sDebugTracing) {
-                Log.d(TestProtocol.NO_BACKGROUND_TO_OVERVIEW_TAG, "initInputMonitor 3");
-            }
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to create input monitor", e);
         }
@@ -430,9 +417,6 @@ public class TouchInteractionService extends Service implements
 
     @Override
     public void onNavigationModeChanged(Mode newMode) {
-        if (TestProtocol.sDebugTracing) {
-            Log.d(TestProtocol.NO_BACKGROUND_TO_OVERVIEW_TAG, "onNavigationModeChanged " + newMode);
-        }
         if (mMode.hasGestures != newMode.hasGestures) {
             if (newMode.hasGestures) {
                 DefaultDisplay.INSTANCE.get(this).addChangeListener(this);
@@ -537,9 +521,6 @@ public class TouchInteractionService extends Service implements
     }
 
     private void onInputEvent(InputEvent ev) {
-        if (TestProtocol.sDebugTracing) {
-            Log.d(TestProtocol.NO_BACKGROUND_TO_OVERVIEW_TAG, "onInputEvent " + ev);
-        }
         if (!(ev instanceof MotionEvent)) {
             Log.e(TAG, "Unknown event " + ev);
             return;

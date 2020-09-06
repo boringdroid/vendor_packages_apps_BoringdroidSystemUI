@@ -29,13 +29,6 @@ import static com.android.launcher3.anim.Interpolators.ACCEL;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
 import static com.android.launcher3.anim.Interpolators.DEACCEL_1_7;
 import static com.android.launcher3.anim.Interpolators.clampToProgress;
-import static com.android.launcher3.testing.TestProtocol.ALL_APPS_STATE_ORDINAL;
-import static com.android.launcher3.testing.TestProtocol.BACKGROUND_APP_STATE_ORDINAL;
-import static com.android.launcher3.testing.TestProtocol.NORMAL_STATE_ORDINAL;
-import static com.android.launcher3.testing.TestProtocol.OVERVIEW_PEEK_STATE_ORDINAL;
-import static com.android.launcher3.testing.TestProtocol.OVERVIEW_STATE_ORDINAL;
-import static com.android.launcher3.testing.TestProtocol.QUICK_SWITCH_STATE_ORDINAL;
-import static com.android.launcher3.testing.TestProtocol.SPRING_LOADED_STATE_ORDINAL;
 import static com.android.launcher3.anim.Interpolators.ACCEL_2;
 import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
 
@@ -89,6 +82,13 @@ public class LauncherState {
 
     private static final LauncherState[] sAllStates = new LauncherState[7];
 
+    private static final int NORMAL_STATE_ORDINAL = 0;
+    private static final int SPRING_LOADED_STATE_ORDINAL = 1;
+    private static final int OVERVIEW_STATE_ORDINAL = 2;
+    private static final int OVERVIEW_PEEK_STATE_ORDINAL = 3;
+    private static final int QUICK_SWITCH_STATE_ORDINAL = 4;
+    private static final int ALL_APPS_STATE_ORDINAL = 5;
+    private static final int BACKGROUND_APP_STATE_ORDINAL = 6;
     /**
      * TODO: Create a separate class for NORMAL state.
      */

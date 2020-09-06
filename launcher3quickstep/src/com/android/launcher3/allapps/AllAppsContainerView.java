@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.DeviceProfile;
@@ -51,10 +50,8 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.compat.AccessibilityManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.keyboard.FocusedItemDecorator;
-import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.ItemInfoMatcher;
@@ -88,7 +85,6 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     private SpannableStringBuilder mSearchQueryBuilder;
 
     private boolean mUsingTabs;
-    private boolean mSearchModeWhileUsingTabs = false;
 
     private RecyclerViewFastScroller mTouchHandler;
     private final Point mFastScrollerOffset = new Point();
@@ -417,26 +413,6 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
         }
     }
 
-    // Used by tests only
-    private boolean isDescendantViewVisible(int viewId) {
-        final View view = findViewById(viewId);
-        if (view == null) return false;
-
-        if (!view.isShown()) return false;
-
-        return view.getGlobalVisibleRect(new Rect());
-    }
-
-    // Used by tests only
-    public boolean isPersonalTabVisible() {
-        return isDescendantViewVisible(R.id.tab_personal);
-    }
-
-    // Used by tests only
-    public boolean isWorkTabVisible() {
-        return isDescendantViewVisible(R.id.tab_work);
-    }
-
     public AlphabeticalAppsList getApps() {
         return mAH[AdapterHolder.MAIN].appsList;
     }
@@ -462,43 +438,6 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
         for (int i = 0; i < mAH.length; i++) {
             mAH[i].padding.top = padding;
             mAH[i].applyPadding();
-        }
-    }
-
-    public void setLastSearchQuery(String query) {
-        for (int i = 0; i < mAH.length; i++) {
-            mAH[i].adapter.setLastSearchQuery(query);
-        }
-        if (mUsingTabs) {
-            mSearchModeWhileUsingTabs = true;
-            rebindAdapters(false); // hide tabs
-        }
-    }
-
-    public void onClearSearchResult() {
-        if (mSearchModeWhileUsingTabs) {
-            rebindAdapters(true); // show tabs
-            mSearchModeWhileUsingTabs = false;
-        }
-    }
-
-    public void onSearchResultsChanged() {
-        for (int i = 0; i < mAH.length; i++) {
-            if (mAH[i].recyclerView != null) {
-                mAH[i].recyclerView.onSearchResultsChanged();
-            }
-        }
-    }
-
-    public void setRecyclerViewVerticalFadingEdgeEnabled(boolean enabled) {
-        for (int i = 0; i < mAH.length; i++) {
-            mAH[i].applyVerticalFadingEdgeEnabled(enabled);
-        }
-    }
-
-    public void addElevationController(RecyclerView.OnScrollListener scrollListener) {
-        if (!mUsingTabs) {
-            mAH[AdapterHolder.MAIN].recyclerView.addOnScrollListener(scrollListener);
         }
     }
 
@@ -580,14 +519,6 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
 
     @Override
     public boolean performAccessibilityAction(int action, Bundle arguments) {
-        if (AccessibilityManagerCompat.processTestRequest(
-                mLauncher, TestProtocol.GET_SCROLL_MESSAGE, action, arguments,
-                response ->
-                        response.putInt(TestProtocol.SCROLL_Y_FIELD,
-                                getActiveRecyclerView().getCurrentScrollY()))) {
-            return true;
-        }
-
         return super.performAccessibilityAction(action, arguments);
     }
 }

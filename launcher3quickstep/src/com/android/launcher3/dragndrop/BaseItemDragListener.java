@@ -37,7 +37,6 @@ import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.states.InternalStateHandler;
-import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.widget.PendingItemDragHelper;
 
 import java.util.UUID;

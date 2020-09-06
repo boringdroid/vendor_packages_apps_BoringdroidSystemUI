@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
@@ -43,7 +42,6 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.accessibility.DragViewStateAnnouncer;
-import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.util.TouchController;
@@ -594,9 +592,6 @@ public class DragController implements DragDriver.EventListener, TouchController
     }
 
     private void drop(DropTarget dropTarget, Runnable flingAnimation) {
-        if (TestProtocol.sDebugTracing) {
-            Log.d(TestProtocol.NO_DRAG_TO_WORKSPACE, "DragController.drop");
-        }
         final int[] coordinates = mCoordinatesTemp;
         mDragObject.x = coordinates[0];
         mDragObject.y = coordinates[1];

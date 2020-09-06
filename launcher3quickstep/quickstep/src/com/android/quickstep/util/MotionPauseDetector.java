@@ -21,7 +21,6 @@ import android.view.MotionEvent;
 
 import com.android.launcher3.Alarm;
 import com.android.launcher3.R;
-import com.android.launcher3.compat.AccessibilityManagerCompat;
 
 /**
  * Given positions along x- or y-axis, tracks velocity and acceleration and determines when there is
@@ -36,10 +35,6 @@ public class MotionPauseDetector {
     /** If no motion is added for this amount of time, assume the motion has paused. */
     private static final long FORCE_PAUSE_TIMEOUT = 300;
 
-    /**
-     * After {@link #makePauseHarderToTrigger()}, must
-     * move slowly for this long to trigger a pause.
-     */
     private static final long HARDER_TRIGGER_TIMEOUT = 400;
 
     private final float mSpeedVerySlow;
@@ -48,7 +43,6 @@ public class MotionPauseDetector {
     private final float mSpeedFast;
     private final Alarm mForcePauseTimeout;
     private final boolean mMakePauseHarderToTrigger;
-    private final Context mContext;
 
     private Long mPreviousTime = null;
     private Float mPreviousPosition = null;
@@ -73,7 +67,6 @@ public class MotionPauseDetector {
      * @param makePauseHarderToTrigger Used for gestures that require a more explicit pause.
      */
     public MotionPauseDetector(Context context, boolean makePauseHarderToTrigger) {
-        mContext = context;
         Resources res = context.getResources();
         mSpeedVerySlow = res.getDimension(R.dimen.motion_pause_detector_speed_very_slow);
         mSpeedSlow = res.getDimension(R.dimen.motion_pause_detector_speed_slow);
@@ -168,7 +161,6 @@ public class MotionPauseDetector {
         if (mIsPaused != isPaused) {
             mIsPaused = isPaused;
             if (mIsPaused) {
-                AccessibilityManagerCompat.sendPauseDetectedEventToTest(mContext);
                 mHasEverBeenPaused = true;
             }
             if (mOnMotionPauseListener != null) {

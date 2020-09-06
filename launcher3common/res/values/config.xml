@@ -61,7 +61,6 @@
     <string name="main_process_initializer_class" translatable="false"></string>
     <string name="system_shortcut_factory_class" translatable="false"></string>
     <string name="app_launch_tracker_class" translatable="false"></string>
-    <string name="test_information_handler_class" translatable="false"></string>
     <string name="launcher_activity_logic_class" translatable="false"></string>
 
     <!-- Package name of the default wallpaper picker. -->

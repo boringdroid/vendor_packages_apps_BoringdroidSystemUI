@@ -53,7 +53,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.logging.UserEventDispatcher;
-import com.android.launcher3.testing.TestProtocol;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
@@ -104,19 +103,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
 
     private static final List<Rect> SYSTEM_GESTURE_EXCLUSION_RECT =
             Collections.singletonList(new Rect());
-
-    public static final FloatProperty<TaskView> FULLSCREEN_PROGRESS =
-            new FloatProperty<TaskView>("fullscreenProgress") {
-                @Override
-                public void setValue(TaskView taskView, float v) {
-                    taskView.setFullscreenProgress(v);
-                }
-
-                @Override
-                public Float get(TaskView taskView) {
-                    return taskView.mFullscreenProgress;
-                }
-            };
 
     private static final FloatProperty<TaskView> FOCUS_TRANSITION =
             new FloatProperty<TaskView>("focusTransition") {
@@ -173,7 +159,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
 
     // Order in which the footers appear. Lower order appear below higher order.
     public static final int INDEX_DIGITAL_WELLBEING_TOAST = 0;
-    public static final int INDEX_PROACTIVE_SUGGEST = 1;
     private final FooterWrapper[] mFooters = new FooterWrapper[2];
     private float mFooterVerticalOffset = 0;
     private float mFooterAlpha = 1;
@@ -224,14 +209,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         super.onFinishInflate();
         mSnapshotView = findViewById(R.id.snapshot);
         mIconView = findViewById(R.id.icon);
-    }
-
-    public TaskMenuView getMenuView() {
-        return mMenuView;
-    }
-
-    public DigitalWellBeingToast getDigitalWellBeingToast() {
-        return mDigitalWellBeingToast;
     }
 
     /**

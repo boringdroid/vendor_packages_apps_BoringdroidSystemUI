@@ -32,7 +32,6 @@ import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.PropertySetter;
 import com.android.launcher3.anim.PropertySetter.AnimatedPropertySetter;
-import com.android.launcher3.compat.AccessibilityManagerCompat;
 import com.android.launcher3.uioverrides.UiFactory;
 
 import java.io.PrintWriter;
@@ -318,30 +317,6 @@ public class LauncherStateManager {
 
     /**
      * Creates a {@link AnimatorPlaybackController} that can be used for a controlled
-     * state transition. The UI is force-set to fromState before creating the controller.
-     * @param fromState the initial state for the transition.
-     * @param state the final state for the transition.
-     * @param duration intended duration for normal playback. Use higher duration for better
-     *                accuracy.
-     */
-    public AnimatorPlaybackController createAnimationToNewWorkspace(
-            LauncherState fromState, LauncherState state, long duration) {
-        // Since we are creating a state animation to a different state, temporarily prevent state
-        // change as part of config reset.
-        LauncherState originalRestState = mRestState;
-        mRestState = state;
-        mConfig.reset();
-        mRestState = originalRestState;
-
-        for (StateHandler handler : getStateHandlers()) {
-            handler.setState(fromState);
-        }
-
-        return createAnimationToNewWorkspace(state, duration);
-    }
-
-    /**
-     * Creates a {@link AnimatorPlaybackController} that can be used for a controlled
      * state transition.
      * @param state the final state for the transition.
      * @param duration intended duration for normal playback. Use higher duration for better
@@ -438,8 +413,6 @@ public class LauncherStateManager {
         for (int i = mListeners.size() - 1; i >= 0; i--) {
             mListeners.get(i).onStateTransitionComplete(state);
         }
-
-        AccessibilityManagerCompat.sendStateEventToTest(mLauncher, state.ordinal);
     }
 
     public void onWindowFocusChanged() {
