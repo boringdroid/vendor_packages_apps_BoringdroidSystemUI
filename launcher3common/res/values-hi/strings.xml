@@ -55,7 +55,6 @@
     <string name="widget_button_text" msgid="2880537293434387943">"विजेट"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"वॉलपेपर"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"होम पेज की सेटिंग"</string>
-    <string name="msg_disabled_by_admin" msgid="6898038085516271325">"आपके एडमिन ने बंद किया हुआ है"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"नई सूचनाएं बताने वाला गोल निशान दिखाएं"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"निकालें"</string>
     <string name="abandoned_search" msgid="891119232568284442">"सर्च करें"</string>
@@ -74,8 +73,6 @@
     <string name="create_folder_with" msgid="4050141361160214248">"इसके साथ फ़ोल्डर बनाएं: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"होम स्क्रीन पर ले जाएं"</string>
     <string name="action_resize" msgid="1802976324781771067">"आकार बदलें"</string>
-    <string name="action_deep_shortcut" msgid="2864038805849372848">"शॉर्टकट"</string>
-    <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"शॉर्टकट और सूचनाएं"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"निजी ऐप"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"काम से जुड़े ऐप"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"वर्क प्रोफ़ाइल"</string>

@@ -55,7 +55,6 @@
     <string name="widget_button_text" msgid="2880537293434387943">"ធាតុ​ក្រាហ្វិក"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"ផ្ទាំង​រូបភាព"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"ការកំណត់​ទំព័រដើម"</string>
-    <string name="msg_disabled_by_admin" msgid="6898038085516271325">"បានបិទដំណើរការដោយអ្នកគ្រប់គ្រងរបស់អ្នក"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"បង្ហាញ​ស្លាក​ជូនដំណឹង"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"លុបចេញ"</string>
     <string name="abandoned_search" msgid="891119232568284442">"ស្វែងរក"</string>
@@ -74,8 +73,6 @@
     <string name="create_folder_with" msgid="4050141361160214248">"បង្កើតថតឯកសារជាមួយ៖ <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"ផ្លាស់ទៅអេក្រង់ដើម"</string>
     <string name="action_resize" msgid="1802976324781771067">"ប្ដូរទំហំ"</string>
-    <string name="action_deep_shortcut" msgid="2864038805849372848">"ផ្លូវកាត់"</string>
-    <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"ផ្លូវកាត់ និង​ការជូនដំណឹង"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ផ្ទាល់ខ្លួន"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"ការងារ"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"កម្រងព័ត៌មានការងារ"</string>

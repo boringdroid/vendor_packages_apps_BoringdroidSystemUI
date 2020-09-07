@@ -55,7 +55,6 @@
     <string name="widget_button_text" msgid="2880537293434387943">"விட்ஜெட்கள்"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"வால்பேப்பர்கள்"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"முகப்பு அமைப்புகள்"</string>
-    <string name="msg_disabled_by_admin" msgid="6898038085516271325">"உங்கள் நிர்வாகி முடக்கியுள்ளார்"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"அறிவிப்புப் புள்ளிகளைக் காட்டு"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"அகற்று"</string>
     <string name="abandoned_search" msgid="891119232568284442">"தேடு"</string>
@@ -74,8 +73,6 @@
     <string name="create_folder_with" msgid="4050141361160214248">"இதனுடன் கோப்புறையை உருவாக்கும்: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"முகப்புத் திரைக்கு நகர்த்து"</string>
     <string name="action_resize" msgid="1802976324781771067">"அளவு மாற்று"</string>
-    <string name="action_deep_shortcut" msgid="2864038805849372848">"ஷார்ட்கட்கள்"</string>
-    <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"ஷார்ட்கட்கள் மற்றும் அறிவிப்புகள்"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"தனிப்பட்டவை"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"பணி"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"பணிக் கணக்கு"</string>

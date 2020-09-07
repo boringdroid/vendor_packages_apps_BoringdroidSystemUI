@@ -67,7 +67,6 @@ import com.android.launcher3.graphics.DragPreviewProvider;
 import com.android.launcher3.graphics.PreloadIconDrawable;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.pageindicators.WorkspacePageIndicator;
-import com.android.launcher3.popup.PopupContainerWithArrow;
 import com.android.launcher3.touch.WorkspaceTouchListener;
 import com.android.launcher3.util.Executors;
 import com.android.launcher3.util.IntArray;
@@ -270,11 +269,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         }
     }
 
-    public float getWallpaperOffsetForCenterPage() {
-        int pageScroll = getScrollForPage(getPageNearestToCenterOfScreen());
-        return mWallpaperOffset.wallpaperOffsetForScroll(pageScroll);
-    }
-
     @Override
     public void onDragStart(DropTarget.DragObject dragObject, DragOptions options) {
         if (ENFORCE_DRAG_EVENT_ORDER) {
@@ -464,10 +458,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             mWorkspaceScreens.put(EXTRA_EMPTY_SCREEN_ID, finalScreen);
             mScreenOrder.add(EXTRA_EMPTY_SCREEN_ID);
         }
-    }
-
-    public void removeExtraEmptyScreen(final boolean animate, boolean stripEmptyScreens) {
-        removeExtraEmptyScreenDelayed(animate, null, 0, stripEmptyScreens);
     }
 
     public void removeExtraEmptyScreenDelayed(final boolean animate, final Runnable onComplete,
@@ -1200,14 +1190,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
         if (child instanceof BubbleTextView) {
             BubbleTextView icon = (BubbleTextView) child;
             icon.clearPressedBackground();
-        }
-
-        if (child instanceof BubbleTextView && !dragOptions.isAccessibleDrag) {
-            PopupContainerWithArrow popupContainer = PopupContainerWithArrow
-                    .showForIcon((BubbleTextView) child);
-            if (popupContainer != null) {
-                dragOptions.preDragCondition = popupContainer.createPreDragCondition();
-            }
         }
 
         DragView dv = mDragController.startDrag(b, dragLayerX, dragLayerY, source,
@@ -2099,10 +2081,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
             return false;
         };
         mapOverItems(op);
-    }
-
-    public boolean isOverlayShown() {
-        return mOverlayShown;
     }
 
     void moveToDefaultScreen() {

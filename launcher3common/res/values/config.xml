@@ -76,8 +76,6 @@
     <item type="id" name="menu_apply_flags" />
 
     <!-- Popup items -->
-    <integer name="config_popupOpenCloseDuration">150</integer>
-    <integer name="config_popupArrowOpenCloseDuration">40</integer>
 
     <!-- Accessibility actions -->
     <item type="id" name="action_remove" />

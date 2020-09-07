@@ -431,13 +431,9 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
             if (action == AccessibilityNodeInfoCompat.ACTION_CLICK) {
                 mLauncher.getStateManager().goToState(ALL_APPS);
                 return true;
-            } else if (action == WALLPAPERS) {
-                return OptionsPopupView.startWallpaperPicker(ScrimView.this);
             } else if (action == WIDGETS) {
                 setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
                 return true;
-            } else if (action == SETTINGS) {
-                return OptionsPopupView.startSettings(ScrimView.this);
             }
 
             return false;

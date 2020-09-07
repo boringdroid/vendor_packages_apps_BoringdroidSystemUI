@@ -156,7 +156,6 @@
     <!-- Text for settings button -->
     <string name="settings_button_text">Home settings</string>
     <!-- Message shown when a feature is disabled by the administrator -->
-    <string name="msg_disabled_by_admin">Disabled by your admin</string>
 
     <!-- Strings for settings -->
     <!-- Title for Allow Rotation setting. [CHAR LIMIT=50] -->
@@ -254,10 +253,7 @@
     <!-- Accessibility confirmation for widget resize. -->
 
     <!-- Accessibility action to show quick actions menu for an icon. [CHAR_LIMIT=30] -->
-    <string name="action_deep_shortcut">Shortcuts</string>
     <!-- Accessibility description when the context menu of a launcher icon that has notifications as well as shortcuts (providing quick access to app's actions). The "shortcuts" translation should be consistent with the one for action_deep_shortcut. [CHAR_LIMIT=50] -->
-    <string name="shortcuts_menu_with_notifications_description">Shortcuts and notifications
-    </string>
 
     <!-- Accessibility action to dismiss a notification in the shortcuts menu for an icon. [CHAR_LIMIT=30] -->
 

@@ -82,8 +82,4 @@ public class CheckLongPressHelper {
             mPendingCheckForLongPress = null;
         }
     }
-
-    public boolean hasPerformedLongPress() {
-        return mHasPerformedLongPress;
-    }
 }

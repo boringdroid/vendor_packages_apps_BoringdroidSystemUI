@@ -55,7 +55,6 @@
     <string name="widget_button_text" msgid="2880537293434387943">"විජට්"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"වෝල්පේපර"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"නිවසේ සැකසීම්"</string>
-    <string name="msg_disabled_by_admin" msgid="6898038085516271325">"ඔබගේ පරිපාලක විසින් අබල කරන ලදී"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"දැනුම්දීම් තිත් පෙන්වන්න"</string>
     <string name="abandoned_clean_this" msgid="7610119707847920412">"ඉවත් කරන්න"</string>
     <string name="abandoned_search" msgid="891119232568284442">"සොයන්න"</string>
@@ -74,8 +73,6 @@
     <string name="create_folder_with" msgid="4050141361160214248">"මේ සමග ෆෝල්ඩරය සාදන්න: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"මුල් තිරය වෙත ගෙන යන්න"</string>
     <string name="action_resize" msgid="1802976324781771067">"නැවත ප්‍රමාණගත කිරීම"</string>
-    <string name="action_deep_shortcut" msgid="2864038805849372848">"කෙටිමං"</string>
-    <string name="shortcuts_menu_with_notifications_description" msgid="2676582286544232849">"කෙටි මං සහ දැනුම්දීම්"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"පුද්ගලික"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"කාර්යාලය"</string>
     <string name="work_profile_toggle_label" msgid="3081029915775481146">"කාර්යාල පැතිකඩ"</string>

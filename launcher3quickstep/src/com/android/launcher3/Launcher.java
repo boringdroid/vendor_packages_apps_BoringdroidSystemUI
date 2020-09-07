@@ -87,7 +87,6 @@ import com.android.launcher3.keyboard.ViewGroupFocusHelper;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.model.ModelWriter;
-import com.android.launcher3.popup.PopupContainerWithArrow;
 import com.android.launcher3.states.InternalStateHandler;
 import com.android.launcher3.states.RotationHelper;
 import com.android.launcher3.touch.ItemClickHandler;
@@ -106,7 +105,6 @@ import com.android.launcher3.util.TraceHelper;
 import com.android.launcher3.util.UiThreadHelper;
 import com.android.launcher3.util.ViewOnDrawExecutor;
 import com.android.launcher3.views.ActivityContext;
-import com.android.launcher3.views.OptionsPopupView;
 import com.android.launcher3.views.ScrimView;
 
 import java.io.FileDescriptor;
@@ -1665,15 +1663,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                     }
                     break;
                 case KeyEvent.KEYCODE_S: {
-                    View focusedView = getCurrentFocus();
-                    if (focusedView instanceof BubbleTextView
-                            && focusedView.getTag() instanceof ItemInfo
-                            && mAccessibilityDelegate.performAction(focusedView,
-                            (ItemInfo) focusedView.getTag(),
-                            LauncherAccessibilityDelegate.DEEP_SHORTCUTS)) {
-                        PopupContainerWithArrow.getOpen(this).requestFocus();
-                        return true;
-                    }
+                    // TODO recheck it
                     break;
                 }
                 case KeyEvent.KEYCODE_O:
@@ -1700,10 +1690,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                     isInState(NORMAL)) {
                 // Close any open floating views.
                 AbstractFloatingView.closeAllOpenViews(this);
-
-                // Setting the touch point to (-1, -1) will show the options popup in the center of
-                // the screen.
-                OptionsPopupView.showDefaultOptions(this, -1, -1);
             }
             return true;
         }
