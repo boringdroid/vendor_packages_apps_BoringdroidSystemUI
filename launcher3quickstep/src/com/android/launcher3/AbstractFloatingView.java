@@ -35,8 +35,6 @@ import android.widget.LinearLayout;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.util.TouchController;
 import com.android.launcher3.views.ActivityContext;
 import com.android.launcher3.views.BaseDragLayer;
@@ -120,10 +118,6 @@ public abstract class AbstractFloatingView extends LinearLayout implements Touch
 
     public final void close(boolean animate) {
         animate &= Utilities.areAnimationsEnabled(getContext());
-        if (mIsOpen) {
-            BaseActivity.fromContext(getContext()).getUserEventDispatcher()
-                    .resetElapsedContainerMillis("container closed");
-        }
         handleClose(animate);
         mIsOpen = false;
     }
@@ -138,12 +132,6 @@ public abstract class AbstractFloatingView extends LinearLayout implements Touch
         return null;
     }
 
-    public abstract void logActionCommand(int command);
-
-    public int getLogContainerType() {
-        return ContainerType.DEFAULT_CONTAINERTYPE;
-    }
-
     public final boolean isOpen() {
         return mIsOpen;
     }
@@ -152,7 +140,6 @@ public abstract class AbstractFloatingView extends LinearLayout implements Touch
 
     /** @return Whether the back is consumed. If false, Launcher will handle the back as well. */
     public boolean onBackPressed() {
-        logActionCommand(Action.Command.BACK);
         close(true);
         return true;
     }
@@ -236,11 +223,6 @@ public abstract class AbstractFloatingView extends LinearLayout implements Touch
                                                @FloatingViewType int type) {
         closeOpenViews(activity, animate, TYPE_ALL & ~type);
         activity.finishAutoCancelActionMode();
-    }
-
-    public static void closeAllOpenViewsExcept(ActivityContext activity,
-                                               @FloatingViewType int type) {
-        closeAllOpenViewsExcept(activity, true, type);
     }
 
     public static AbstractFloatingView getTopOpenView(ActivityContext activity) {

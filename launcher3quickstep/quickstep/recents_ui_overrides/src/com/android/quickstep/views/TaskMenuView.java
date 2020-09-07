@@ -126,11 +126,6 @@ public class TaskMenuView extends AbstractFloatingView {
     }
 
     @Override
-    public void logActionCommand(int command) {
-        // TODO
-    }
-
-    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 

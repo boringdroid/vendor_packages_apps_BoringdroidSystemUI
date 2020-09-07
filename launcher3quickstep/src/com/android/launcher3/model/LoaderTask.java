@@ -50,7 +50,6 @@ import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
-import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.util.IOUtils;
 import com.android.launcher3.util.LooperIdleLock;
 import com.android.launcher3.util.MultiHashMap;
@@ -272,7 +271,7 @@ public class LoaderTask implements Runnable {
                     try {
                         if (c.user == null) {
                             // User has been deleted, remove the item.
-                            c.markDeleted("User has been deleted");
+                            c.markDeleted();
                             continue;
                         }
 
@@ -281,7 +280,7 @@ public class LoaderTask implements Runnable {
                         case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                             intent = c.parseIntent();
                             if (intent == null) {
-                                c.markDeleted("Invalid or null intent");
+                                c.markDeleted();
                                 continue;
                             }
 
@@ -293,12 +292,12 @@ public class LoaderTask implements Runnable {
                             if (allUsers.indexOfValue(c.user) < 0) {
                                 if (c.restoreFlag != 0) {
                                     // Don't restore items for other profiles.
-                                    c.markDeleted("Restore from other profiles not supported");
+                                    c.markDeleted();
                                     continue;
                                 }
                             }
                             if (TextUtils.isEmpty(targetPkg)) {
-                                c.markDeleted("Only legacy shortcuts can have null package");
+                                c.markDeleted();
                                 continue;
                             }
 
@@ -325,7 +324,7 @@ public class LoaderTask implements Runnable {
                                                 LauncherSettings.Favorites.INTENT,
                                                 intent.toUri(0)).commit();
                                     } else {
-                                        c.markDeleted("Unable to find a launch target");
+                                        c.markDeleted();
                                         continue;
                                     }
                                 }
@@ -338,10 +337,6 @@ public class LoaderTask implements Runnable {
                                 // is not available.
 
                                 if (c.restoreFlag != 0) {
-                                    // Package is not yet available but might be
-                                    // installed later.
-                                    FileLog.d(TAG, "package not yet restored: " + targetPkg);
-
                                     tempPackageKey.update(targetPkg, c.user);
                                     if (c.hasRestoreFlag(WorkspaceItemInfo.FLAG_RESTORE_STARTED)) {
                                         // Restore has started once.
@@ -351,7 +346,7 @@ public class LoaderTask implements Runnable {
                                         c.updater().put(LauncherSettings.Favorites.RESTORED,
                                                 c.restoreFlag).commit();
                                     } else {
-                                        c.markDeleted("Unrestored app removed: " + targetPkg);
+                                        c.markDeleted();
                                         continue;
                                     }
                                 } else if (pmHelper.isAppOnSdcard(targetPkg, c.user)) {
@@ -368,7 +363,7 @@ public class LoaderTask implements Runnable {
                                     allowMissingTarget = true;
                                 } else {
                                     // Do not wait for external media load anymore.
-                                    c.markDeleted("Invalid package removed: " + targetPkg);
+                                    c.markDeleted();
                                     continue;
                                 }
                             }

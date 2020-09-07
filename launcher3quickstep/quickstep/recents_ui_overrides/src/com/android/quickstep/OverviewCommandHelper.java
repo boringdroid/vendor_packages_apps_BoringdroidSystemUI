@@ -28,8 +28,6 @@ import android.os.SystemClock;
 import android.view.ViewConfiguration;
 
 import com.android.launcher3.BaseDraggingActivity;
-import com.android.launcher3.logging.UserEventDispatcher;
-import com.android.launcher3.userevent.nano.LauncherLogProto;
 import com.android.quickstep.ActivityControlHelper.ActivityInitListener;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
@@ -73,11 +71,6 @@ public class OverviewCommandHelper {
 
     public void onOverviewHidden() {
         MAIN_EXECUTOR.execute(new HideRecentsCommand());
-    }
-
-    public void onTip(int actionType, int viewType) {
-        MAIN_EXECUTOR.execute(() ->
-                UserEventDispatcher.newInstance(mContext).logActionTip(actionType, viewType));
     }
 
     private class ShowRecentsCommand extends RecentsActivityCommand {
@@ -198,10 +191,6 @@ public class OverviewCommandHelper {
 
         private boolean onActivityReady(T activity, Boolean wasVisible) {
             if (!mUserEventLogged) {
-                activity.getUserEventDispatcher().logActionCommand(
-                        LauncherLogProto.Action.Command.RECENTS_BUTTON,
-                        mHelper.getContainerType(),
-                        LauncherLogProto.ContainerType.TASKSWITCHER);
                 mUserEventLogged = true;
             }
             return mAnimationProvider.onActivityReady(activity, wasVisible);

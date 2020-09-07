@@ -25,12 +25,6 @@ import static android.view.MotionEvent.ACTION_POINTER_UP;
 import static android.view.MotionEvent.ACTION_UP;
 
 import static com.android.launcher3.Utilities.squaredHypot;
-import static com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction.UPLEFT;
-import static com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction.UPRIGHT;
-import static com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch.FLING;
-import static com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch.SWIPE;
-import static com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch.SWIPE_NOOP;
-import static com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType.NAVBAR;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -49,7 +43,6 @@ import android.view.ViewConfiguration;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.logging.UserEventDispatcher;
 import com.android.quickstep.ActivityControlHelper;
 import com.android.systemui.shared.recents.ISystemUiProxy;
 import com.android.systemui.shared.system.InputMonitorCompat;
@@ -80,7 +73,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
     private float mTimeFraction;
     private long mDragTime;
     private float mLastProgress;
-    private int mDirection;
     private ActivityControlHelper mActivityControlHelper;
 
     private final float mDragDistThreshold;
@@ -89,7 +81,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
     private final int mAngleThreshold;
     private final float mSquaredSlop;
     private final ISystemUiProxy mSysUiProxy;
-    private final Context mContext;
     private final GestureDetector mGestureDetector;
     private final boolean mIsAssistGestureConstrained;
 
@@ -98,7 +89,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
         InputMonitorCompat inputMonitor, boolean isAssistGestureConstrained) {
         super(delegate, inputMonitor);
         final Resources res = context.getResources();
-        mContext = context;
         mSysUiProxy = systemUiProxy;
         mIsAssistGestureConstrained = isAssistGestureConstrained;
         mDragDistThreshold = res.getDimension(R.dimen.gestures_assistant_drag_threshold);
@@ -196,8 +186,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
                 if (mState != STATE_DELEGATE_ACTIVE && !mLaunchedAssistant) {
                     ValueAnimator animator = ValueAnimator.ofFloat(mLastProgress, 0)
                         .setDuration(RETRACT_ANIMATION_DURATION_MS);
-                    UserEventDispatcher.newInstance(mContext).logActionOnContainer(
-                        SWIPE_NOOP, mDirection, NAVBAR);
                     animator.addUpdateListener(valueAnimator -> {
                         float progress = (float) valueAnimator.getAnimatedValue();
                         try {
@@ -229,7 +217,7 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
             try {
                 if (mDistance >= mDragDistThreshold && mTimeFraction >= 1) {
                     mSysUiProxy.onAssistantGestureCompletion(0);
-                    startAssistantInternal(SWIPE);
+                    startAssistantInternal();
 
                     Bundle args = new Bundle();
                     args.putInt(OPA_BUNDLE_TRIGGER, OPA_BUNDLE_TRIGGER_DIAG_SWIPE_GESTURE);
@@ -246,10 +234,7 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
         }
     }
 
-    private void startAssistantInternal(int gestureType) {
-        UserEventDispatcher.newInstance(mContext)
-            .logActionOnContainer(gestureType, mDirection, NAVBAR);
-
+    private void startAssistantInternal() {
         BaseDraggingActivity launcherActivity = mActivityControlHelper
             .getCreatedActivity();
         if (launcherActivity != null) {
@@ -264,7 +249,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
      */
     private boolean isValidAssistantGestureAngle(float deltaX, float deltaY) {
         float angle = (float) Math.toDegrees(Math.atan2(deltaY, deltaX));
-        mDirection = angle > 90 ? UPLEFT : UPRIGHT;
 
         // normalize so that angle is measured clockwise from horizontal in the bottom right corner
         // and counterclockwise from horizontal in the bottom left corner
@@ -284,7 +268,7 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
                 try {
                     mSysUiProxy.onAssistantGestureCompletion(
                         (float) Math.sqrt(velocityX * velocityX + velocityY * velocityY));
-                    startAssistantInternal(FLING);
+                    startAssistantInternal();
 
                     Bundle args = new Bundle();
                     args.putInt(INVOCATION_TYPE_KEY, INVOCATION_TYPE_GESTURE);

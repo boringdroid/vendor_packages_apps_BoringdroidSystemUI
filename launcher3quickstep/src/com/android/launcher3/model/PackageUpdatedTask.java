@@ -34,7 +34,6 @@ import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
@@ -120,7 +119,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                 break;
             case OP_REMOVE: {
                 for (int i = 0; i < N; i++) {
-                    FileLog.d(TAG, "Removing app icon" + packages[i]);
                     iconCache.removeIconsForPkg(packages[i], mUser);
                 }
                 // Fall through
@@ -205,8 +203,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                                     }
                                 } else if (!isTargetValid) {
                                     removedShortcuts.put(si.id, true);
-                                    FileLog.e(TAG, "Restored shortcut no longer valid "
-                                            + si.intent);
                                     continue;
                                 } else {
                                     si.status = WorkspaceItemInfo.DEFAULT;

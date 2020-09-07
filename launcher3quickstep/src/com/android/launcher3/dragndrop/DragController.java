@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.IBinder;
-import android.view.DragEvent;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -220,7 +219,6 @@ public class DragController implements DragDriver.EventListener, TouchController
         }
 
         handleMoveEvent(mLastTouch[0], mLastTouch[1]);
-        mLauncher.getUserEventDispatcher().resetActionDurationMillis();
         return dragView;
     }
 
@@ -455,14 +453,6 @@ public class DragController implements DragDriver.EventListener, TouchController
     }
 
     /**
-     * Call this from a drag source view.
-     */
-    public boolean onDragEvent(long dragStartTime, DragEvent event) {
-        mFlingToDeleteHelper.recordDragEvent(dragStartTime, event);
-        return mDragDriver != null && mDragDriver.onDragEvent(event);
-    }
-
-    /**
      * Call this from a drag view.
      */
     public void onDragViewAnimationEnd() {
@@ -629,7 +619,6 @@ public class DragController implements DragDriver.EventListener, TouchController
             }
         }
         final View dropTargetAsView = dropTarget instanceof View ? (View) dropTarget : null;
-        mLauncher.getUserEventDispatcher().logDragNDrop(mDragObject, dropTargetAsView);
         dispatchDropComplete(dropTargetAsView, accepted);
     }
 

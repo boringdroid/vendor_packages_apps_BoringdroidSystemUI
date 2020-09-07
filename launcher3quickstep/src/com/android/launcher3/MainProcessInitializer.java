@@ -20,7 +20,6 @@ import android.content.Context;
 
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.graphics.IconShape;
-import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.util.ResourceBasedOverride;
 
 /**
@@ -35,7 +34,6 @@ public class MainProcessInitializer implements ResourceBasedOverride {
     }
 
     protected void init(Context context) {
-        FileLog.setDir(context.getApplicationContext().getFilesDir());
         FeatureFlags.initialize(context);
         SessionCommitReceiver.applyDefaultUserPrefs(context);
         IconShape.init(context);

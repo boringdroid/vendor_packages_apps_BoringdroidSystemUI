@@ -38,7 +38,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.os.UserHandle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -391,10 +390,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
             return false;
         }
 
-        launcher.getUserEventDispatcher().logActionCommand(
-                LauncherLogProto.Action.Command.RECENTS_BUTTON,
-                getContainerType(),
-                LauncherLogProto.ContainerType.TASKSWITCHER);
         launcher.getStateManager().goToState(OVERVIEW,
                 launcher.getStateManager().shouldAnimateStateChange(), onCompleteCallback);
         return true;

@@ -30,13 +30,7 @@ import android.view.ContextThemeWrapper;
 import androidx.annotation.IntDef;
 
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
-import com.android.launcher3.logging.StatsLogManager;
-import com.android.launcher3.logging.StatsLogUtils;
-import com.android.launcher3.logging.StatsLogUtils.LogStateProvider;
-import com.android.launcher3.logging.UserEventDispatcher;
-import com.android.launcher3.logging.UserEventDispatcher.UserEventDelegate;
 import com.android.launcher3.uioverrides.UiFactory;
-import com.android.launcher3.userevent.nano.LauncherLogProto;
 import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.ViewCache;
 import com.android.launcher3.views.ActivityContext;
@@ -46,8 +40,7 @@ import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
 
-public abstract class BaseActivity extends Activity
-        implements UserEventDelegate, LogStateProvider, ActivityContext {
+public abstract class BaseActivity extends Activity implements ActivityContext {
 
     public static final int INVISIBLE_BY_STATE_HANDLER = 1 << 0;
     public static final int INVISIBLE_BY_APP_TRANSITIONS = 1 << 1;
@@ -77,8 +70,6 @@ public abstract class BaseActivity extends Activity
             new ArrayList<>();
 
     protected DeviceProfile mDeviceProfile;
-    protected UserEventDispatcher mUserEventDispatcher;
-    protected StatsLogManager mStatsLogManager;
     protected SystemUiController mSystemUiController;
 
     private static final int ACTIVITY_STATE_STARTED = 1 << 0;
@@ -112,24 +103,6 @@ public abstract class BaseActivity extends Activity
     @Override
     public DeviceProfile getDeviceProfile() {
         return mDeviceProfile;
-    }
-
-    public int getCurrentState() { return StatsLogUtils.LAUNCHER_STATE_BACKGROUND; }
-
-    public void modifyUserEvent(LauncherLogProto.LauncherEvent event) {}
-
-    public final StatsLogManager getStatsLogManager() {
-        if (mStatsLogManager == null) {
-            mStatsLogManager = StatsLogManager.newInstance(this, this);
-        }
-        return mStatsLogManager;
-    }
-
-    public final UserEventDispatcher getUserEventDispatcher() {
-        if (mUserEventDispatcher == null) {
-            mUserEventDispatcher = UserEventDispatcher.newInstance(this, this);
-        }
-        return mUserEventDispatcher;
     }
 
     public SystemUiController getSystemUiController() {
@@ -212,10 +185,6 @@ public abstract class BaseActivity extends Activity
         mDPChangeListeners.add(listener);
     }
 
-    public void removeOnDeviceProfileChangeListener(OnDeviceProfileChangeListener listener) {
-        mDPChangeListeners.remove(listener);
-    }
-
     protected void dispatchDeviceProfileChanged() {
         for (int i = mDPChangeListeners.size() - 1; i >= 0; i--) {
             mDPChangeListeners.get(i).onDeviceProfileChanged(mDeviceProfile);
@@ -233,7 +202,6 @@ public abstract class BaseActivity extends Activity
     /**
      * Used to set the override visibility state, used only to handle the transition home with the
      * recents animation.
-     * @see QuickstepAppTransitionManagerImpl#getWallpaperOpenRunner()
      */
     public void addForceInvisibleFlag(@InvisibilityFlags int flag) {
         mForceInvisible |= flag;

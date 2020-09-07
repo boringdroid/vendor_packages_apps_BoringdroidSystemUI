@@ -39,7 +39,6 @@ import com.android.launcher3.AppInfo;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherAppState;
@@ -54,11 +53,9 @@ import com.android.launcher3.anim.PropertySetter;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.keyboard.FocusIndicatorHelper;
 import com.android.launcher3.keyboard.FocusIndicatorHelper.SimpleFocusIndicatorHelper;
-import com.android.launcher3.logging.StatsLogUtils.LogContainerProvider;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.touch.ItemClickHandler;
 import com.android.launcher3.touch.ItemLongClickListener;
-import com.android.launcher3.userevent.nano.LauncherLogProto;
 import com.android.launcher3.util.Themes;
 import com.android.quickstep.AnimatedFloat;
 
@@ -68,7 +65,7 @@ import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.P)
 public class PredictionRowView extends LinearLayout implements
-        LogContainerProvider, OnDeviceProfileChangeListener, FloatingHeaderRow {
+        OnDeviceProfileChangeListener, FloatingHeaderRow {
 
     private static final String TAG = "PredictionRowView";
 
@@ -201,13 +198,6 @@ public class PredictionRowView extends LinearLayout implements
     }
 
     /**
-     * Returns the predicted apps.
-     */
-    public List<ItemInfoWithIcon> getPredictedApps() {
-        return mPredictedApps;
-    }
-
-    /**
      * Sets the current set of predicted apps.
      *
      * This can be called before we get the full set of applications, we should merge the results
@@ -308,18 +298,6 @@ public class PredictionRowView extends LinearLayout implements
         return predictedApps;
     }
 
-    @Override
-    public void fillInLogContainerData(View v, ItemInfo info, LauncherLogProto.Target target,
-            LauncherLogProto.Target targetParent) {
-        for (int i = 0; i < mPredictedApps.size(); i++) {
-            ItemInfoWithIcon appInfo = mPredictedApps.get(i);
-            if (appInfo == info) {
-                targetParent.containerType = LauncherLogProto.ContainerType.PREDICTION;
-                target.predictedRank = i;
-                break;
-            }
-        }
-    }
 
     public void setTextAlpha(int textAlpha) {
         mIconLastSetTextAlpha = textAlpha;

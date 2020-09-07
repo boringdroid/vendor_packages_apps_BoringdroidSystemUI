@@ -72,7 +72,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ListView;
@@ -93,10 +92,7 @@ import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.anim.SpringObjectAnimator;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
-import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.Themes;
@@ -105,12 +101,10 @@ import com.android.quickstep.RecentsAnimationWrapper;
 import com.android.quickstep.RecentsModel;
 import com.android.quickstep.RecentsModel.TaskThumbnailChangeListener;
 import com.android.quickstep.TaskThumbnailCache;
-import com.android.quickstep.TaskUtils;
 import com.android.quickstep.util.ClipAnimationHelper;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.recents.model.ThumbnailData;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
-import com.android.systemui.shared.system.LauncherEventUtil;
 import com.android.systemui.shared.system.PackageManagerWrapper;
 import com.android.systemui.shared.system.SyncRtSurfaceTransactionApplierCompat;
 import com.android.systemui.shared.system.TaskStackChangeListener;
@@ -456,15 +450,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     public void setOverviewStateEnabled(boolean enabled) {
         mOverviewStateEnabled = enabled;
         updateTaskStackListenerState();
-    }
-
-    public void onDigitalWellbeingToastShown() {
-        if (!mDwbToastShown) {
-            mDwbToastShown = true;
-            mActivity.getUserEventDispatcher().logActionTip(
-                    LauncherEventUtil.VISIBLE,
-                    LauncherLogProto.TipType.DWB_TOAST);
-        }
     }
 
     @Override
@@ -1071,16 +1056,9 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         }
     }
 
-    private void removeTask(Task task, int index, PendingAnimation.OnEndListener onEndListener,
-                            boolean shouldLog) {
+    private void removeTask(Task task) {
         if (task != null) {
             ActivityManagerWrapper.getInstance().removeTask(task.key.id);
-            if (shouldLog) {
-                ComponentKey componentKey = TaskUtils.getLaunchComponentKeyForTask(task.key);
-                mActivity.getUserEventDispatcher().logTaskLaunchOrDismiss(
-                        onEndListener.logAction, Direction.UP, index, componentKey);
-                mActivity.getStatsLogManager().logTaskDismiss(this, componentKey);
-            }
         }
     }
 
@@ -1180,7 +1158,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
             private void onEnd(PendingAnimation.OnEndListener onEndListener) {
                 if (onEndListener.isSuccess) {
                     if (shouldRemoveTask) {
-                        removeTask(taskView.getTask(), draggedIndex, onEndListener, true);
+                        removeTask(taskView.getTask());
                     }
 
                     int pageToSnapTo = mCurrentPage;
@@ -1265,7 +1243,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     @SuppressWarnings("unused")
     private void dismissAllTasks(View view) {
         runDismissAnimation(createAllTasksDismissAnimation(DISMISS_TASK_DURATION));
-        mActivity.getUserEventDispatcher().logActionOnControl(TAP, CLEAR_ALL_BUTTON);
     }
 
     private void dismissCurrentTask() {
@@ -1593,12 +1570,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
                     }
                 };
                 tv.launchTask(false, onLaunchResult, getHandler());
-                Task task = tv.getTask();
-                if (task != null) {
-                    mActivity.getUserEventDispatcher().logTaskLaunchOrDismiss(
-                            onEndListener.logAction, Direction.DOWN, indexOfChild(tv),
-                            TaskUtils.getLaunchComponentKeyForTask(task.key));
-                }
             } else {
                 onTaskLaunchFinish.accept(false);
             }
@@ -1810,16 +1781,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
             mOverlayEnabled = overlayEnabled;
             updateEnabledOverlays();
         }
-    }
-
-    public int getLeftGestureMargin() {
-        final WindowInsets insets = getRootWindowInsets();
-        return Math.max(insets.getSystemGestureInsets().left, insets.getSystemWindowInsetLeft());
-    }
-
-    public int getRightGestureMargin() {
-        final WindowInsets insets = getRootWindowInsets();
-        return Math.max(insets.getSystemGestureInsets().right, insets.getSystemWindowInsetRight());
     }
 
     @Override

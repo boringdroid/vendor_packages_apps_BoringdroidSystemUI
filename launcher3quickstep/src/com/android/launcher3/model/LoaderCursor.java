@@ -43,7 +43,6 @@ import com.android.launcher3.Workspace;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.util.ContentWriter;
 import com.android.launcher3.util.GridOccupancy;
 import com.android.launcher3.util.IntArray;
@@ -70,8 +69,6 @@ public class LoaderCursor extends CursorWrapper {
     private final IntArray restoredRows = new IntArray();
     private final IntSparseArrayMap<GridOccupancy> occupied = new IntSparseArrayMap<>();
 
-    private final int iconPackageIndex;
-    private final int iconResourceIndex;
     private final int iconIndex;
     public final int titleIndex;
 
@@ -102,8 +99,6 @@ public class LoaderCursor extends CursorWrapper {
 
         // Init column indices
         iconIndex = getColumnIndexOrThrow(LauncherSettings.Favorites.ICON);
-        iconPackageIndex = getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_PACKAGE);
-        iconResourceIndex = getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_RESOURCE);
         titleIndex = getColumnIndexOrThrow(LauncherSettings.Favorites.TITLE);
 
         idIndex = getColumnIndexOrThrow(LauncherSettings.Favorites._ID);
@@ -289,8 +284,7 @@ public class LoaderCursor extends CursorWrapper {
     /**
      * Marks the current item for removal
      */
-    public void markDeleted(String reason) {
-        FileLog.e(TAG, reason);
+    public void markDeleted() {
         itemsToRemove.add(id);
     }
 
@@ -350,7 +344,7 @@ public class LoaderCursor extends CursorWrapper {
         if (checkItemPlacement(info)) {
             dataModel.addItem(mContext, info, false);
         } else {
-            markDeleted("Item position overlap");
+            markDeleted();
         }
     }
 

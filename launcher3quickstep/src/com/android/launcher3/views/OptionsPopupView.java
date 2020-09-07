@@ -73,18 +73,11 @@ public class OptionsPopupView extends ArrowPopup
         if (item == null) {
             return false;
         }
-        if (item.mControlTypeForLog > 0) {
-            logTap(action, item.mControlTypeForLog);
-        }
         if (item.mClickListener.onLongClick(view)) {
             close(true);
             return true;
         }
         return false;
-    }
-
-    private void logTap(int action, int controlType) {
-        mLauncher.getUserEventDispatcher().logActionOnControl(action, controlType);
     }
 
     @Override
@@ -97,11 +90,6 @@ public class OptionsPopupView extends ArrowPopup
         }
         close(true);
         return true;
-    }
-
-    @Override
-    public void logActionCommand(int command) {
-        // TODO:
     }
 
     @Override
@@ -174,12 +162,9 @@ public class OptionsPopupView extends ArrowPopup
     }
 
     public static class OptionItem {
-
-        private final int mControlTypeForLog;
         private final OnLongClickListener mClickListener;
 
         public OptionItem(int controlTypeForLog, OnLongClickListener clickListener) {
-            mControlTypeForLog = controlTypeForLog;
             mClickListener = clickListener;
         }
     }

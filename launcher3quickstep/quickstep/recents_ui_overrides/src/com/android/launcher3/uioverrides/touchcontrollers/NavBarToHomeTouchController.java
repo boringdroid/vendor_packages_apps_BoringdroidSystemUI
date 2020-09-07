@@ -45,8 +45,6 @@ import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
-import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.util.TouchController;
 import com.android.quickstep.util.AssistantUtilities;
 import com.android.quickstep.views.RecentsView;
@@ -185,7 +183,6 @@ public class NavBarToHomeTouchController implements TouchController,
     @Override
     public void onDragEnd(float velocity) {
         boolean fling = mSwipeDetector.isFling(velocity);
-        final int logAction = fling ? Touch.FLING : Touch.SWIPE;
         float progress = mCurrentAnimation.getProgressFraction();
         float interpolatedProgress = PULLBACK_INTERPOLATOR.getInterpolation(progress);
         boolean success = interpolatedProgress >= SUCCESS_TRANSITION_PROGRESS
@@ -193,13 +190,9 @@ public class NavBarToHomeTouchController implements TouchController,
         if (success) {
             mLauncher.getStateManager().goToState(mEndState, true,
                     () -> onSwipeInteractionCompleted(mEndState));
-            if (mStartState != mEndState) {
-                logStateChange(mStartState.containerType, logAction);
-            }
             AbstractFloatingView topOpenView = AbstractFloatingView.getTopOpenView(mLauncher);
             if (topOpenView != null) {
                 AbstractFloatingView.closeAllOpenViews(mLauncher);
-                logStateChange(topOpenView.getLogContainerType(), logAction);
             }
             ActivityManagerWrapper.getInstance()
                 .closeSystemWindows(CLOSE_SYSTEM_WINDOWS_REASON_RECENTS);
@@ -220,15 +213,5 @@ public class NavBarToHomeTouchController implements TouchController,
     private void onSwipeInteractionCompleted(LauncherState targetState) {
         clearState();
         mLauncher.getStateManager().goToState(targetState, false /* animated */);
-    }
-
-    private void logStateChange(int startContainerType, int logAction) {
-        mLauncher.getUserEventDispatcher().logStateChangeAction(logAction,
-                LauncherLogProto.Action.Direction.UP,
-                mSwipeDetector.getDownX(), mSwipeDetector.getDownY(),
-                LauncherLogProto.ContainerType.NAVBAR,
-                startContainerType,
-                mEndState.containerType,
-                mLauncher.getWorkspace().getCurrentPage());
     }
 }

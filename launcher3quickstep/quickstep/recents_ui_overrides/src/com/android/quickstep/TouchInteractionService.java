@@ -74,8 +74,6 @@ import com.android.launcher3.ResourceUtils;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.BaseFlags;
-import com.android.launcher3.logging.EventLogArray;
-import com.android.launcher3.logging.UserEventDispatcher;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.util.DefaultDisplay;
 import com.android.quickstep.SysUINavigationMode.Mode;
@@ -138,10 +136,6 @@ public class TouchInteractionService extends Service implements
      */
     public static final String INTENT_EXTRA_LOG_TRACE_ID = "INTENT_EXTRA_LOG_TRACE_ID";
 
-
-    public static final EventLogArray TOUCH_INTERACTION_LOG =
-            new EventLogArray("touch_interaction_log", 40);
-
     private static final String TAG = "TouchInteractionService";
 
     private static final String KEY_BACK_NOTIFICATION_COUNT = "backNotificationCount";
@@ -183,11 +177,6 @@ public class TouchInteractionService extends Service implements
         }
 
         @Override
-        public void onTip(int actionType, int viewType) {
-            mOverviewCommandHelper.onTip(actionType, viewType);
-        }
-
-        @Override
         public void onAssistantAvailable(boolean available) {
             mAssistantAvailable = available;
         }
@@ -205,11 +194,6 @@ public class TouchInteractionService extends Service implements
                 return;
             }
 
-            final ActivityControlHelper activityControl =
-                    mOverviewComponentObserver.getActivityControlHelper();
-            UserEventDispatcher.newInstance(getBaseContext()).logActionBack(completed, downX, downY,
-                    isButton, gestureSwipeLeft, activityControl.getContainerType());
-
             if (completed && !isButton && shouldNotifyBackGesture()) {
                 UI_HELPER_EXECUTOR.execute(TouchInteractionService.this::tryNotifyBackGesture);
             }
@@ -222,6 +206,11 @@ public class TouchInteractionService extends Service implements
 
         /** Deprecated methods **/
         public void onQuickStep(MotionEvent motionEvent) { }
+
+        @Override
+        public void onTip(int i, int i1) throws RemoteException {
+
+        }
 
         public void onQuickScrubEnd() { }
 
@@ -247,10 +236,6 @@ public class TouchInteractionService extends Service implements
         return sConnected;
     }
 
-    public static boolean isInitialized() {
-        return sIsInitialized;
-    }
-
     public static SwipeSharedState getSwipeSharedState() {
         return sSwipeSharedState;
     }
@@ -270,7 +255,6 @@ public class TouchInteractionService extends Service implements
     private OverviewComponentObserver mOverviewComponentObserver;
     private OverviewInteractionState mOverviewInteractionState;
     private OverviewCallbacks mOverviewCallbacks;
-    private TaskOverlayFactory mTaskOverlayFactory;
     private InputConsumerController mInputConsumer;
     private boolean mAssistantAvailable;
     private float mLastAssistantVisibility = 0;
@@ -452,7 +436,6 @@ public class TouchInteractionService extends Service implements
         mOverviewCommandHelper = new OverviewCommandHelper(this, mOverviewComponentObserver);
         mOverviewInteractionState = OverviewInteractionState.INSTANCE.get(this);
         mOverviewCallbacks = OverviewCallbacks.get(this);
-        mTaskOverlayFactory = TaskOverlayFactory.INSTANCE.get(this);
         mInputConsumer = InputConsumerController.getRecentsAnimationInputConsumer();
         mIsUserUnlocked = true;
 
@@ -528,14 +511,12 @@ public class TouchInteractionService extends Service implements
 
         MotionEvent event = (MotionEvent) ev;
         if (event.getAction() == ACTION_DOWN) {
-            mLogId = TOUCH_INTERACTION_LOG.generateAndSetLogId();
             sSwipeSharedState.setLogTraceId(mLogId);
 
             if (mSwipeTouchRegion.contains(event.getX(), event.getY())) {
                 boolean useSharedState = mConsumer.useSharedSwipeState();
                 mConsumer.onConsumerAboutToBeSwitched();
                 mConsumer = newConsumer(useSharedState, event);
-                TOUCH_INTERACTION_LOG.addLog("setInputConsumer", mConsumer.getType());
                 mUncheckedConsumer = mConsumer;
             } else if (mIsUserUnlocked && mMode == Mode.NO_BUTTON
                     && canTriggerAssistantAction(event)) {
@@ -555,7 +536,6 @@ public class TouchInteractionService extends Service implements
             }
         }
 
-        TOUCH_INTERACTION_LOG.addLog("onMotionEvent", event.getActionMasked());
         mUncheckedConsumer.onMotionEvent(event);
     }
 
@@ -795,8 +775,6 @@ public class TouchInteractionService extends Service implements
                 case "cmd":
                     if (args.peekArg() == null) {
                         printAvailableCommands(pw);
-                    } else {
-                        onCommand(pw, args);
                     }
                     break;
             }
@@ -826,22 +804,12 @@ public class TouchInteractionService extends Service implements
             pw.println("  ENABLE_QUICKSTEP_LIVE_TILE=" + ENABLE_QUICKSTEP_LIVE_TILE.get());
             pw.println("  ENABLE_HINTS_IN_OVERVIEW=" + ENABLE_HINTS_IN_OVERVIEW.get());
             pw.println("  FAKE_LANDSCAPE_UI=" + FAKE_LANDSCAPE_UI.get());
-            TOUCH_INTERACTION_LOG.dump("", pw);
-
         }
     }
 
     private void printAvailableCommands(PrintWriter pw) {
         pw.println("Available commands:");
         pw.println("  clear-touch-log: Clears the touch interaction log");
-    }
-
-    private void onCommand(PrintWriter pw, ArgList args) {
-        switch (args.nextArg()) {
-            case "clear-touch-log":
-                TOUCH_INTERACTION_LOG.clear();
-                break;
-        }
     }
 
     private BaseSwipeUpHandler createWindowTransformSwipeHandler(RunningTaskInfo runningTask,

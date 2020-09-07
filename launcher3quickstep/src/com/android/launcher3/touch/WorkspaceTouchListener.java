@@ -39,8 +39,6 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.views.OptionsPopupView;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 
 /**
  * Helper class to handle touch on empty space in workspace and show options popup on long press
@@ -172,9 +170,6 @@ public class WorkspaceTouchListener extends GestureDetector.SimpleOnGestureListe
 
                 mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
                         HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-                mLauncher.getUserEventDispatcher().logActionOnContainer(Action.Touch.LONGPRESS,
-                        Action.Direction.NONE, ContainerType.WORKSPACE,
-                        mWorkspace.getCurrentPage());
                 OptionsPopupView.showDefaultOptions(mLauncher, mTouchDownPoint.x, mTouchDownPoint.y);
             } else {
                 cancelLongPress();

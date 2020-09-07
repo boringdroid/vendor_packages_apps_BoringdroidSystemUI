@@ -15,7 +15,6 @@
  */
 package com.android.launcher3.allapps;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -45,15 +44,12 @@ import com.android.launcher3.DragSource;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.Insettable;
 import com.android.launcher3.InsettableFrameLayout;
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.keyboard.FocusedItemDecorator;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
@@ -281,15 +277,6 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     public void onDropCompleted(View target, DragObject d, boolean success) { }
 
     @Override
-    public void fillInLogContainerData(View v, ItemInfo info, Target target, Target targetParent) {
-        if (getApps().hasFilter()) {
-            targetParent.containerType = ContainerType.SEARCHRESULT;
-        } else {
-            targetParent.containerType = ContainerType.ALLAPPS;
-        }
-    }
-
-    @Override
     public void setInsets(Rect insets) {
         DeviceProfile grid = mLauncher.getDeviceProfile();
         int leftRightPadding = grid.desiredWorkspaceLeftRightMarginPx
@@ -456,13 +443,6 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
         }
     }
 
-    /**
-     * Adds an update listener to {@param animator} that adds springs to the animation.
-     */
-    public void addSpringFromFlingUpdateListener(ValueAnimator animator, float velocity) {
-        // TODO remove it
-    }
-
     @Override
     public void getDrawingRect(Rect outRect) {
         super.getDrawingRect(outRect);
@@ -491,7 +471,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
             appsList.updateItemFilter(matcher);
             recyclerView = (AllAppsRecyclerView) rv;
             recyclerView.setEdgeEffectFactory(createEdgeEffectFactory());
-            recyclerView.setApps(appsList, mUsingTabs);
+            recyclerView.setApps(appsList);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.setAdapter(adapter);
             recyclerView.setHasFixedSize(true);

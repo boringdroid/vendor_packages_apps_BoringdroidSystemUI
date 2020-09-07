@@ -17,7 +17,6 @@
 package com.android.launcher3.appprediction;
 
 import static com.android.launcher3.LauncherState.ALL_APPS;
-import static com.android.quickstep.logging.UserEventDispatcherExtension.ALL_APPS_PREDICTION_TIPS;
 
 import android.content.Context;
 import android.graphics.CornerPathEffect;
@@ -44,7 +43,6 @@ import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.graphics.TriangleShape;
-import com.android.systemui.shared.system.LauncherEventUtil;
 
 import androidx.core.content.ContextCompat;
 
@@ -105,10 +103,6 @@ public class AllAppsTipView extends AbstractFloatingView {
     }
 
     @Override
-    public void logActionCommand(int command) {
-    }
-
-    @Override
     protected boolean isOfType(int type) {
         return (type & TYPE_ON_BOARD_POPUP) != 0;
     }
@@ -120,11 +114,7 @@ public class AllAppsTipView extends AbstractFloatingView {
         textView.setText(R.string.all_apps_prediction_tip);
 
         View dismissButton = findViewById(R.id.dismiss);
-        dismissButton.setOnClickListener(view -> {
-            mLauncher.getUserEventDispatcher().logActionTip(
-                    LauncherEventUtil.DISMISS, ALL_APPS_PREDICTION_TIPS);
-            handleClose(true);
-        });
+        dismissButton.setOnClickListener(view -> handleClose(true));
 
         View arrowView = findViewById(R.id.arrow);
         ViewGroup.LayoutParams arrowLp = arrowView.getLayoutParams();
@@ -175,9 +165,6 @@ public class AllAppsTipView extends AbstractFloatingView {
                 .setDuration(SHOW_DURATION_MS)
                 .setInterpolator(Interpolators.DEACCEL)
                 .start();
-
-        launcher.getUserEventDispatcher().logActionTip(
-                LauncherEventUtil.VISIBLE, ALL_APPS_PREDICTION_TIPS);
         return true;
     }
 

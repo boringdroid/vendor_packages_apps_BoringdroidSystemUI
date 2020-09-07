@@ -27,7 +27,6 @@ import static com.android.launcher3.Utilities.squaredHypot;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
 import static com.android.quickstep.TouchInteractionService.INTENT_EXTRA_LOG_TRACE_ID;
-import static com.android.quickstep.TouchInteractionService.TOUCH_INTERACTION_LOG;
 import static com.android.quickstep.TouchInteractionService.startRecentsActivityAsync;
 import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
 
@@ -307,7 +306,6 @@ public class OtherActivityInputConsumer extends ContextWrapper implements InputC
     }
 
     private void notifyGestureStarted() {
-        TOUCH_INTERACTION_LOG.addLog("startQuickstep");
         if (mInteractionHandler == null) {
             return;
         }
@@ -323,8 +321,6 @@ public class OtherActivityInputConsumer extends ContextWrapper implements InputC
 
     private void startTouchTrackingForWindowAnimation(
             long touchTimeMs, boolean isLikelyToStartNewTask) {
-        TOUCH_INTERACTION_LOG.addLog("startRecentsAnimation");
-
         RecentsAnimationListenerSet listenerSet = mSwipeSharedState.getActiveListener();
         final BaseSwipeUpHandler handler = mHandlerFactory.newHandler(mRunningTask, touchTimeMs,
                 listenerSet != null, isLikelyToStartNewTask);

@@ -25,9 +25,7 @@ import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.logging.DumpTargetWrapper;
 import com.android.launcher3.model.nano.LauncherDumpProto;
-import com.android.launcher3.model.nano.LauncherDumpProto.ContainerType;
 import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
@@ -97,7 +95,7 @@ public class BgDataModel {
     public synchronized void dump(String prefix, FileDescriptor fd, PrintWriter writer,
             String[] args) {
         if (Arrays.asList(args).contains("--proto")) {
-            dumpProto(prefix, fd, writer, args);
+            dumpProto(fd, args);
             return;
         }
         writer.println(prefix + "Data Model:");
@@ -111,37 +109,10 @@ public class BgDataModel {
         }
     }
 
-    private synchronized void dumpProto(String prefix, FileDescriptor fd, PrintWriter writer,
-            String[] args) {
-
-        // Add top parent nodes. (L1)
-        IntSparseArrayMap<DumpTargetWrapper> workspaces = new IntSparseArrayMap<>();
-        IntArray workspaceScreens = collectWorkspaceScreens();
-        for (int i = 0; i < workspaceScreens.size(); i++) {
-            workspaces.put(workspaceScreens.get(i),
-                    new DumpTargetWrapper(ContainerType.WORKSPACE, i));
-        }
-        DumpTargetWrapper dtw;
-        // Add leaf nodes (L3): *Info
-        for (int i = 0; i < workspaceItems.size(); i++) {
-            ItemInfo info = workspaceItems.get(i);
-            dtw = new DumpTargetWrapper(info);
-            dtw.writeToDumpTarget(info);
-            if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                workspaces.get(info.screenId).add(dtw);
-            }
-        }
-
+    private synchronized void dumpProto(FileDescriptor fd, String[] args) {
         // Traverse target wrapper
         ArrayList<DumpTarget> targetList = new ArrayList<>();
-        for (int i = 0; i < workspaces.size(); i++) {
-            targetList.addAll(workspaces.valueAt(i).getFlattenedList());
-        }
-
         if (Arrays.asList(args).contains("--debug")) {
-            for (int i = 0; i < targetList.size(); i++) {
-                writer.println(prefix + DumpTargetWrapper.getDumpTargetStr(targetList.get(i)));
-            }
             return;
         } else {
             LauncherDumpProto.LauncherImpression proto = new LauncherDumpProto.LauncherImpression();
@@ -196,9 +167,7 @@ public class BgDataModel {
         void bindScreens(IntArray orderedScreenIds);
         void finishFirstPageBind(ViewOnDrawExecutor executor);
         void finishBindingItems(int pageBoundFirst);
-        void preAddApps();
-        void bindAppsAdded(IntArray newScreens,
-                ArrayList<ItemInfo> addNotAnimated, ArrayList<ItemInfo> addAnimated);
+
         void bindPromiseAppProgressUpdated(PromiseAppInfo app);
         void bindWorkspaceItemsChanged(ArrayList<WorkspaceItemInfo> updated);
         void bindRestoreItemsChange(HashSet<ItemInfo> updates);

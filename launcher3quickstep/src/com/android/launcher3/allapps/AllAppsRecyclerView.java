@@ -30,15 +30,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.launcher3.BaseRecyclerView;
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.R;
 import com.android.launcher3.allapps.AllAppsGridAdapter.AppsGridLayoutManager;
-import com.android.launcher3.compat.AccessibilityManagerCompat;
-import com.android.launcher3.logging.StatsLogUtils.LogContainerProvider;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.views.RecyclerViewFastScroller;
 
 import java.util.List;
@@ -46,7 +41,7 @@ import java.util.List;
 /**
  * A RecyclerView with custom fast scroll support for the all apps view.
  */
-public class AllAppsRecyclerView extends BaseRecyclerView implements LogContainerProvider {
+public class AllAppsRecyclerView extends BaseRecyclerView {
 
     private AlphabeticalAppsList mApps;
     private AllAppsFastScrollHelper mFastScrollHelper;
@@ -84,7 +79,7 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
     /**
      * Sets the list of apps in this view, used to determine the fastscroll position.
      */
-    public void setApps(AlphabeticalAppsList apps, boolean usingTabs) {
+    public void setApps(AlphabeticalAppsList apps) {
         mApps = apps;
         mFastScrollHelper = new AllAppsFastScrollHelper(this, apps);
     }
@@ -143,34 +138,6 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         updateEmptySearchBackgroundBounds();
         updatePoolSize();
-    }
-
-    @Override
-    public void fillInLogContainerData(View v, ItemInfo info, Target target, Target targetParent) {
-        if (mApps.hasFilter()) {
-            targetParent.containerType = ContainerType.SEARCHRESULT;
-        } else {
-            targetParent.containerType = ContainerType.ALLAPPS;
-        }
-    }
-
-    public void onSearchResultsChanged() {
-        // Always scroll the view to the top so the user can see the changed results
-        scrollToTop();
-
-        if (mApps.hasNoFilteredResults()) {
-            if (mEmptySearchBackground == null) {
-                mEmptySearchBackground = new AllAppsBackgroundDrawable(getContext());
-                mEmptySearchBackground.setAlpha(0);
-                mEmptySearchBackground.setCallback(this);
-                updateEmptySearchBackgroundBounds();
-            }
-            mEmptySearchBackground.animateBgAlpha(1f, 150);
-        } else if (mEmptySearchBackground != null) {
-            // For the time being, we just immediately hide the background to ensure that it does
-            // not overlap with the results
-            mEmptySearchBackground.setBgAlpha(0f);
-        }
     }
 
     @Override

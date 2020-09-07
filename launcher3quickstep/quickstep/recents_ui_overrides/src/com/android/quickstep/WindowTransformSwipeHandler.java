@@ -27,7 +27,6 @@ import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
 import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
 import static com.android.quickstep.MultiStateCallback.DEBUG_STATES;
-import static com.android.quickstep.TouchInteractionService.TOUCH_INTERACTION_LOG;
 import static com.android.quickstep.WindowTransformSwipeHandler.GestureEndTarget.HOME;
 import static com.android.quickstep.WindowTransformSwipeHandler.GestureEndTarget.LAST_TASK;
 import static com.android.quickstep.WindowTransformSwipeHandler.GestureEndTarget.NEW_TASK;
@@ -61,15 +60,11 @@ import androidx.annotation.UiThread;
 
 import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.BaseDraggingActivity;
-import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.logging.UserEventDispatcher;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.util.RaceConditionTracker;
 import com.android.launcher3.util.TraceHelper;
@@ -185,7 +180,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     public static final long MAX_SWIPE_DURATION = 350;
-    public static final long MIN_SWIPE_DURATION = 80;
     public static final long MIN_OVERSHOOT_DURATION = 120;
 
     public static final float MIN_PROGRESS_FOR_OVERVIEW = 0.7f;
@@ -194,11 +188,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     private static final String SCREENSHOT_CAPTURED_EVT = "ScreenshotCaptured";
 
     public static final long RECENTS_ATTACH_DURATION = 300;
-
-    /**
-     * Used as the page index for logging when we return to the last task at the end of the gesture.
-     */
-    private static final int LOG_NO_OP_PAGE_INDEX = -1;
 
     private GestureEndTarget mGestureEndTarget;
     // Either RectFSpringAnim (if animating home) or ObjectAnimator (from mCurrentShift) otherwise
@@ -221,9 +210,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
     private boolean mPassedOverviewThreshold;
     private boolean mGestureStarted;
-    private int mLogAction = Touch.SWIPE;
-    private int mLogDirection = Direction.UP;
-    private PointF mDownPos;
     private boolean mIsLikelyToStartNewTask;
 
     private final long mTouchTimeMs;
@@ -431,13 +417,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 .getHighResLoadingState().setVisible(true);
     }
 
-    private float getTaskCurveScaleForOffsetX(float offsetX, float taskWidth) {
-        float distanceToReachEdge = mDp.widthPx / 2 + taskWidth / 2 +
-                mContext.getResources().getDimensionPixelSize(R.dimen.recents_page_spacing);
-        float interpolation = Math.min(1, offsetX / distanceToReachEdge);
-        return TaskView.getCurveScaleForInterpolation(interpolation);
-    }
-
     @Override
     public void onMotionPauseChanged(boolean isPaused) {
         setShelfState(isPaused ? PEEK : HIDE, ShelfPeekAnim.INTERPOLATOR, ShelfPeekAnim.DURATION);
@@ -462,7 +441,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 ? null
                 : mRecentsAnimationWrapper.targetSet.findTask(mRunningTaskId);
         final boolean recentsAttachedToAppWindow;
-        int runningTaskIndex = mRecentsView.getRunningTaskIndex();
         if (mGestureEndTarget != null) {
             recentsAttachedToAppWindow = mGestureEndTarget.recentsAttachedToAppWindow;
         } else if (mContinuingLastGesture
@@ -601,7 +579,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     @Override
     public void onRecentsAnimationStart(SwipeAnimationTargetSet targetSet) {
         super.onRecentsAnimationStart(targetSet);
-        TOUCH_INTERACTION_LOG.addLog("startRecentsAnimationCallback", targetSet.apps.length);
         setStateOnUiThread(STATE_APP_CONTROLLER_RECEIVED);
 
         mPassedOverviewThreshold = false;
@@ -612,7 +589,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         mRecentsAnimationWrapper.setController(null);
         mActivityInitListener.unregister();
         setStateOnUiThread(STATE_GESTURE_CANCELLED | STATE_HANDLER_INVALIDATED);
-        TOUCH_INTERACTION_LOG.addLog("cancelRecentsAnimation");
     }
 
     @Override
@@ -642,7 +618,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     public void onGestureCancelled() {
         updateDisplacement(0);
         setStateOnUiThread(STATE_GESTURE_COMPLETED);
-        mLogAction = Touch.SWIPE_NOOP;
         handleNormalGestureEnd(0, false, new PointF(), true /* isCancel */);
     }
 
@@ -658,14 +633,10 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         boolean isFling = mGestureStarted && Math.abs(endVelocity) > flingThreshold;
         setStateOnUiThread(STATE_GESTURE_COMPLETED);
 
-        mLogAction = isFling ? Touch.FLING : Touch.SWIPE;
         boolean isVelocityVertical = Math.abs(velocity.y) > Math.abs(velocity.x);
         if (isVelocityVertical) {
-            mLogDirection = velocity.y < 0 ? Direction.UP : Direction.DOWN;
         } else {
-            mLogDirection = velocity.x < 0 ? Direction.LEFT : Direction.RIGHT;
         }
-        mDownPos = downPos;
         handleNormalGestureEnd(endVelocity, isFling, velocity, false /* isCancel */);
     }
 
@@ -837,24 +808,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         animateToProgress(startShift, endShift, duration, interpolator, endTarget, velocityPxPerMs);
     }
 
-    private void doLogGesture(GestureEndTarget endTarget) {
-        DeviceProfile dp = mDp;
-        if (dp == null || mDownPos == null) {
-            // We probably never received an animation controller, skip logging.
-            return;
-        }
-
-        int pageIndex = endTarget == LAST_TASK
-                ? LOG_NO_OP_PAGE_INDEX
-                : mRecentsView.getNextPage();
-        UserEventDispatcher.newInstance(mContext).logStateChangeAction(
-                mLogAction, mLogDirection,
-                (int) mDownPos.x, (int) mDownPos.y,
-                ContainerType.NAVBAR, ContainerType.APP,
-                endTarget.containerType,
-                pageIndex);
-    }
-
     /** Animates to the given progress, where 0 is the current app and 1 is overview. */
     @UiThread
     private void animateToProgress(float start, float end, long duration, Interpolator interpolator,
@@ -1008,8 +961,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     @UiThread
     private void resumeLastTask() {
         mRecentsAnimationWrapper.finish(false /* toRecents */, null);
-        TOUCH_INTERACTION_LOG.addLog("finishRecentsAnimation", false);
-        doLogGesture(LAST_TASK);
         reset();
     }
 
@@ -1022,7 +973,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 endLauncherTransitionController();
                 updateSysUiFlags(1 /* windowProgress == overview */);
             }
-            doLogGesture(NEW_TASK);
         });
     }
 
@@ -1172,7 +1122,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                         () -> setStateOnUiThread(STATE_CURRENT_TASK_FINISHED));
             }
         }
-        TOUCH_INTERACTION_LOG.addLog("finishRecentsAnimation", true);
     }
 
     private void finishCurrentTransitionToHome() {
@@ -1181,8 +1130,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                     () -> setStateOnUiThread(STATE_CURRENT_TASK_FINISHED),
                     true /* sendUserLeaveHint */);
         }
-        TOUCH_INTERACTION_LOG.addLog("finishRecentsAnimation", true);
-        doLogGesture(HOME);
     }
 
     private void setupLauncherUiAfterSwipeUpToRecentsAnimation() {
@@ -1194,7 +1141,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
         RecentsModel.INSTANCE.get(mContext).onOverviewShown(false, TAG);
 
-        doLogGesture(RECENTS);
         reset();
     }
 

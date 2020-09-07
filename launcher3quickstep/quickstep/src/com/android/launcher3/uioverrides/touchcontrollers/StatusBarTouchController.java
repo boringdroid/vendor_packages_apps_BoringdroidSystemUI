@@ -33,9 +33,6 @@ import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.util.TouchController;
 import com.android.quickstep.RecentsModel;
 import com.android.systemui.shared.recents.ISystemUiProxy;
@@ -138,9 +135,6 @@ public class StatusBarTouchController implements TouchController {
         int action = ev.getAction();
         if (action == ACTION_UP || action == ACTION_CANCEL) {
             dispatchTouchEvent(ev);
-            mLauncher.getUserEventDispatcher().logActionOnContainer(action == ACTION_UP ?
-                    Touch.FLING : Touch.SWIPE, Direction.DOWN, ContainerType.WORKSPACE,
-                    mLauncher.getWorkspace().getCurrentPage());
             setWindowSlippery(false);
             return true;
         }

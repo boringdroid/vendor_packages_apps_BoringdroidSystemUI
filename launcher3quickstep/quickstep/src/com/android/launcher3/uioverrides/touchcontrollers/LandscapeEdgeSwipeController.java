@@ -13,7 +13,6 @@ import com.android.launcher3.LauncherStateManager.AnimationComponents;
 import com.android.launcher3.touch.AbstractStateChangeTouchController;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
 import com.android.quickstep.RecentsModel;
 
 /**
@@ -62,11 +61,6 @@ public class LandscapeEdgeSwipeController extends AbstractStateChangeTouchContro
         mCurrentAnimation = mLauncher.getStateManager().createAnimationToNewWorkspace(mToState,
                 maxAccuracy, animComponent);
         return (mLauncher.getDeviceProfile().isSeascape() ? 2 : -2) / range;
-    }
-
-    @Override
-    protected int getDirectionForLog() {
-        return mLauncher.getDeviceProfile().isSeascape() ? Direction.RIGHT : Direction.LEFT;
     }
 
     @Override

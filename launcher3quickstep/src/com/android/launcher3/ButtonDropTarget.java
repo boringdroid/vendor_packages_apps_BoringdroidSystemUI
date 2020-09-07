@@ -394,6 +394,4 @@ public abstract class ButtonDropTarget extends TextView
                 TextUtils.TruncateAt.END);
         return !mText.equals(displayedText);
     }
-
-    public abstract Target getDropTargetForLogging();
 }

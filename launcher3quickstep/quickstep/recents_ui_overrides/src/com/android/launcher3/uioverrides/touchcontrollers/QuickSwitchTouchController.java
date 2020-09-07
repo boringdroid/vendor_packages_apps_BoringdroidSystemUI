@@ -45,7 +45,6 @@ import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.touch.AbstractStateChangeTouchController;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
 import com.android.quickstep.OverviewInteractionState;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.SysUINavigationMode.Mode;
@@ -161,8 +160,4 @@ public class QuickSwitchTouchController extends AbstractStateChangeTouchControll
         return LauncherLogProto.ContainerType.NAVBAR;
     }
 
-    @Override
-    protected int getDirectionForLog() {
-        return Utilities.isRtl(mLauncher.getResources()) ? Direction.LEFT : Direction.RIGHT;
-    }
 }

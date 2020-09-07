@@ -21,15 +21,12 @@ import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
 
 import static com.android.launcher3.AbstractFloatingView.TYPE_ALL;
 import static com.android.launcher3.AbstractFloatingView.TYPE_REBIND_SAFE;
-import static com.android.launcher3.AbstractFloatingView.TYPE_SNACKBAR;
 import static com.android.launcher3.LauncherAnimUtils.SPRING_LOADED_EXIT_DELAY;
 import static com.android.launcher3.LauncherState.ALL_APPS;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherState.OVERVIEW_PEEK;
 import static com.android.launcher3.dragndrop.DragLayer.ALPHA_INDEX_LAUNCHER_LOAD;
-import static com.android.launcher3.logging.LoggerUtils.newContainerTarget;
-import static com.android.launcher3.logging.LoggerUtils.newTarget;
 import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
@@ -87,23 +84,14 @@ import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.keyboard.CustomActionsPopup;
 import com.android.launcher3.keyboard.ViewGroupFocusHelper;
-import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.logging.StatsLogUtils;
-import com.android.launcher3.logging.UserEventDispatcher;
-import com.android.launcher3.logging.UserEventDispatcher.UserEventDelegate;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.popup.PopupContainerWithArrow;
-import com.android.launcher3.popup.PopupDataProvider;
 import com.android.launcher3.states.InternalStateHandler;
 import com.android.launcher3.states.RotationHelper;
 import com.android.launcher3.touch.ItemClickHandler;
 import com.android.launcher3.uioverrides.UiFactory;
-import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.ActivityResultInfo;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.ItemInfoMatcher;
@@ -132,7 +120,7 @@ import java.util.List;
  * Default launcher application.
  */
 public class Launcher extends BaseDraggingActivity implements LauncherExterns,
-        Callbacks, LauncherProviderChangeListener, UserEventDelegate,
+        Callbacks, LauncherProviderChangeListener,
         InvariantDeviceProfile.OnIDPChangeListener {
     public static final String TAG = "Launcher";
 
@@ -207,8 +195,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private ModelWriter mModelWriter;
     private LauncherAccessibilityDelegate mAccessibilityDelegate;
 
-    private PopupDataProvider mPopupDataProvider;
-
     private int mSynchronouslyBoundPage = PagedView.INVALID_PAGE;
 
     // We only want to get the SharedPreferences once since it does an FS stat each time we get
@@ -279,7 +265,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mLauncherView = LayoutInflater.from(this).inflate(R.layout.launcher, null);
 
         setupViews();
-        mPopupDataProvider = new PopupDataProvider();
 
         mAppTransitionManager = LauncherAppTransitionManager.newInstance(this);
 
@@ -412,8 +397,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     }
 
     private void onIdpChanged(InvariantDeviceProfile idp) {
-        mUserEventDispatcher = null;
-
         DeviceProfile oldWallpaperProfile = getWallpaperDeviceProfile();
         initDeviceProfile(idp);
         dispatchDeviceProfileChanged();
@@ -655,7 +638,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onStop();
         }
-        logStopAndResume(Action.Command.STOP);
 
         getStateManager().moveToRestState();
 
@@ -677,9 +659,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private void handleDeferredResume() {
         if (hasBeenResumed() && !mStateManager.getState().disableInteraction) {
-            logStopAndResume(Action.Command.RESUME);
-            getUserEventDispatcher().startSession();
-
             UiFactory.onLauncherStateOrResumeChanged(this);
             AppLaunchTracker.INSTANCE.get(this).onReturnedToHome();
 
@@ -692,17 +671,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         } else {
             mDeferredResumePending = true;
         }
-    }
-
-    private void logStopAndResume(int command) {
-        int containerType = mStateManager.getState().containerType;
-        if (containerType == ContainerType.WORKSPACE && mWorkspace != null) {
-            getUserEventDispatcher().logActionCommand(command,
-                    containerType, -1, mWorkspace.isOverlayShown() ? -1 : 0);
-        } else {
-            getUserEventDispatcher().logActionCommand(command, containerType, -1);
-        }
-
     }
 
     public void onStateSetStart(LauncherState state) {
@@ -1057,13 +1025,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                 }
             }
 
-            // Handle HOME_INTENT
-            UserEventDispatcher ued = getUserEventDispatcher();
-            Target target = newContainerTarget(mStateManager.getState().containerType);
-            target.pageIndex = mWorkspace.getCurrentPage();
-            ued.logActionCommand(Action.Command.HOME_INTENT, target,
-                    newContainerTarget(ContainerType.WORKSPACE));
-
             final View v = getWindow().peekDecorView();
             if (v != null && v.getWindowToken() != null) {
                 UiThreadHelper.hideKeyboardAsync(this, v.getWindowToken());
@@ -1296,34 +1257,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return mAppTransitionManager;
     }
 
-    @Override
-    public int getCurrentState() {
-        if (mStateManager.getState() == LauncherState.ALL_APPS) {
-            return StatsLogUtils.LAUNCHER_STATE_ALLAPPS;
-        } else if (mStateManager.getState() == OVERVIEW) {
-            return StatsLogUtils.LAUNCHER_STATE_OVERVIEW;
-        }
-        return StatsLogUtils.LAUNCHER_STATE_HOME;
-    }
-
-    @Override
-    public void modifyUserEvent(LauncherLogProto.LauncherEvent event) {
-        if (event.srcTarget != null && event.srcTarget.length > 0 &&
-                event.srcTarget[1].containerType == ContainerType.PREDICTION) {
-            Target[] targets = new Target[3];
-            targets[0] = event.srcTarget[0];
-            targets[1] = event.srcTarget[1];
-            targets[2] = newTarget(Target.Type.CONTAINER);
-            event.srcTarget = targets;
-            LauncherState state = mStateManager.getState();
-            if (state == LauncherState.ALL_APPS) {
-                event.srcTarget[2].containerType = ContainerType.ALLAPPS;
-            } else if (state == OVERVIEW) {
-                event.srcTarget[2].containerType = ContainerType.TASKSWITCHER;
-            }
-        }
-    }
-
     public boolean startActivitySafely(View v, Intent intent, ItemInfo item,
             @Nullable String sourceContainer) {
         if (!hasBeenResumed()) {
@@ -1468,38 +1401,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                 mWorkspace.insertNewWorkspaceScreenBeforeEmptyScreen(screenId);
             }
         }
-    }
-
-    @Override
-    public void preAddApps() {
-        // If there's an undo snackbar, force it to complete to ensure empty screens are removed
-        // before trying to add new items.
-        mModelWriter.commitDelete();
-        AbstractFloatingView snackbar = AbstractFloatingView.getOpenView(this, TYPE_SNACKBAR);
-        if (snackbar != null) {
-            snackbar.post(() -> snackbar.close(true));
-        }
-    }
-
-    @Override
-    public void bindAppsAdded(IntArray newScreens, ArrayList<ItemInfo> addNotAnimated,
-            ArrayList<ItemInfo> addAnimated) {
-        // Add the new screens
-        if (newScreens != null) {
-            bindAddScreens(newScreens);
-        }
-
-        // We add the items without animation on non-visible pages, and with
-        // animations on the new page (which we will try and snap to).
-        if (addNotAnimated != null && !addNotAnimated.isEmpty()) {
-            bindItems(addNotAnimated, false);
-        }
-        if (addAnimated != null && !addAnimated.isEmpty()) {
-            bindItems(addAnimated, true);
-        }
-
-        // Remove the extra empty screen
-        mWorkspace.removeExtraEmptyScreen(false, false);
     }
 
     /**
@@ -1720,12 +1621,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         // Extra logging for b/116853349
         mDragLayer.dump(prefix, writer);
         mStateManager.dump(prefix, writer);
-
-        try {
-            FileLog.flushAll(writer);
-        } catch (Exception e) {
-            // Ignore
-        }
 
         mModel.dumpState(prefix, fd, writer, args);
 

@@ -22,7 +22,6 @@ import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TI
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.VibratorWrapper.OVERVIEW_HAPTIC;
 import static com.android.launcher3.views.FloatingIconView.SHAPE_PROGRESS_DURATION;
-import static com.android.quickstep.TouchInteractionService.TOUCH_INTERACTION_LOG;
 
 import android.animation.Animator;
 import android.annotation.TargetApi;
@@ -234,7 +233,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
                 mFinishingRecentsAnimationForNewTaskId = -1;
             });
         }
-        TOUCH_INTERACTION_LOG.addLog("finishRecentsAnimation", true);
     }
 
     @Override

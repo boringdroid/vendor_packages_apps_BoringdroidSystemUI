@@ -64,8 +64,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
 import com.android.launcher3.uioverrides.WallpaperColorInfo.OnChangeListener;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ControlType;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
 import com.android.launcher3.util.Themes;
@@ -431,9 +429,6 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
         protected boolean onPerformActionForVirtualView(
                 int virtualViewId, int action, Bundle arguments) {
             if (action == AccessibilityNodeInfoCompat.ACTION_CLICK) {
-                mLauncher.getUserEventDispatcher().logActionOnControl(
-                        Action.Touch.TAP, ControlType.ALL_APPS_BUTTON,
-                        mLauncher.getStateManager().getState().containerType);
                 mLauncher.getStateManager().goToState(ALL_APPS);
                 return true;
             } else if (action == WALLPAPERS) {
