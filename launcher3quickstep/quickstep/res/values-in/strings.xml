@@ -26,6 +26,4 @@
     <string name="recents_clear_all" msgid="5328176793634888831">"Hapus semua"</string>
     <string name="accessibility_recent_apps" msgid="4058661986695117371">"Aplikasi baru-baru ini"</string>
     <string name="title_app_suggestions" msgid="4185902664111965088">"Saran aplikasi"</string>
-    <string name="all_apps_label" msgid="8542784161730910663">"Semua aplikasi"</string>
-    <string name="all_apps_prediction_tip" msgid="2672336544844936186">"Aplikasi yang diprediksi"</string>
 </resources>

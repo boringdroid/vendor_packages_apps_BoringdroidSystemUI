@@ -26,6 +26,4 @@
     <string name="recents_clear_all" msgid="5328176793634888831">"ସବୁ ଖାଲି କରନ୍ତୁ"</string>
     <string name="accessibility_recent_apps" msgid="4058661986695117371">"ବର୍ତ୍ତମାନର ଆପ୍‌"</string>
     <string name="title_app_suggestions" msgid="4185902664111965088">"ଆପ୍ ପରାମର୍ଶଗୁଡ଼ିକ"</string>
-    <string name="all_apps_label" msgid="8542784161730910663">"ସମସ୍ତ ଆପ୍ସ"</string>
-    <string name="all_apps_prediction_tip" msgid="2672336544844936186">"ଆପଣ ପୂର୍ବାନୁମାନ କରିଥିବା ଆପ୍ସ"</string>
 </resources>

@@ -15,25 +15,21 @@
  */
 package com.android.launcher3.icons.cache;
 
-import static com.android.launcher3.icons.BaseIconFactory.getFullResDefaultActivityIcon;
 import static com.android.launcher3.icons.BitmapInfo.LOW_RES_ICON;
 import static com.android.launcher3.icons.GraphicsUtils.setColorAlphaBound;
 
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.LocaleList;
@@ -137,11 +133,6 @@ public abstract class BaseIconCache {
     protected abstract long getSerialNumberForUser(UserHandle user);
 
     /**
-     * Return true if the given app is an instant app and should be badged appropriately.
-     */
-    protected abstract boolean isInstantApp(ApplicationInfo info);
-
-    /**
      * Opens and returns an icon factory. The factory is recycled by the caller.
      */
     protected abstract BaseIconFactory getIconFactory();
@@ -157,30 +148,6 @@ public abstract class BaseIconCache {
         mIconDb.close();
         mIconDb = new IconDB(mContext, mDbFileName, iconPixelSize);
         mCache.clear();
-    }
-
-    private Drawable getFullResIcon(Resources resources, int iconId) {
-        if (resources != null && iconId != 0) {
-            try {
-                return resources.getDrawableForDensity(iconId, mIconDpi);
-            } catch (Resources.NotFoundException e) { }
-        }
-        return getFullResDefaultActivityIcon(mIconDpi);
-    }
-
-    public Drawable getFullResIcon(String packageName, int iconId) {
-        try {
-            return getFullResIcon(mPackageManager.getResourcesForApplication(packageName), iconId);
-        } catch (PackageManager.NameNotFoundException e) { }
-        return getFullResDefaultActivityIcon(mIconDpi);
-    }
-
-    public Drawable getFullResIcon(ActivityInfo info) {
-        try {
-            return getFullResIcon(mPackageManager.getResourcesForApplication(info.applicationInfo),
-                    info.getIconResource());
-        } catch (PackageManager.NameNotFoundException e) { }
-        return getFullResDefaultActivityIcon(mIconDpi);
     }
 
     private BitmapInfo makeDefaultIcon(UserHandle user) {
@@ -354,7 +321,6 @@ public abstract class BaseIconCache {
             if (TextUtils.isEmpty(entry.title)) {
                 if (object == null && !providerFetchedOnce) {
                     object = infoProvider.get();
-                    providerFetchedOnce = true;
                 }
                 if (object != null) {
                     entry.title = cachingLogic.getLabel(object);
@@ -432,8 +398,7 @@ public abstract class BaseIconCache {
                     // Load the full res icon for the application, but if useLowResIcon is set, then
                     // only keep the low resolution icon instead of the larger full-sized icon
                     BitmapInfo iconInfo = li.createBadgedIconBitmap(
-                            appInfo.loadIcon(mPackageManager), user, appInfo.targetSdkVersion,
-                            isInstantApp(appInfo));
+                            appInfo.loadIcon(mPackageManager), user, appInfo.targetSdkVersion);
                     li.close();
 
                     entry.title = appInfo.loadLabel(mPackageManager);
@@ -501,14 +466,6 @@ public abstract class BaseIconCache {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns a cursor for an arbitrary query to the cache db
-     */
-    public synchronized Cursor queryCacheDb(String[] columns, String selection,
-            String[] selectionArgs) {
-        return mIconDb.query(columns, selection, selectionArgs);
     }
 
     /**

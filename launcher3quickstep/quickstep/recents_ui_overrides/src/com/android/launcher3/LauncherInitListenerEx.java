@@ -15,9 +15,6 @@
  */
 package com.android.launcher3;
 
-import com.android.launcher3.appprediction.PredictionUiStateManager;
-import com.android.launcher3.appprediction.PredictionUiStateManager.Client;
-
 import java.util.function.BiPredicate;
 
 public class LauncherInitListenerEx extends LauncherInitListener {
@@ -28,7 +25,6 @@ public class LauncherInitListenerEx extends LauncherInitListener {
 
     @Override
     protected boolean init(Launcher launcher, boolean alreadyOnHome) {
-        PredictionUiStateManager.INSTANCE.get(launcher).switchClient(Client.OVERVIEW);
         return super.init(launcher, alreadyOnHome);
     }
 }

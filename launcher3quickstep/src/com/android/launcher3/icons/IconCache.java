@@ -21,7 +21,6 @@ import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -44,12 +43,10 @@ import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.icons.ComponentWithLabel.ComponentCachingLogic;
 import com.android.launcher3.icons.cache.BaseIconCache;
 import com.android.launcher3.icons.cache.CachingLogic;
 import com.android.launcher3.icons.cache.HandlerRunnable;
 import com.android.launcher3.model.PackageItemInfo;
-import com.android.launcher3.util.InstantAppResolver;
 import com.android.launcher3.util.Preconditions;
 
 import java.util.function.Supplier;
@@ -61,12 +58,10 @@ public class IconCache extends BaseIconCache {
 
     private static final String TAG = "Launcher.IconCache";
 
-    private final CachingLogic<ComponentWithLabel> mComponentWithLabelCachingLogic;
     private final CachingLogic<LauncherActivityInfo> mLauncherActivityInfoCachingLogic;
 
     private final LauncherAppsCompat mLauncherApps;
     private final UserManagerCompat mUserManager;
-    private final InstantAppResolver mInstantAppResolver;
     private final IconProvider mIconProvider;
 
     private int mPendingIconRequestCount = 0;
@@ -74,22 +69,15 @@ public class IconCache extends BaseIconCache {
     public IconCache(Context context, InvariantDeviceProfile inv) {
         super(context, LauncherFiles.APP_ICONS_DB, MODEL_EXECUTOR.getLooper(),
                 inv.fillResIconDpi, inv.iconBitmapSize, true /* inMemoryCache */);
-        mComponentWithLabelCachingLogic = new ComponentCachingLogic(context, false);
         mLauncherActivityInfoCachingLogic = LauncherActivityCachingLogic.newInstance(context);
         mLauncherApps = LauncherAppsCompat.getInstance(mContext);
         mUserManager = UserManagerCompat.getInstance(mContext);
-        mInstantAppResolver = InstantAppResolver.newInstance(mContext);
         mIconProvider = IconProvider.INSTANCE.get(context);
     }
 
     @Override
     protected long getSerialNumberForUser(UserHandle user) {
         return mUserManager.getSerialNumberForUser(user);
-    }
-
-    @Override
-    protected boolean isInstantApp(ApplicationInfo info) {
-        return mInstantAppResolver.isInstantApp(info);
     }
 
     @Override
@@ -191,13 +179,6 @@ public class IconCache extends BaseIconCache {
         }
     }
 
-    public synchronized String getTitleNoCache(ComponentWithLabel info) {
-        CacheEntry entry = cacheLocked(info.getComponent(), info.getUser(), () -> info,
-                mComponentWithLabelCachingLogic, false /* usePackageIcon */,
-                true /* useLowResIcon */);
-        return Utilities.trim(entry.title);
-    }
-
     /**
      * Fill in {@param mWorkspaceItemInfo} with the icon and label for {@param info}
      */
@@ -225,10 +206,6 @@ public class IconCache extends BaseIconCache {
         info.title = Utilities.trim(entry.title);
         info.contentDescription = entry.contentDescription;
         info.applyFrom((entry.icon == null) ? getDefaultIcon(info.user) : entry);
-    }
-
-    public Drawable getFullResIcon(LauncherActivityInfo info) {
-        return getFullResIcon(info, true);
     }
 
     public Drawable getFullResIcon(LauncherActivityInfo info, boolean flattenDrawable) {

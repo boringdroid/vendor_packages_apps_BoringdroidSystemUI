@@ -43,8 +43,6 @@ import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager.StateListener;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.appprediction.PredictionUiStateManager;
-import com.android.launcher3.appprediction.PredictionUiStateManager.Client;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
 import com.android.launcher3.views.ScrimView;
 import com.android.quickstep.SysUINavigationMode;
@@ -258,10 +256,6 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
     @Override
     public void reset() {
         super.reset();
-
-        // We are moving to home or some other UI with no recents. Switch back to the home client,
-        // the home predictions should have been updated when the activity was resumed.
-        PredictionUiStateManager.INSTANCE.get(getContext()).switchClient(Client.HOME);
     }
 
     @Override
