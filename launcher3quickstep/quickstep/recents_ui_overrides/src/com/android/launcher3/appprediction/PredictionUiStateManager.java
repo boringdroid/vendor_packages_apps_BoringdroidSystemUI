@@ -20,7 +20,6 @@ import static com.android.launcher3.LauncherState.BACKGROUND_APP;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.quickstep.InstantAppResolverImpl.COMPONENT_CLASS_MARKER;
 
-import android.content.ComponentName;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -40,7 +39,6 @@ import com.android.launcher3.allapps.AllAppsContainerView;
 import com.android.launcher3.allapps.AllAppsStore.OnUpdateListener;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.IconCache.ItemInfoUpdateReceiver;
-import com.android.launcher3.shortcuts.ShortcutKey;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.MainThreadInitializedObject;
@@ -85,7 +83,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
 
     private final Context mContext;
 
-    private final DynamicItemCache mDynamicItemCache;
     private final List[] mPredictionServicePredictions;
 
     private int mMaxIconsPerRow;
@@ -100,8 +97,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
 
     private PredictionUiStateManager(Context context) {
         mContext = context;
-
-        mDynamicItemCache = new DynamicItemCache(context, this::onAppsUpdated);
 
         mActiveClient = Client.HOME;
 
@@ -123,10 +118,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
     @Override
     public void onIdpChanged(int changeFlags, InvariantDeviceProfile profile) {
         mMaxIconsPerRow = profile.numColumns;
-    }
-
-    public Client getClient() {
-        return mActiveClient;
     }
 
     public void switchClient(Client client) {
@@ -192,20 +183,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
         }
     }
 
-    private void updatePredictionStateAfterCallback() {
-        boolean validResults = false;
-        for (List l : mPredictionServicePredictions) {
-            validResults |= l != null && !l.isEmpty();
-        }
-        if (validResults != mGettingValidPredictionResults) {
-            mGettingValidPredictionResults = validResults;
-            Utilities.getDevicePrefs(mContext).edit()
-                    .putBoolean(LAST_PREDICTION_ENABLED_STATE, true)
-                    .apply();
-        }
-        dispatchOnChange(true);
-    }
-
     private void dispatchOnChange(boolean changed) {
         PredictionState newState = changed ? parseLastState() :
                 (mPendingState == null ? mCurrentState : mPendingState);
@@ -237,16 +214,12 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
 
         IconCache iconCache = LauncherAppState.getInstance(mContext).getIconCache();
         List<String> instantAppsToLoad = new ArrayList<>();
-        List<ShortcutKey> shortcutsToLoad = new ArrayList<>();
         int total = state.apps.size();
         for (int i = 0, count = 0; i < total && count < mMaxIconsPerRow; i++) {
             ComponentKeyMapper mapper = state.apps.get(i);
             // Update instant apps
             if (COMPONENT_CLASS_MARKER.equals(mapper.getComponentClass())) {
                 instantAppsToLoad.add(mapper.getPackage());
-                count++;
-            } else if (mapper.getComponentKey() instanceof ShortcutKey) {
-                shortcutsToLoad.add((ShortcutKey) mapper.getComponentKey());
                 count++;
             } else {
                 // Reload high res icon
@@ -260,7 +233,6 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
                 }
             }
         }
-        mDynamicItemCache.cacheItems(shortcutsToLoad, instantAppsToLoad);
     }
 
     @Override
@@ -310,16 +282,12 @@ public class PredictionUiStateManager implements StateListener, ItemInfoUpdateRe
      * Fill in predicted_rank field based on app prediction.
      * Only applicable when {@link ItemInfo#itemType} is one of the followings:
      * {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_SHORTCUT},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_DEEP_SHORTCUT}
      */
     public static void fillInPredictedRank(
             @NonNull ItemInfo itemInfo, @NonNull LauncherLogProto.Target target) {
         final PredictionUiStateManager manager = PredictionUiStateManager.INSTANCE.getNoCreate();
         if (manager == null || itemInfo.getTargetComponent() == null || itemInfo.user == null
-                || (itemInfo.itemType != LauncherSettings.Favorites.ITEM_TYPE_APPLICATION
-                && itemInfo.itemType != LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT
-                && itemInfo.itemType != LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT)) {
+                || (itemInfo.itemType != LauncherSettings.Favorites.ITEM_TYPE_APPLICATION)) {
             return;
         }
         final ComponentKey k = new ComponentKey(itemInfo.getTargetComponent(), itemInfo.user);

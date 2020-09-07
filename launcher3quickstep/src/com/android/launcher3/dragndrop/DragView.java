@@ -73,7 +73,6 @@ public class DragView extends View implements LauncherStateManager.StateListener
     private Bitmap mBitmap;
     private Bitmap mCrossFadeBitmap;
     @Thunk Paint mPaint;
-    private final int mBlurSizeOutline;
     private final int mRegistrationX;
     private final int mRegistrationY;
     private final float mInitialScale;
@@ -170,7 +169,6 @@ public class DragView extends View implements LauncherStateManager.StateListener
         measure(ms, ms);
         mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
-        mBlurSizeOutline = getResources().getDimensionPixelSize(R.dimen.blur_size_medium_outline);
         setElevation(getResources().getDimension(R.dimen.drag_elevation));
     }
 
@@ -204,8 +202,7 @@ public class DragView extends View implements LauncherStateManager.StateListener
         if (!Utilities.ATLEAST_OREO) {
             return;
         }
-        if (info.itemType != LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                info.itemType != LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
+        if (info.itemType != LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
             return;
         }
         // Load the adaptive icon on a background thread and add the view in ui thread.
@@ -335,10 +332,6 @@ public class DragView extends View implements LauncherStateManager.StateListener
 
     public float getIntrinsicIconScaleFactor() {
         return mIntrinsicIconScale;
-    }
-
-    public int getDragRegionTop() {
-        return mDragRegion.top;
     }
 
     public void setDragVisualizeOffset(Point p) {
@@ -518,24 +511,6 @@ public class DragView extends View implements LauncherStateManager.StateListener
                 DragLayer.ANIMATION_END_DISAPPEAR, onCompleteRunnable, duration);
     }
 
-    public void animateShift(final int shiftX, final int shiftY) {
-        if (mAnim.isStarted()) {
-            return;
-        }
-        mAnimatedShiftX = shiftX;
-        mAnimatedShiftY = shiftY;
-        applyTranslation();
-        mAnim.addUpdateListener(new AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float fraction = 1 - animation.getAnimatedFraction();
-                mAnimatedShiftX = (int) (fraction * shiftX);
-                mAnimatedShiftY = (int) (fraction * shiftY);
-                applyTranslation();
-            }
-        });
-    }
-
     private void applyTranslation() {
         setTranslationX(mLastTouchX - mRegistrationX + mAnimatedShiftX);
         setTranslationY(mLastTouchY - mRegistrationY + mAnimatedShiftY);
@@ -545,10 +520,6 @@ public class DragView extends View implements LauncherStateManager.StateListener
         if (getParent() != null) {
             mDragLayer.removeView(DragView.this);
         }
-    }
-
-    public int getBlurSizeOutline() {
-        return mBlurSizeOutline;
     }
 
     public float getInitialScale() {

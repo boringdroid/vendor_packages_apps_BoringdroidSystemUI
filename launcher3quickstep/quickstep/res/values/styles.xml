@@ -21,8 +21,4 @@
     </style>
 
     <!-- Task Menu Option layout styles. -->
-    <style name="TaskMenu.Option">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
 </resources>

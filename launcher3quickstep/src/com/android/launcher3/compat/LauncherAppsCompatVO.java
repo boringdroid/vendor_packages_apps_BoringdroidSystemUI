@@ -22,26 +22,18 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.LauncherApps.PinItemRequest;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
-import android.os.Build;
 import android.os.Parcelable;
-import android.os.Process;
 import android.os.UserHandle;
 
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.compat.ShortcutConfigActivityInfo.ShortcutConfigActivityInfoVO;
 import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.util.PackageUserKey;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @TargetApi(26)
 public class LauncherAppsCompatVO extends LauncherAppsCompatVL {
@@ -59,37 +51,6 @@ public class LauncherAppsCompatVO extends LauncherAppsCompatVL {
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }
-    }
-
-    @Override
-    public List<ShortcutConfigActivityInfo> getCustomShortcutActivityList(
-            @Nullable PackageUserKey packageUser) {
-        List<ShortcutConfigActivityInfo> result = new ArrayList<>();
-        UserHandle myUser = Process.myUserHandle();
-
-        final List<UserHandle> users;
-        final String packageName;
-        if (packageUser == null) {
-            users = UserManagerCompat.getInstance(mContext).getUserProfiles();
-            packageName = null;
-        } else {
-            users = new ArrayList<>(1);
-            users.add(packageUser.mUser);
-            packageName = packageUser.mPackageName;
-        }
-        for (UserHandle user : users) {
-            boolean ignoreTargetSdk = myUser.equals(user);
-            List<LauncherActivityInfo> activities =
-                    mLauncherApps.getShortcutConfigActivityList(packageName, user);
-            for (LauncherActivityInfo activityInfo : activities) {
-                if (ignoreTargetSdk || activityInfo.getApplicationInfo().targetSdkVersion >=
-                        Build.VERSION_CODES.O) {
-                    result.add(new ShortcutConfigActivityInfoVO(activityInfo));
-                }
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -139,10 +100,9 @@ public class LauncherAppsCompatVO extends LauncherAppsCompatVL {
             WorkspaceItemInfo info = new WorkspaceItemInfo(si, context);
             // Apply the unbadged icon and fetch the actual icon asynchronously.
             LauncherIcons li = LauncherIcons.obtain(context);
-            info.applyFrom(li.createShortcutIcon(si, false /* badged */));
             li.recycle();
             LauncherAppState.getInstance(context).getModel()
-                    .updateAndBindWorkspaceItem(info, si);
+                    .updateAndBindWorkspaceItem(info);
             return info;
         } else {
             return null;

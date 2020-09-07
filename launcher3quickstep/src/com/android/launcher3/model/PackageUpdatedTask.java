@@ -18,12 +18,10 @@ package com.android.launcher3.model;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ShortcutInfo;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherSettings.Favorites;
@@ -37,7 +35,6 @@ import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
@@ -48,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import static com.android.launcher3.WorkspaceItemInfo.FLAG_AUTOINSTALL_ICON;
 import static com.android.launcher3.WorkspaceItemInfo.FLAG_RESTORED_ICON;
@@ -196,18 +192,7 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
 
                             if (si.isPromise() && isNewApkAvailable) {
                                 boolean isTargetValid = true;
-                                if (si.itemType == Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-                                    List<ShortcutInfo> shortcut = DeepShortcutManager
-                                            .getInstance(context).queryForPinnedShortcuts(
-                                                    cn.getPackageName(),
-                                                    Arrays.asList(si.getDeepShortcutId()), mUser);
-                                    if (shortcut.isEmpty()) {
-                                        isTargetValid = false;
-                                    } else {
-                                        si.updateFromDeepShortcutInfo(shortcut.get(0), context);
-                                        infoUpdated = true;
-                                    }
-                                } else if (!cn.getClassName().equals(IconCache.EMPTY_CLASS_NAME)) {
+                                if (!cn.getClassName().equals(IconCache.EMPTY_CLASS_NAME)) {
                                     isTargetValid = LauncherAppsCompat.getInstance(context)
                                             .isActivityEnabledForProfile(cn, mUser);
                                 }
@@ -284,9 +269,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                     .or(ItemInfoMatcher.ofComponents(removedComponents, mUser))
                     .and(ItemInfoMatcher.ofItemIds(removedShortcuts, true));
             deleteAndBindComponentsRemoved(removeMatch);
-
-            // Remove any queued items from the install queue
-            InstallShortcutReceiver.removeFromInstallQueue(context, removedPackages, mUser);
         }
     }
 

@@ -24,11 +24,9 @@ import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ShortcutInfo;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
@@ -36,7 +34,6 @@ import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.model.AddWorkspaceItemsTask;
 import com.android.launcher3.model.AllAppsList;
 import com.android.launcher3.model.BaseModelUpdateTask;
 import com.android.launcher3.model.BgDataModel;
@@ -47,9 +44,7 @@ import com.android.launcher3.model.LoaderTask;
 import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.model.PackageInstallStateChangedTask;
 import com.android.launcher3.model.PackageUpdatedTask;
-import com.android.launcher3.model.ShortcutsChangedTask;
 import com.android.launcher3.model.UserLockStateChangedTask;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.Preconditions;
@@ -60,7 +55,6 @@ import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -104,20 +98,6 @@ public class LauncherModel extends BroadcastReceiver
      */
     static final BgDataModel sBgDataModel = new BgDataModel();
 
-    // Runnable to check if the shortcuts permission has changed.
-    private final Runnable mShortcutPermissionCheckRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mModelLoaded) {
-                boolean hasShortcutHostPermission =
-                        DeepShortcutManager.getInstance(mApp.getContext()).hasHostPermission();
-                if (hasShortcutHostPermission != sBgDataModel.hasShortcutHostPermission) {
-                    forceReload();
-                }
-            }
-        }
-    };
-
     LauncherModel(LauncherAppState app, IconCache iconCache, AppFilter appFilter) {
         mApp = app;
         mBgAllAppsList = new AllAppsList(iconCache, appFilter);
@@ -135,17 +115,6 @@ public class LauncherModel extends BroadcastReceiver
         packages.add(packageName);
         enqueueModelUpdateTask(new CacheDataUpdatedTask(
                 CacheDataUpdatedTask.OP_SESSION_UPDATE, user, packages));
-    }
-
-    /**
-     * Adds the provided items to the workspace.
-     */
-    public void addAndBindAddedWorkspaceItems(List<Pair<ItemInfo, Object>> itemList) {
-        Callbacks callbacks = getCallback();
-        if (callbacks != null) {
-            callbacks.preAddApps();
-        }
-        enqueueModelUpdateTask(new AddWorkspaceItemsTask(itemList));
     }
 
     public ModelWriter getWriter(boolean verifyChanges) {
@@ -237,12 +206,6 @@ public class LauncherModel extends BroadcastReceiver
                 PackageUpdatedTask.OP_UNSUSPEND, user, packageNames));
     }
 
-    @Override
-    public void onShortcutsChanged(String packageName, List<ShortcutInfo> shortcuts,
-            UserHandle user) {
-        enqueueModelUpdateTask(new ShortcutsChangedTask(packageName, shortcuts, user, true));
-    }
-
     /**
      * Call from the handler for ACTION_PACKAGE_ADDED, ACTION_PACKAGE_REMOVED and
      * ACTION_PACKAGE_CHANGED.
@@ -273,7 +236,7 @@ public class LauncherModel extends BroadcastReceiver
                 // we need to run the state change task again.
                 if (Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE.equals(action) ||
                         Intent.ACTION_MANAGED_PROFILE_UNLOCKED.equals(action)) {
-                    enqueueModelUpdateTask(new UserLockStateChangedTask(user));
+                    enqueueModelUpdateTask(new UserLockStateChangedTask());
                 }
             }
         } else if (IS_DOGFOOD_BUILD && ACTION_FORCE_ROLOAD.equals(action)) {
@@ -319,7 +282,6 @@ public class LauncherModel extends BroadcastReceiver
      */
     public boolean startLoader(int synchronousBindPage) {
         // Enable queue before starting loader. It will get disabled in Launcher#finishBindingItems
-        InstallShortcutReceiver.enableInstallQueue(InstallShortcutReceiver.FLAG_LOADER_RUNNING);
         synchronized (mLock) {
             // Don't bother to start the thread if we know it's not going to do anything
             if (mCallbacks != null && mCallbacks.get() != null) {
@@ -338,7 +300,6 @@ public class LauncherModel extends BroadcastReceiver
                     // For now, continue posting the binding of AllApps as there are other
                     // issues that arise from that.
                     loaderResults.bindAllApps();
-                    loaderResults.bindDeepShortcuts();
                     return true;
                 } else {
                     startLoaderForResults(loaderResults);
@@ -430,16 +391,6 @@ public class LauncherModel extends BroadcastReceiver
     }
 
     /**
-     * Refreshes the cached shortcuts if the shortcut permission has changed.
-     * Current implementation simply reloads the workspace, but it can be optimized to
-     * use partial updates similar to {@link UserManagerCompat}
-     */
-    public void refreshShortcutsIfRequired() {
-        MODEL_EXECUTOR.getHandler().removeCallbacks(mShortcutPermissionCheckRunnable);
-        MODEL_EXECUTOR.post(mShortcutPermissionCheckRunnable);
-    }
-
-    /**
      * Called when the icons for packages have been updated in the icon cache.
      */
     public void onPackageIconsUpdated(HashSet<String> updatedPackages, UserHandle user) {
@@ -476,11 +427,9 @@ public class LauncherModel extends BroadcastReceiver
 
     }
 
-    public void updateAndBindWorkspaceItem(WorkspaceItemInfo si, ShortcutInfo info) {
+    public void updateAndBindWorkspaceItem(WorkspaceItemInfo si) {
         updateAndBindWorkspaceItem(() -> {
-            si.updateFromDeepShortcutInfo(info, mApp.getContext());
             LauncherIcons li = LauncherIcons.obtain(mApp.getContext());
-            si.applyFrom(li.createShortcutIcon(info));
             li.recycle();
             return si;
         });

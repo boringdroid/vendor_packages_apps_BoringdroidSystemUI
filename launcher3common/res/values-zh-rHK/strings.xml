@@ -32,8 +32,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"找不到與「<xliff:g id="QUERY">%1$s</xliff:g>」相符的應用程式"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"搜尋更多應用程式"</string>
     <string name="label_application" msgid="8531721983832654978">"應用程式"</string>
-    <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"按住捷徑即可選取。"</string>
-    <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"連㩒兩下之後繼續㩒住，就可以揀選捷徑或者用自訂嘅操作。"</string>
     <string name="out_of_space" msgid="4691004494942118364">"主畫面已無空間。"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"應用程式清單"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"個人應用程式清單"</string>
@@ -41,8 +39,6 @@
     <string name="all_apps_home_button_label" msgid="252062713717058851">"主畫面"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"移除"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"解除安裝"</string>
-    <string name="app_info_drop_target_label" msgid="692894985365717661">"應用程式資料"</string>
-    <string name="install_drop_target_label" msgid="2539096853673231757">"安裝"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"安裝捷徑"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"允許應用程式無需使用者許可也可新增捷徑。"</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"讀取主畫面的設定和捷徑"</string>
@@ -58,7 +54,6 @@
     <string name="workspace_new_page" msgid="257366611030256142">"新主畫面頁面"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"小工具"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"桌布"</string>
-    <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"樣式和桌布"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"主畫面設定"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"已由您的管理員停用"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"顯示通知圓點"</string>
@@ -77,7 +72,6 @@
     <string name="move_to_empty_cell" msgid="2833711483015685619">"移動至第 <xliff:g id="NUMBER_0">%1$s</xliff:g> 行第 <xliff:g id="NUMBER_1">%2$s</xliff:g> 列"</string>
     <string name="item_moved" msgid="4606538322571412879">"已移動項目"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"使用以下項目建立資料夾：<xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="folder_created" msgid="6409794597405184510">"已建立資料夾"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"移動至主畫面"</string>
     <string name="action_resize" msgid="1802976324781771067">"重新調整大小"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"捷徑"</string>
@@ -91,5 +85,4 @@
     <string name="work_mode_off_label" msgid="3194894777601421047">"通知和應用程式已關閉"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"關閉"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"已關閉"</string>
-    <string name="remote_action_failed" msgid="1383965239183576790">"操作失敗：<xliff:g id="WHAT">%1$s</xliff:g>"</string>
 </resources>

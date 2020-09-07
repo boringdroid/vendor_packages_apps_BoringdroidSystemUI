@@ -68,11 +68,6 @@ public class LauncherSettings {
         public static final int ITEM_TYPE_APPLICATION = 0;
 
         /**
-         * The gesture is an application created shortcut
-         */
-        public static final int ITEM_TYPE_SHORTCUT = 1;
-
-        /**
          * The icon package name in Intent.ShortcutIconResource
          * <P>Type: TEXT</P>
          */
@@ -138,8 +133,6 @@ public class LauncherSettings {
         static final String itemTypeToString(int type) {
             switch(type) {
                 case ITEM_TYPE_APPLICATION: return "APP";
-                case ITEM_TYPE_SHORTCUT: return "SHORTCUT";
-                case ITEM_TYPE_DEEP_SHORTCUT: return "DEEPSHORTCUT";
                 default: return String.valueOf(type);
             }
         }
@@ -182,11 +175,6 @@ public class LauncherSettings {
          * </P>
          */
         public static final String PROFILE_ID = "profileId";
-
-        /**
-         * The gesture is an application created deep shortcut
-         */
-        public static final int ITEM_TYPE_DEEP_SHORTCUT = 6;
 
         /**
          * Boolean indicating that his item was restored and not yet successfully bound.

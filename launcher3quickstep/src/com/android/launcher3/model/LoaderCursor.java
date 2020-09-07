@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Intent.ShortcutIconResource;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -43,7 +42,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.util.ContentWriter;
@@ -174,21 +172,6 @@ public class LoaderCursor extends CursorWrapper {
      * Loads the icon from the cursor and updates the {@param info} if the icon is an app resource.
      */
     protected boolean loadIcon(WorkspaceItemInfo info, LauncherIcons li) {
-        if (itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
-            String packageName = getString(iconPackageIndex);
-            String resourceName = getString(iconResourceIndex);
-            if (!TextUtils.isEmpty(packageName) || !TextUtils.isEmpty(resourceName)) {
-                info.iconResource = new ShortcutIconResource();
-                info.iconResource.packageName = packageName;
-                info.iconResource.resourceName = resourceName;
-                BitmapInfo iconInfo = li.createIconBitmap(info.iconResource);
-                if (iconInfo != null) {
-                    info.applyFrom(iconInfo);
-                    return true;
-                }
-            }
-        }
-
         // Failed to load from resource, try loading from DB.
         byte[] data = getBlob(iconIndex);
         try {
@@ -309,21 +292,6 @@ public class LoaderCursor extends CursorWrapper {
     public void markDeleted(String reason) {
         FileLog.e(TAG, reason);
         itemsToRemove.add(id);
-    }
-
-    /**
-     * Removes any items marked for removal.
-     * @return true is any item was removed.
-     */
-    public boolean commitDeleted() {
-        if (itemsToRemove.size() > 0) {
-            // Remove dead items
-            mContext.getContentResolver().delete(LauncherSettings.Favorites.CONTENT_URI,
-                    Utilities.createDbSelectionQuery(
-                            LauncherSettings.Favorites._ID, itemsToRemove), null);
-            return true;
-        }
-        return false;
     }
 
     /**

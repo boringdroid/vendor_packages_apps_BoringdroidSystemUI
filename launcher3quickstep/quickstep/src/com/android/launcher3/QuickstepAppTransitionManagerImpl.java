@@ -65,7 +65,6 @@ import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.dragndrop.DragLayer;
-import com.android.launcher3.shortcuts.DeepShortcutView;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
 import com.android.launcher3.views.FloatingIconView;
@@ -448,7 +447,7 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
         float maxScaleY = smallestSize / bounds.height();
         float scale = Math.max(maxScaleX, maxScaleY);
         float startScale = 1f;
-        if (v instanceof BubbleTextView && !(v.getParent() instanceof DeepShortcutView)) {
+        if (v instanceof BubbleTextView) {
             Drawable dr = ((BubbleTextView) v).getIcon();
             if (dr instanceof FastBitmapDrawable) {
                 startScale = ((FastBitmapDrawable) dr).getAnimatedScale();

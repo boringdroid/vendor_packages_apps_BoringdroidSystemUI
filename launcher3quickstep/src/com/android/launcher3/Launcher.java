@@ -38,7 +38,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.ActivityNotFoundException;
@@ -58,11 +57,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.os.Process;
 import android.os.StrictMode;
-import android.text.TextUtils;
 import android.text.method.TextKeyListener;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -73,7 +69,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -85,7 +80,6 @@ import com.android.launcher3.allapps.AllAppsContainerView;
 import com.android.launcher3.allapps.AllAppsStore;
 import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.allapps.DiscoveryBounce;
-import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.compat.LauncherAppsCompatVO;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.dragndrop.DragController;
@@ -111,15 +105,12 @@ import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.ActivityResultInfo;
-import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.PendingRequestArgs;
 import com.android.launcher3.util.RaceConditionTracker;
-import com.android.launcher3.util.ShortcutUtil;
 import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.Thunk;
@@ -134,7 +125,6 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -151,8 +141,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private static final int REQUEST_CREATE_SHORTCUT = 1;
 
     private static final int REQUEST_PERMISSION_CALL_PHONE = 14;
-
-    private static final float BOUNCE_ANIMATION_TENSION = 1.3f;
 
     // Type: int
     private static final String RUNTIME_STATE_CURRENT_SCREEN = "launcher.current_screen";
@@ -542,10 +530,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    public PopupDataProvider getPopupDataProvider() {
-        return mPopupDataProvider;
-    }
-
     @Override
     public void invalidateParent(ItemInfo info) {
     }
@@ -629,10 +613,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             setWaitingForResult(null);
 
             View v = null;
-            CellLayout layout = getCellLayout(pendingArgs.container, pendingArgs.screenId);
-            if (layout != null) {
-                v = layout.getChildAt(pendingArgs.cellX, pendingArgs.cellY);
-            }
             Intent intent = pendingArgs.getPendingIntent();
 
             if (grantResults.length > 0
@@ -703,13 +683,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             UiFactory.onLauncherStateOrResumeChanged(this);
             AppLaunchTracker.INSTANCE.get(this).onReturnedToHome();
 
-            // Process any items that were added while Launcher was away.
-            InstallShortcutReceiver.disableAndFlushInstallQueue(
-                    InstallShortcutReceiver.FLAG_ACTIVITY_PAUSED, this);
-
-            // Refresh shortcuts if the permission changed.
-            mModel.refreshShortcutsIfRequired();
-
             DiscoveryBounce.showForHomeIfNeeded(this);
 
             if (mPendingActivityRequestCode != -1 && isInState(NORMAL)) {
@@ -775,9 +748,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     @Override
     protected void onPause() {
-        // Ensure that items added to Launcher are queued until Launcher returns
-        InstallShortcutReceiver.enableInstallQueue(InstallShortcutReceiver.FLAG_ACTIVITY_PAUSED);
-
         super.onPause();
         mDragController.cancelDrag();
         mDragController.resetLastGestureUpTime();
@@ -940,28 +910,12 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
 
         int[] cellXY = mTmpAddItemCellCoordinates;
-        CellLayout layout = getCellLayout(container, screenId);
+        CellLayout layout = getCellLayout(screenId);
 
         WorkspaceItemInfo info = null;
         if (Utilities.ATLEAST_OREO) {
             info = LauncherAppsCompatVO.createWorkspaceItemFromPinItemRequest(
                     this, LauncherAppsCompatVO.getPinItemRequest(data), 0);
-        }
-
-        if (info == null) {
-            // Legacy shortcuts are only supported for primary profile.
-            info = Process.myUserHandle().equals(args.user)
-                    ? InstallShortcutReceiver.fromShortcutIntent(this, data) : null;
-
-            if (info == null) {
-                Log.e(TAG, "Unable to parse a valid custom shortcut result");
-                return;
-            } else if (!new PackageManagerHelper(this).hasPermissionForActivity(
-                    info.intent, args.getPendingIntent().getComponent().getPackageName())) {
-                // The app is trying to add a shortcut without sufficient permissions
-                Log.e(TAG, "Ignoring malicious intent " + info.intent.toUri(0));
-                return;
-            }
         }
 
         if (container < 0) {
@@ -974,17 +928,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                 cellXY[1] = cellY;
                 foundCellSpan = true;
 
-                // If appropriate, either create a folder or add to an existing folder
-                if (mWorkspace.createUserFolderIfNecessary(view, container, layout, cellXY, 0,
-                        true, null)) {
-                    return;
-                }
                 DragObject dragObject = new DragObject();
                 dragObject.dragInfo = info;
-                if (mWorkspace.addToExistingFolderIfNecessary(view, layout, cellXY, 0, dragObject,
-                        true)) {
-                    return;
-                }
             } else {
                 foundCellSpan = layout.findCellForSpan(cellXY, 1, 1);
             }
@@ -1351,27 +1296,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return mAppTransitionManager;
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    @Override
-    protected boolean onErrorStartingShortcut(Intent intent, ItemInfo info) {
-        // Due to legacy reasons, direct call shortcuts require Launchers to have the
-        // corresponding permission. Show the appropriate permission prompt if that
-        // is the case.
-        if (intent.getComponent() == null
-                && Intent.ACTION_CALL.equals(intent.getAction())
-                && checkSelfPermission(android.Manifest.permission.CALL_PHONE) !=
-                PackageManager.PERMISSION_GRANTED) {
-
-            setWaitingForResult(PendingRequestArgs
-                    .forIntent(REQUEST_PERMISSION_CALL_PHONE, intent, info));
-            requestPermissions(new String[]{android.Manifest.permission.CALL_PHONE},
-                    REQUEST_PERMISSION_CALL_PHONE);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     @Override
     public int getCurrentState() {
         if (mStateManager.getState() == LauncherState.ALL_APPS) {
@@ -1427,7 +1351,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     /**
      * Returns the CellLayout of the specified container at the specified screen.
      */
-    public CellLayout getCellLayout(int container, int screenId) {
+    public CellLayout getCellLayout(int screenId) {
         return mWorkspace.getScreenWithId(screenId);
     }
 
@@ -1597,12 +1521,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             final View view;
             switch (item.itemType) {
                 case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT: {
                     WorkspaceItemInfo info = (WorkspaceItemInfo) item;
                     view = createShortcut(info);
                     break;
-                }
                 default:
                     throw new RuntimeException("Invalid Item Type");
             }
@@ -1613,17 +1534,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 CellLayout cl = mWorkspace.getScreenWithId(item.screenId);
                 if (cl != null && cl.isOccupied(item.cellX, item.cellY)) {
-                    View v = cl.getChildAt(item.cellX, item.cellY);
-                    Object tag = v.getTag();
-                    String desc = "Collision while binding workspace item: " + item
-                            + ". Collides with " + tag;
-                    if (FeatureFlags.IS_DOGFOOD_BUILD) {
-                        throw (new RuntimeException(desc));
-                    } else {
-                        Log.d(TAG, desc);
-                        getModelWriter().deleteItemFromDatabase(item);
-                        continue;
-                    }
                 }
             }
             workspace.addInScreenFromBind(view, item);
@@ -1632,7 +1542,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                 view.setAlpha(0f);
                 view.setScaleX(0f);
                 view.setScaleY(0f);
-                bounceAnims.add(createNewAppBounceAnimation(view, i));
                 newItemsScreenId = item.screenId;
             }
         }
@@ -1726,9 +1635,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             mPendingActivityResult = null;
         }
 
-        InstallShortcutReceiver.disableAndFlushInstallQueue(
-                InstallShortcutReceiver.FLAG_LOADER_RUNNING, this);
-
         // When undoing the removal of the last item on a page, return to that page.
         // Since we are just resetting the current page without user interaction,
         // override the previous page so we don't log the page switch.
@@ -1747,14 +1653,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return diff > (NEW_APPS_ANIMATION_INACTIVE_TIMEOUT_SECONDS * 1000);
     }
 
-    private ValueAnimator createNewAppBounceAnimation(View v, int i) {
-        ValueAnimator bounceAnim = new PropertyListBuilder().alpha(1).scale(1).build(v)
-                .setDuration(InstallShortcutReceiver.NEW_SHORTCUT_BOUNCE_DURATION);
-        bounceAnim.setStartDelay(i * InstallShortcutReceiver.NEW_SHORTCUT_STAGGER_DELAY);
-        bounceAnim.setInterpolator(new OvershootInterpolator(BOUNCE_ANIMATION_TENSION));
-        return bounceAnim;
-    }
-
     /**
      * Add the icons for all apps.
      *
@@ -1762,15 +1660,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
      */
     public void bindAllApplications(AppInfo[] apps) {
         mAppsView.getAppsStore().setApps(apps);
-    }
-
-    /**
-     * Copies LauncherModel's map of activities to shortcut counts to Launcher's. This is necessary
-     * because LauncherModel's map is updated in the background, while Launcher runs on the UI.
-     */
-    @Override
-    public void bindDeepShortcutMap(HashMap<ComponentKey, Integer> deepShortcutMapCopy) {
-        mPopupDataProvider.setDeepShortcutMap(deepShortcutMapCopy);
     }
 
     @Override
@@ -1821,21 +1710,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         super.dump(prefix, fd, writer, args);
 
-        if (args.length > 0 && TextUtils.equals(args[0], "--all")) {
-            writer.println(prefix + "Workspace Items");
-            for (int i = 0; i < mWorkspace.getPageCount(); i++) {
-                writer.println(prefix + "  Homescreen " + i);
-
-                ViewGroup layout = ((CellLayout) mWorkspace.getPageAt(i)).getShortcutsAndWidgets();
-                for (int j = 0; j < layout.getChildCount(); j++) {
-                    Object tag = layout.getChildAt(j).getTag();
-                    if (tag != null) {
-                        writer.println(prefix + "    " + tag.toString());
-                    }
-                }
-            }
-        }
-
         writer.println(prefix + "Misc:");
         dumpMisc(prefix + "\t", writer);
         writer.println(prefix + "\tmWorkspaceLoading=" + mWorkspaceLoading);
@@ -1876,12 +1750,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             if (new CustomActionsPopup(this, currentFocus).canShow()) {
                 shortcutInfos.add(new KeyboardShortcutInfo(getString(R.string.custom_actions),
                         KeyEvent.KEYCODE_O, KeyEvent.META_CTRL_ON));
-            }
-            if (currentFocus.getTag() instanceof ItemInfo
-                    && ShortcutUtil.supportsShortcuts((ItemInfo) currentFocus.getTag())) {
-                shortcutInfos.add(new KeyboardShortcutInfo(
-                        getString(R.string.shortcuts_menu_with_notifications_description),
-                        KeyEvent.KEYCODE_S, KeyEvent.META_CTRL_ON));
             }
         }
         if (!shortcutInfos.isEmpty()) {

@@ -35,12 +35,10 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.popup.ArrowPopup;
-import com.android.launcher3.shortcuts.DeepShortcutView;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ControlType;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -116,20 +114,11 @@ public class OptionsPopupView extends ArrowPopup
         mTargetRect.roundOut(outPos);
     }
 
-    public static void show(Launcher launcher, RectF targetRect, List<OptionItem> items) {
+    public static void show(Launcher launcher, RectF targetRect) {
         OptionsPopupView popup = (OptionsPopupView) launcher.getLayoutInflater()
                 .inflate(R.layout.longpress_options_menu, launcher.getDragLayer(), false);
         popup.mTargetRect = targetRect;
 
-        for (OptionItem item : items) {
-            DeepShortcutView view = popup.inflateAndAdd(R.layout.system_shortcut, popup);
-            view.getIconView().setBackgroundResource(item.mIconRes);
-            view.getBubbleText().setText(item.mLabelRes);
-            view.setDividerVisibility(View.INVISIBLE);
-            view.setOnClickListener(popup);
-            view.setOnLongClickListener(popup);
-            popup.mItemMap.put(view, item);
-        }
         popup.reorderAndShow(popup.getChildCount());
     }
 
@@ -142,16 +131,12 @@ public class OptionsPopupView extends ArrowPopup
         RectF target = new RectF(x - halfSize, y - halfSize, x + halfSize, y + halfSize);
 
         ArrayList<OptionItem> options = new ArrayList<>();
-        int resString = Utilities.existsStyleWallpapers(launcher) ?
-                R.string.styles_wallpaper_button_text : R.string.wallpaper_button_text;
-        int resDrawable = Utilities.existsStyleWallpapers(launcher) ?
-                R.drawable.ic_palette : R.drawable.ic_wallpaper;
-        options.add(new OptionItem(resString, resDrawable,
+        options.add(new OptionItem(
                 ControlType.WALLPAPER_BUTTON, OptionsPopupView::startWallpaperPicker));
-        options.add(new OptionItem(R.string.settings_button_text, R.drawable.ic_setting,
+        options.add(new OptionItem(
                 ControlType.SETTINGS_BUTTON, OptionsPopupView::startSettings));
 
-        show(launcher, target, options);
+        show(launcher, target);
     }
 
     public static boolean startSettings(View view) {
@@ -190,15 +175,10 @@ public class OptionsPopupView extends ArrowPopup
 
     public static class OptionItem {
 
-        private final int mLabelRes;
-        private final int mIconRes;
         private final int mControlTypeForLog;
         private final OnLongClickListener mClickListener;
 
-        public OptionItem(int labelRes, int iconRes, int controlTypeForLog,
-                OnLongClickListener clickListener) {
-            mLabelRes = labelRes;
-            mIconRes = iconRes;
+        public OptionItem(int controlTypeForLog, OnLongClickListener clickListener) {
             mControlTypeForLog = controlTypeForLog;
             mClickListener = clickListener;
         }

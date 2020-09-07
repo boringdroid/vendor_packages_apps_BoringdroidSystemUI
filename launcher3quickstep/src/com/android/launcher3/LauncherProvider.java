@@ -20,23 +20,18 @@ import static com.android.launcher3.provider.LauncherDbUtils.dropTable;
 import static com.android.launcher3.provider.LauncherDbUtils.tableExists;
 
 import android.annotation.TargetApi;
-import android.appwidget.AppWidgetHost;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -52,21 +47,17 @@ import android.util.Log;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.model.DbDowngradeHelper;
 import com.android.launcher3.provider.LauncherDbUtils;
 import com.android.launcher3.provider.LauncherDbUtils.SQLiteTransaction;
 import com.android.launcher3.util.IntArray;
-import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.NoLocaleSQLiteHelper;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.Preconditions;
 import com.android.launcher3.util.Thunk;
 
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -534,7 +525,6 @@ public class LauncherProvider extends ContentProvider {
                 case 24:
                     // No-op
                 case 25:
-                    convertShortcutsToLauncherActivities(db);
                 case 26:
                     // QSB was moved to the grid. Clear the first row on screen 0.
                     if (FeatureFlags.QSB_ON_FIRST_SCREEN &&
@@ -595,48 +585,6 @@ public class LauncherProvider extends ContentProvider {
                 dropTable(db, "workspaceScreens");
                 onCreate(db);
                 t.commit();
-            }
-        }
-
-        /**
-         * Replaces all shortcuts of type {@link Favorites#ITEM_TYPE_SHORTCUT} which have a valid
-         * launcher activity target with {@link Favorites#ITEM_TYPE_APPLICATION}.
-         */
-        @Thunk void convertShortcutsToLauncherActivities(SQLiteDatabase db) {
-            try (SQLiteTransaction t = new SQLiteTransaction(db);
-                 // Only consider the primary user as other users can't have a shortcut.
-                 Cursor c = db.query(Favorites.TABLE_NAME,
-                         new String[] { Favorites._ID, Favorites.INTENT},
-                         "itemType=" + Favorites.ITEM_TYPE_SHORTCUT +
-                                 " AND profileId=" + getDefaultUserSerial(),
-                         null, null, null, null);
-                 SQLiteStatement updateStmt = db.compileStatement("UPDATE favorites SET itemType="
-                         + Favorites.ITEM_TYPE_APPLICATION + " WHERE _id=?")
-            ) {
-                final int idIndex = c.getColumnIndexOrThrow(Favorites._ID);
-                final int intentIndex = c.getColumnIndexOrThrow(Favorites.INTENT);
-
-                while (c.moveToNext()) {
-                    String intentDescription = c.getString(intentIndex);
-                    Intent intent;
-                    try {
-                        intent = Intent.parseUri(intentDescription, 0);
-                    } catch (URISyntaxException e) {
-                        Log.e(TAG, "Unable to parse intent", e);
-                        continue;
-                    }
-
-                    if (!PackageManagerHelper.isLauncherAppTarget(intent)) {
-                        continue;
-                    }
-
-                    int id = c.getInt(idIndex);
-                    updateStmt.bindLong(1, id);
-                    updateStmt.executeUpdateDelete();
-                }
-                t.commit();
-            } catch (SQLException ex) {
-                Log.w(TAG, "Error deduping shortcuts", ex);
             }
         }
 

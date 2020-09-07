@@ -24,11 +24,9 @@ import com.android.launcher3.LauncherModel.ModelUpdateTask;
 import com.android.launcher3.LauncherModel.CallbackTask;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.ItemInfoMatcher;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -94,12 +92,6 @@ public abstract class BaseModelUpdateTask implements ModelUpdateTask {
         if (!updatedShortcuts.isEmpty()) {
             scheduleCallbackTask(c -> c.bindWorkspaceItemsChanged(updatedShortcuts));
         }
-    }
-
-    public void bindDeepShortcuts(BgDataModel dataModel) {
-        final HashMap<ComponentKey, Integer> shortcutMapCopy =
-                new HashMap<>(dataModel.deepShortcutMap);
-        scheduleCallbackTask(callbacks -> callbacks.bindDeepShortcutMap(shortcutMapCopy));
     }
 
     public void deleteAndBindComponentsRemoved(final ItemInfoMatcher matcher) {

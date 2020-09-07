@@ -28,11 +28,8 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.UserHandle;
 
-import androidx.annotation.Nullable;
-
 import com.android.launcher3.Utilities;
 import com.android.launcher3.util.LooperExecutor;
-import com.android.launcher3.util.PackageUserKey;
 
 import java.util.List;
 
@@ -48,8 +45,6 @@ public abstract class LauncherAppsCompat {
                 boolean replacing) { }
         default void onPackagesSuspended(String[] packageNames, UserHandle user) { }
         default void onPackagesUnsuspended(String[] packageNames, UserHandle user) { }
-        default void onShortcutsChanged(String packageName, List<ShortcutInfo> shortcuts,
-                UserHandle user) { }
     }
 
     protected LauncherAppsCompat() {
@@ -84,12 +79,10 @@ public abstract class LauncherAppsCompat {
     public abstract void showAppDetailsForProfile(ComponentName component, UserHandle user,
             Rect sourceBounds, Bundle opts);
     public abstract void addOnAppsChangedCallback(OnAppsChangedCallbackCompat listener);
-    public abstract void removeOnAppsChangedCallback(OnAppsChangedCallbackCompat listener);
+
     public abstract boolean isPackageEnabledForProfile(String packageName, UserHandle user);
     public abstract boolean isActivityEnabledForProfile(ComponentName component,
             UserHandle user);
-    public abstract List<ShortcutConfigActivityInfo> getCustomShortcutActivityList(
-            @Nullable PackageUserKey packageUser);
 
     public abstract List<PackageInstaller.SessionInfo> getAllPackageInstallerSessions();
 

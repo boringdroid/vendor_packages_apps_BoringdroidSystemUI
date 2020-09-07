@@ -20,7 +20,6 @@ import static com.android.launcher3.anim.Interpolators.DEACCEL_1_5;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -51,7 +50,6 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.IntDef;
 import androidx.core.view.ViewCompat;
 
-import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.accessibility.DragAndDropAccessibilityDelegate;
 import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
 import com.android.launcher3.anim.Interpolators;
@@ -129,7 +127,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     private int mDragOutlineCurrent = 0;
     private final Paint mDragOutlinePaint = new Paint();
 
-    @Thunk final ArrayMap<LayoutParams, Animator> mReorderAnimators = new ArrayMap<>();
     @Thunk final ArrayMap<View, ReorderPreviewAnimation> mShakeAnimators = new ArrayMap<>();
 
     private boolean mItemPlacementDirty = false;
@@ -140,7 +137,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     private boolean mDragging = false;
 
     private final TimeInterpolator mEaseOutInterpolator;
-    private final ShortcutContainer mShortcutsAndWidgets;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({WORKSPACE, FOLDER})
@@ -171,8 +167,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     private static final int INVALID_DIRECTION = -100;
 
     private final Rect mTempRect = new Rect();
-
-    private final static Paint sPaint = new Paint();
 
     // Related to accessible drag and drop
     private DragAndDropAccessibilityDelegate mTouchHelper;
@@ -276,10 +270,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             });
             mDragOutlineAnims[i] = anim;
         }
-
-        mShortcutsAndWidgets = new ShortcutContainer(context, mContainerType);
-        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mCountX, mCountY);
-        addView(mShortcutsAndWidgets);
     }
 
     public void enableAccessibleDrag(boolean enable, int dragType) {
@@ -287,7 +277,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         if (!enable) {
             ViewCompat.setAccessibilityDelegate(this, null);
             setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
-            getShortcutsAndWidgets().setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
             setOnClickListener(null);
         } else {
             if (dragType == WORKSPACE_ACCESSIBILITY_DRAG &&
@@ -296,7 +285,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             }
             ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
             setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
-            getShortcutsAndWidgets().setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
             setOnClickListener(mTouchHelper);
         }
 
@@ -343,39 +331,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         return false;
     }
 
-    public void enableHardwareLayer(boolean hasLayer) {
-        mShortcutsAndWidgets.setLayerType(hasLayer ? LAYER_TYPE_HARDWARE : LAYER_TYPE_NONE, sPaint);
-    }
-
-    public boolean isHardwareLayerEnabled() {
-        return mShortcutsAndWidgets.getLayerType() == LAYER_TYPE_HARDWARE;
-    }
-
-    public void setCellDimensions(int width, int height) {
-        mFixedCellWidth = mCellWidth = width;
-        mFixedCellHeight = mCellHeight = height;
-        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mCountX, mCountY);
-    }
-
-    public void setGridSize(int x, int y) {
-        mCountX = x;
-        mCountY = y;
-        mOccupied = new GridOccupancy(mCountX, mCountY);
-        mTmpOccupied = new GridOccupancy(mCountX, mCountY);
-        mTempRectStack.clear();
-        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mCountX, mCountY);
-        requestLayout();
-    }
-
-    // Set whether or not to invert the layout horizontally if the layout is in RTL mode.
-    public void setInvertIfRtl(boolean invert) {
-        mShortcutsAndWidgets.setInvertIfRtl(invert);
-    }
-
-    public void setDropPending(boolean pending) {
-        mDropPending = pending;
-    }
-
     public boolean isDropPending() {
         return mDropPending;
     }
@@ -409,10 +364,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         final Parcelable parcelable = container.get(R.id.cell_layout_jail_id);
         return parcelable instanceof ParcelableSparseArray ?
                 (ParcelableSparseArray) parcelable : new ParcelableSparseArray();
-    }
-
-    public boolean getIsDragOverlapping() {
-        return mIsDragOverlapping;
     }
 
     @Override
@@ -500,10 +451,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         return mCountY;
     }
 
-    public boolean acceptsWidget() {
-        return mContainerType == WORKSPACE;
-    }
-
     public boolean addViewToCellLayout(View child, int index, int childId, LayoutParams params,
             boolean markCells) {
         final LayoutParams lp = params;
@@ -528,8 +475,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             if (LOGD) {
                 Log.d(TAG, "Adding view to ShortcutsAndWidgetsContainer: " + child);
             }
-            mShortcutsAndWidgets.addView(child, index, lp);
-
             if (markCells) markCellsAsOccupiedForView(child);
 
             return true;
@@ -540,49 +485,32 @@ public class CellLayout extends ViewGroup implements Transposable {
     @Override
     public void removeAllViews() {
         mOccupied.clear();
-        mShortcutsAndWidgets.removeAllViews();
     }
 
     @Override
     public void removeAllViewsInLayout() {
-        if (mShortcutsAndWidgets.getChildCount() > 0) {
-            mOccupied.clear();
-            mShortcutsAndWidgets.removeAllViewsInLayout();
-        }
     }
 
     @Override
     public void removeView(View view) {
         markCellsAsUnoccupiedForView(view);
-        mShortcutsAndWidgets.removeView(view);
     }
 
     @Override
     public void removeViewAt(int index) {
-        markCellsAsUnoccupiedForView(mShortcutsAndWidgets.getChildAt(index));
-        mShortcutsAndWidgets.removeViewAt(index);
     }
 
     @Override
     public void removeViewInLayout(View view) {
         markCellsAsUnoccupiedForView(view);
-        mShortcutsAndWidgets.removeViewInLayout(view);
     }
 
     @Override
     public void removeViews(int start, int count) {
-        for (int i = start; i < start + count; i++) {
-            markCellsAsUnoccupiedForView(mShortcutsAndWidgets.getChildAt(i));
-        }
-        mShortcutsAndWidgets.removeViews(start, count);
     }
 
     @Override
     public void removeViewsInLayout(int start, int count) {
-        for (int i = start; i < start + count; i++) {
-            markCellsAsUnoccupiedForView(mShortcutsAndWidgets.getChildAt(i));
-        }
-        mShortcutsAndWidgets.removeViewsInLayout(start, count);
     }
 
     /**
@@ -605,16 +533,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         if (result[0] >= xAxis) result[0] = xAxis - 1;
         if (result[1] < 0) result[1] = 0;
         if (result[1] >= yAxis) result[1] = yAxis - 1;
-    }
-
-    /**
-     * Given a point, return the cell that most closely encloses that point
-     * @param x X coordinate of the point
-     * @param y Y coordinate of the point
-     * @param result Array of 2 ints to hold the x and y coordinate of the cell
-     */
-    void pointToCellRounded(int x, int y, int[] result) {
-        pointToCellExact(x + (mCellWidth / 2), y + (mCellHeight / 2), result);
     }
 
     /**
@@ -680,19 +598,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         return (float) Math.hypot(x - mTmpPoint[0], y - mTmpPoint[1]);
     }
 
-    public int getCellWidth() {
-        return mCellWidth;
-    }
-
-    public int getCellHeight() {
-        return mCellHeight;
-    }
-
-    public void setFixedSize(int width, int height) {
-        mFixedWidth = width;
-        mFixedHeight = height;
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -702,7 +607,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         int childWidthSize = widthSize - (getPaddingLeft() + getPaddingRight());
         int childHeightSize = heightSize - (getPaddingTop() + getPaddingBottom());
 
-        mShortcutsAndWidgets.setRotation(mRotationMode.surfaceRotation);
         if (mRotationMode.isTransposed) {
             int tmp = childWidthSize;
             childWidthSize = childHeightSize;
@@ -715,30 +619,15 @@ public class CellLayout extends ViewGroup implements Transposable {
             if (cw != mCellWidth || ch != mCellHeight) {
                 mCellWidth = cw;
                 mCellHeight = ch;
-                mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mCountX, mCountY);
             }
         }
 
-        int newWidth = childWidthSize;
-        int newHeight = childHeightSize;
         if (mFixedWidth > 0 && mFixedHeight > 0) {
-            newWidth = mFixedWidth;
-            newHeight = mFixedHeight;
         } else if (widthSpecMode == MeasureSpec.UNSPECIFIED || heightSpecMode == MeasureSpec.UNSPECIFIED) {
             throw new RuntimeException("CellLayout cannot have UNSPECIFIED dimensions");
         }
 
-        mShortcutsAndWidgets.measure(
-                MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY));
-
-        int maxWidth = mShortcutsAndWidgets.getMeasuredWidth();
-        int maxHeight = mShortcutsAndWidgets.getMeasuredHeight();
-        if (mFixedWidth > 0 && mFixedHeight > 0) {
-            setMeasuredDimension(maxWidth, maxHeight);
-        } else {
-            setMeasuredDimension(widthSize, heightSize);
-        }
+        setMeasuredDimension(widthSize, heightSize);
     }
 
     @Override
@@ -758,16 +647,6 @@ public class CellLayout extends ViewGroup implements Transposable {
                 top - mTempRect.top - getPaddingTop(),
                 right + mTempRect.right + getPaddingRight(),
                 bottom + mTempRect.bottom + getPaddingBottom());
-
-        if (mRotationMode.isTransposed) {
-            int halfW = mShortcutsAndWidgets.getMeasuredWidth() / 2;
-            int halfH = mShortcutsAndWidgets.getMeasuredHeight() / 2;
-            int cX = (left + right) / 2;
-            int cY = (top + bottom) / 2;
-            mShortcutsAndWidgets.layout(cX - halfW, cY - halfH, cX + halfW, cY + halfH);
-        } else {
-            mShortcutsAndWidgets.layout(left, top, right, bottom);
-        }
     }
 
     /**
@@ -787,95 +666,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     @Override
     protected boolean verifyDrawable(Drawable who) {
         return super.verifyDrawable(who) || (who == mBackground);
-    }
-
-    public ShortcutContainer getShortcutsAndWidgets() {
-        return mShortcutsAndWidgets;
-    }
-
-    public View getChildAt(int x, int y) {
-        return mShortcutsAndWidgets.getChildAt(x, y);
-    }
-
-    public boolean animateChildToPosition(final View child, int cellX, int cellY, int duration,
-            int delay, boolean permanent, boolean adjustOccupied) {
-        ShortcutContainer clc = getShortcutsAndWidgets();
-
-        if (clc.indexOfChild(child) != -1) {
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            final ItemInfo info = (ItemInfo) child.getTag();
-
-            // We cancel any existing animations
-            if (mReorderAnimators.containsKey(lp)) {
-                mReorderAnimators.get(lp).cancel();
-                mReorderAnimators.remove(lp);
-            }
-
-            final int oldX = lp.x;
-            final int oldY = lp.y;
-            if (adjustOccupied) {
-                GridOccupancy occupied = permanent ? mOccupied : mTmpOccupied;
-                occupied.markCells(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, false);
-                occupied.markCells(cellX, cellY, lp.cellHSpan, lp.cellVSpan, true);
-            }
-            lp.isLockedToGrid = true;
-            if (permanent) {
-                lp.cellX = info.cellX = cellX;
-                lp.cellY = info.cellY = cellY;
-            } else {
-                lp.tmpCellX = cellX;
-                lp.tmpCellY = cellY;
-            }
-            clc.setupLp(child);
-            lp.isLockedToGrid = false;
-            final int newX = lp.x;
-            final int newY = lp.y;
-
-            lp.x = oldX;
-            lp.y = oldY;
-
-            // Exit early if we're not actually moving the view
-            if (oldX == newX && oldY == newY) {
-                lp.isLockedToGrid = true;
-                return true;
-            }
-
-            ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
-            va.setDuration(duration);
-            mReorderAnimators.put(lp, va);
-
-            va.addUpdateListener(new AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float r = (Float) animation.getAnimatedValue();
-                    lp.x = (int) ((1 - r) * oldX + r * newX);
-                    lp.y = (int) ((1 - r) * oldY + r * newY);
-                    child.requestLayout();
-                }
-            });
-            va.addListener(new AnimatorListenerAdapter() {
-                boolean cancelled = false;
-                public void onAnimationEnd(Animator animation) {
-                    // If the animation was cancelled, it means that another animation
-                    // has interrupted this one, and we don't want to lock the item into
-                    // place just yet.
-                    if (!cancelled) {
-                        lp.isLockedToGrid = true;
-                        child.requestLayout();
-                    }
-                    if (mReorderAnimators.containsKey(lp)) {
-                        mReorderAnimators.remove(lp);
-                    }
-                }
-                public void onAnimationCancel(Animator animation) {
-                    cancelled = true;
-                }
-            });
-            va.setStartDelay(delay);
-            va.start();
-            return true;
-        }
-        return false;
     }
 
     void visualizeDropLocation(View v, DragPreviewProvider outlineProvider, int cellX, int cellY,
@@ -928,8 +718,7 @@ public class CellLayout extends ViewGroup implements Transposable {
                         // Center the drag region *horizontally* in the cell and apply a drag
                         // outline offset
                         left += dragOffset.x + ((mCellWidth * spanX) - dragRegion.width()) / 2;
-                        int cHeight = getShortcutsAndWidgets().getCellContentHeight();
-                        int cellPaddingY = (int) Math.max(0, ((mCellHeight - cHeight) / 2f));
+                        int cellPaddingY = (int) Math.max(0, ((mCellHeight) / 2f));
                         top += dragOffset.y + cellPaddingY;
                     } else {
                         // Center the drag outline in the cell
@@ -1758,37 +1547,10 @@ public class CellLayout extends ViewGroup implements Transposable {
     }
 
     private void copyCurrentStateToSolution(ItemConfiguration solution, boolean temp) {
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            CellAndSpan c;
-            if (temp) {
-                c = new CellAndSpan(lp.tmpCellX, lp.tmpCellY, lp.cellHSpan, lp.cellVSpan);
-            } else {
-                c = new CellAndSpan(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan);
-            }
-            solution.add(child, c);
-        }
     }
 
     private void copySolutionToTempState(ItemConfiguration solution, View dragView) {
         mTmpOccupied.clear();
-
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            if (child == dragView) continue;
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            CellAndSpan c = solution.map.get(child);
-            if (c != null) {
-                lp.tmpCellX = c.cellX;
-                lp.tmpCellY = c.cellY;
-                lp.cellHSpan = c.spanX;
-                lp.cellVSpan = c.spanY;
-                mTmpOccupied.markCells(c, true);
-            }
-        }
         mTmpOccupied.markCells(solution, true);
     }
 
@@ -1798,17 +1560,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         GridOccupancy occupied = DESTRUCTIVE_REORDER ? mOccupied : mTmpOccupied;
         occupied.clear();
 
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            if (child == dragView) continue;
-            CellAndSpan c = solution.map.get(child);
-            if (c != null) {
-                animateChildToPosition(child, c.cellX, c.cellY, REORDER_ANIMATION_DURATION, 0,
-                        DESTRUCTIVE_REORDER, false);
-                occupied.markCells(c, true);
-            }
-        }
         if (commitDragView) {
             occupied.markCells(solution, true);
         }
@@ -1818,21 +1569,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     // This method starts or changes the reorder preview animations
     private void beginOrAdjustReorderPreviewAnimations(ItemConfiguration solution,
             View dragView, int delay, int mode) {
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            if (child == dragView) continue;
-            CellAndSpan c = solution.map.get(child);
-            boolean skip = mode == ReorderPreviewAnimation.MODE_HINT && solution.intersectingViews
-                    != null && !solution.intersectingViews.contains(child);
-
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (c != null && !skip) {
-                ReorderPreviewAnimation rha = new ReorderPreviewAnimation(child, mode, lp.cellX,
-                        lp.cellY, c.cellX, c.cellY, c.spanX, c.spanY);
-                rha.animate();
-            }
-        }
     }
 
     private static final Property<ReorderPreviewAnimation, Float> ANIMATION_PROGRESS =
@@ -1860,8 +1596,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         float initScale;
         final int mode;
         boolean repeating = false;
-        private static final int PREVIEW_DURATION = 300;
-        private static final int HINT_DURATION = Workspace.REORDER_TIMEOUT;
 
         private static final float CHILD_DIVIDEND = 4.0f;
 
@@ -1917,45 +1651,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             }
         }
 
-        void animate() {
-            boolean noMovement = (finalDeltaX == initDeltaX) && (finalDeltaY == initDeltaY);
-
-            if (mShakeAnimators.containsKey(child)) {
-                ReorderPreviewAnimation oldAnimation = mShakeAnimators.get(child);
-                oldAnimation.cancel();
-                mShakeAnimators.remove(child);
-                if (noMovement) {
-                    completeAnimationImmediately();
-                    return;
-                }
-            }
-            if (noMovement) {
-                return;
-            }
-            ValueAnimator va = ObjectAnimator.ofFloat(this, ANIMATION_PROGRESS, 0, 1);
-            a = va;
-
-            // Animations are disabled in power save mode, causing the repeated animation to jump
-            // spastically between beginning and end states. Since this looks bad, we don't repeat
-            // the animation in power save mode.
-            if (Utilities.areAnimationsEnabled(getContext())) {
-                va.setRepeatMode(ValueAnimator.REVERSE);
-                va.setRepeatCount(ValueAnimator.INFINITE);
-            }
-
-            va.setDuration(mode == MODE_HINT ? HINT_DURATION : PREVIEW_DURATION);
-            va.setStartDelay((int) (Math.random() * 60));
-            va.addListener(new AnimatorListenerAdapter() {
-                public void onAnimationRepeat(Animator animation) {
-                    // We make sure to end only after a full period
-                    setInitialAnimationValues(true);
-                    repeating = true;
-                }
-            });
-            mShakeAnimators.put(child, this);
-            va.start();
-        }
-
         private void setAnimationProgress(float progress) {
             animationProgress = progress;
             float r1 = (mode == MODE_HINT && repeating) ? 1.0f : animationProgress;
@@ -1966,12 +1661,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             float s = animationProgress * finalScale + (1 - animationProgress) * initScale;
             child.setScaleX(s);
             child.setScaleY(s);
-        }
-
-        private void cancel() {
-            if (a != null) {
-                a.cancel();
-            }
         }
 
         @Thunk void completeAnimationImmediately() {
@@ -2001,41 +1690,9 @@ public class CellLayout extends ViewGroup implements Transposable {
 
     private void commitTempPlacement() {
         mTmpOccupied.copyTo(mOccupied);
-
-        int screenId = Launcher.cast(mActivity).getWorkspace().getIdForScreen(this);
-        int container = Favorites.CONTAINER_DESKTOP;
-
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            ItemInfo info = (ItemInfo) child.getTag();
-            // We do a null check here because the item info can be null in the case of the
-            // AllApps button in the hotseat.
-            if (info != null) {
-                final boolean requiresDbUpdate = (info.cellX != lp.tmpCellX
-                        || info.cellY != lp.tmpCellY || info.spanX != lp.cellHSpan
-                        || info.spanY != lp.cellVSpan);
-
-                info.cellX = lp.cellX = lp.tmpCellX;
-                info.cellY = lp.cellY = lp.tmpCellY;
-                info.spanX = lp.cellHSpan;
-                info.spanY = lp.cellVSpan;
-
-                if (requiresDbUpdate) {
-                    Launcher.cast(mActivity).getModelWriter().modifyItemInDatabase(info, container,
-                            screenId, info.cellX, info.cellY, info.spanX, info.spanY);
-                }
-            }
-        }
     }
 
     private void setUseTempCoords(boolean useTempCoords) {
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            LayoutParams lp = (LayoutParams) mShortcutsAndWidgets.getChildAt(i).getLayoutParams();
-            lp.useTmpCoords = useTempCoords;
-        }
     }
 
     private ItemConfiguration findConfigurationNoShuffle(int pixelX, int pixelY, int minSpanX, int minSpanY,
@@ -2110,21 +1767,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             boundingRect.set(cellX, cellY, cellX + spanX, cellY + spanY);
         }
         intersectingViews.clear();
-        Rect r0 = new Rect(cellX, cellY, cellX + spanX, cellY + spanY);
-        Rect r1 = new Rect();
-        final int count = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            if (child == dragView) continue;
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            r1.set(lp.cellX, lp.cellY, lp.cellX + lp.cellHSpan, lp.cellY + lp.cellVSpan);
-            if (Rect.intersects(r0, r1)) {
-                mIntersectingViews.add(child);
-                if (boundingRect != null) {
-                    boundingRect.union(r1);
-                }
-            }
-        }
     }
 
     boolean isNearestDropLocationOccupied(int pixelX, int pixelY, int spanX, int spanY,
@@ -2138,50 +1780,8 @@ public class CellLayout extends ViewGroup implements Transposable {
     void revertTempState() {
         completeAndClearReorderPreviewAnimations();
         if (isItemPlacementDirty() && !DESTRUCTIVE_REORDER) {
-            final int count = mShortcutsAndWidgets.getChildCount();
-            for (int i = 0; i < count; i++) {
-                View child = mShortcutsAndWidgets.getChildAt(i);
-                LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                if (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.cellY) {
-                    lp.tmpCellX = lp.cellX;
-                    lp.tmpCellY = lp.cellY;
-                    animateChildToPosition(child, lp.cellX, lp.cellY, REORDER_ANIMATION_DURATION,
-                            0, false, false);
-                }
-            }
             setItemPlacementDirty(false);
         }
-    }
-
-    boolean createAreaForResize(int cellX, int cellY, int spanX, int spanY,
-            View dragView, int[] direction, boolean commit) {
-        int[] pixelXY = new int[2];
-        regionToCenterPoint(cellX, cellY, spanX, spanY, pixelXY);
-
-        // First we determine if things have moved enough to cause a different layout
-        ItemConfiguration swapSolution = findReorderSolution(pixelXY[0], pixelXY[1], spanX, spanY,
-                 spanX,  spanY, direction, dragView,  true,  new ItemConfiguration());
-
-        setUseTempCoords(true);
-        if (swapSolution != null && swapSolution.isSolution) {
-            // If we're just testing for a possible location (MODE_ACCEPT_DROP), we don't bother
-            // committing anything or animating anything as we just want to determine if a solution
-            // exists
-            copySolutionToTempState(swapSolution, dragView);
-            setItemPlacementDirty(true);
-            animateItemsToSolution(swapSolution, dragView, commit);
-
-            if (commit) {
-                commitTempPlacement();
-                completeAndClearReorderPreviewAnimations();
-                setItemPlacementDirty(false);
-            } else {
-                beginOrAdjustReorderPreviewAnimations(swapSolution, dragView,
-                        REORDER_ANIMATION_DURATION, ReorderPreviewAnimation.MODE_PREVIEW);
-            }
-            mShortcutsAndWidgets.requestLayout();
-        }
-        return swapSolution.isSolution;
     }
 
     int[] performReorder(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
@@ -2283,7 +1883,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             setUseTempCoords(false);
         }
 
-        mShortcutsAndWidgets.requestLayout();
         return result;
     }
 
@@ -2313,12 +1912,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             for (View v: savedMap.keySet()) {
                 map.get(v).copyFrom(savedMap.get(v));
             }
-        }
-
-        void add(View v, CellAndSpan cs) {
-            map.put(v, cs);
-            savedMap.put(v, new CellAndSpan());
-            sortedViews.add(v);
         }
 
         int area() {
@@ -2353,10 +1946,6 @@ public class CellLayout extends ViewGroup implements Transposable {
      */
     public int[] findNearestArea(int pixelX, int pixelY, int spanX, int spanY, int[] result) {
         return findNearestArea(pixelX, pixelY, spanX, spanY, spanX, spanY, false, result, null);
-    }
-
-    boolean existsEmptyCell() {
-        return findCellForSpan(null, 1, 1);
     }
 
     /**
@@ -2448,23 +2037,15 @@ public class CellLayout extends ViewGroup implements Transposable {
     }
 
     public void markCellsAsOccupiedForView(View view) {
-        if (view == null || view.getParent() != mShortcutsAndWidgets) return;
+        if (view == null) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
         mOccupied.markCells(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, true);
     }
 
     public void markCellsAsUnoccupiedForView(View view) {
-        if (view == null || view.getParent() != mShortcutsAndWidgets) return;
+        if (view == null) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
         mOccupied.markCells(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, false);
-    }
-
-    public int getDesiredWidth() {
-        return getPaddingLeft() + getPaddingRight() + (mCountX * mCellWidth);
-    }
-
-    public int getDesiredHeight()  {
-        return getPaddingTop() + getPaddingBottom() + (mCountY * mCellHeight);
     }
 
     public boolean isOccupied(int x, int y) {
@@ -2609,14 +2190,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             }
         }
 
-        /**
-         * Sets the position to the provided point
-         */
-        public void setXY(Point point) {
-            cellX = point.x;
-            cellY = point.y;
-        }
-
         public String toString() {
             return "(" + this.cellX + ", " + this.cellY + ")";
         }
@@ -2648,26 +2221,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             return "Cell[view=" + (cell == null ? "null" : cell.getClass())
                     + ", x=" + cellX + ", y=" + cellY + "]";
         }
-    }
-
-    /**
-     * Returns whether an item can be placed in this CellLayout (after rearranging and/or resizing
-     * if necessary).
-     */
-    public boolean hasReorderSolution(ItemInfo itemInfo) {
-        int[] cellPoint = new int[2];
-        // Check for a solution starting at every cell.
-        for (int cellX = 0; cellX < getCountX(); cellX++) {
-            for (int cellY = 0; cellY < getCountY(); cellY++) {
-                cellToPoint(cellX, cellY, cellPoint);
-                if (findReorderSolution(cellPoint[0], cellPoint[1], itemInfo.minSpanX,
-                        itemInfo.minSpanY, itemInfo.spanX, itemInfo.spanY, mDirectionVector, null,
-                        true, new ItemConfiguration()).isSolution) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public boolean isRegionVacant(int x, int y, int spanX, int spanY) {

@@ -2,8 +2,6 @@ package com.android.launcher3.util;
 
 import android.os.UserHandle;
 
-import androidx.annotation.Nullable;
-
 import com.android.launcher3.ItemInfo;
 
 import java.util.Arrays;
@@ -14,12 +12,6 @@ public class PackageUserKey {
     public String mPackageName;
     public UserHandle mUser;
     private int mHashCode;
-
-    @Nullable
-    public static PackageUserKey fromItemInfo(ItemInfo info) {
-        if (info.getTargetComponent() == null) return null;
-        return new PackageUserKey(info.getTargetComponent().getPackageName(), info.user);
-    }
 
     public PackageUserKey(String packageName, UserHandle user) {
         update(packageName, user);
@@ -37,10 +29,6 @@ public class PackageUserKey {
      */
     public boolean updateFromItemInfo(ItemInfo info) {
         if (info.getTargetComponent() == null) return false;
-        if (ShortcutUtil.supportsShortcuts(info)) {
-            update(info.getTargetComponent().getPackageName(), info.user);
-            return true;
-        }
         return false;
     }
 

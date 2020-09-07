@@ -116,7 +116,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
 
     public TaskThumbnailView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mOverlay = TaskOverlayFactory.INSTANCE.get(context).createOverlay(this);
+        mOverlay = TaskOverlayFactory.INSTANCE.get(context).createOverlay();
         mPaint.setFilterBitmap(true);
         mBackgroundPaint.setColor(Color.WHITE);
         mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
@@ -303,7 +303,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     private void updateOverlay() {
         // The overlay doesn't really work when the screenshot is rotated, so don't add it.
         if (mOverlayEnabled && !mRotated && mBitmapShader != null && mThumbnailData != null) {
-            mOverlay.initOverlay(mTask, mThumbnailData, mMatrix);
+            mOverlay.initOverlay();
         } else {
             mOverlay.reset();
         }

@@ -32,8 +32,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Không tìm thấy ứng dụng nào phù hợp với \"<xliff:g id="QUERY">%1$s</xliff:g>\""</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Tìm kiếm thêm ứng dụng"</string>
     <string name="label_application" msgid="8531721983832654978">"Ứng dụng"</string>
-    <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Chạm và giữ để chọn lối tắt."</string>
-    <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Nhấn đúp và giữ để chọn lối tắt hoặc sử dụng hành động tùy chỉnh."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Không còn chỗ trên Màn hình chính này."</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Danh sách ứng dụng"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"Danh sách ứng dụng cá nhân"</string>
@@ -41,8 +39,6 @@
     <string name="all_apps_home_button_label" msgid="252062713717058851">"Màn hình chính"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Xóa"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Gỡ cài đặt"</string>
-    <string name="app_info_drop_target_label" msgid="692894985365717661">"Thông tin ứng dụng"</string>
-    <string name="install_drop_target_label" msgid="2539096853673231757">"Cài đặt"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"cài đặt lối tắt"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"Cho phép ứng dụng thêm lối tắt mà không cần sự can thiệp của người dùng."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"đọc cài đặt và lối tắt trên Màn hình chính"</string>
@@ -58,7 +54,6 @@
     <string name="workspace_new_page" msgid="257366611030256142">"Trang màn hình chính mới"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Tiện ích"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Hình nền"</string>
-    <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"Kiểu và hình nền"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Cài đặt màn hình chính"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Bị tắt bởi quản trị viên của bạn"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Hiển thị dấu chấm thông báo"</string>
@@ -77,7 +72,6 @@
     <string name="move_to_empty_cell" msgid="2833711483015685619">"Di chuyển đến hàng <xliff:g id="NUMBER_0">%1$s</xliff:g> cột <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"Đã di chuyển mục"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"Tạo thư mục bằng: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="folder_created" msgid="6409794597405184510">"Đã tạo thư mục"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Di chuyển đến màn hình chính"</string>
     <string name="action_resize" msgid="1802976324781771067">"Đổi kích thước"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Lối tắt"</string>
@@ -91,5 +85,4 @@
     <string name="work_mode_off_label" msgid="3194894777601421047">"Thông báo và ứng dụng đang tắt"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Đóng"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Đã đóng"</string>
-    <string name="remote_action_failed" msgid="1383965239183576790">"Không thực hiện được thao tác: <xliff:g id="WHAT">%1$s</xliff:g>"</string>
 </resources>

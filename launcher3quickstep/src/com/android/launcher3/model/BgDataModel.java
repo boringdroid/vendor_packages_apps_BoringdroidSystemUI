@@ -16,14 +16,9 @@
 package com.android.launcher3.model;
 
 import android.content.Context;
-import android.content.pm.ShortcutInfo;
-import android.os.UserHandle;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.MutableInt;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.PromiseAppInfo;
@@ -34,9 +29,6 @@ import com.android.launcher3.logging.DumpTargetWrapper;
 import com.android.launcher3.model.nano.LauncherDumpProto;
 import com.android.launcher3.model.nano.LauncherDumpProto.ContainerType;
 import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
-import com.android.launcher3.shortcuts.ShortcutKey;
-import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.IntSparseArrayMap;
@@ -51,11 +43,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * All the data stored in-memory and managed by the LauncherModel
@@ -77,21 +66,6 @@ public class BgDataModel {
     public final ArrayList<ItemInfo> workspaceItems = new ArrayList<>();
 
     /**
-     * Map of ShortcutKey to the number of times it is pinned.
-     */
-    public final Map<ShortcutKey, MutableInt> pinnedShortcutCounts = new HashMap<>();
-
-    /**
-     * True if the launcher has permission to access deep shortcuts.
-     */
-    public boolean hasShortcutHostPermission;
-
-    /**
-     * Maps all launcher activities to counts of their shortcuts.
-     */
-    public final HashMap<ComponentKey, Integer> deepShortcutMap = new HashMap<>();
-
-    /**
      * Id when the model was last bound
      */
     public int lastBindId = 0;
@@ -102,8 +76,6 @@ public class BgDataModel {
     public synchronized void clear() {
         workspaceItems.clear();
         itemsIdMap.clear();
-        pinnedShortcutCounts.clear();
-        deepShortcutMap.clear();
     }
 
     /**
@@ -136,14 +108,6 @@ public class BgDataModel {
         writer.println(prefix + " ---- items id map ");
         for (int i = 0; i< itemsIdMap.size(); i++) {
             writer.println(prefix + '\t' + itemsIdMap.valueAt(i).toString());
-        }
-
-        if (args.length > 0 && TextUtils.equals(args[0], "--all")) {
-            writer.println(prefix + "shortcut counts ");
-            for (Integer count : deepShortcutMap.values()) {
-                writer.print(count + ", ");
-            }
-            writer.println();
         }
     }
 
@@ -203,19 +167,7 @@ public class BgDataModel {
     public synchronized void removeItem(Context context, Iterable<? extends ItemInfo> items) {
         for (ItemInfo item : items) {
             switch (item.itemType) {
-                case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT: {
-                    // Decrement pinned shortcut count
-                    ShortcutKey pinnedShortcut = ShortcutKey.fromItemInfo(item);
-                    MutableInt count = pinnedShortcutCounts.get(pinnedShortcut);
-                    if ((count == null || --count.value == 0)
-                            && !InstallShortcutReceiver.getPendingShortcuts(context)
-                                .contains(pinnedShortcut)) {
-                        DeepShortcutManager.getInstance(context).unpinShortcut(pinnedShortcut);
-                    }
-                    // Fall through.
-                }
                 case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                     workspaceItems.remove(item);
                     break;
             }
@@ -226,59 +178,11 @@ public class BgDataModel {
     public synchronized void addItem(Context context, ItemInfo item, boolean newItem) {
         itemsIdMap.put(item.id, item);
         switch (item.itemType) {
-            case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT: {
-                // Increment the count for the given shortcut
-                ShortcutKey pinnedShortcut = ShortcutKey.fromItemInfo(item);
-                MutableInt count = pinnedShortcutCounts.get(pinnedShortcut);
-                if (count == null) {
-                    count = new MutableInt(1);
-                    pinnedShortcutCounts.put(pinnedShortcut, count);
-                } else {
-                    count.value++;
-                }
-
-                // Since this is a new item, pin the shortcut in the system server.
-                if (newItem && count.value == 1) {
-                    DeepShortcutManager.getInstance(context).pinShortcut(pinnedShortcut);
-                }
-                // Fall through
-            }
             case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-            case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                 if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                     workspaceItems.add(item);
                 }
                 break;
-        }
-    }
-
-    /**
-     * Clear all the deep shortcut counts for the given package, and re-add the new shortcut counts.
-     */
-    public synchronized void updateDeepShortcutCounts(
-            String packageName, UserHandle user, List<ShortcutInfo> shortcuts) {
-        if (packageName != null) {
-            Iterator<ComponentKey> keysIter = deepShortcutMap.keySet().iterator();
-            while (keysIter.hasNext()) {
-                ComponentKey next = keysIter.next();
-                if (next.componentName.getPackageName().equals(packageName)
-                        && next.user.equals(user)) {
-                    keysIter.remove();
-                }
-            }
-        }
-
-        // Now add the new shortcuts to the map.
-        for (ShortcutInfo shortcut : shortcuts) {
-            boolean shouldShowInContainer = shortcut.isEnabled()
-                    && (shortcut.isDeclaredInManifest() || shortcut.isDynamic());
-            if (shouldShowInContainer) {
-                ComponentKey targetComponent
-                        = new ComponentKey(shortcut.getActivity(), shortcut.getUserHandle());
-
-                Integer previousCount = deepShortcutMap.get(targetComponent);
-                deepShortcutMap.put(targetComponent, previousCount == null ? 1 : previousCount + 1);
-            }
         }
     }
 
@@ -301,7 +205,6 @@ public class BgDataModel {
         void bindWorkspaceComponentsRemoved(ItemInfoMatcher matcher);
         void onPageBoundSynchronously(int page);
         void executeOnNextDraw(ViewOnDrawExecutor executor);
-        void bindDeepShortcutMap(HashMap<ComponentKey, Integer> deepShortcutMap);
 
         void bindAllApplications(AppInfo[] apps);
     }

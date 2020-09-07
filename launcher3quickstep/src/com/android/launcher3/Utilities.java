@@ -16,8 +16,6 @@
 
 package com.android.launcher3;
 
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_ICON_BADGED;
-
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
@@ -30,7 +28,6 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -39,7 +36,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -47,7 +43,6 @@ import android.os.PowerManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.TtsSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -59,16 +54,11 @@ import android.view.animation.Interpolator;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.graphics.TintedDrawableSpan;
-import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
-import com.android.launcher3.shortcuts.ShortcutKey;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.views.Transposable;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -384,19 +374,6 @@ public final class Utilities {
     }
 
     /**
-     * Wraps a message with a TTS span, so that a different message is spoken than
-     * what is getting displayed.
-     * @param msg original message
-     * @param ttsMsg message to be spoken
-     */
-    public static CharSequence wrapForTts(CharSequence msg, String ttsMsg) {
-        SpannableString spanned = new SpannableString(msg);
-        spanned.setSpan(new TtsSpan.TextBuilder(ttsMsg).build(),
-                0, spanned.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        return spanned;
-    }
-
-    /**
      * Prefixes a text with the provided icon
      */
     public static CharSequence prefixTextWithIcon(Context context, int iconRes, CharSequence msg) {
@@ -474,18 +451,6 @@ public final class Utilities {
             outObj[0] = activityInfo;
             return (activityInfo != null) ? appState.getIconCache()
                     .getFullResIcon(activityInfo, flattenDrawable) : null;
-        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-            ShortcutKey key = ShortcutKey.fromItemInfo(info);
-            DeepShortcutManager sm = DeepShortcutManager.getInstance(launcher);
-            List<ShortcutInfo> si = sm.queryForFullDetails(
-                    key.componentName.getPackageName(), Arrays.asList(key.getId()), key.user);
-            if (si.isEmpty()) {
-                return null;
-            } else {
-                outObj[0] = si.get(0);
-                return sm.getShortcutIconDrawable(si.get(0),
-                        appState.getInvariantDeviceProfile().fillResIconDpi);
-            }
         } else {
             return null;
         }
@@ -501,26 +466,8 @@ public final class Utilities {
     public static Drawable getBadge(Launcher launcher, ItemInfo info, Object obj) {
         LauncherAppState appState = LauncherAppState.getInstance(launcher);
         int iconSize = appState.getInvariantDeviceProfile().iconBitmapSize;
-        if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-            boolean iconBadged = (info instanceof ItemInfoWithIcon)
-                    && (((ItemInfoWithIcon) info).runtimeStatusFlags & FLAG_ICON_BADGED) > 0;
-            if ((info.id == ItemInfo.NO_ID && !iconBadged)
-                    || !(obj instanceof ShortcutInfo)) {
-                // The item is not yet added on home screen.
-                return new FixedSizeEmptyDrawable(iconSize);
-            }
-            ShortcutInfo si = (ShortcutInfo) obj;
-            LauncherIcons li = LauncherIcons.obtain(appState.getContext());
-            Bitmap badge = li.getShortcutInfoBadge(si, appState.getIconCache()).iconBitmap;
-            li.recycle();
-            float badgeSize = LauncherIcons.getBadgeSizeForIconSize(iconSize);
-            float insetFraction = (iconSize - badgeSize) / iconSize;
-            return new InsetDrawable(new FastBitmapDrawable(badge),
-                    insetFraction, insetFraction, 0, 0);
-        } else {
-            return launcher.getPackageManager()
-                    .getUserBadgedIcon(new FixedSizeEmptyDrawable(iconSize), info.user);
-        }
+        return launcher.getPackageManager()
+                .getUserBadgedIcon(new FixedSizeEmptyDrawable(iconSize), info.user);
     }
 
     public static float squaredHypot(float x, float y) {

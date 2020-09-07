@@ -25,23 +25,15 @@ import android.content.pm.LauncherApps;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInstaller.SessionCallback;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ShortcutInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 
-import com.android.launcher3.compat.ShortcutConfigActivityInfo.ShortcutConfigActivityInfoVL;
 import com.android.launcher3.util.LooperExecutor;
-import com.android.launcher3.util.PackageUserKey;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class LauncherAppsCompatVL extends LauncherAppsCompat {
 
@@ -114,17 +106,6 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
     }
 
     @Override
-    public void removeOnAppsChangedCallback(OnAppsChangedCallbackCompat callback) {
-        final WrappedCallback wrappedCallback;
-        synchronized (mCallbacks) {
-            wrappedCallback = mCallbacks.remove(callback);
-        }
-        if (wrappedCallback != null) {
-            mLauncherApps.unregisterCallback(wrappedCallback);
-        }
-    }
-
-    @Override
     public boolean isPackageEnabledForProfile(String packageName, UserHandle user) {
         return mLauncherApps.isPackageEnabled(packageName, user);
     }
@@ -176,31 +157,6 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         public void onPackagesUnsuspended(String[] packageNames, UserHandle user) {
             mCallback.onPackagesUnsuspended(packageNames, user);
         }
-
-        @Override
-        public void onShortcutsChanged(@NonNull String packageName,
-            @NonNull List<ShortcutInfo> shortcuts,
-            @NonNull UserHandle user) {
-            mCallback.onShortcutsChanged(packageName, shortcuts, user);
-        }
-    }
-
-    @Override
-    public List<ShortcutConfigActivityInfo> getCustomShortcutActivityList(
-            @Nullable PackageUserKey packageUser) {
-        List<ShortcutConfigActivityInfo> result = new ArrayList<>();
-        if (packageUser != null && !packageUser.mUser.equals(Process.myUserHandle())) {
-            return result;
-        }
-        PackageManager pm = mContext.getPackageManager();
-        for (ResolveInfo info :
-                pm.queryIntentActivities(new Intent(Intent.ACTION_CREATE_SHORTCUT), 0)) {
-            if (packageUser == null || packageUser.mPackageName
-                    .equals(info.activityInfo.packageName)) {
-                result.add(new ShortcutConfigActivityInfoVL(info.activityInfo));
-            }
-        }
-        return result;
     }
 
     @Override

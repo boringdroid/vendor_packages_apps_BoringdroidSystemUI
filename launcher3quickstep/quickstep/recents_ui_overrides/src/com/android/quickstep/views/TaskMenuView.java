@@ -27,7 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,12 +39,8 @@ import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.anim.RoundedRectRevealOutlineProvider;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.views.BaseDragLayer;
-import com.android.quickstep.TaskOverlayFactory;
-import com.android.quickstep.TaskSystemShortcut;
 import com.android.quickstep.TaskUtils;
 import com.android.quickstep.views.IconView.OnScaleUpdateListener;
-
-import java.util.List;
 
 /**
  * Contains options for a recent task when long-pressing its icon.
@@ -88,7 +83,6 @@ public class TaskMenuView extends AbstractFloatingView {
     private IconView mTaskIcon;
     private AnimatorSet mOpenCloseAnimator;
     private TaskView mTaskView;
-    private LinearLayout mOptionLayout;
     private FastBitmapDrawable mMenuIconDrawable;
 
     public TaskMenuView(Context context, AttributeSet attrs) {
@@ -107,7 +101,6 @@ public class TaskMenuView extends AbstractFloatingView {
         super.onFinishInflate();
         mTaskName = findViewById(R.id.task_name);
         mTaskIcon = findViewById(R.id.task_icon);
-        mOptionLayout = findViewById(R.id.menu_option_layout);
     }
 
     @Override
@@ -192,24 +185,6 @@ public class TaskMenuView extends AbstractFloatingView {
                 (LinearLayout.LayoutParams) mTaskIcon.getLayoutParams();
         params.topMargin = (int) -mThumbnailTopMargin;
         mTaskIcon.setLayoutParams(params);
-
-        final BaseDraggingActivity activity = BaseDraggingActivity.fromContext(getContext());
-        final List<TaskSystemShortcut> shortcuts =
-                TaskOverlayFactory.INSTANCE.get(getContext()).getEnabledShortcuts(taskView);
-        final int count = shortcuts.size();
-        for (int i = 0; i < count; ++i) {
-            final TaskSystemShortcut menuOption = shortcuts.get(i);
-            addMenuOption(menuOption, menuOption.getOnClickListener(activity, taskView));
-        }
-    }
-
-    private void addMenuOption(TaskSystemShortcut menuOption, OnClickListener onClickListener) {
-        ViewGroup menuOptionView = (ViewGroup) mActivity.getLayoutInflater().inflate(
-                R.layout.task_view_menu_option, this, false);
-        menuOption.setIconAndLabelFor(
-                menuOptionView.findViewById(R.id.icon), menuOptionView.findViewById(R.id.text));
-        menuOptionView.setOnClickListener(onClickListener);
-        mOptionLayout.addView(menuOptionView);
     }
 
     private void orientAroundTaskView(TaskView taskView) {

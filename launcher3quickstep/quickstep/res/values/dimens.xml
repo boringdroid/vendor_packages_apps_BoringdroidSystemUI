@@ -52,7 +52,6 @@
     <!-- Total space (start + end) between the task card and the edge of the screen
          in various configurations -->
     <dimen name="task_card_vert_space">40dp</dimen>
-    <dimen name="task_card_menu_option_vertical_padding">8dp</dimen>
     <dimen name="task_card_menu_shadow_height">3dp</dimen>
     <dimen name="task_card_menu_horizontal_padding">0dp</dimen>
     <dimen name="portrait_task_card_horz_space">136dp</dimen>

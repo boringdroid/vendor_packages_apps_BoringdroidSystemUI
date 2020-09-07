@@ -129,11 +129,5 @@ public class WorkspaceStateTransitionAnimation {
             propertySetter.setInt(cl.getScrimBackground(),
                     DRAWABLE_ALPHA, drawableAlpha, ZOOM_OUT);
         }
-        if (config.playAtomicOverviewScaleComponent()) {
-            Interpolator fadeInterpolator = builder.getInterpolator(ANIM_WORKSPACE_FADE,
-                    pageAlphaProvider.interpolator);
-            propertySetter.setFloat(cl.getShortcutsAndWidgets(), View.ALPHA,
-                    pageAlpha, fadeInterpolator);
-        }
     }
 }

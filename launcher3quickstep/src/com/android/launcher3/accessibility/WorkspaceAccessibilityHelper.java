@@ -42,45 +42,6 @@ public class WorkspaceAccessibilityHelper extends DragAndDropAccessibilityDelega
         super(layout);
     }
 
-    /**
-     * Find the virtual view id corresponding to the top left corner of any drop region by which
-     * the passed id is contained. For an icon, this is simply
-     */
-    @Override
-    protected int intersectsValidDropTarget(int id) {
-        int mCountX = mView.getCountX();
-
-        int x = id % mCountX;
-        int y = id / mCountX;
-        LauncherAccessibilityDelegate.DragInfo dragInfo = mDelegate.getDragInfo();
-        // For an icon, we simply check the view directly below
-        View child = mView.getChildAt(x, y);
-        if (child == null || child == dragInfo.item) {
-            // Empty cell. Good for an icon or folder.
-            return id;
-        }
-        return INVALID_POSITION;
-    }
-
-    @Override
-    protected String getConfirmationForIconDrop(int id) {
-        int x = id % mView.getCountX();
-        int y = id / mView.getCountX();
-        LauncherAccessibilityDelegate.DragInfo dragInfo = mDelegate.getDragInfo();
-
-        View child = mView.getChildAt(x, y);
-        if (child == null || child == dragInfo.item) {
-            return mContext.getString(R.string.item_moved);
-        } else {
-            ItemInfo info = (ItemInfo) child.getTag();
-            if (info instanceof AppInfo || info instanceof WorkspaceItemInfo) {
-                return mContext.getString(R.string.folder_created);
-
-            }
-        }
-        return "";
-    }
-
     @Override
     protected void onPopulateNodeForVirtualView(int id, AccessibilityNodeInfoCompat node) {
         super.onPopulateNodeForVirtualView(id, node);
@@ -98,20 +59,6 @@ public class WorkspaceAccessibilityHelper extends DragAndDropAccessibilityDelega
         mTempRect.top = mTempCords[1] + (int) (mTempRect.top * scale);
         mTempRect.bottom = mTempCords[1] + (int) (mTempRect.bottom * scale);
         node.setBoundsInScreen(mTempRect);
-    }
-
-    @Override
-    protected String getLocationDescriptionForIconDrop(int id) {
-        int x = id % mView.getCountX();
-        int y = id / mView.getCountX();
-        LauncherAccessibilityDelegate.DragInfo dragInfo = mDelegate.getDragInfo();
-
-        View child = mView.getChildAt(x, y);
-        if (child == null || child == dragInfo.item) {
-            return mView.getItemMoveDescription(x, y);
-        } else {
-            return getDescriptionForDropOver(child, mContext);
-        }
     }
 
     public static String getDescriptionForDropOver(View overChild, Context context) {

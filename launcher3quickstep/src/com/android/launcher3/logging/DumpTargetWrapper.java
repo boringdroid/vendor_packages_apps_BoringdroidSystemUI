@@ -15,21 +15,17 @@
  */
 package com.android.launcher3.logging;
 
-import static com.android.launcher3.LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT;
-
 import android.content.ComponentName;
 import android.os.Process;
 import android.text.TextUtils;
 
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.model.nano.LauncherDumpProto;
 import com.android.launcher3.model.nano.LauncherDumpProto.ContainerType;
 import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
 import com.android.launcher3.model.nano.LauncherDumpProto.ItemType;
 import com.android.launcher3.model.nano.LauncherDumpProto.UserType;
-import com.android.launcher3.util.ShortcutUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,10 +75,6 @@ public class DumpTargetWrapper {
         switch (info.itemType) {
             case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                 dt.itemType = ItemType.APP_ICON;
-                break;
-            case ITEM_TYPE_DEEP_SHORTCUT:
-            case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                dt.itemType = ItemType.SHORTCUT;
                 break;
             default:
                 dt.itemType = ItemType.UNKNOWN_ITEMTYPE;
@@ -138,12 +130,8 @@ public class DumpTargetWrapper {
         if (info == null) {
             return node;
         }
-        if (ShortcutUtil.isDeepShortcut(info)) {
-            node.component = ((WorkspaceItemInfo) info).getDeepShortcutId();
-        } else {
-            ComponentName cmp = info.getTargetComponent();
-            node.component = cmp == null ? "" : cmp.flattenToString();
-        }
+        ComponentName cmp = info.getTargetComponent();
+        node.component = cmp == null ? "" : cmp.flattenToString();
         node.packageName = info.getTargetComponent() == null? "":
                 info.getTargetComponent().getPackageName();
 

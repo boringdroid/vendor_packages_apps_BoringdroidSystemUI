@@ -21,7 +21,6 @@ import static com.android.launcher3.states.RotationHelper.REQUEST_LOCK;
 import android.graphics.Rect;
 
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.Workspace;
@@ -80,7 +79,6 @@ public class SpringLoadedState extends LauncherState {
 
         // Prevent any Un/InstallShortcutReceivers from updating the db while we are
         // in spring loaded mode
-        InstallShortcutReceiver.enableInstallQueue(InstallShortcutReceiver.FLAG_DRAG_AND_DROP);
         launcher.getRotationHelper().setCurrentStateRequest(REQUEST_LOCK);
     }
 
@@ -92,9 +90,5 @@ public class SpringLoadedState extends LauncherState {
     @Override
     public void onStateDisabled(final Launcher launcher) {
         launcher.getWorkspace().getPageIndicator().setShouldAutoHide(true);
-
-        // Re-enable any Un/InstallShortcutReceiver and now process any queued items
-        InstallShortcutReceiver.disableAndFlushInstallQueue(
-                InstallShortcutReceiver.FLAG_DRAG_AND_DROP, launcher);
     }
 }

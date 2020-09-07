@@ -21,7 +21,6 @@ import android.util.Log;
 
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.util.ComponentKey;
-import com.android.launcher3.util.ShortcutUtil;
 
 import java.util.HashMap;
 
@@ -45,9 +44,6 @@ public class PopupDataProvider {
     }
 
     public int getShortcutCountForItem(ItemInfo info) {
-        if (!ShortcutUtil.supportsDeepShortcuts(info)) {
-            return 0;
-        }
         ComponentName component = info.getTargetComponent();
         if (component == null) {
             return 0;

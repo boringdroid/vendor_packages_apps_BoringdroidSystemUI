@@ -325,8 +325,6 @@ public class ModelWriter {
                 if (modelItem != null && modelItem.container == Favorites.CONTAINER_DESKTOP) {
                     switch (modelItem.itemType) {
                         case Favorites.ITEM_TYPE_APPLICATION:
-                        case Favorites.ITEM_TYPE_SHORTCUT:
-                        case Favorites.ITEM_TYPE_DEEP_SHORTCUT:
                             if (!mBgDataModel.workspaceItems.contains(modelItem)) {
                                 mBgDataModel.workspaceItems.add(modelItem);
                             }

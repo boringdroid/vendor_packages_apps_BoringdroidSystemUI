@@ -94,7 +94,7 @@ public class SessionCommitReceiver extends BroadcastReceiver {
                 .getActivityList(packageName, getUserHandle(sessionInfo));
         if (activities == null || activities.isEmpty()) {
             // Ensure application isn't already installed.
-            queueAppIconAddition(context, packageName, sessionInfo.getAppLabel(),
+            queueAppIconAddition(packageName, sessionInfo.getAppLabel(),
                     sessionInfo.getAppIcon(), getUserHandle(sessionInfo));
         }
     }
@@ -106,18 +106,16 @@ public class SessionCommitReceiver extends BroadcastReceiver {
             // no activity found
             return;
         }
-        queueAppIconAddition(context, packageName, activities.get(0).getLabel(), null, user);
+        queueAppIconAddition(packageName, activities.get(0).getLabel(), null, user);
     }
 
-    private static void queueAppIconAddition(Context context, String packageName,
-            CharSequence label, Bitmap icon, UserHandle user) {
+    private static void queueAppIconAddition(String packageName,
+                                             CharSequence label, Bitmap icon, UserHandle user) {
         Intent data = new Intent();
         data.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent().setComponent(
                 new ComponentName(packageName, "")).setPackage(packageName));
         data.putExtra(Intent.EXTRA_SHORTCUT_NAME, label);
         data.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
-
-        InstallShortcutReceiver.queueApplication(data, user, context);
     }
 
     public static boolean isEnabled(Context context) {

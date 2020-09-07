@@ -16,12 +16,10 @@
 package com.android.launcher3.allapps;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.LabelComparator;
@@ -219,19 +217,6 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
     }
 
     /**
-     * Sets the sorted list of filtered components.
-     */
-    public boolean setOrderedFilter(ArrayList<ComponentKey> f) {
-        if (mSearchResults != f) {
-            boolean same = mSearchResults != null && mSearchResults.equals(f);
-            mSearchResults = f;
-            onAppsUpdated();
-            return !same;
-        }
-        return false;
-    }
-
-    /**
      * Updates internals when the set of apps are updated.
      */
     @Override
@@ -397,10 +382,7 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
     }
 
     private boolean shouldShowWorkFooter() {
-        return mIsWork && Utilities.ATLEAST_P &&
-                (DeepShortcutManager.getInstance(mLauncher).hasHostPermission()
-                        || mLauncher.checkSelfPermission("android.permission.MODIFY_QUIET_MODE")
-                        == PackageManager.PERMISSION_GRANTED);
+        return mIsWork && Utilities.ATLEAST_P;
     }
 
     private List<AppInfo> getFiltersAppInfos() {

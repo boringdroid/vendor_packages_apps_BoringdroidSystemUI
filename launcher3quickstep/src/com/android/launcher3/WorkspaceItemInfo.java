@@ -16,22 +16,16 @@
 
 package com.android.launcher3;
 
-import android.app.Person;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.icons.IconCache;
-import com.android.launcher3.shortcuts.ShortcutKey;
-import com.android.launcher3.uioverrides.UiFactory;
 import com.android.launcher3.util.ContentWriter;
-
-import java.util.Arrays;
 
 /**
  * Represents a launchable icon on the workspaces and in folders.
@@ -103,7 +97,7 @@ public class WorkspaceItemInfo extends ItemInfoWithIcon {
 
 
     public WorkspaceItemInfo() {
-        itemType = LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT;
+
     }
 
     public WorkspaceItemInfo(WorkspaceItemInfo info) {
@@ -128,8 +122,6 @@ public class WorkspaceItemInfo extends ItemInfoWithIcon {
      */
     public WorkspaceItemInfo(ShortcutInfo shortcutInfo, Context context) {
         user = shortcutInfo.getUserHandle();
-        itemType = Favorites.ITEM_TYPE_DEEP_SHORTCUT;
-        updateFromDeepShortcutInfo(shortcutInfo, context);
     }
 
     @Override
@@ -175,44 +167,10 @@ public class WorkspaceItemInfo extends ItemInfoWithIcon {
         status |= FLAG_INSTALL_SESSION_ACTIVE;
     }
 
-    public void updateFromDeepShortcutInfo(ShortcutInfo shortcutInfo, Context context) {
-        // {@link ShortcutInfo#getActivity} can change during an update. Recreate the intent
-        intent = ShortcutKey.makeIntent(shortcutInfo);
-        title = shortcutInfo.getShortLabel();
-
-        CharSequence label = shortcutInfo.getLongLabel();
-        if (TextUtils.isEmpty(label)) {
-            label = shortcutInfo.getShortLabel();
-        }
-        contentDescription = context.getPackageManager().getUserBadgedLabel(label, user);
-        if (shortcutInfo.isEnabled()) {
-            runtimeStatusFlags &= ~FLAG_DISABLED_BY_PUBLISHER;
-        } else {
-            runtimeStatusFlags |= FLAG_DISABLED_BY_PUBLISHER;
-        }
-        disabledMessage = shortcutInfo.getDisabledMessage();
-
-        Person[] persons = UiFactory.getPersons(shortcutInfo);
-        personKeys = persons.length == 0 ? Utilities.EMPTY_STRING_ARRAY
-            : Arrays.stream(persons).map(Person::getKey).sorted().toArray(String[]::new);
-    }
-
-    /** Returns the WorkspaceItemInfo id associated with the deep shortcut. */
-    public String getDeepShortcutId() {
-        return itemType == Favorites.ITEM_TYPE_DEEP_SHORTCUT ?
-                getIntent().getStringExtra(ShortcutKey.EXTRA_SHORTCUT_ID) : null;
-    }
-
-    @NonNull
-    public String[] getPersonKeys() {
-        return personKeys;
-    }
-
     @Override
     public ComponentName getTargetComponent() {
         ComponentName cn = super.getTargetComponent();
-        if (cn == null && (itemType == Favorites.ITEM_TYPE_SHORTCUT
-                || hasStatusFlag(FLAG_SUPPORTS_WEB_UI|FLAG_AUTOINSTALL_ICON|FLAG_RESTORED_ICON))) {
+        if (cn == null && (hasStatusFlag(FLAG_SUPPORTS_WEB_UI|FLAG_AUTOINSTALL_ICON|FLAG_RESTORED_ICON))) {
             // Legacy shortcuts and promise icons with web UI may not have a componentName but just
             // a packageName. In that case create a dummy componentName instead of adding additional
             // check everywhere.

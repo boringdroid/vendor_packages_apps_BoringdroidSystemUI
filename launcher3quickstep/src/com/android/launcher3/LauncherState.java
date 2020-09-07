@@ -295,12 +295,6 @@ public class LauncherState {
 
             // Start from a higher workspace scale, but only if we're invisible so we don't jump.
             boolean isWorkspaceVisible = workspace.getVisibility() == VISIBLE;
-            if (isWorkspaceVisible) {
-                CellLayout currentChild = (CellLayout) workspace.getChildAt(
-                        workspace.getCurrentPage());
-                isWorkspaceVisible = currentChild.getVisibility() == VISIBLE
-                        && currentChild.getShortcutsAndWidgets().getAlpha() > 0;
-            }
             if (!isWorkspaceVisible) {
                 workspace.setScaleX(0.92f);
                 workspace.setScaleY(0.92f);

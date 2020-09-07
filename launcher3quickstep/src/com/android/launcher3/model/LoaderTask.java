@@ -16,7 +16,6 @@
 
 package com.android.launcher3.model;
 
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_LOCKED_USER;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SAFEMODE;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SUSPENDED;
 import static com.android.launcher3.model.LoaderResults.filterCurrentWorkspaceItems;
@@ -31,18 +30,14 @@ import android.content.IntentFilter;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInstaller.SessionInfo;
-import android.content.pm.ShortcutInfo;
 import android.os.Process;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LongSparseArray;
-import android.util.MutableInt;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.InstallShortcutReceiver;
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherSettings;
@@ -54,11 +49,8 @@ import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
-import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
 import com.android.launcher3.logging.FileLog;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
-import com.android.launcher3.shortcuts.ShortcutKey;
 import com.android.launcher3.util.IOUtils;
 import com.android.launcher3.util.LooperIdleLock;
 import com.android.launcher3.util.MultiHashMap;
@@ -70,9 +62,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CancellationException;
-import java.util.function.Supplier;
 
 /**
  * Runnable for the thread that loads the contents of the launcher:
@@ -94,7 +84,6 @@ public class LoaderTask implements Runnable {
 
     private final LauncherAppsCompat mLauncherApps;
     private final UserManagerCompat mUserManager;
-    private final DeepShortcutManager mShortcutManager;
     private final PackageInstallerCompat mPackageInstaller;
     private final IconCache mIconCache;
 
@@ -109,7 +98,6 @@ public class LoaderTask implements Runnable {
 
         mLauncherApps = LauncherAppsCompat.getInstance(mApp.getContext());
         mUserManager = UserManagerCompat.getInstance(mApp.getContext());
-        mShortcutManager = DeepShortcutManager.getInstance(mApp.getContext());
         mPackageInstaller = PackageInstallerCompat.getInstance(mApp.getContext());
         mIconCache = mApp.getIconCache();
     }
@@ -194,11 +182,9 @@ public class LoaderTask implements Runnable {
 
             // third step
             TraceHelper.partitionSection(TAG, "step 3.1: loading deep shortcuts");
-            loadDeepShortcuts();
 
             verifyNotStopped();
             TraceHelper.partitionSection(TAG, "step 3.2: bind deep shortcuts");
-            mResults.bindDeepShortcuts();
 
             // Take a break
             TraceHelper.partitionSection(TAG, "step 3 completed, wait for idle");
@@ -254,7 +240,6 @@ public class LoaderTask implements Runnable {
             final PackageUserKey tempPackageKey = new PackageUserKey(null, null);
             mFirstScreenBroadcast = new FirstScreenBroadcast(installingPkgs);
 
-            Map<ShortcutKey, ShortcutInfo> shortcutKeyToPinnedShortcuts = new HashMap<>();
             final LoaderCursor c = new LoaderCursor(contentResolver.query(
                     LauncherSettings.Favorites.CONTENT_URI, null, null, null, null), mApp);
 
@@ -274,19 +259,7 @@ public class LoaderTask implements Runnable {
 
                     // We can only query for shortcuts when the user is unlocked.
                     if (userUnlocked) {
-                        DeepShortcutManager.QueryResult pinnedShortcuts =
-                                mShortcutManager.queryForPinnedShortcuts(null, user);
-                        if (pinnedShortcuts.wasSuccess()) {
-                            for (ShortcutInfo shortcut : pinnedShortcuts) {
-                                shortcutKeyToPinnedShortcuts.put(ShortcutKey.fromInfo(shortcut),
-                                        shortcut);
-                            }
-                        } else {
-                            // Shortcut manager can fail due to some race condition when the
-                            // lock state changes too frequently. For the purpose of the loading
-                            // shortcuts, consider the user is still locked.
-                            userUnlocked = false;
-                        }
+                        userUnlocked = false;
                     }
                     unlockedUsers.put(serialNo, userUnlocked);
                 }
@@ -305,9 +278,7 @@ public class LoaderTask implements Runnable {
 
                         boolean allowMissingTarget = false;
                         switch (c.itemType) {
-                        case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                         case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                        case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT:
                             intent = c.parseIntent();
                             if (intent == null) {
                                 c.markDeleted("Invalid or null intent");
@@ -320,17 +291,13 @@ public class LoaderTask implements Runnable {
                             targetPkg = cn == null ? intent.getPackage() : cn.getPackageName();
 
                             if (allUsers.indexOfValue(c.user) < 0) {
-                                if (c.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
-                                    c.markDeleted("Legacy shortcuts are only allowed for current users");
-                                    continue;
-                                } else if (c.restoreFlag != 0) {
+                                if (c.restoreFlag != 0) {
                                     // Don't restore items for other profiles.
                                     c.markDeleted("Restore from other profiles not supported");
                                     continue;
                                 }
                             }
-                            if (TextUtils.isEmpty(targetPkg) &&
-                                    c.itemType != LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
+                            if (TextUtils.isEmpty(targetPkg)) {
                                 c.markDeleted("Only legacy shortcuts can have null package");
                                 continue;
                             }
@@ -341,8 +308,7 @@ public class LoaderTask implements Runnable {
                                     mLauncherApps.isPackageEnabledForProfile(targetPkg, c.user);
 
                             // If it's a deep shortcut, we'll use pinned shortcuts to restore it
-                            if (cn != null && validTarget && c.itemType
-                                    != LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
+                            if (cn != null && validTarget) {
                                 // If the apk is present and the shortcut points to a specific
                                 // component.
 
@@ -426,39 +392,6 @@ public class LoaderTask implements Runnable {
                                     LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
                                 info = c.getAppShortcutInfo(
                                         intent, allowMissingTarget, useLowResIcon);
-                            } else if (c.itemType ==
-                                    LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-
-                                ShortcutKey key = ShortcutKey.fromIntent(intent, c.user);
-                                if (unlockedUsers.get(c.serialNumber)) {
-                                    ShortcutInfo pinnedShortcut =
-                                            shortcutKeyToPinnedShortcuts.get(key);
-                                    if (pinnedShortcut == null) {
-                                        // The shortcut is no longer valid.
-                                        c.markDeleted("Pinned shortcut not found");
-                                        continue;
-                                    }
-                                    info = new WorkspaceItemInfo(pinnedShortcut, context);
-                                    final WorkspaceItemInfo finalInfo = info;
-
-                                    LauncherIcons li = LauncherIcons.obtain(context);
-                                    // If the pinned deep shortcut is no longer published,
-                                    // use the last saved icon instead of the default.
-                                    Supplier<ItemInfoWithIcon> fallbackIconProvider = () ->
-                                            c.loadIcon(finalInfo, li) ? finalInfo : null;
-                                    info.applyFrom(li.createShortcutIcon(pinnedShortcut,
-                                            true /* badged */, fallbackIconProvider));
-                                    li.recycle();
-                                    if (pmHelper.isAppSuspended(
-                                            pinnedShortcut.getPackage(), info.user)) {
-                                        info.runtimeStatusFlags |= FLAG_DISABLED_SUSPENDED;
-                                    }
-                                    intent = info.intent;
-                                } else {
-                                    // Create a shortcut info in disabled mode for now.
-                                    info = c.loadSimpleWorkspaceItem();
-                                    info.runtimeStatusFlags |= FLAG_DISABLED_LOCKED_USER;
-                                }
                             } else { // item type == ITEM_TYPE_SHORTCUT
                                 info = c.loadSimpleWorkspaceItem();
 
@@ -523,18 +456,6 @@ public class LoaderTask implements Runnable {
                 return;
             }
 
-            // Unpin shortcuts that don't exist on the workspace.
-            HashSet<ShortcutKey> pendingShortcuts =
-                    InstallShortcutReceiver.getPendingShortcuts(context);
-            for (ShortcutKey key : shortcutKeyToPinnedShortcuts.keySet()) {
-                MutableInt numTimesPinned = mBgDataModel.pinnedShortcutCounts.get(key);
-                if ((numTimesPinned == null || numTimesPinned.value == 0)
-                        && !pendingShortcuts.contains(key)) {
-                    // Shortcut is pinned but doesn't exist on the workspace; unpin it.
-                    mShortcutManager.unpinShortcut(key);
-                }
-            }
-
             c.commitRestoredItems();
             if (!isSdCardReady && !pendingPackages.isEmpty()) {
                 context.registerReceiver(
@@ -596,19 +517,5 @@ public class LoaderTask implements Runnable {
 
         mBgAllAppsList.getAndResetChangeFlag();
         return allActivityList;
-    }
-
-    private void loadDeepShortcuts() {
-        mBgDataModel.deepShortcutMap.clear();
-        mBgDataModel.hasShortcutHostPermission = mShortcutManager.hasHostPermission();
-        if (mBgDataModel.hasShortcutHostPermission) {
-            for (UserHandle user : mUserManager.getUserProfiles()) {
-                if (mUserManager.isUserUnlocked(user)) {
-                    List<ShortcutInfo> shortcuts =
-                            mShortcutManager.queryForAllShortcuts(user);
-                    mBgDataModel.updateDeepShortcutCounts(null, user, shortcuts);
-                }
-            }
-        }
     }
 }

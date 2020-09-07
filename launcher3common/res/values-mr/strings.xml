@@ -32,8 +32,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\" शी जुळणारे कोणतेही अ‍ॅप्स आढळले नाहीत"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"अधिक अ‍ॅप्स शोधा"</string>
     <string name="label_application" msgid="8531721983832654978">"ॲप"</string>
-    <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"शॉर्टकट निवडण्यासाठी स्पर्श करा आणि धरून ठेवा."</string>
-    <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"शॉर्टकट निवडण्यासाठी किंवा कस्टम क्रिया वापरण्यासाठी दोनदा टॅप करा आणि धरून ठेवा."</string>
     <string name="out_of_space" msgid="4691004494942118364">"या मुख्य स्क्रीनवर आणखी जागा नाही."</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"अ‍ॅप्स सूची"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"वैयक्तिक अ‍ॅप्स सूची"</string>
@@ -41,8 +39,6 @@
     <string name="all_apps_home_button_label" msgid="252062713717058851">"होम"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"काढा"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"अनइंस्टॉल करा"</string>
-    <string name="app_info_drop_target_label" msgid="692894985365717661">"अ‍ॅप माहिती"</string>
-    <string name="install_drop_target_label" msgid="2539096853673231757">"इंस्टॉल करा"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"शॉर्टकट स्‍थापित करा"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"वापरकर्ता हस्तक्षेपाशिवाय शॉर्टकट जोडण्यास अ‍ॅप ला अनुमती देते."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"होम सेटिंग्ज आणि शॉर्टकट वाचा"</string>
@@ -58,7 +54,6 @@
     <string name="workspace_new_page" msgid="257366611030256142">"नवीन मुख्य स्क्रीन पृष्ठ"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"विजेट"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"वॉलपेपर"</string>
-    <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"शैली आणि वॉलपेपर"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"होम सेटिंग्‍ज"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"आपल्या प्रशासकाने अक्षम केले"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"सूचना बिंदू दाखवा"</string>
@@ -77,7 +72,6 @@
     <string name="move_to_empty_cell" msgid="2833711483015685619">"पंक्ति <xliff:g id="NUMBER_0">%1$s</xliff:g> स्तंभ <xliff:g id="NUMBER_1">%2$s</xliff:g> मध्ये हलवा"</string>
     <string name="item_moved" msgid="4606538322571412879">"आयटम हलविला"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"यासह फोल्‍डर तयार करा: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="folder_created" msgid="6409794597405184510">"फोल्‍डर तयार केले"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"मुख्य स्क्रीनवर हलवा"</string>
     <string name="action_resize" msgid="1802976324781771067">"आकार बदला"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"शॉर्टकट"</string>
@@ -91,5 +85,4 @@
     <string name="work_mode_off_label" msgid="3194894777601421047">"सूचना आणि अ‍ॅप्स बंद आहेत"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"बंद करा"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"बंद केले"</string>
-    <string name="remote_action_failed" msgid="1383965239183576790">"हे करता आले नाही: <xliff:g id="WHAT">%1$s</xliff:g>"</string>
 </resources>

@@ -48,7 +48,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -66,8 +65,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.graphics.IconShape;
 import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.popup.SystemShortcut;
-import com.android.launcher3.shortcuts.DeepShortcutView;
 
 /**
  * A view that is created to look like another view with the purpose of creating fluid animations.
@@ -346,13 +343,6 @@ public class FloatingIconView extends View implements
     private static float getLocationBoundsForView(Launcher launcher, View v, boolean isOpening,
             RectF outRect) {
         boolean ignoreTransform = !isOpening;
-        if (v instanceof DeepShortcutView) {
-            v = ((DeepShortcutView) v).getBubbleText();
-            ignoreTransform = false;
-        } else if (v.getParent() instanceof DeepShortcutView) {
-            v = ((DeepShortcutView) v.getParent()).getIconView();
-            ignoreTransform = false;
-        }
         if (v == null) {
             return 0;
         }
@@ -397,33 +387,23 @@ public class FloatingIconView extends View implements
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
         Drawable btvIcon = originalView instanceof BubbleTextView
                 ? ((BubbleTextView) originalView).getIcon() : null;
-        if (info instanceof SystemShortcut) {
-            if (originalView instanceof ImageView) {
-                drawable = ((ImageView) originalView).getDrawable();
-            } else if (originalView instanceof DeepShortcutView) {
-                drawable = ((DeepShortcutView) originalView).getIconView().getBackground();
+        int width = (int) pos.width();
+        int height = (int) pos.height();
+        if (supportsAdaptiveIcons) {
+            drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
+            if (drawable instanceof AdaptiveIconDrawable) {
+                badge = getBadge(l, info, sTmpObjArray[0]);
             } else {
-                drawable = originalView.getBackground();
+                // The drawable we get back is not an adaptive icon, so we need to use the
+                // BubbleTextView icon that is already legacy treated.
+                drawable = btvIcon;
             }
         } else {
-            int width = (int) pos.width();
-            int height = (int) pos.height();
-            if (supportsAdaptiveIcons) {
-                drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
-                if (drawable instanceof AdaptiveIconDrawable) {
-                    badge = getBadge(l, info, sTmpObjArray[0]);
-                } else {
-                    // The drawable we get back is not an adaptive icon, so we need to use the
-                    // BubbleTextView icon that is already legacy treated.
-                    drawable = btvIcon;
-                }
+            if (originalView instanceof BubbleTextView) {
+                // Similar to DragView, we simply use the BubbleTextView icon here.
+                drawable = btvIcon;
             } else {
-                if (originalView instanceof BubbleTextView) {
-                    // Similar to DragView, we simply use the BubbleTextView icon here.
-                    drawable = btvIcon;
-                } else {
-                    drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
-                }
+                drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
             }
         }
 

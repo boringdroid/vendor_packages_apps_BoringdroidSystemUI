@@ -175,14 +175,6 @@ public class LoggerUtils {
                         : ItemType.APP_ICON;
                 t.predictedRank = DEFAULT_PREDICTED_RANK;
                 break;
-            case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                t.itemType = ItemType.SHORTCUT;
-                t.predictedRank = DEFAULT_PREDICTED_RANK;
-                break;
-            case LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT:
-                t.itemType = ItemType.DEEPSHORTCUT;
-                t.predictedRank = DEFAULT_PREDICTED_RANK;
-                break;
         }
         return t;
     }

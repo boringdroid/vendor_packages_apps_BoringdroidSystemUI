@@ -32,13 +32,4 @@ public class LoaderResults extends BaseLoaderResults {
             AllAppsList allAppsList, int pageToBindFirst, WeakReference<Callbacks> callbacks) {
         super(app, dataModel, allAppsList, pageToBindFirst, callbacks);
     }
-
-    @Override
-    public void bindDeepShortcuts() {
-        final HashMap<ComponentKey, Integer> shortcutMapCopy;
-        synchronized (mBgDataModel) {
-            shortcutMapCopy = new HashMap<>(mBgDataModel.deepShortcutMap);
-        }
-        executeCallbacksTask(c -> c.bindDeepShortcutMap(shortcutMapCopy), mUiExecutor);
-    }
 }

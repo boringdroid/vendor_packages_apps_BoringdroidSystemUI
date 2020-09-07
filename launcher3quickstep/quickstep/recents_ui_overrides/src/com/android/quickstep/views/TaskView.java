@@ -60,8 +60,6 @@ import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.ViewPool.Reusable;
 import com.android.quickstep.RecentsModel;
 import com.android.quickstep.TaskIconCache;
-import com.android.quickstep.TaskOverlayFactory;
-import com.android.quickstep.TaskSystemShortcut;
 import com.android.quickstep.TaskThumbnailCache;
 import com.android.quickstep.TaskUtils;
 import com.android.quickstep.util.TaskCornerRadius;
@@ -690,18 +688,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
                 new AccessibilityNodeInfo.AccessibilityAction(R.string.accessibility_close_task,
                         getContext().getText(R.string.accessibility_close_task)));
 
-        final Context context = getContext();
-        final List<TaskSystemShortcut> shortcuts =
-                TaskOverlayFactory.INSTANCE.get(getContext()).getEnabledShortcuts(this);
-        final int count = shortcuts.size();
-        for (int i = 0; i < count; ++i) {
-            final TaskSystemShortcut menuOption = shortcuts.get(i);
-            OnClickListener onClickListener = menuOption.getOnClickListener(mActivity, this);
-            if (onClickListener != null) {
-                info.addAction(menuOption.createAccessibilityAction(context));
-            }
-        }
-
         if (mDigitalWellBeingToast.hasLimit()) {
             info.addAction(
                     new AccessibilityNodeInfo.AccessibilityAction(
@@ -728,20 +714,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         if (action == R.string.accessibility_app_usage_settings) {
             mDigitalWellBeingToast.openAppUsageSettings(this);
             return true;
-        }
-
-        final List<TaskSystemShortcut> shortcuts =
-                TaskOverlayFactory.INSTANCE.get(getContext()).getEnabledShortcuts(this);
-        final int count = shortcuts.size();
-        for (int i = 0; i < count; ++i) {
-            final TaskSystemShortcut menuOption = shortcuts.get(i);
-            if (menuOption.hasHandlerForAction(action)) {
-                OnClickListener onClickListener = menuOption.getOnClickListener(mActivity, this);
-                if (onClickListener != null) {
-                    onClickListener.onClick(this);
-                }
-                return true;
-            }
         }
 
         return super.performAccessibilityAction(action, arguments);

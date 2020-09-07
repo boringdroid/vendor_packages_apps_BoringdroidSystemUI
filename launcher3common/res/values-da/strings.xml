@@ -32,8 +32,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"Der blev ikke fundet nogen apps, som matcher \"<xliff:g id="QUERY">%1$s</xliff:g>\""</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"Søg efter flere apps"</string>
     <string name="label_application" msgid="8531721983832654978">"App"</string>
-    <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"Hold en genvej nede for at samle den op."</string>
-    <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"Tryk to gange, og hold en genvej nede for at samle den op eller bruge tilpassede handlinger."</string>
     <string name="out_of_space" msgid="4691004494942118364">"Der er ikke mere plads på denne startskærm."</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Liste med apps"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"Liste over personlige apps"</string>
@@ -41,8 +39,6 @@
     <string name="all_apps_home_button_label" msgid="252062713717058851">"Hjem"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Fjern"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Afinstaller"</string>
-    <string name="app_info_drop_target_label" msgid="692894985365717661">"Appinfo"</string>
-    <string name="install_drop_target_label" msgid="2539096853673231757">"Installer"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"installere genveje"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"Tillader, at en app tilføjer genveje uden brugerens indgriben."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"læs indstillinger og genveje for startskærmen"</string>
@@ -58,7 +54,6 @@
     <string name="workspace_new_page" msgid="257366611030256142">"Ny startskærm"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Widgets"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Baggrunde"</string>
-    <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"Stil og baggrunde"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Startskærmindstillinger"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"Deaktiveret af din administrator"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Vis notifikationscirkler"</string>
@@ -77,7 +72,6 @@
     <string name="move_to_empty_cell" msgid="2833711483015685619">"Flyt til række <xliff:g id="NUMBER_0">%1$s</xliff:g>, kolonne <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"Elementet blev flyttet"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"Opret mappe med: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="folder_created" msgid="6409794597405184510">"Mappen blev oprettet"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"Flyt til startskærmen"</string>
     <string name="action_resize" msgid="1802976324781771067">"Tilpas størrelse"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"Genveje"</string>
@@ -91,5 +85,4 @@
     <string name="work_mode_off_label" msgid="3194894777601421047">"Notifikationer og apps er slået fra"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Luk"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Lukket"</string>
-    <string name="remote_action_failed" msgid="1383965239183576790">"Mislykket: <xliff:g id="WHAT">%1$s</xliff:g>"</string>
 </resources>

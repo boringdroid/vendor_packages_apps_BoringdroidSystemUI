@@ -249,8 +249,6 @@ public abstract class BaseLoaderResults {
         }
     }
 
-    public abstract void bindDeepShortcuts();
-
     public void bindAllApps() {
         // shallow copy
         AppInfo[] apps = mBgAllAppsList.copyData();

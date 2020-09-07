@@ -32,8 +32,6 @@
     <string name="all_apps_no_search_results" msgid="3200346862396363786">"រកមិនឃើញកម្មវិធី​ដែលត្រូវគ្នាជាមួយ \"<xliff:g id="QUERY">%1$s</xliff:g>\" ទេ"</string>
     <string name="all_apps_search_market_message" msgid="1366263386197059176">"ស្វែងរកកម្មវិធីច្រើនទៀត"</string>
     <string name="label_application" msgid="8531721983832654978">"កម្មវិធី"</string>
-    <string name="long_press_shortcut_to_add" msgid="4524750017792716791">"ចុច​ឱ្យ​ជាប់​ដើម្បី​ជ្រើស​រើស​ផ្លូវកាត់​មួយ។"</string>
-    <string name="long_accessible_way_to_add_shortcut" msgid="3327314059613154633">"ចុច​ពីរ​ដង ហើយ​ចុច​ឱ្យ​ជាប់​ដើម្បី​ជ្រើសរើស​ផ្លូវកាត់​មួយ ឬ​ប្រើ​សកម្មភាព​ផ្ទាល់ខ្លួន។"</string>
     <string name="out_of_space" msgid="4691004494942118364">"គ្មាន​បន្ទប់​នៅ​លើ​អេក្រង់​ដើម​នេះ​ទៀត​ទេ។"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"បញ្ជីកម្មវិធី"</string>
     <string name="all_apps_button_personal_label" msgid="1315764287305224468">"បញ្ជី​កម្មវិធី​ផ្ទាល់ខ្លួន"</string>
@@ -41,8 +39,6 @@
     <string name="all_apps_home_button_label" msgid="252062713717058851">"ដើម"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"យកចេញ"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"លុបការដំឡើង"</string>
-    <string name="app_info_drop_target_label" msgid="692894985365717661">"ព័ត៌មាន​កម្មវិធី"</string>
-    <string name="install_drop_target_label" msgid="2539096853673231757">"ដំឡើង"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"ដំឡើង​ផ្លូវកាត់"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"អនុញ្ញាត​ឲ្យ​កម្មវិធី​បន្ថែម​ផ្លូវកាត់​ ដោយ​មិន​ចាំបាច់​​អំពើ​ពី​អ្នក​ប្រើ។"</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"អាន​ការ​កំណត់​ និង​ផ្លូវកាត់​​អេក្រង់​ដើម"</string>
@@ -58,7 +54,6 @@
     <string name="workspace_new_page" msgid="257366611030256142">"ទំព័រអេក្រង់ដើមថ្មី"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"ធាតុ​ក្រាហ្វិក"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"ផ្ទាំង​រូបភាព"</string>
-    <string name="styles_wallpaper_button_text" msgid="4342122323125579619">"រចនាប័ទ្ម និង​ផ្ទាំង​រូបភាព"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"ការកំណត់​ទំព័រដើម"</string>
     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"បានបិទដំណើរការដោយអ្នកគ្រប់គ្រងរបស់អ្នក"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"បង្ហាញ​ស្លាក​ជូនដំណឹង"</string>
@@ -77,7 +72,6 @@
     <string name="move_to_empty_cell" msgid="2833711483015685619">"ផ្លាស់ទីទៅជួរដេកទី <xliff:g id="NUMBER_0">%1$s</xliff:g> ជួរឈរទី <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
     <string name="item_moved" msgid="4606538322571412879">"បានផ្លាស់ទីធាតុ"</string>
     <string name="create_folder_with" msgid="4050141361160214248">"បង្កើតថតឯកសារជាមួយ៖ <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="folder_created" msgid="6409794597405184510">"បានបង្កើតថតឯកសារ"</string>
     <string name="action_move_to_workspace" msgid="1603837886334246317">"ផ្លាស់ទៅអេក្រង់ដើម"</string>
     <string name="action_resize" msgid="1802976324781771067">"ប្ដូរទំហំ"</string>
     <string name="action_deep_shortcut" msgid="2864038805849372848">"ផ្លូវកាត់"</string>
@@ -91,5 +85,4 @@
     <string name="work_mode_off_label" msgid="3194894777601421047">"ការជូនដំណឹង​ និងកម្មវិធី​ត្រូវបានបិទ"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"បិទ"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"បានបិទ"</string>
-    <string name="remote_action_failed" msgid="1383965239183576790">"បានបរាជ័យ៖ <xliff:g id="WHAT">%1$s</xliff:g>"</string>
 </resources>

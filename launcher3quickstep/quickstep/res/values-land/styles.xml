@@ -21,8 +21,4 @@
     </style>
 
     <!-- Task Menu Option layout styles. -->
-    <style name="TaskMenu.Option">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_weight">1</item>
-    </style>
 </resources>

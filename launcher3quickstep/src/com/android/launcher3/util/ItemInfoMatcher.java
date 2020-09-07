@@ -20,9 +20,7 @@ import android.content.ComponentName;
 import android.os.UserHandle;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.shortcuts.ShortcutKey;
 
 import java.util.HashSet;
 
@@ -82,11 +80,6 @@ public interface ItemInfoMatcher {
 
     static ItemInfoMatcher ofPackages(HashSet<String> packageNames, UserHandle user) {
         return (info, cn) -> packageNames.contains(cn.getPackageName()) && info.user.equals(user);
-    }
-
-    static ItemInfoMatcher ofShortcutKeys(HashSet<ShortcutKey> keys) {
-        return  (info, cn) -> info.itemType == Favorites.ITEM_TYPE_DEEP_SHORTCUT &&
-                        keys.contains(ShortcutKey.fromItemInfo(info));
     }
 
     static ItemInfoMatcher ofItemIds(IntSparseArrayMap<Boolean> ids, Boolean matchDefault) {

@@ -15,26 +15,20 @@
  */
 package com.android.quickstep.util;
 
-import static com.android.launcher3.LauncherAnimUtils.VIEW_TRANSLATE_Y;
 import static com.android.launcher3.LauncherState.BACKGROUND_APP;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherStateManager.ANIM_ALL;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.view.View;
 
 import com.android.launcher3.CellLayout;
-import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager;
 import com.android.launcher3.LauncherStateManager.AnimationConfig;
-import com.android.launcher3.R;
-import com.android.launcher3.ShortcutContainer;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.PropertySetter;
@@ -52,16 +46,9 @@ import java.util.List;
  */
 public class StaggeredWorkspaceAnim {
 
-    private static final int APP_CLOSE_ROW_START_DELAY_MS = 10;
     private static final int ALPHA_DURATION_MS = 250;
 
-    private static final float MAX_VELOCITY_PX_PER_S = 22f;
-
-    private static final float DAMPING_RATIO = 0.7f;
-    private static final float STIFFNESS = 150f;
-
     private final float mVelocity;
-    private final float mSpringTransY;
 
     private final List<Animator> mAnimators = new ArrayList<>();
 
@@ -72,14 +59,9 @@ public class StaggeredWorkspaceAnim {
 
         // Scale the translationY based on the initial velocity to better sync the workspace items
         // with the floating view.
-        float transFactor = 0.2f + 0.9f * Math.abs(velocity) / MAX_VELOCITY_PX_PER_S;
-        mSpringTransY = transFactor * launcher.getResources()
-                .getDimensionPixelSize(R.dimen.swipe_up_max_workspace_trans_y);
 
-        DeviceProfile grid = launcher.getDeviceProfile();
         Workspace workspace = launcher.getWorkspace();
         CellLayout cellLayout = (CellLayout) workspace.getChildAt(workspace.getCurrentPage());
-        ShortcutContainer currentPage = cellLayout.getShortcutsAndWidgets();
 
         boolean workspaceClipChildren = workspace.getClipChildren();
         boolean workspaceClipToPadding = workspace.getClipToPadding();
@@ -90,15 +72,6 @@ public class StaggeredWorkspaceAnim {
         workspace.setClipToPadding(false);
         cellLayout.setClipChildren(false);
         cellLayout.setClipToPadding(false);
-
-        int totalRows = grid.inv.numRows + (grid.isVerticalBarLayout() ? 0 : 2);
-
-        // Set up springs on workspace items.
-        for (int i = currentPage.getChildCount() - 1; i >= 0; i--) {
-            View child = currentPage.getChildAt(i);
-            CellLayout.LayoutParams lp = ((CellLayout.LayoutParams) child.getLayoutParams());
-            addStaggeredAnimationForView(child, lp.cellY + lp.cellVSpan, totalRows);
-        }
 
         if (animateOverviewScrim) {
             addScrimAnimationForState(launcher, BACKGROUND_APP, 0);
@@ -153,33 +126,6 @@ public class StaggeredWorkspaceAnim {
                 a.start();
             }
         }
-    }
-
-    /**
-     * Adds an alpha/trans animator for {@param v}, with a start delay based on the view's row.
-     *
-     * @param v A view on the workspace.
-     * @param row The bottom-most row that contains the view.
-     * @param totalRows Total number of rows.
-     */
-    private void addStaggeredAnimationForView(View v, int row, int totalRows) {
-        // Invert the rows, because we stagger starting from the bottom of the screen.
-        int invertedRow = totalRows - row;
-        // Add 1 to the inverted row so that the bottom most row has a start delay.
-        long startDelay = (long) ((invertedRow + 1) * APP_CLOSE_ROW_START_DELAY_MS);
-
-        v.setTranslationY(mSpringTransY);
-        SpringObjectAnimator springTransY = new SpringObjectAnimator<>(v, VIEW_TRANSLATE_Y,
-                1f, DAMPING_RATIO, STIFFNESS, mSpringTransY, 0);
-        springTransY.setStartDelay(startDelay);
-        mAnimators.add(springTransY);
-
-        v.setAlpha(0);
-        ObjectAnimator alpha = ObjectAnimator.ofFloat(v, View.ALPHA, 0f, 1f);
-        alpha.setInterpolator(LINEAR);
-        alpha.setDuration(ALPHA_DURATION_MS);
-        alpha.setStartDelay(startDelay);
-        mAnimators.add(alpha);
     }
 
     private void addScrimAnimationForState(Launcher launcher, LauncherState state, long duration) {
