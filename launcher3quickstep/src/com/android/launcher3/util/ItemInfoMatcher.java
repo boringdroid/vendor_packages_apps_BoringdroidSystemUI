@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.os.UserHandle;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.WorkspaceItemInfo;
 
 import java.util.HashSet;
 
@@ -35,17 +34,7 @@ public interface ItemInfoMatcher {
      * Filters {@param infos} to those satisfying the {@link #matches(ItemInfo, ComponentName)}.
      */
     default HashSet<ItemInfo> filterItemInfos(Iterable<ItemInfo> infos) {
-        HashSet<ItemInfo> filtered = new HashSet<>();
-        for (ItemInfo i : infos) {
-            if (i instanceof WorkspaceItemInfo) {
-                WorkspaceItemInfo info = (WorkspaceItemInfo) i;
-                ComponentName cn = info.getTargetComponent();
-                if (cn != null && matches(info, cn)) {
-                    filtered.add(info);
-                }
-            }
-        }
-        return filtered;
+        return new HashSet<>();
     }
 
     /**

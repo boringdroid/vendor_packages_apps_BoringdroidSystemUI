@@ -17,36 +17,24 @@ package com.android.launcher3.model;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.SessionCommitReceiver;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.IconCache;
-import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.SafeCloseable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-
-import static com.android.launcher3.WorkspaceItemInfo.FLAG_AUTOINSTALL_ICON;
-import static com.android.launcher3.WorkspaceItemInfo.FLAG_RESTORED_ICON;
 
 /**
  * Handles updates due to changes in package manager (app installed/updated/removed)
@@ -102,7 +90,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                         SessionCommitReceiver.queueAppIconAddition(context, packages[i], mUser);
                     }
                 }
-                flagOp = FlagOp.removeFlag(WorkspaceItemInfo.FLAG_DISABLED_NOT_AVAILABLE);
                 break;
             }
             case OP_UPDATE:
@@ -114,8 +101,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                         appsList.updatePackage(context, packages[i], mUser);
                     }
                 }
-                // Since package was just updated, the target must be available now.
-                flagOp = FlagOp.removeFlag(WorkspaceItemInfo.FLAG_DISABLED_NOT_AVAILABLE);
                 break;
             case OP_REMOVE: {
                 for (int i = 0; i < N; i++) {
@@ -128,20 +113,13 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                     if (DEBUG) Log.d(TAG, "mAllAppsList.removePackage " + packages[i]);
                     appsList.removePackage(packages[i], mUser);
                 }
-                flagOp = FlagOp.addFlag(WorkspaceItemInfo.FLAG_DISABLED_NOT_AVAILABLE);
                 break;
             case OP_SUSPEND:
             case OP_UNSUSPEND:
-                flagOp = mOp == OP_SUSPEND ?
-                        FlagOp.addFlag(WorkspaceItemInfo.FLAG_DISABLED_SUSPENDED) :
-                        FlagOp.removeFlag(WorkspaceItemInfo.FLAG_DISABLED_SUSPENDED);
                 if (DEBUG) Log.d(TAG, "mAllAppsList.(un)suspend " + N);
                 appsList.updateDisabledFlags(matcher, flagOp);
                 break;
             case OP_USER_AVAILABILITY_CHANGE:
-                flagOp = UserManagerCompat.getInstance(context).isQuietModeEnabled(mUser)
-                        ? FlagOp.addFlag(WorkspaceItemInfo.FLAG_DISABLED_QUIET_USER)
-                        : FlagOp.removeFlag(WorkspaceItemInfo.FLAG_DISABLED_QUIET_USER);
                 // We want to update all packages for this user.
                 matcher = ItemInfoMatcher.ofUser(mUser);
                 appsList.updateDisabledFlags(matcher, flagOp);
@@ -154,90 +132,6 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
 
         // Update shortcut infos
         if (mOp == OP_ADD || flagOp != FlagOp.NO_OP) {
-            final ArrayList<WorkspaceItemInfo> updatedWorkspaceItems = new ArrayList<>();
-
-            // For system apps, package manager send OP_UPDATE when an app is enabled.
-            final boolean isNewApkAvailable = mOp == OP_ADD || mOp == OP_UPDATE;
-            synchronized (dataModel) {
-                for (ItemInfo info : dataModel.itemsIdMap) {
-                    if (info instanceof WorkspaceItemInfo && mUser.equals(info.user)) {
-                        WorkspaceItemInfo si = (WorkspaceItemInfo) info;
-                        boolean infoUpdated = false;
-                        boolean shortcutUpdated = false;
-
-                        // Update shortcuts which use iconResource.
-                        if ((si.iconResource != null)
-                                && packageSet.contains(si.iconResource.packageName)) {
-                            LauncherIcons li = LauncherIcons.obtain(context);
-                            BitmapInfo iconInfo = li.createIconBitmap(si.iconResource);
-                            li.recycle();
-                            if (iconInfo != null) {
-                                si.applyFrom(iconInfo);
-                                infoUpdated = true;
-                            }
-                        }
-
-                        ComponentName cn = si.getTargetComponent();
-                        if (cn != null && matcher.matches(si, cn)) {
-                            String packageName = cn.getPackageName();
-
-                            if (si.hasStatusFlag(WorkspaceItemInfo.FLAG_SUPPORTS_WEB_UI)) {
-                                removedShortcuts.put(si.id, false);
-                                if (mOp == OP_REMOVE) {
-                                    continue;
-                                }
-                            }
-
-                            if (si.isPromise() && isNewApkAvailable) {
-                                boolean isTargetValid = true;
-                                if (!cn.getClassName().equals(IconCache.EMPTY_CLASS_NAME)) {
-                                    isTargetValid = LauncherAppsCompat.getInstance(context)
-                                            .isActivityEnabledForProfile(cn, mUser);
-                                }
-                                if (si.hasStatusFlag(FLAG_RESTORED_ICON | FLAG_AUTOINSTALL_ICON)) {
-                                    if (updateWorkspaceItemIntent(context, si, packageName)) {
-                                        infoUpdated = true;
-                                    } else if (si.hasPromiseIconUi()) {
-                                        removedShortcuts.put(si.id, true);
-                                        continue;
-                                    }
-                                } else if (!isTargetValid) {
-                                    removedShortcuts.put(si.id, true);
-                                    continue;
-                                } else {
-                                    si.status = WorkspaceItemInfo.DEFAULT;
-                                    infoUpdated = true;
-                                }
-                            } else if (isNewApkAvailable && removedComponents.contains(cn)) {
-                                if (updateWorkspaceItemIntent(context, si, packageName)) {
-                                    infoUpdated = true;
-                                }
-                            }
-
-                            if (isNewApkAvailable &&
-                                    si.itemType == Favorites.ITEM_TYPE_APPLICATION) {
-                                iconCache.getTitleAndIcon(si, si.usingLowResIcon());
-                                infoUpdated = true;
-                            }
-
-                            int oldRuntimeFlags = si.runtimeStatusFlags;
-                            si.runtimeStatusFlags = flagOp.apply(si.runtimeStatusFlags);
-                            if (si.runtimeStatusFlags != oldRuntimeFlags) {
-                                shortcutUpdated = true;
-                            }
-                        }
-
-                        if (infoUpdated || shortcutUpdated) {
-                            updatedWorkspaceItems.add(si);
-                        }
-                        if (infoUpdated) {
-                            getModelWriter().updateItemInDatabase(si);
-                        }
-                    }
-                }
-            }
-
-            bindUpdatedWorkspaceItems(updatedWorkspaceItems);
             if (!removedShortcuts.isEmpty()) {
                 deleteAndBindComponentsRemoved(ItemInfoMatcher.ofItemIds(removedShortcuts, false));
             }
@@ -266,21 +160,5 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                     .and(ItemInfoMatcher.ofItemIds(removedShortcuts, true));
             deleteAndBindComponentsRemoved(removeMatch);
         }
-    }
-
-    /**
-     * Updates {@param si}'s intent to point to a new ComponentName.
-     * @return Whether the shortcut intent was changed.
-     */
-    private boolean updateWorkspaceItemIntent(Context context,
-            WorkspaceItemInfo si, String packageName) {
-        // Try to find the best match activity.
-        Intent intent = new PackageManagerHelper(context).getAppLaunchIntent(packageName, mUser);
-        if (intent != null) {
-            si.intent = intent;
-            si.status = WorkspaceItemInfo.DEFAULT;
-            return true;
-        }
-        return false;
     }
 }

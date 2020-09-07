@@ -40,11 +40,6 @@ public class ItemInfo {
 
     /**
      * One of {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_SHORTCUT},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_DEEP_SHORTCUT}
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_FOLDER},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_APPWIDGET} or
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_CUSTOM_APPWIDGET}.
      */
     public int itemType;
 
@@ -171,11 +166,6 @@ public class ItemInfo {
      * Write the fields of this item to the DB
      */
     public void onAddToDatabase(ContentWriter writer) {
-        if (screenId == Workspace.EXTRA_EMPTY_SCREEN_ID) {
-            // We should never persist an item on the extra empty screen.
-            throw new RuntimeException("Screen id should not be EXTRA_EMPTY_SCREEN_ID");
-        }
-
         writeToValues(writer);
         writer.put(LauncherSettings.Favorites.PROFILE_ID, user);
     }
@@ -203,14 +193,6 @@ public class ItemInfo {
      */
     public boolean isDisabled() {
         return false;
-    }
-
-    public int getViewId() {
-        // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-        // This cast is safe as long as the id < 0x00FFFFFF
-        // Since we jail all the dynamically generated views, there should be no clashes
-        // with any other views.
-        return id;
     }
 
 }

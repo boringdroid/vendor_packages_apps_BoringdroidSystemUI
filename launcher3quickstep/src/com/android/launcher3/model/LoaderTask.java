@@ -16,11 +16,8 @@
 
 package com.android.launcher3.model;
 
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SAFEMODE;
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SUSPENDED;
 import static com.android.launcher3.model.LoaderResults.filterCurrentWorkspaceItems;
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
-import static com.android.launcher3.util.PackageManagerHelper.isSystemApp;
 
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -42,7 +39,6 @@ import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
@@ -147,7 +143,6 @@ public class LoaderTask implements Runnable {
 
             verifyNotStopped();
             TraceHelper.partitionSection(TAG, "step 1.2: bind workspace workspace");
-            mResults.bindWorkspace();
 
             // Notify the installer packages of packages with active installs on the first screen.
             TraceHelper.partitionSection(TAG, "step 1.3: send first screen broadcast");
@@ -164,7 +159,6 @@ public class LoaderTask implements Runnable {
 
             TraceHelper.partitionSection(TAG, "step 2.2: Binding all apps");
             verifyNotStopped();
-            mResults.bindAllApps();
 
             verifyNotStopped();
             TraceHelper.partitionSection(TAG, "step 2.3: Update icon cache");
@@ -172,7 +166,7 @@ public class LoaderTask implements Runnable {
             setIgnorePackages(updateHandler);
             updateHandler.updateIcons(allActivityList,
                     LauncherActivityCachingLogic.newInstance(mApp.getContext()),
-                    mApp.getModel()::onPackageIconsUpdated);
+                    (updatedPackages, updatedPackages2) -> mApp.getModel().onPackageIconsUpdated());
 
             // Take a break
             TraceHelper.partitionSection(TAG, "step 2 completed, wait for idle");
@@ -210,7 +204,6 @@ public class LoaderTask implements Runnable {
         final Context context = mApp.getContext();
         final ContentResolver contentResolver = context.getContentResolver();
         final PackageManagerHelper pmHelper = new PackageManagerHelper(context);
-        final boolean isSafeMode = pmHelper.isSafeMode();
         final boolean isSdCardReady = Utilities.isBootCompleted();
         final MultiHashMap<UserHandle, String> pendingPackages = new MultiHashMap<>();
 
@@ -243,8 +236,6 @@ public class LoaderTask implements Runnable {
                     LauncherSettings.Favorites.CONTENT_URI, null, null, null, null), mApp);
 
             try {
-                final int rankIndex = c.getColumnIndexOrThrow(
-                        LauncherSettings.Favorites.RANK);
 
                 final LongSparseArray<UserHandle> allUsers = c.allUsers;
                 final LongSparseArray<Boolean> quietMode = new LongSparseArray<>();
@@ -263,7 +254,6 @@ public class LoaderTask implements Runnable {
                     unlockedUsers.put(serialNo, userUnlocked);
                 }
 
-                WorkspaceItemInfo info;
                 Intent intent;
                 String targetPkg;
 
@@ -275,7 +265,6 @@ public class LoaderTask implements Runnable {
                             continue;
                         }
 
-                        boolean allowMissingTarget = false;
                         switch (c.itemType) {
                         case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                             intent = c.parseIntent();
@@ -284,8 +273,6 @@ public class LoaderTask implements Runnable {
                                 continue;
                             }
 
-                            int disabledState = quietMode.get(c.serialNumber) ?
-                                    WorkspaceItemInfo.FLAG_DISABLED_QUIET_USER : 0;
                             ComponentName cn = intent.getComponent();
                             targetPkg = cn == null ? intent.getPackage() : cn.getPackageName();
 
@@ -338,11 +325,8 @@ public class LoaderTask implements Runnable {
 
                                 if (c.restoreFlag != 0) {
                                     tempPackageKey.update(targetPkg, c.user);
-                                    if (c.hasRestoreFlag(WorkspaceItemInfo.FLAG_RESTORE_STARTED)) {
-                                        // Restore has started once.
-                                    } else if (installingPkgs.containsKey(tempPackageKey)) {
+                                    if (installingPkgs.containsKey(tempPackageKey)) {
                                         // App restore has started. Update the flag
-                                        c.restoreFlag |= WorkspaceItemInfo.FLAG_RESTORE_STARTED;
                                         c.updater().put(LauncherSettings.Favorites.RESTORED,
                                                 c.restoreFlag).commit();
                                     } else {
@@ -350,26 +334,18 @@ public class LoaderTask implements Runnable {
                                         continue;
                                     }
                                 } else if (pmHelper.isAppOnSdcard(targetPkg, c.user)) {
-                                    // Package is present but not available.
-                                    disabledState |= WorkspaceItemInfo.FLAG_DISABLED_NOT_AVAILABLE;
                                     // Add the icon on the workspace anyway.
-                                    allowMissingTarget = true;
                                 } else if (!isSdCardReady) {
                                     // SdCard is not ready yet. Package might get available,
                                     // once it is ready.
                                     Log.d(TAG, "Missing pkg, will check later: " + targetPkg);
                                     pendingPackages.addToList(c.user, targetPkg);
                                     // Add the icon on the workspace anyway.
-                                    allowMissingTarget = true;
                                 } else {
                                     // Do not wait for external media load anymore.
                                     c.markDeleted();
                                     continue;
                                 }
-                            }
-
-                            if ((c.restoreFlag & WorkspaceItemInfo.FLAG_SUPPORTS_WEB_UI) != 0) {
-                                validTarget = false;
                             }
 
                             if (validTarget) {
@@ -378,22 +354,14 @@ public class LoaderTask implements Runnable {
                                 c.markRestored();
                             }
 
-                            boolean useLowResIcon = !c.isOnWorkspace();
-
                             if (c.restoreFlag != 0) {
                                 // Already verified above that user is same as default user
-                                info = c.getRestoredItemInfo(intent);
                             } else if (c.itemType ==
                                     LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
-                                info = c.getAppShortcutInfo(
-                                        intent, allowMissingTarget, useLowResIcon);
                             } else { // item type == ITEM_TYPE_SHORTCUT
-                                info = c.loadSimpleWorkspaceItem();
-
                                 // Shortcuts are only available on the primary profile
                                 if (!TextUtils.isEmpty(targetPkg)
                                         && pmHelper.isAppSuspended(targetPkg, c.user)) {
-                                    disabledState |= FLAG_DISABLED_SUSPENDED;
                                 }
 
                                 // App shortcuts that used to be automatically added to Launcher
@@ -407,33 +375,6 @@ public class LoaderTask implements Runnable {
                                         Intent.FLAG_ACTIVITY_NEW_TASK |
                                         Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
                                 }
-                            }
-
-                            if (info != null) {
-                                c.applyCommonProperties(info);
-
-                                info.intent = intent;
-                                info.rank = c.getInt(rankIndex);
-                                info.spanX = 1;
-                                info.spanY = 1;
-                                info.runtimeStatusFlags |= disabledState;
-                                if (isSafeMode && !isSystemApp(context, intent)) {
-                                    info.runtimeStatusFlags |= FLAG_DISABLED_SAFEMODE;
-                                }
-
-                                if (c.restoreFlag != 0 && !TextUtils.isEmpty(targetPkg)) {
-                                    tempPackageKey.update(targetPkg, c.user);
-                                    SessionInfo si = installingPkgs.get(tempPackageKey);
-                                    if (si == null) {
-                                        info.status &= ~WorkspaceItemInfo.FLAG_INSTALL_SESSION_ACTIVE;
-                                    } else {
-                                        info.setInstallProgress((int) (si.getProgress() * 100));
-                                    }
-                                }
-
-                                c.checkAndAddItem(info, mBgDataModel);
-                            } else {
-                                throw new RuntimeException("Unexpected null WorkspaceItemInfo");
                             }
                             break;
                         }
@@ -465,16 +406,6 @@ public class LoaderTask implements Runnable {
     private void setIgnorePackages(IconCacheUpdateHandler updateHandler) {
         // Ignore packages which have a promise icon.
         HashSet<String> packagesToIgnore = new HashSet<>();
-        synchronized (mBgDataModel) {
-            for (ItemInfo info : mBgDataModel.itemsIdMap) {
-                if (info instanceof WorkspaceItemInfo) {
-                    WorkspaceItemInfo si = (WorkspaceItemInfo) info;
-                    if (si.isPromise() && si.getTargetComponent() != null) {
-                        packagesToIgnore.add(si.getTargetComponent().getPackageName());
-                    }
-                }
-            }
-        }
         updateHandler.setPackagesToIgnore(Process.myUserHandle(), packagesToIgnore);
     }
 

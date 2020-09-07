@@ -15,14 +15,10 @@
  */
 package com.android.quickstep.views;
 
-import static com.android.launcher3.LauncherState.ALL_APPS;
-import static com.android.launcher3.LauncherState.ALL_APPS_HEADER_EXTRA;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherState.RECENTS_CLEAR_ALL_BUTTON;
 import static com.android.launcher3.LauncherState.SPRING_LOADED;
-import static com.android.launcher3.QuickstepAppTransitionManagerImpl.ALL_APPS_PROGRESS_OFF_SCREEN;
-import static com.android.launcher3.allapps.AllAppsTransitionController.ALL_APPS_PROGRESS;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
 import android.animation.AnimatorSet;
@@ -105,7 +101,7 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
         super.setTranslationY(translationY);
         if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
             LauncherState state = mActivity.getStateManager().getState();
-            if (state == OVERVIEW || state == ALL_APPS) {
+            if (state == OVERVIEW) {
                 redrawLiveTile(false);
             }
         }
@@ -137,16 +133,6 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
         if (!SysUINavigationMode.getMode(mActivity).hasGestures) {
             return anim;
         }
-
-        float allAppsProgressOffscreen = ALL_APPS_PROGRESS_OFF_SCREEN;
-        LauncherState state = mActivity.getStateManager().getState();
-        if ((state.getVisibleElements(mActivity) & ALL_APPS_HEADER_EXTRA) != 0) {
-            float maxShiftRange = mActivity.getDeviceProfile().heightPx;
-            float currShiftRange = mActivity.getAllAppsController().getShiftRange();
-            allAppsProgressOffscreen = 1f + (maxShiftRange - currShiftRange) / maxShiftRange;
-        }
-        anim.play(ObjectAnimator.ofFloat(
-                mActivity.getAllAppsController(), ALL_APPS_PROGRESS, allAppsProgressOffscreen));
 
         ObjectAnimator dragHandleAnim = ObjectAnimator.ofInt(
                 mActivity.findViewById(R.id.scrim_view), ScrimView.DRAG_HANDLE_ALPHA, 0);
@@ -199,9 +185,6 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
     protected void onTaskLaunched(boolean success) {
         if (success) {
             mActivity.getStateManager().goToState(NORMAL, false /* animate */);
-        } else {
-            LauncherState state = mActivity.getStateManager().getState();
-            mActivity.getAllAppsController().setState(state);
         }
         super.onTaskLaunched(success);
     }

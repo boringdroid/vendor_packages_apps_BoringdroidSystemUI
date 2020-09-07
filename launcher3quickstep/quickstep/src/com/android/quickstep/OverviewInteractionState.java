@@ -25,8 +25,6 @@ import android.util.Log;
 
 import androidx.annotation.WorkerThread;
 
-import com.android.launcher3.Utilities;
-import com.android.launcher3.allapps.DiscoveryBounce;
 import com.android.launcher3.util.MainThreadInitializedObject;
 import com.android.systemui.shared.recents.ISystemUiProxy;
 
@@ -36,8 +34,6 @@ import com.android.systemui.shared.recents.ISystemUiProxy;
 public class OverviewInteractionState {
 
     private static final String TAG = "OverviewFlags";
-
-    private static final String HAS_ENABLED_QUICKSTEP_ONCE = "launcher.has_enabled_quickstep_once";
 
     // We do not need any synchronization for this variable as its only written on UI thread.
     public static final MainThreadInitializedObject<OverviewInteractionState> INSTANCE =
@@ -64,9 +60,6 @@ public class OverviewInteractionState {
         // For example, send back alpha on uihandler to avoid flickering when setting its visibility
         mUiHandler = new Handler(this::handleUiMessage);
         mBgHandler = new Handler(UI_HELPER_EXECUTOR.getLooper(), this::handleBgMessage);
-
-        onNavigationModeChanged(SysUINavigationMode.INSTANCE.get(context)
-                .addModeChangeListener(this::onNavigationModeChanged));
     }
 
     public float getBackButtonAlpha() {
@@ -123,20 +116,6 @@ public class OverviewInteractionState {
             mISystemUiProxy.setBackButtonAlpha(alpha, animate);
         } catch (RemoteException e) {
             Log.w(TAG, "Unable to update overview back button alpha", e);
-        }
-    }
-
-    private void onNavigationModeChanged(SysUINavigationMode.Mode mode) {
-        resetHomeBounceSeenOnQuickstepEnabledFirstTime();
-    }
-
-    private void resetHomeBounceSeenOnQuickstepEnabledFirstTime() {
-        if (modeSupportsGestures() && !Utilities.getPrefs(mContext).getBoolean(
-                HAS_ENABLED_QUICKSTEP_ONCE, true)) {
-            Utilities.getPrefs(mContext).edit()
-                .putBoolean(HAS_ENABLED_QUICKSTEP_ONCE, true)
-                .putBoolean(DiscoveryBounce.HOME_BOUNCE_SEEN, false)
-                .apply();
         }
     }
 

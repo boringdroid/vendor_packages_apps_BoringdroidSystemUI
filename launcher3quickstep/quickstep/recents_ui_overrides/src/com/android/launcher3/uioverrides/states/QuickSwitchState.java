@@ -37,14 +37,6 @@ public class QuickSwitchState extends BackgroundAppState {
     }
 
     @Override
-    public ScaleAndTranslation getWorkspaceScaleAndTranslation(Launcher launcher) {
-        float shiftRange = launcher.getAllAppsController().getShiftRange();
-        float shiftProgress = getVerticalProgress(launcher) - NORMAL.getVerticalProgress(launcher);
-        float translationY = shiftProgress * shiftRange;
-        return new ScaleAndTranslation(1, 0, translationY);
-    }
-
-    @Override
     public int getVisibleElements(Launcher launcher) {
         return NONE;
     }

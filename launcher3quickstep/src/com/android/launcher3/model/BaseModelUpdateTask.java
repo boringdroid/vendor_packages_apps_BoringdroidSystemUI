@@ -23,10 +23,8 @@ import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherModel.ModelUpdateTask;
 import com.android.launcher3.LauncherModel.CallbackTask;
 import com.android.launcher3.model.BgDataModel.Callbacks;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.util.ItemInfoMatcher;
 
-import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 /**
@@ -88,23 +86,10 @@ public abstract class BaseModelUpdateTask implements ModelUpdateTask {
     }
 
 
-    public void bindUpdatedWorkspaceItems(final ArrayList<WorkspaceItemInfo> updatedShortcuts) {
-        if (!updatedShortcuts.isEmpty()) {
-            scheduleCallbackTask(c -> c.bindWorkspaceItemsChanged(updatedShortcuts));
-        }
-    }
-
     public void deleteAndBindComponentsRemoved(final ItemInfoMatcher matcher) {
         getModelWriter().deleteItemsFromDatabase(matcher);
-
-        // Call the components-removed callback
-        scheduleCallbackTask(c -> c.bindWorkspaceComponentsRemoved(matcher));
     }
 
     public void bindApplicationsIfNeeded() {
-        if (mAllAppsList.getAndResetChangeFlag()) {
-            AppInfo[] apps = mAllAppsList.copyData();
-            scheduleCallbackTask(c -> c.bindAllApplications(apps));
-        }
     }
 }

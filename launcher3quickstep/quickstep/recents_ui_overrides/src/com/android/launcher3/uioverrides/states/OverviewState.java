@@ -27,20 +27,13 @@ import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_FADE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_SCALE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_TRANSLATE;
 import static com.android.launcher3.anim.Interpolators.ACCEL;
-import static com.android.launcher3.anim.Interpolators.DEACCEL_2;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_7;
 import static com.android.launcher3.states.RotationHelper.REQUEST_ROTATE;
 
-import android.graphics.Rect;
-import android.view.View;
-
 import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
-import com.android.launcher3.R;
-import com.android.launcher3.Workspace;
-import com.android.launcher3.allapps.DiscoveryBounce;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.quickstep.SysUINavigationMode;
@@ -55,8 +48,6 @@ public class OverviewState extends LauncherState {
 
     // Scale recents takes before animating in
     private static final float RECENTS_PREPARE_SCALE = 1.33f;
-
-    protected static final Rect sTempRect = new Rect();
 
     private static final int STATE_FLAGS = FLAG_WORKSPACE_ICONS_CAN_BE_DRAGGED
             | FLAG_DISABLE_RESTORE | FLAG_OVERVIEW_UI | FLAG_DISABLE_ACCESSIBILITY;
@@ -74,19 +65,6 @@ public class OverviewState extends LauncherState {
     }
 
     @Override
-    public ScaleAndTranslation getWorkspaceScaleAndTranslation(Launcher launcher) {
-        RecentsView recentsView = launcher.getOverviewPanel();
-        Workspace workspace = launcher.getWorkspace();
-        View workspacePage = workspace.getPageAt(workspace.getCurrentPage());
-        float workspacePageWidth = workspacePage != null && workspacePage.getWidth() != 0
-                ? workspacePage.getWidth() : launcher.getDeviceProfile().availableWidthPx;
-        recentsView.getTaskSize(sTempRect);
-        float scale = (float) sTempRect.width() / workspacePageWidth;
-        float parallaxFactor = 0.5f;
-        return new ScaleAndTranslation(scale, 0, -getDefaultSwipeHeight(launcher) * parallaxFactor);
-    }
-
-    @Override
     public ScaleAndTranslation getOverviewScaleAndTranslation(Launcher launcher) {
         return new ScaleAndTranslation(1f, 0f, 0f);
     }
@@ -99,17 +77,6 @@ public class OverviewState extends LauncherState {
     @Override
     public void onStateTransitionEnd(Launcher launcher) {
         launcher.getRotationHelper().setCurrentStateRequest(REQUEST_ROTATE);
-        DiscoveryBounce.showForOverviewIfNeeded(launcher);
-    }
-
-    @Override
-    public PageAlphaProvider getWorkspacePageAlphaProvider(Launcher launcher) {
-        return new PageAlphaProvider(DEACCEL_2) {
-            @Override
-            public float getPageAlpha(int pageIndex) {
-                return 0;
-            }
-        };
     }
 
     @Override
@@ -137,13 +104,7 @@ public class OverviewState extends LauncherState {
     }
 
     public static float getDefaultVerticalProgress(Launcher launcher) {
-        return 1 - (getDefaultSwipeHeight(launcher)
-                / launcher.getAllAppsController().getShiftRange());
-    }
-
-    @Override
-    public String getDescription(Launcher launcher) {
-        return launcher.getString(R.string.accessibility_desc_recent_apps);
+        return 1 - (getDefaultSwipeHeight(launcher));
     }
 
     public static float getDefaultSwipeHeight(Launcher launcher) {

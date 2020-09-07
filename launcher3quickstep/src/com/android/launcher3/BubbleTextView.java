@@ -230,10 +230,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
         mDotScaleAnim.start();
     }
 
-    public void applyFromWorkspaceItem(WorkspaceItemInfo info) {
-        applyFromWorkspaceItem(info, false);
-    }
-
     @Override
     public void setAccessibilityDelegate(AccessibilityDelegate delegate) {
         if (delegate instanceof LauncherAccessibilityDelegate) {
@@ -244,16 +240,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
             // delegate incorrectly. There are no cases when we shouldn't be using the
             // LauncherAccessibilityDelegate for BubbleTextView.
         }
-    }
-
-    public void applyFromWorkspaceItem(WorkspaceItemInfo info, boolean promiseStateChanged) {
-        applyIconAndLabel(info);
-        setTag(info);
-        if (promiseStateChanged || (info.hasPromiseIconUi())) {
-            applyPromiseState(promiseStateChanged);
-        }
-
-        applyDotState(info, false /* animate */);
     }
 
     public void applyFromApplicationInfo(AppInfo info) {
@@ -520,21 +506,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
         mLongPressHelper.cancelLongPress();
     }
 
-    public void applyPromiseState(boolean promiseStateChanged) {
-        if (getTag() instanceof WorkspaceItemInfo) {
-            WorkspaceItemInfo info = (WorkspaceItemInfo) getTag();
-            final boolean isPromise = info.hasPromiseIconUi();
-            final int progressLevel = isPromise ?
-                    ((info.hasStatusFlag(WorkspaceItemInfo.FLAG_INSTALL_SESSION_ACTIVE) ?
-                            info.getInstallProgress() : 0)) : 100;
-
-            PreloadIconDrawable preloadDrawable = applyProgressLevel(progressLevel);
-            if (preloadDrawable != null && promiseStateChanged) {
-                preloadDrawable.maybePerformFinishedAnimation();
-            }
-        }
-    }
-
     public PreloadIconDrawable applyProgressLevel(int progressLevel) {
         if (getTag() instanceof ItemInfoWithIcon) {
             ItemInfoWithIcon info = (ItemInfoWithIcon) getTag();
@@ -639,9 +610,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
 
             if (info instanceof AppInfo) {
                 applyFromApplicationInfo((AppInfo) info);
-            } else if (info instanceof WorkspaceItemInfo) {
-                applyFromWorkspaceItem((WorkspaceItemInfo) info);
-                mActivity.invalidateParent(info);
             } else if (info instanceof PackageItemInfo) {
                 applyFromPackageItemInfo((PackageItemInfo) info);
             }

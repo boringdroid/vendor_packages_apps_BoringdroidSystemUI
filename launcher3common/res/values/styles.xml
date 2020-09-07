@@ -166,30 +166,8 @@
     </style>
 
     <!-- Base theme for BubbleTextView and sub classes -->
-    <style name="BaseIcon" parent="@android:style/TextAppearance.DeviceDefault">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:focusable">true</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:lines">1</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
-        <item name="android:defaultFocusHighlightEnabled">false</item>
-
-        <!-- No shadows in the base theme -->
-        <item name="android:shadowRadius">0</item>
-    </style>
 
     <!-- Icon displayed on the workspace -->
-    <style name="BaseIcon.Workspace" >
-        <item name="android:shadowRadius">2.0</item>
-        <item name="android:shadowColor">?attr/workspaceShadowColor</item>
-        <item name="ambientShadowColor">?attr/workspaceAmbientShadowColor</item>
-        <item name="ambientShadowBlur">2.5dp</item>
-        <item name="keyShadowColor">?attr/workspaceKeyShadowColor</item>
-        <item name="keyShadowBlur">1dp</item>
-        <item name="keyShadowOffset">.5dp</item>
-    </style>
 
     <!-- Theme for the popup container -->
 
@@ -214,14 +192,4 @@
 
     <style name="TextTitle" parent="@android:style/TextAppearance.DeviceDefault" />
 
-    <style name="AllAppsEmptySearchBackground">
-        <item name="android:colorPrimary">#E0E0E0</item>
-        <item name="android:colorControlHighlight">#BDBDBD</item>
-        <item name="android:colorForeground">@color/all_apps_bg_hand_fill</item>
-    </style>
-    <style name="AllAppsEmptySearchBackground.Dark">
-        <item name="android:colorPrimary">#9AA0A6</item>
-        <item name="android:colorControlHighlight">#DFE1E5</item>
-        <item name="android:colorForeground">@color/all_apps_bg_hand_fill_dark</item>
-    </style>
 </resources>

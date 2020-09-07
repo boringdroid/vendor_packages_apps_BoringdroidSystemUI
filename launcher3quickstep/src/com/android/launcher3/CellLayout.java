@@ -23,7 +23,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -31,7 +30,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -51,11 +49,8 @@ import androidx.annotation.IntDef;
 import androidx.core.view.ViewCompat;
 
 import com.android.launcher3.accessibility.DragAndDropAccessibilityDelegate;
-import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.anim.PropertyListBuilder;
-import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.graphics.DragPreviewProvider;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.CellAndSpan;
 import com.android.launcher3.util.GridOccupancy;
@@ -92,8 +87,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     private int mCountX;
     @ViewDebug.ExportedProperty(category = "launcher")
     private int mCountY;
-
-    private boolean mDropPending = false;
 
     // These are temporary variables to prevent having to allocate a new object just to
     // return an (x, y) value from helper functions. Do NOT use them to maintain other state.
@@ -279,10 +272,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
             setOnClickListener(null);
         } else {
-            if (dragType == WORKSPACE_ACCESSIBILITY_DRAG &&
-                    !(mTouchHelper instanceof WorkspaceAccessibilityHelper)) {
-                mTouchHelper = new WorkspaceAccessibilityHelper(this);
-            }
             ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
             setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
             setOnClickListener(mTouchHelper);
@@ -292,13 +281,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         if (getParent() != null) {
             getParent().notifySubtreeAccessibilityStateChanged(
                     this, this, AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE);
-        }
-    }
-
-    public void setRotationMode(RotationMode mode) {
-        if (mRotationMode != mode) {
-            mRotationMode = mode;
-            requestLayout();
         }
     }
 
@@ -329,10 +311,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             return true;
         }
         return false;
-    }
-
-    public boolean isDropPending() {
-        return mDropPending;
     }
 
     void setIsDragOverlapping(boolean isDragOverlapping) {
@@ -415,18 +393,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         return false;
     }
 
-    public void restoreInstanceState(SparseArray<Parcelable> states) {
-        try {
-            dispatchRestoreInstanceState(states);
-        } catch (IllegalArgumentException ex) {
-            if (FeatureFlags.IS_DOGFOOD_BUILD) {
-                throw ex;
-            }
-            // Mismatched viewId / viewType preventing restore. Skip restore on production builds.
-            Log.e(TAG, "Ignoring an error while restoring a view instance state", ex);
-        }
-    }
-
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
@@ -439,47 +405,8 @@ public class CellLayout extends ViewGroup implements Transposable {
         }
     }
 
-    public void setOnInterceptTouchListener(View.OnTouchListener listener) {
-        mInterceptTouchListener = listener;
-    }
-
     public int getCountX() {
         return mCountX;
-    }
-
-    public int getCountY() {
-        return mCountY;
-    }
-
-    public boolean addViewToCellLayout(View child, int index, int childId, LayoutParams params,
-            boolean markCells) {
-        final LayoutParams lp = params;
-
-        if (child instanceof BubbleTextView) {
-            BubbleTextView bubbleChild = (BubbleTextView) child;
-            bubbleChild.setTextVisibility(true);
-        }
-
-        child.setScaleX(mChildScale);
-        child.setScaleY(mChildScale);
-
-        // Generate an id for each view, this assumes we have at most 256x256 cells
-        // per workspace screen
-        if (lp.cellX >= 0 && lp.cellX <= mCountX - 1 && lp.cellY >= 0 && lp.cellY <= mCountY - 1) {
-            // If the horizontal or vertical span is set to -1, it is taken to
-            // mean that it spans the extent of the CellLayout
-            if (lp.cellHSpan < 0) lp.cellHSpan = mCountX;
-            if (lp.cellVSpan < 0) lp.cellVSpan = mCountY;
-
-            child.setId(childId);
-            if (LOGD) {
-                Log.d(TAG, "Adding view to ShortcutsAndWidgetsContainer: " + child);
-            }
-            if (markCells) markCellsAsOccupiedForView(child);
-
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -511,28 +438,6 @@ public class CellLayout extends ViewGroup implements Transposable {
 
     @Override
     public void removeViewsInLayout(int start, int count) {
-    }
-
-    /**
-     * Given a point, return the cell that strictly encloses that point
-     * @param x X coordinate of the point
-     * @param y Y coordinate of the point
-     * @param result Array of 2 ints to hold the x and y coordinate of the cell
-     */
-    public void pointToCellExact(int x, int y, int[] result) {
-        final int hStartPadding = getPaddingLeft();
-        final int vStartPadding = getPaddingTop();
-
-        result[0] = (x - hStartPadding) / mCellWidth;
-        result[1] = (y - vStartPadding) / mCellHeight;
-
-        final int xAxis = mCountX;
-        final int yAxis = mCountY;
-
-        if (result[0] < 0) result[0] = 0;
-        if (result[0] >= xAxis) result[0] = xAxis - 1;
-        if (result[1] < 0) result[1] = 0;
-        if (result[1] >= yAxis) result[1] = yAxis - 1;
     }
 
     /**
@@ -591,11 +496,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         final int left = hStartPadding + cellX * mCellWidth;
         final int top = vStartPadding + cellY * mCellHeight;
         result.set(left, top, left + (spanX * mCellWidth), top + (spanY * mCellHeight));
-    }
-
-    public float getDistanceFromCell(float x, float y, int[] cell) {
-        cellToCenterPoint(cell[0], cell[1], mTmpPoint);
-        return (float) Math.hypot(x - mTmpPoint[0], y - mTmpPoint[1]);
     }
 
     @Override
@@ -659,96 +559,9 @@ public class CellLayout extends ViewGroup implements Transposable {
                 - getPaddingLeft() - getPaddingRight() - (mCountX * mCellWidth);
     }
 
-    public Drawable getScrimBackground() {
-        return mBackground;
-    }
-
     @Override
     protected boolean verifyDrawable(Drawable who) {
         return super.verifyDrawable(who) || (who == mBackground);
-    }
-
-    void visualizeDropLocation(View v, DragPreviewProvider outlineProvider, int cellX, int cellY,
-            int spanX, int spanY, boolean resize, DropTarget.DragObject dragObject) {
-        final int oldDragCellX = mDragCell[0];
-        final int oldDragCellY = mDragCell[1];
-
-        if (outlineProvider == null || outlineProvider.generatedDragOutline == null) {
-            return;
-        }
-
-        Bitmap dragOutline = outlineProvider.generatedDragOutline;
-        if (cellX != oldDragCellX || cellY != oldDragCellY) {
-            Point dragOffset = dragObject.dragView.getDragVisualizeOffset();
-            Rect dragRegion = dragObject.dragView.getDragRegion();
-
-            mDragCell[0] = cellX;
-            mDragCell[1] = cellY;
-
-            final int oldIndex = mDragOutlineCurrent;
-            mDragOutlineAnims[oldIndex].animateOut();
-            mDragOutlineCurrent = (oldIndex + 1) % mDragOutlines.length;
-            Rect r = mDragOutlines[mDragOutlineCurrent];
-
-            if (resize) {
-                cellToRect(cellX, cellY, spanX, spanY, r);
-            } else {
-                // Find the top left corner of the rect the object will occupy
-                final int[] topLeft = mTmpPoint;
-                cellToPoint(cellX, cellY, topLeft);
-
-                int left = topLeft[0];
-                int top = topLeft[1];
-
-                if (v != null && dragOffset == null) {
-                    // When drawing the drag outline, it did not account for margin offsets
-                    // added by the view's parent.
-                    MarginLayoutParams lp = (MarginLayoutParams) v.getLayoutParams();
-                    left += lp.leftMargin;
-                    top += lp.topMargin;
-
-                    // Offsets due to the size difference between the View and the dragOutline.
-                    // There is a size difference to account for the outer blur, which may lie
-                    // outside the bounds of the view.
-                    top += ((mCellHeight * spanY) - dragOutline.getHeight()) / 2;
-                    // We center about the x axis
-                    left += ((mCellWidth * spanX) - dragOutline.getWidth()) / 2;
-                } else {
-                    if (dragOffset != null && dragRegion != null) {
-                        // Center the drag region *horizontally* in the cell and apply a drag
-                        // outline offset
-                        left += dragOffset.x + ((mCellWidth * spanX) - dragRegion.width()) / 2;
-                        int cellPaddingY = (int) Math.max(0, ((mCellHeight) / 2f));
-                        top += dragOffset.y + cellPaddingY;
-                    } else {
-                        // Center the drag outline in the cell
-                        left += ((mCellWidth * spanX) - dragOutline.getWidth()) / 2;
-                        top += ((mCellHeight * spanY) - dragOutline.getHeight()) / 2;
-                    }
-                }
-                r.set(left, top, left + dragOutline.getWidth(), top + dragOutline.getHeight());
-            }
-
-            Utilities.scaleRectAboutCenter(r, mChildScale);
-            mDragOutlineAnims[mDragOutlineCurrent].setTag(dragOutline);
-            mDragOutlineAnims[mDragOutlineCurrent].animateIn();
-
-            if (dragObject.stateAnnouncer != null) {
-                dragObject.stateAnnouncer.announce(getItemMoveDescription(cellX, cellY));
-            }
-        }
-    }
-
-    @SuppressLint("StringFormatMatches")
-    public String getItemMoveDescription(int cellX, int cellY) {
-        return getContext().getString(R.string.move_to_empty_cell,
-                cellY + 1, cellX + 1);
-    }
-
-    public void clearDragOutlines() {
-        final int oldIndex = mDragOutlineCurrent;
-        mDragOutlineAnims[oldIndex].animateOut();
-        mDragCell[0] = mDragCell[1] = -1;
     }
 
     /**

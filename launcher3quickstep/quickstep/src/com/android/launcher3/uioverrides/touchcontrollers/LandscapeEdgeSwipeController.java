@@ -50,17 +50,11 @@ public class LandscapeEdgeSwipeController extends AbstractStateChangeTouchContro
     }
 
     @Override
-    protected float getShiftRange() {
-        return mLauncher.getDragLayer().getWidth();
-    }
-
-    @Override
     protected float initCurrentAnimation(@AnimationComponents int animComponent) {
-        float range = getShiftRange();
-        long maxAccuracy = (long) (2 * range);
+        long maxAccuracy = (long) (2);
         mCurrentAnimation = mLauncher.getStateManager().createAnimationToNewWorkspace(mToState,
                 maxAccuracy, animComponent);
-        return (mLauncher.getDeviceProfile().isSeascape() ? 2 : -2) / range;
+        return (mLauncher.getDeviceProfile().isSeascape() ? 2 : -2);
     }
 
     @Override

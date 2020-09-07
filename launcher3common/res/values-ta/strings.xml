@@ -23,20 +23,11 @@
     <string name="activity_not_found" msgid="8071924732094499514">"ஆப்ஸ் நிறுவப்படவில்லை."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"ஆப்ஸ் இல்லை"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"இறக்கிய ஆப்ஸ் பாதுகாப்பு முறையில் முடக்கப்பட்டது"</string>
-    <string name="shortcut_not_available" msgid="2536503539825726397">"ஷார்ட்கட் இல்லை"</string>
     <string name="home_screen" msgid="806512411299847073">"முகப்புத் திரை"</string>
     <string name="custom_actions" msgid="3747508247759093328">"தனிப்பயன் செயல்கள்"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"நீங்களே சேர்க்க, தொட்டுப் பிடித்திருக்கவும்"</string>
     <string name="place_automatically" msgid="8064208734425456485">"தானாகவே சேர்"</string>
-    <string name="all_apps_loading_message" msgid="5813968043155271636">"ஆப்ஸை ஏற்றுகிறது…"</string>
-    <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\" உடன் பொருந்தும் ஆப்ஸ் இல்லை"</string>
-    <string name="all_apps_search_market_message" msgid="1366263386197059176">"கூடுதல் பயன்பாடுகளைத் தேடு"</string>
-    <string name="label_application" msgid="8531721983832654978">"ஆப்ஸ்"</string>
-    <string name="out_of_space" msgid="4691004494942118364">"முகப்புத் திரையில் இடமில்லை."</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"ஆப்ஸின் பட்டியல்"</string>
-    <string name="all_apps_button_personal_label" msgid="1315764287305224468">"தனிப்பட்ட ஆப்ஸ் பட்டியல்"</string>
-    <string name="all_apps_button_work_label" msgid="7270707118948892488">"பணி ஆப்ஸ் பட்டியல்"</string>
-    <string name="all_apps_home_button_label" msgid="252062713717058851">"முகப்பு"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"அகற்று"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"நிறுவல் நீக்கு"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"குறுக்குவழிகளை நிறுவுதல்"</string>
@@ -50,36 +41,21 @@
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"இது அமைப்பு ஆப்ஸ் என்பதால் நிறுவல் நீக்கம் செய்ய முடியாது."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> முடக்கப்பட்டது"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"பக்கம் %1$d / %2$d"</string>
-    <string name="workspace_scroll_format" msgid="8458889198184077399">"முகப்புத் திரை %1$d of %2$d"</string>
-    <string name="workspace_new_page" msgid="257366611030256142">"புதிய முகப்புத் திரை பக்கம்"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"விட்ஜெட்கள்"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"வால்பேப்பர்கள்"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"முகப்பு அமைப்புகள்"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"அறிவிப்புப் புள்ளிகளைக் காட்டு"</string>
-    <string name="abandoned_clean_this" msgid="7610119707847920412">"அகற்று"</string>
-    <string name="abandoned_search" msgid="891119232568284442">"தேடு"</string>
-    <string name="abandoned_promises_title" msgid="7096178467971716750">"ஆப்ஸ் நிறுவப்படவில்லை"</string>
-    <string name="abandoned_promise_explanation" msgid="3990027586878167529">"ஐகானுக்கான ஆப்ஸ் நிறுவப்படவில்லை. இதை அகற்றலாம் அல்லது பயன்பாட்டைத் தேடி கைமுறையாக நிறுவலாம்."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g>ஐப் பதிவிறக்குகிறது, <xliff:g id="PROGRESS">%2$s</xliff:g> முடிந்தது"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g>ஐ நிறுவுவதற்காகக் காத்திருக்கிறது"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"முகப்புத் திரையில் சேர்"</string>
     <string name="action_move_here" msgid="2170188780612570250">"இங்கு நகர்த்து"</string>
-    <string name="item_added_to_workspace" msgid="4211073925752213539">"முகப்புத் திரையில் சேர்க்கப்பட்டது"</string>
     <string name="item_removed" msgid="851119963877842327">"அகற்றப்பட்டது"</string>
-    <string name="undo" msgid="4151576204245173321">"செயல்தவிர்"</string>
     <string name="action_move" msgid="4339390619886385032">"நகர்த்து"</string>
-    <string name="move_to_empty_cell" msgid="2833711483015685619">"<xliff:g id="NUMBER_0">%1$s</xliff:g> வரிசை, <xliff:g id="NUMBER_1">%2$s</xliff:g> நெடுவரிசைக்கு நகர்த்து"</string>
-    <string name="item_moved" msgid="4606538322571412879">"உருப்படி நகர்த்தப்பட்டது"</string>
-    <string name="create_folder_with" msgid="4050141361160214248">"இதனுடன் கோப்புறையை உருவாக்கும்: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="action_move_to_workspace" msgid="1603837886334246317">"முகப்புத் திரைக்கு நகர்த்து"</string>
     <string name="action_resize" msgid="1802976324781771067">"அளவு மாற்று"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"தனிப்பட்டவை"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"பணி"</string>
-    <string name="work_profile_toggle_label" msgid="3081029915775481146">"பணிக் கணக்கு"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"பணி ஆப்ஸை இங்கு காணலாம்"</string>
     <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"ஒவ்வொரு பணிப் பயன்பாடும் ஒரு பேட்ஜைக் கொண்டிருக்கும். இவை, ஆப்ஸ் உங்கள் நிறுவனத்தால் பாதுகாப்பாக வைக்கப்பட்டுள்ளன என்பதைக் குறிக்கின்றன. இந்த ஆப்ஸை எளிதாக அணுக, முகப்புத் திரைக்கு நகர்த்திக்கொள்ளவும்."</string>
-    <string name="work_mode_on_label" msgid="4781128097185272916">"உங்கள் நிறுவனம் நிர்வகிக்கிறது"</string>
-    <string name="work_mode_off_label" msgid="3194894777601421047">"ஆப்ஸும் அறிவிப்புகளும் ஆஃப் செய்யப்பட்டுள்ளன"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"மூடுக"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"மூடப்பட்டது"</string>
 </resources>

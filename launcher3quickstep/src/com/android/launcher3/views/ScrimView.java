@@ -20,7 +20,6 @@ import static android.view.MotionEvent.ACTION_DOWN;
 
 import static androidx.core.graphics.ColorUtils.compositeColors;
 
-import static com.android.launcher3.LauncherState.ALL_APPS;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.anim.Interpolators.ACCEL;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
@@ -207,8 +206,6 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
         }
     }
 
-    public void reInitUi() { }
-
     protected void updateColors() {
         mCurrentFlatColor = mProgress >= 1 ? 0 : setColorAlphaBound(
                 mEndFlatColor, Math.round((1 - mProgress) * mEndFlatColorAlpha));
@@ -375,9 +372,7 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
     }
 
     private void handleStateChangedComplete(LauncherState finalState) {
-        setImportantForAccessibility(finalState == ALL_APPS
-                ? IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-                : IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_AUTO);
     }
 
     protected class AccessibilityHelper extends ExploreByTouchHelper {
@@ -429,7 +424,6 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
         protected boolean onPerformActionForVirtualView(
                 int virtualViewId, int action, Bundle arguments) {
             if (action == AccessibilityNodeInfoCompat.ACTION_CLICK) {
-                mLauncher.getStateManager().goToState(ALL_APPS);
                 return true;
             } else if (action == WIDGETS) {
                 setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
@@ -438,9 +432,5 @@ public class ScrimView extends View implements Insettable, OnChangeListener,
 
             return false;
         }
-    }
-
-    public int getDragHandleSize() {
-        return mDragHandleSize;
     }
 }

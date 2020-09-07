@@ -17,7 +17,6 @@ package com.android.launcher3;
 
 import static android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 import static android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS;
-import static android.view.View.VISIBLE;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_FADE;
@@ -29,15 +28,11 @@ import static com.android.launcher3.anim.Interpolators.ACCEL;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
 import static com.android.launcher3.anim.Interpolators.DEACCEL_1_7;
 import static com.android.launcher3.anim.Interpolators.clampToProgress;
-import static com.android.launcher3.anim.Interpolators.ACCEL_2;
 import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
-
-import android.view.animation.Interpolator;
 
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.states.SpringLoadedState;
 import com.android.launcher3.uioverrides.UiFactory;
-import com.android.launcher3.uioverrides.states.AllAppsState;
 import com.android.launcher3.uioverrides.states.OverviewState;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 
@@ -55,9 +50,7 @@ public class LauncherState {
      * Note that workspace is not included here as in that case, we animate individual pages
      */
     public static final int NONE = 0;
-    public static final int ALL_APPS_HEADER = 1 << 2;
     public static final int ALL_APPS_HEADER_EXTRA = 1 << 3; // e.g. app predictions
-    public static final int ALL_APPS_CONTENT = 1 << 4;
     public static final int VERTICAL_SWIPE_INDICATOR = 1 << 5;
     public static final int RECENTS_CLEAR_ALL_BUTTON = 1 << 6;
 
@@ -72,14 +65,6 @@ public class LauncherState {
     protected static final int FLAG_HIDE_BACK_BUTTON = 1 << 8;
     protected static final int FLAG_HAS_SYS_UI_SCRIM = 1 << 9;
 
-    protected static final PageAlphaProvider DEFAULT_ALPHA_PROVIDER =
-            new PageAlphaProvider(ACCEL_2) {
-                @Override
-                public float getPageAlpha(int pageIndex) {
-                    return 1;
-                }
-            };
-
     private static final LauncherState[] sAllStates = new LauncherState[7];
 
     private static final int NORMAL_STATE_ORDINAL = 0;
@@ -87,7 +72,6 @@ public class LauncherState {
     private static final int OVERVIEW_STATE_ORDINAL = 2;
     private static final int OVERVIEW_PEEK_STATE_ORDINAL = 3;
     private static final int QUICK_SWITCH_STATE_ORDINAL = 4;
-    private static final int ALL_APPS_STATE_ORDINAL = 5;
     private static final int BACKGROUND_APP_STATE_ORDINAL = 6;
     /**
      * TODO: Create a separate class for NORMAL state.
@@ -102,8 +86,6 @@ public class LauncherState {
      */
     public static final LauncherState SPRING_LOADED = new SpringLoadedState(
             SPRING_LOADED_STATE_ORDINAL);
-    public static final LauncherState ALL_APPS = new AllAppsState(ALL_APPS_STATE_ORDINAL);
-
     public static final LauncherState OVERVIEW = new OverviewState(OVERVIEW_STATE_ORDINAL);
     public static final LauncherState OVERVIEW_PEEK =
             OverviewState.newPeekState(OVERVIEW_PEEK_STATE_ORDINAL);
@@ -113,10 +95,6 @@ public class LauncherState {
             OverviewState.newBackgroundState(BACKGROUND_APP_STATE_ORDINAL);
 
     public final int ordinal;
-
-    /**
-     * Used for containerType in {@link com.android.launcher3.logging.UserEventDispatcher}
-     */
     public final int containerType;
 
     /**
@@ -137,8 +115,6 @@ public class LauncherState {
 
     /**
      * Properties related to state transition animation
-     *
-     * @see WorkspaceStateTransitionAnimation
      */
     public final boolean hasWorkspacePageBackground;
 
@@ -198,10 +174,6 @@ public class LauncherState {
         return Arrays.copyOf(sAllStates, sAllStates.length);
     }
 
-    public ScaleAndTranslation getWorkspaceScaleAndTranslation(Launcher launcher) {
-        return new ScaleAndTranslation(1, 0, 0);
-    }
-
     public ScaleAndTranslation getOverviewScaleAndTranslation(Launcher launcher) {
         return UiFactory.getOverviewScaleAndTranslationForNormalState(launcher);
     }
@@ -220,38 +192,12 @@ public class LauncherState {
         return VERTICAL_SWIPE_INDICATOR;
     }
 
-    /**
-     * Fraction shift in the vertical translation UI and related properties
-     *
-     * @see com.android.launcher3.allapps.AllAppsTransitionController
-     */
     public float getVerticalProgress(Launcher launcher) {
         return 1f;
     }
 
-    public float getWorkspaceScrimAlpha(Launcher launcher) {
-        return 0;
-    }
-
     public float getOverviewScrimAlpha(Launcher launcher) {
         return 0;
-    }
-
-    public String getDescription(Launcher launcher) {
-        return launcher.getWorkspace().getCurrentPageDescription();
-    }
-
-    public PageAlphaProvider getWorkspacePageAlphaProvider(Launcher launcher) {
-        if (this != NORMAL || !launcher.getDeviceProfile().shouldFadeAdjacentWorkspaceScreens()) {
-            return DEFAULT_ALPHA_PROVIDER;
-        }
-        final int centerPage = launcher.getWorkspace().getNextPage();
-        return new PageAlphaProvider(ACCEL_2) {
-            @Override
-            public float getPageAlpha(int pageIndex) {
-                return  pageIndex != centerPage ? 0 : 1f;
-            }
-        };
     }
 
     public LauncherState getHistoryForState(LauncherState previousState) {
@@ -291,14 +237,6 @@ public class LauncherState {
             builder.setInterpolator(ANIM_OVERVIEW_SCALE, clampToProgress(ACCEL, 0, 0.9f));
             builder.setInterpolator(ANIM_OVERVIEW_TRANSLATE_X, ACCEL);
             builder.setInterpolator(ANIM_OVERVIEW_FADE, DEACCEL_1_7);
-            Workspace workspace = launcher.getWorkspace();
-
-            // Start from a higher workspace scale, but only if we're invisible so we don't jump.
-            boolean isWorkspaceVisible = workspace.getVisibility() == VISIBLE;
-            if (!isWorkspaceVisible) {
-                workspace.setScaleX(0.92f);
-                workspace.setScaleY(0.92f);
-            }
         } else if (this == NORMAL && fromState == OVERVIEW_PEEK) {
             // Keep fully visible until the very end (when overview is offscreen) to make invisible.
             builder.setInterpolator(ANIM_OVERVIEW_FADE, t -> t < 1 ? 0 : 1);
@@ -307,17 +245,6 @@ public class LauncherState {
 
     protected static void dispatchWindowStateChanged(Launcher launcher) {
         launcher.getWindow().getDecorView().sendAccessibilityEvent(TYPE_WINDOW_STATE_CHANGED);
-    }
-
-    public static abstract class PageAlphaProvider {
-
-        public final Interpolator interpolator;
-
-        public PageAlphaProvider(Interpolator interpolator) {
-            this.interpolator = interpolator;
-        }
-
-        public abstract float getPageAlpha(int pageIndex);
     }
 
     public static class ScaleAndTranslation {

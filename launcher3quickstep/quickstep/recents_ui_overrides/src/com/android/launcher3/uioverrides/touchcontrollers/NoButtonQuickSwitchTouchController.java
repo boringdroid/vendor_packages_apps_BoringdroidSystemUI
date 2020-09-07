@@ -55,11 +55,9 @@ import android.view.animation.Interpolator;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager;
-import com.android.launcher3.LauncherStateManager.AnimationConfig;
 import com.android.launcher3.QuickstepAppTransitionManagerImpl;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.graphics.OverviewScrim;
@@ -72,7 +70,6 @@ import com.android.quickstep.util.LayoutUtils;
 import com.android.quickstep.util.MotionPauseDetector;
 import com.android.quickstep.util.ShelfPeekAnim;
 import com.android.quickstep.util.ShelfPeekAnim.ShelfAnimState;
-import com.android.quickstep.util.StaggeredWorkspaceAnim;
 import com.android.quickstep.views.LauncherRecentsView;
 
 /**
@@ -179,9 +176,6 @@ public class NoButtonQuickSwitchTouchController implements TouchController,
         if (shelfState == PEEK) {
             // Some shelf elements (e.g. qsb) were hidden, but we need them visible when peeking.
             AnimatorSetBuilder builder = new AnimatorSetBuilder();
-            AllAppsTransitionController allAppsController = mLauncher.getAllAppsController();
-            allAppsController.setAlphas(NORMAL.getVisibleElements(mLauncher),
-                    new AnimationConfig(), builder);
             builder.build().setDuration(0).start();
         }
         mShelfPeekAnim.setShelfState(shelfState, ShelfPeekAnim.INTERPOLATOR,
@@ -395,9 +389,6 @@ public class NoButtonQuickSwitchTouchController implements TouchController,
             // Update mNonOverviewAnim to do nothing so it doesn't interfere.
             updateNonOverviewAnim(targetState, new AnimatorSetBuilder(), 0 /* animComponents */);
             nonOverviewAnim = mNonOverviewAnim.getAnimationPlayer();
-
-            new StaggeredWorkspaceAnim(mLauncher, velocity.y, false /* animateOverviewScrim */)
-                    .start();
         } else {
             boolean canceled = targetState == NORMAL;
             if (canceled) {

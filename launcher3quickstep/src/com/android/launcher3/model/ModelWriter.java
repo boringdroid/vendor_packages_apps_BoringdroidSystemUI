@@ -28,8 +28,6 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.LauncherSettings.Settings;
-import com.android.launcher3.Utilities;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.util.ContentWriter;
@@ -74,42 +72,9 @@ public class ModelWriter {
         item.screenId = screenId;
     }
 
-    /**
-     * Adds an item to the DB if it was not created previously, or move it to a new
-     * <container, screen, cellX, cellY>
-     */
-    public void addOrMoveItemInDatabase(ItemInfo item,
-            int container, int screenId, int cellX, int cellY) {
-        if (item.id == ItemInfo.NO_ID) {
-            // From all apps
-            addItemToDatabase(item, container, screenId, cellX, cellY);
-        } else {
-            // From somewhere else
-            moveItemInDatabase(item, container, screenId, cellX, cellY);
-        }
-    }
-
     private void checkItemInfoLocked(int itemId, ItemInfo item, StackTraceElement[] stackTrace) {
         ItemInfo modelItem = mBgDataModel.itemsIdMap.get(itemId);
         if (modelItem != null && item != modelItem) {
-            // check all the data is consistent
-            if (!Utilities.IS_DEBUG_DEVICE && !FeatureFlags.IS_DOGFOOD_BUILD &&
-                    modelItem instanceof WorkspaceItemInfo && item instanceof WorkspaceItemInfo) {
-                if (modelItem.title.toString().equals(item.title.toString()) &&
-                        modelItem.getIntent().filterEquals(item.getIntent()) &&
-                        modelItem.id == item.id &&
-                        modelItem.itemType == item.itemType &&
-                        modelItem.container == item.container &&
-                        modelItem.screenId == item.screenId &&
-                        modelItem.cellX == item.cellX &&
-                        modelItem.cellY == item.cellY &&
-                        modelItem.spanX == item.spanX &&
-                        modelItem.spanY == item.spanY) {
-                    // For all intents and purposes, this is the same object
-                    return;
-                }
-            }
-
             // the modelItem needs to match up perfectly with item if our model is
             // to be consistent with the database-- for now, just require
             // modelItem == item or the equality check above
@@ -123,41 +88,6 @@ public class ModelWriter {
             }
             throw e;
         }
-    }
-
-    /**
-     * Move an item in the DB to a new <container, screen, cellX, cellY>
-     */
-    public void moveItemInDatabase(final ItemInfo item,
-            int container, int screenId, int cellX, int cellY) {
-        updateItemInfoProps(item, container, screenId, cellX, cellY);
-        enqueueDeleteRunnable(new UpdateItemRunnable(item, () ->
-                new ContentWriter(mContext)
-                        .put(Favorites.CONTAINER, item.container)
-                        .put(Favorites.CELLX, item.cellX)
-                        .put(Favorites.CELLY, item.cellY)
-                        .put(Favorites.RANK, item.rank)
-                        .put(Favorites.SCREEN, item.screenId)));
-    }
-
-    /**
-     * Move and/or resize item in the DB to a new <container, screen, cellX, cellY, spanX, spanY>
-     */
-    public void modifyItemInDatabase(final ItemInfo item,
-            int container, int screenId, int cellX, int cellY, int spanX, int spanY) {
-        updateItemInfoProps(item, container, screenId, cellX, cellY);
-        item.spanX = spanX;
-        item.spanY = spanY;
-
-        ((Executor) MODEL_EXECUTOR).execute(new UpdateItemRunnable(item, () ->
-                new ContentWriter(mContext)
-                        .put(Favorites.CONTAINER, item.container)
-                        .put(Favorites.CELLX, item.cellX)
-                        .put(Favorites.CELLY, item.cellY)
-                        .put(Favorites.RANK, item.rank)
-                        .put(Favorites.SPANX, item.spanX)
-                        .put(Favorites.SPANY, item.spanY)
-                        .put(Favorites.SCREEN, item.screenId)));
     }
 
     /**

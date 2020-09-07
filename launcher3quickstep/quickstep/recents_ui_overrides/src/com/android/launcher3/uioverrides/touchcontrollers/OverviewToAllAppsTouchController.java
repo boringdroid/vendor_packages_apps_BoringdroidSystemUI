@@ -15,7 +15,6 @@
  */
 package com.android.launcher3.uioverrides.touchcontrollers;
 
-import static com.android.launcher3.LauncherState.ALL_APPS;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 
@@ -26,7 +25,6 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.quickstep.TouchInteractionService;
 import com.android.quickstep.views.RecentsView;
 
 /**
@@ -49,10 +47,7 @@ public class OverviewToAllAppsTouchController extends PortraitStatesTouchControl
         if (AbstractFloatingView.getTopOpenView(mLauncher) != null) {
             return false;
         }
-        if (mLauncher.isInState(ALL_APPS)) {
-            // In all-apps only listen if the container cannot scroll itself
-            return mLauncher.getAppsView().shouldContainerScroll(ev);
-        } else if (mLauncher.isInState(NORMAL)) {
+        if (mLauncher.isInState(NORMAL)) {
             return (ev.getEdgeFlags() & Utilities.EDGE_NAV_BAR) == 0;
         } else if (mLauncher.isInState(OVERVIEW)) {
             RecentsView rv = mLauncher.getOverviewPanel();
@@ -64,13 +59,6 @@ public class OverviewToAllAppsTouchController extends PortraitStatesTouchControl
 
     @Override
     protected LauncherState getTargetState(LauncherState fromState, boolean isDragTowardPositive) {
-        if (fromState == ALL_APPS && !isDragTowardPositive) {
-            // Should swipe down go to OVERVIEW instead?
-            return TouchInteractionService.isConnected() ?
-                    mLauncher.getStateManager().getLastState() : NORMAL;
-        } else if (isDragTowardPositive) {
-            return ALL_APPS;
-        }
         return fromState;
     }
 

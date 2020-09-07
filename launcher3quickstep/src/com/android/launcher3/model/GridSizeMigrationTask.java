@@ -23,7 +23,6 @@ import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.LauncherSettings.Settings;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.Workspace;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.provider.LauncherDbUtils;
@@ -181,8 +180,7 @@ public class GridSizeMigrationTask {
      */
     protected void migrateScreen(int screenId) {
         // If we are migrating the first screen, do not touch the first row.
-        int startY = (FeatureFlags.QSB_ON_FIRST_SCREEN && screenId == Workspace.FIRST_SCREEN_ID)
-                ? 1 : 0;
+        int startY = (FeatureFlags.QSB_ON_FIRST_SCREEN) ? 1 : 0;
 
         ArrayList<DbEntry> items = loadWorkspaceEntries(screenId);
 

@@ -17,10 +17,8 @@ package com.android.launcher3.uioverrides.touchcontrollers;
 
 import static android.view.View.TRANSLATION_X;
 
-import static com.android.launcher3.LauncherState.ALL_APPS;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
-import static com.android.launcher3.allapps.AllAppsTransitionController.ALL_APPS_PROGRESS;
 import static com.android.launcher3.anim.Interpolators.DEACCEL_3;
 import static com.android.launcher3.touch.AbstractStateChangeTouchController.SUCCESS_TRANSITION_PROGRESS;
 import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
@@ -35,14 +33,10 @@ import android.view.animation.Interpolator;
 import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
-import com.android.launcher3.LauncherStateManager.AnimationConfig;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.AnimatorPlaybackController;
-import com.android.launcher3.anim.AnimatorSetBuilder;
-import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
 import com.android.launcher3.util.TouchController;
@@ -99,7 +93,7 @@ public class NavBarToHomeTouchController implements TouchController,
         if (!cameFromNavBar) {
             return false;
         }
-        if (mStartState == OVERVIEW || mStartState == ALL_APPS) {
+        if (mStartState == OVERVIEW) {
             return true;
         }
         if (AbstractFloatingView.getTopOpenView(mLauncher) != null) {
@@ -138,20 +132,6 @@ public class NavBarToHomeTouchController implements TouchController,
             Animator pullback = ObjectAnimator.ofFloat(recentsView, TRANSLATION_X, pullbackDist);
             pullback.setInterpolator(PULLBACK_INTERPOLATOR);
             anim.play(pullback);
-        } else if (mStartState == ALL_APPS) {
-            AnimatorSetBuilder builder = new AnimatorSetBuilder();
-            AllAppsTransitionController allAppsController = mLauncher.getAllAppsController();
-            Animator allAppsProgress = ObjectAnimator.ofFloat(allAppsController, ALL_APPS_PROGRESS,
-                    -mPullbackDistance / allAppsController.getShiftRange());
-            allAppsProgress.setInterpolator(PULLBACK_INTERPOLATOR);
-            builder.play(allAppsProgress);
-            // Slightly fade out all apps content to further distinguish from scrolling.
-            builder.setInterpolator(AnimatorSetBuilder.ANIM_ALL_APPS_FADE, Interpolators
-                    .mapToProgress(PULLBACK_INTERPOLATOR, 0, 0.5f));
-            AnimationConfig config = new AnimationConfig();
-            config.duration = accuracy;
-            allAppsController.setAlphas(mEndState.getVisibleElements(mLauncher), config, builder);
-            anim.play(builder.build());
         }
         AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(mLauncher);
         if (topView != null) {

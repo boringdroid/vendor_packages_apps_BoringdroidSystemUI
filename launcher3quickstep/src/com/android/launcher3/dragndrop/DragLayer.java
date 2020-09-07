@@ -38,18 +38,14 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import com.android.launcher3.AbstractFloatingView;
-import com.android.launcher3.CellLayout;
 import com.android.launcher3.DropTargetBar;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
-import com.android.launcher3.Workspace;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.graphics.OverviewScrim;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.graphics.WorkspaceScrim;
 import com.android.launcher3.keyboard.ViewGroupFocusHelper;
 import com.android.launcher3.uioverrides.UiFactory;
 import com.android.launcher3.util.Thunk;
@@ -63,7 +59,6 @@ import java.util.ArrayList;
  */
 public class DragLayer extends BaseDragLayer<Launcher> {
 
-    public static final int ALPHA_INDEX_OVERLAY = 0;
     public static final int ALPHA_INDEX_LAUNCHER_LOAD = 1;
     public static final int ALPHA_INDEX_TRANSITIONS = 2;
     private static final int ALPHA_CHANNEL_COUNT = 3;
@@ -85,7 +80,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
 
     // Related to adjacent page hints
     private final ViewGroupFocusHelper mFocusIndicatorHelper;
-    private final WorkspaceScrim mWorkspaceScrim;
     private final OverviewScrim mOverviewScrim;
 
     /**
@@ -102,13 +96,11 @@ public class DragLayer extends BaseDragLayer<Launcher> {
         setChildrenDrawingOrderEnabled(true);
 
         mFocusIndicatorHelper = new ViewGroupFocusHelper(this);
-        mWorkspaceScrim = new WorkspaceScrim(this);
         mOverviewScrim = new OverviewScrim(this);
     }
 
-    public void setup(DragController dragController, Workspace workspace) {
+    public void setup(DragController dragController) {
         mDragController = dragController;
-        mWorkspaceScrim.setWorkspace(workspace);
         recreateControllers();
     }
 
@@ -127,10 +119,10 @@ public class DragLayer extends BaseDragLayer<Launcher> {
 
     @Override
     public boolean onInterceptHoverEvent(MotionEvent ev) {
-        if (mActivity == null || mActivity.getWorkspace() == null) {
+        // TODO recheck it
+        if (mActivity == null) {
             return false;
         }
-        // TODO recheck it
         return false;
     }
 
@@ -194,62 +186,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
 
         animateViewIntoPosition(dragView, fromX, fromY, pos[0], pos[1], alpha, 1, 1, scaleX, scaleY,
                 onFinishRunnable, animationEndStyle, duration, null);
-    }
-
-    public void animateViewIntoPosition(DragView dragView, final View child, View anchorView) {
-        animateViewIntoPosition(dragView, child, -1, anchorView);
-    }
-
-    public void animateViewIntoPosition(DragView dragView, final View child, int duration,
-            View anchorView) {
-        CellLayout.LayoutParams lp =  (CellLayout.LayoutParams) child.getLayoutParams();
-
-        Rect r = new Rect();
-        getViewRectRelativeToSelf(dragView, r);
-
-        float coord[] = new float[2];
-        float childScale = child.getScaleX();
-        coord[0] = lp.x + (child.getMeasuredWidth() * (1 - childScale) / 2);
-        coord[1] = lp.y + (child.getMeasuredHeight() * (1 - childScale) / 2);
-
-        // Since the child hasn't necessarily been laid out, we force the lp to be updated with
-        // the correct coordinates (above) and use these to determine the final location
-        float scale = getDescendantCoordRelativeToSelf((View) child.getParent(), coord);
-        // We need to account for the scale of the child itself, as the above only accounts for
-        // for the scale in parents.
-        scale *= childScale;
-        int toX = Math.round(coord[0]);
-        int toY = Math.round(coord[1]);
-        float toScale = scale;
-        if (child instanceof TextView) {
-            TextView tv = (TextView) child;
-            // Account for the source scale of the icon (ie. from AllApps to Workspace, in which
-            // the workspace may have smaller icon bounds).
-            toScale = scale / dragView.getIntrinsicIconScaleFactor();
-
-            // The child may be scaled (always about the center of the view) so to account for it,
-            // we have to offset the position by the scaled size.  Once we do that, we can center
-            // the drag view about the scaled child view.
-            // padding will remain constant (does not scale with size)
-            toY += tv.getPaddingTop();
-            toY -= dragView.getMeasuredHeight() * (1 - toScale) / 2;
-            if (dragView.getDragVisualizeOffset() != null) {
-                toY -=  Math.round(toScale * dragView.getDragVisualizeOffset().y);
-            }
-
-            toX -= (dragView.getMeasuredWidth() - Math.round(scale * child.getMeasuredWidth())) / 2;
-        } else {
-            toY -= (Math.round(scale * (dragView.getHeight() - child.getMeasuredHeight()))) / 2;
-            toX -= (Math.round(scale * (dragView.getMeasuredWidth()
-                    - child.getMeasuredWidth()))) / 2;
-        }
-
-        final int fromX = r.left;
-        final int fromY = r.top;
-        child.setVisibility(INVISIBLE);
-        Runnable onCompleteRunnable = () -> child.setVisibility(VISIBLE);
-        animateViewIntoPosition(dragView, fromX, fromY, toX, toY, 1, 1, 1, toScale, toScale,
-                onCompleteRunnable, ANIMATION_END_DISAPPEAR, duration, anchorView);
     }
 
     public void animateViewIntoPosition(final DragView view, final int fromX, final int fromY,
@@ -472,7 +408,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         // Draw the background below children.
-        mWorkspaceScrim.draw(canvas);
         mOverviewScrim.updateCurrentScrimmedView(this);
         mFocusIndicatorHelper.draw(canvas);
         super.dispatchDraw(canvas);
@@ -489,18 +424,12 @@ public class DragLayer extends BaseDragLayer<Launcher> {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mWorkspaceScrim.setSize(w, h);
     }
 
     @Override
     public void setInsets(Rect insets) {
         super.setInsets(insets);
-        mWorkspaceScrim.onInsetsChanged(insets, mAllowSysuiScrims);
         mOverviewScrim.onInsetsChanged();
-    }
-
-    public WorkspaceScrim getScrim() {
-        return mWorkspaceScrim;
     }
 
     public OverviewScrim getOverviewScrim() {

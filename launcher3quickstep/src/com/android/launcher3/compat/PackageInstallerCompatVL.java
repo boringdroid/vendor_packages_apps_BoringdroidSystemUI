@@ -227,8 +227,8 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
                 addSessionInfoToCache(session, user);
                 LauncherAppState app = LauncherAppState.getInstanceNoCreate();
                 if (app != null) {
-                    app.getModel().updateSessionDisplayInfo(session.getAppPackageName(),
-                            user);
+                    app.getModel().updateSessionDisplayInfo(session.getAppPackageName()
+                    );
                 }
                 return session;
             }

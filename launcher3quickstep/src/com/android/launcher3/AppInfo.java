@@ -26,7 +26,6 @@ import android.os.Process;
 import android.os.UserHandle;
 
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.PackageManagerHelper;
 
 import java.util.Comparator;
@@ -92,14 +91,6 @@ public class AppInfo extends ItemInfoWithIcon {
     @Override
     protected String dumpProperties() {
         return super.dumpProperties() + " componentName=" + componentName;
-    }
-
-    public WorkspaceItemInfo makeWorkspaceItem() {
-        return new WorkspaceItemInfo(this);
-    }
-
-    public ComponentKey toComponentKey() {
-        return new ComponentKey(componentName, user);
     }
 
     public static Intent makeLaunchIntent(LauncherActivityInfo info) {

@@ -39,7 +39,6 @@ import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.LauncherFiles;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
@@ -118,7 +117,7 @@ public class IconCache extends BaseIconCache {
         IconLoadRequest request = new IconLoadRequest(mWorkerHandler, this::onIconRequestEnd) {
             @Override
             public void run() {
-                if (info instanceof AppInfo || info instanceof WorkspaceItemInfo) {
+                if (info instanceof AppInfo) {
                     getTitleAndIcon(info, false);
                 } else if (info instanceof PackageItemInfo) {
                     getTitleAndIconForApp((PackageItemInfo) info, false);

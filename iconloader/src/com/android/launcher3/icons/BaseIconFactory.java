@@ -141,12 +141,6 @@ public class BaseIconFactory implements AutoCloseable {
         return createBadgedIconBitmap(icon, user, shrinkNonAdaptiveIcons, isInstantApp, scale);
     }
 
-    public Bitmap createScaledBitmapWithoutShadow(Drawable icon, int iconAppTargetSdk) {
-        boolean shrinkNonAdaptiveIcons = ATLEAST_P ||
-                (ATLEAST_OREO && iconAppTargetSdk >= Build.VERSION_CODES.O);
-        return  createScaledBitmapWithoutShadow(icon, shrinkNonAdaptiveIcons);
-    }
-
     /**
      * Creates bitmap using the source drawable and various parameters.
      * The bitmap is visually normalized with other icons and has enough spacing to add shadow.
@@ -184,14 +178,6 @@ public class BaseIconFactory implements AutoCloseable {
             }
         }
         return BitmapInfo.fromBitmap(bitmap, mDisableColorExtractor ? null : mColorExtractor);
-    }
-
-    public Bitmap createScaledBitmapWithoutShadow(Drawable icon, boolean shrinkNonAdaptiveIcons) {
-        RectF iconBounds = new RectF();
-        float[] scale = new float[1];
-        icon = normalizeAndWrapToAdaptiveIcon(icon, shrinkNonAdaptiveIcons, iconBounds, scale);
-        return createIconBitmap(icon,
-                Math.min(scale[0], ShadowGenerator.getScaleForBounds(iconBounds)));
     }
 
     /**

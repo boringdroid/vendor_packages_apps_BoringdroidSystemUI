@@ -18,10 +18,8 @@ package com.android.launcher3.model;
 
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.model.BgDataModel.Callbacks;
-import com.android.launcher3.util.ComponentKey;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 
 /**
  * Helper class to handle results of {@link com.android.launcher3.model.LoaderTask}.
@@ -30,6 +28,6 @@ public class LoaderResults extends BaseLoaderResults {
 
     public LoaderResults(LauncherAppState app, BgDataModel dataModel,
             AllAppsList allAppsList, int pageToBindFirst, WeakReference<Callbacks> callbacks) {
-        super(app, dataModel, allAppsList, pageToBindFirst, callbacks);
+        super(app, dataModel, pageToBindFirst, callbacks);
     }
 }

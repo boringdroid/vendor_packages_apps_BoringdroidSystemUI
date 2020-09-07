@@ -36,9 +36,4 @@ public class TransposedQuickSwitchTouchController extends QuickSwitchTouchContro
         float multiplier = super.initCurrentAnimation(animComponents);
         return mLauncher.getDeviceProfile().isSeascape() ? multiplier : -multiplier;
     }
-
-    @Override
-    protected float getShiftRange() {
-        return mLauncher.getDeviceProfile().heightPx / 2f;
-    }
 }

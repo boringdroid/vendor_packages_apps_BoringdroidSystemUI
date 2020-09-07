@@ -26,7 +26,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.Interpolators;
@@ -155,11 +154,6 @@ public final class LauncherAppTransitionManagerImpl extends QuickstepAppTransiti
     @Override
     public Animator createStateElementAnimation(int index, float... values) {
         switch (index) {
-            case INDEX_SHELF_ANIM: {
-                AllAppsTransitionController aatc = mLauncher.getAllAppsController();
-
-                return aatc.createSpringAnimation(values);
-            }
             case INDEX_RECENTS_FADE_ANIM:
                 return ObjectAnimator.ofFloat(mLauncher.getOverviewPanel(),
                         RecentsView.CONTENT_ALPHA, values);

@@ -383,10 +383,6 @@ public class LauncherStateManager {
         mState.onStateEnabled(mLauncher);
         mLauncher.onStateSetStart(mState);
 
-        if (state.disablePageClipping) {
-            // Only disable clipping if needed, otherwise leave it as previous value.
-            mLauncher.getWorkspace().setClipChildren(false);
-        }
         UiFactory.onLauncherStateOrResumeChanged(mLauncher);
 
         for (int i = mListeners.size() - 1; i >= 0; i--) {

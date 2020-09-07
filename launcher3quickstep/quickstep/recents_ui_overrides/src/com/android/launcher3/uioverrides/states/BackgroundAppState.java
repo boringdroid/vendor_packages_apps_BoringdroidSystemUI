@@ -19,9 +19,7 @@ import static com.android.launcher3.LauncherAnimUtils.OVERVIEW_TRANSITION_MS;
 
 import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.quickstep.util.LayoutUtils;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
 
@@ -52,12 +50,7 @@ public class BackgroundAppState extends OverviewState {
         if (launcher.getDeviceProfile().isVerticalBarLayout()) {
             return super.getVerticalProgress(launcher);
         }
-        int transitionLength = LayoutUtils.getShelfTrackingDistance(launcher,
-                launcher.getDeviceProfile());
-        AllAppsTransitionController controller = launcher.getAllAppsController();
-        float scrollRange = Math.max(controller.getShiftRange(), 1);
-        float progressDelta = (transitionLength / scrollRange);
-        return super.getVerticalProgress(launcher) + progressDelta;
+        return super.getVerticalProgress(launcher);
     }
 
     @Override

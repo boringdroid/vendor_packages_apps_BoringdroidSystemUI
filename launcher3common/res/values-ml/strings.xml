@@ -23,20 +23,11 @@
     <string name="activity_not_found" msgid="8071924732094499514">"അപ്ലിക്കേഷൻ ഇൻസ്‌റ്റാളുചെ‌യ്‌തിട്ടില്ല."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"അപ്ലിക്കേഷൻ ലഭ്യമല്ല"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ഡൗൺലോഡുചെയ്‌ത അപ്ലിക്കേഷൻ സുരക്ഷാ മോഡിൽ പ്രവർത്തനരഹിതമാക്കി"</string>
-    <string name="shortcut_not_available" msgid="2536503539825726397">"കുറുക്കുവഴി ലഭ്യമല്ല"</string>
     <string name="home_screen" msgid="806512411299847073">"ഹോം സ്‌ക്രീൻ"</string>
     <string name="custom_actions" msgid="3747508247759093328">"ഇഷ്‌ടാനുസൃത പ്രവർത്തനങ്ങൾ"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"നേരിട്ട് സ്ഥാപിക്കുന്നതിന് സ്‌പർശിച്ചുപിടിക്കുക"</string>
     <string name="place_automatically" msgid="8064208734425456485">"സ്വയമേവ ചേർക്കുക"</string>
-    <string name="all_apps_loading_message" msgid="5813968043155271636">"ആപ്പുകൾ ലോഡുചെയ്യുന്നു..."</string>
-    <string name="all_apps_no_search_results" msgid="3200346862396363786">"\"<xliff:g id="QUERY">%1$s</xliff:g>\" എന്നതുമായി പൊരുത്തപ്പെടുന്ന ആപ്പുകളൊന്നും കണ്ടെത്തിയില്ല"</string>
-    <string name="all_apps_search_market_message" msgid="1366263386197059176">"കൂടുതൽ ആപ്പുകൾക്ക് തിരയുക"</string>
-    <string name="label_application" msgid="8531721983832654978">"ആപ്പ്"</string>
-    <string name="out_of_space" msgid="4691004494942118364">"ഈ ഹോം സ്‌ക്രീനിൽ ഒഴിവൊന്നുമില്ല."</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"അപ്ലിക്കേഷനുകളുടെ ലിസ്‌റ്റ്"</string>
-    <string name="all_apps_button_personal_label" msgid="1315764287305224468">"വ്യക്തിഗത ആപ്പുകളുടെ ലിസ്റ്റ്"</string>
-    <string name="all_apps_button_work_label" msgid="7270707118948892488">"ഔദ്യോഗിക ആപ്പുകളുടെ ലിസ്റ്റ്"</string>
-    <string name="all_apps_home_button_label" msgid="252062713717058851">"ഹോം"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"നീക്കംചെയ്യുക"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"അൺഇൻസ്റ്റാളുചെയ്യുക"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"കുറുക്കുവഴികൾ ഇൻസ്റ്റാളുചെയ്യുക"</string>
@@ -50,36 +41,21 @@
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ഇതൊരു സിസ്‌റ്റം അപ്ലിക്കേഷനായതിനാൽ അൺഇൻസ്‌റ്റാളുചെയ്യാനാവില്ല."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> പ്രവർത്തനരഹിതമാക്കി"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"പേജ് %1$d / %2$d"</string>
-    <string name="workspace_scroll_format" msgid="8458889198184077399">"ഹോം സ്‌ക്രീൻ %1$d / %2$d"</string>
-    <string name="workspace_new_page" msgid="257366611030256142">"പുതിയ ഹോം സ്ക്രീൻ പേജ്"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"വിഡ്ജെറ്റുകൾ"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"വാൾപേപ്പർ"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"ഹോം ക്രമീകരണം"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"അറിയിപ്പ് ഡോട്ടുകൾ കാണിക്കുക"</string>
-    <string name="abandoned_clean_this" msgid="7610119707847920412">"നീക്കംചെയ്യുക"</string>
-    <string name="abandoned_search" msgid="891119232568284442">"തിരയുക"</string>
-    <string name="abandoned_promises_title" msgid="7096178467971716750">"ഈ അപ്ലിക്കേഷൻ ഇൻസ്റ്റാളുചെയ്‌തിട്ടില്ല"</string>
-    <string name="abandoned_promise_explanation" msgid="3990027586878167529">"ഈ ഐക്കണുവേണ്ടി അപ്ലിക്കേഷൻ ഇൻസ്റ്റാളുചെയ്‌തിട്ടില്ല. നിങ്ങൾക്കത് നീക്കംചെയ്യാനാകും അല്ലെങ്കിൽ അപ്ലിക്കേഷനുവേണ്ടി തിരഞ്ഞുകൊണ്ട് അത് സ്വമേധയാ ഇൻസ്റ്റാളുചെയ്യുക."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> ഡൗൺലോഡ് ചെയ്യുന്നു, <xliff:g id="PROGRESS">%2$s</xliff:g> പൂർത്തിയായി"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"ഇൻസ്റ്റാൾ ചെയ്യാൻ <xliff:g id="NAME">%1$s</xliff:g> കാക്കുന്നു"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"ഹോം സ്ക്രീനിൽ ചേർക്കുക"</string>
     <string name="action_move_here" msgid="2170188780612570250">"ഇനം ഇവിടേക്ക് നീക്കുക"</string>
-    <string name="item_added_to_workspace" msgid="4211073925752213539">"ഹോം സ്‌ക്രീനിൽ ഇനം ചേർത്തു"</string>
     <string name="item_removed" msgid="851119963877842327">"ഇനം നീക്കംചെയ്‌തു"</string>
-    <string name="undo" msgid="4151576204245173321">"പഴയപടിയാക്കുക"</string>
     <string name="action_move" msgid="4339390619886385032">"ഇനം നീക്കുക"</string>
-    <string name="move_to_empty_cell" msgid="2833711483015685619">"വരി <xliff:g id="NUMBER_0">%1$s</xliff:g> നിര <xliff:g id="NUMBER_1">%2$s</xliff:g>-ലേക്ക് നീക്കുക"</string>
-    <string name="item_moved" msgid="4606538322571412879">"ഇനം നീക്കി"</string>
-    <string name="create_folder_with" msgid="4050141361160214248">"ഇതുപയോഗിച്ച് ഫോൾഡർ സൃഷ്‌ടിക്കുക: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="action_move_to_workspace" msgid="1603837886334246317">"ഹോം സ്‌ക്രീനിലേക്ക് നീക്കുക"</string>
     <string name="action_resize" msgid="1802976324781771067">"വലുപ്പംമാറ്റുക"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"വ്യക്തിപരം"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"ജോലി"</string>
-    <string name="work_profile_toggle_label" msgid="3081029915775481146">"ഔദ്യോഗിക പ്രൊഫൈൽ"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"ഔദ്യോഗിക ആപ്പുകൾ ഇവിടെ കണ്ടെത്തുക"</string>
     <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"എല്ലാ ഔദ്യോഗിക ആപ്പിനും ഒരു ബാഡ്‌ജ് ഉണ്ട്, നിങ്ങളുടെ സ്ഥാപനം അത് സുരക്ഷിതമായി സൂക്ഷിക്കുന്നു. എളുപ്പത്തിൽ ആക്സസ് ചെയ്യാൻ ആപ്പുകളെ ഹോം സ്‌ക്രീനിലേക്ക് നീക്കുക."</string>
-    <string name="work_mode_on_label" msgid="4781128097185272916">"നിങ്ങളുടെ സ്ഥാപനം നിയന്ത്രിക്കുന്നത്"</string>
-    <string name="work_mode_off_label" msgid="3194894777601421047">"അറിയിപ്പുകളും ആപ്പുകളും ഓഫാണ്"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"അടയ്ക്കുക"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"അടച്ചു"</string>
 </resources>

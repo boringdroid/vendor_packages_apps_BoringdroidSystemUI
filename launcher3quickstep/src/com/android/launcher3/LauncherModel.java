@@ -32,7 +32,6 @@ import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.icons.IconCache;
-import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.model.AllAppsList;
 import com.android.launcher3.model.BaseModelUpdateTask;
 import com.android.launcher3.model.BgDataModel;
@@ -43,7 +42,6 @@ import com.android.launcher3.model.LoaderTask;
 import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.model.PackageInstallStateChangedTask;
 import com.android.launcher3.model.PackageUpdatedTask;
-import com.android.launcher3.model.UserLockStateChangedTask;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.Preconditions;
@@ -52,11 +50,9 @@ import com.android.launcher3.util.Thunk;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
-import java.util.function.Supplier;
 
 /**
  * Maintains in-memory state of the Launcher. It is expected that there should be only one
@@ -109,11 +105,11 @@ public class LauncherModel extends BroadcastReceiver
     /**
      * Updates the icons and label of all pending icons for the provided package name.
      */
-    public void updateSessionDisplayInfo(final String packageName, final UserHandle user) {
+    public void updateSessionDisplayInfo(final String packageName) {
         HashSet<String> packages = new HashSet<>();
         packages.add(packageName);
         enqueueModelUpdateTask(new CacheDataUpdatedTask(
-                CacheDataUpdatedTask.OP_SESSION_UPDATE, user, packages));
+        ));
     }
 
     public ModelWriter getWriter(boolean verifyChanges) {
@@ -141,18 +137,6 @@ public class LauncherModel extends BroadcastReceiver
             @Override
             public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
                 final IntSparseArrayMap<Boolean> removedIds = new IntSparseArrayMap<>();
-                synchronized (dataModel) {
-                    for (ItemInfo info : dataModel.itemsIdMap) {
-                        if (info instanceof WorkspaceItemInfo
-                                && ((WorkspaceItemInfo) info).hasPromiseIconUi()
-                                && user.equals(info.user)
-                                && info.getIntent() != null
-                                && TextUtils.equals(packageName, info.getIntent().getPackage())) {
-                            removedIds.put(info.id, true /* remove */);
-                        }
-                    }
-                }
-
                 if (!removedIds.isEmpty()) {
                     deleteAndBindComponentsRemoved(ItemInfoMatcher.ofItemIds(removedIds, false));
                 }
@@ -229,13 +213,6 @@ public class LauncherModel extends BroadcastReceiver
                     enqueueModelUpdateTask(new PackageUpdatedTask(
                             PackageUpdatedTask.OP_USER_AVAILABILITY_CHANGE, user));
                 }
-
-                // ACTION_MANAGED_PROFILE_UNAVAILABLE sends the profile back to locked mode, so
-                // we need to run the state change task again.
-                if (Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE.equals(action) ||
-                        Intent.ACTION_MANAGED_PROFILE_UNLOCKED.equals(action)) {
-                    enqueueModelUpdateTask(new UserLockStateChangedTask());
-                }
             }
         } else if (IS_DOGFOOD_BUILD && ACTION_FORCE_ROLOAD.equals(action)) {
             Launcher l = (Launcher) getCallback();
@@ -263,9 +240,6 @@ public class LauncherModel extends BroadcastReceiver
         // the next time launcher starts
         Callbacks callbacks = getCallback();
         if (callbacks != null) {
-            if (synchronousBindPage < 0) {
-                synchronousBindPage = callbacks.getCurrentWorkspaceScreen();
-            }
             startLoader(synchronousBindPage);
         }
     }
@@ -283,21 +257,11 @@ public class LauncherModel extends BroadcastReceiver
         synchronized (mLock) {
             // Don't bother to start the thread if we know it's not going to do anything
             if (mCallbacks != null && mCallbacks.get() != null) {
-                final Callbacks oldCallbacks = mCallbacks.get();
-                // Clear any pending bind-runnables from the synchronized load process.
-                MAIN_EXECUTOR.execute(oldCallbacks::clearPendingBinds);
-
                 // If there is already one running, tell it to stop.
                 stopLoader();
                 LoaderResults loaderResults = new LoaderResults(mApp, sBgDataModel,
                         mBgAllAppsList, synchronousBindPage, mCallbacks);
                 if (mModelLoaded && !mIsLoaderTaskRunning) {
-                    // Divide the set of loaded items into those that we are binding synchronously,
-                    // and everything else that is to be bound normally (asynchronously).
-                    loaderResults.bindWorkspace();
-                    // For now, continue posting the binding of AllApps as there are other
-                    // issues that arise from that.
-                    loaderResults.bindAllApps();
                     return true;
                 } else {
                     startLoaderForResults(loaderResults);
@@ -328,15 +292,6 @@ public class LauncherModel extends BroadcastReceiver
             // Always post the loader task, instead of running directly (even on same thread) so
             // that we exit any nested synchronized blocks
             MODEL_EXECUTOR.post(mLoaderTask);
-        }
-    }
-
-    public void startLoaderForResultsIfNotLoaded(LoaderResults results) {
-        synchronized (mLock) {
-            if (!isModelLoaded()) {
-                Log.d(TAG, "Workspace not loaded, loading now");
-                startLoaderForResults(results);
-            }
         }
     }
 
@@ -391,11 +346,11 @@ public class LauncherModel extends BroadcastReceiver
     /**
      * Called when the icons for packages have been updated in the icon cache.
      */
-    public void onPackageIconsUpdated(HashSet<String> updatedPackages, UserHandle user) {
+    public void onPackageIconsUpdated() {
         // If any package icon has changed (app was updated while launcher was dead),
         // update the corresponding shortcuts.
         enqueueModelUpdateTask(new CacheDataUpdatedTask(
-                CacheDataUpdatedTask.OP_CACHE_UPDATE, user, updatedPackages));
+        ));
     }
 
     public void enqueueModelUpdateTask(ModelUpdateTask task) {
@@ -423,30 +378,6 @@ public class LauncherModel extends BroadcastReceiver
         void init(LauncherAppState app, LauncherModel model,
                 BgDataModel dataModel, AllAppsList allAppsList, Executor uiExecutor);
 
-    }
-
-    public void updateAndBindWorkspaceItem(WorkspaceItemInfo si) {
-        updateAndBindWorkspaceItem(() -> {
-            LauncherIcons li = LauncherIcons.obtain(mApp.getContext());
-            li.recycle();
-            return si;
-        });
-    }
-
-    /**
-     * Utility method to update a shortcut on the background thread.
-     */
-    public void updateAndBindWorkspaceItem(final Supplier<WorkspaceItemInfo> itemProvider) {
-        enqueueModelUpdateTask(new BaseModelUpdateTask() {
-            @Override
-            public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
-                WorkspaceItemInfo info = itemProvider.get();
-                getModelWriter().updateItemInDatabase(info);
-                ArrayList<WorkspaceItemInfo> update = new ArrayList<>();
-                update.add(info);
-                bindUpdatedWorkspaceItems(update);
-            }
-        });
     }
 
     public void dumpState(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {

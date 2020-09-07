@@ -23,8 +23,6 @@ import android.view.View;
 
 import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.dragndrop.DragOptions;
-import com.android.launcher3.model.ModelWriter;
-import com.android.launcher3.views.Snackbar;
 
 public class DeleteDropTarget extends ButtonDropTarget {
 
@@ -56,11 +54,6 @@ public class DeleteDropTarget extends ButtonDropTarget {
      */
     @Override
     public boolean supportsAccessibilityDrop(ItemInfo info, View view) {
-        if (info instanceof WorkspaceItemInfo) {
-            // Support the action unless the item is in a context menu.
-            return info.screenId >= 0;
-        }
-
         return false;
     }
 
@@ -103,14 +96,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
     public void completeDrop(DragObject d) {
         ItemInfo item = d.dragInfo;
         if (canRemove(item)) {
-            int itemPage = mLauncher.getWorkspace().getCurrentPage();
             onAccessibilityDrop(null, item);
-            ModelWriter modelWriter = mLauncher.getModelWriter();
-            Runnable onUndoClicked = () -> {
-                modelWriter.abortDelete(itemPage);
-            };
-            Snackbar.show(mLauncher, R.string.item_removed, R.string.undo,
-                    modelWriter::commitDelete, onUndoClicked);
         }
     }
 
@@ -123,7 +109,6 @@ public class DeleteDropTarget extends ButtonDropTarget {
         // because we already remove the drag view from the folder (if the drag originated from
         // a folder) in Folder.beginDrag()
         mLauncher.removeItem(view, item, true /* deleteFromDb */);
-        mLauncher.getWorkspace().stripEmptyScreens();
         mLauncher.getDragLayer()
                 .announceForAccessibility(getContext().getString(R.string.item_removed));
     }

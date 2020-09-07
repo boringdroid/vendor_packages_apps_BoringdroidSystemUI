@@ -43,7 +43,6 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.PendingAddItemInfo;
 import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.R;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.compat.LauncherAppsCompat;
 
 import java.net.URISyntaxException;
@@ -190,8 +189,6 @@ public class PackageManagerHelper {
         ComponentName componentName = null;
         if (info instanceof AppInfo) {
             componentName = ((AppInfo) info).componentName;
-        } else if (info instanceof WorkspaceItemInfo) {
-            componentName = info.getTargetComponent();
         } else if (info instanceof PendingAddItemInfo) {
             componentName = ((PendingAddItemInfo) info).componentName;
         }

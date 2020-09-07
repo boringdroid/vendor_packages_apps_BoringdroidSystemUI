@@ -37,17 +37,6 @@ public class PromiseAppInfo extends AppInfo {
                         | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
     }
 
-    @Override
-    public WorkspaceItemInfo makeWorkspaceItem() {
-        WorkspaceItemInfo shortcut = new WorkspaceItemInfo(this);
-        shortcut.setInstallProgress(level);
-        // We need to update the component name when the apk is installed
-        shortcut.status |= WorkspaceItemInfo.FLAG_AUTOINSTALL_ICON;
-        // Since the user is manually placing it on homescreen, it should not be auto-removed later
-        shortcut.status |= WorkspaceItemInfo.FLAG_RESTORE_STARTED;
-        return shortcut;
-    }
-
     public Intent getMarketIntent(Context context) {
         return new PackageManagerHelper(context).getMarketIntent(componentName.getPackageName());
     }

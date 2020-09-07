@@ -20,10 +20,7 @@ import static com.android.launcher3.BaseActivity.INVISIBLE_ALL;
 import static com.android.launcher3.BaseActivity.INVISIBLE_BY_APP_TRANSITIONS;
 import static com.android.launcher3.BaseActivity.INVISIBLE_BY_PENDING_FLAGS;
 import static com.android.launcher3.BaseActivity.PENDING_INVISIBLE_BY_WALLPAPER_ANIMATION;
-import static com.android.launcher3.LauncherState.ALL_APPS;
-import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.Utilities.postAsyncCallback;
-import static com.android.launcher3.allapps.AllAppsTransitionController.ALL_APPS_PROGRESS;
 import static com.android.launcher3.anim.Interpolators.AGGRESSIVE_EASE;
 import static com.android.launcher3.anim.Interpolators.DEACCEL_1_7;
 import static com.android.launcher3.anim.Interpolators.EXAGGERATED_EASE;
@@ -61,7 +58,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
-import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.dragndrop.DragLayer;
@@ -353,42 +349,7 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
                 ? new float[] {1, 0}
                 : new float[] {0, 1};
 
-        if (mLauncher.isInState(ALL_APPS)) {
-            // All Apps in portrait mode is full screen, so we only animate AllAppsContainerView.
-            final View appsView = mLauncher.getAppsView();
-            final float startAlpha = appsView.getAlpha();
-            final float startY = appsView.getTranslationY();
-            appsView.setAlpha(alphas[0]);
-            appsView.setTranslationY(trans[0]);
-
-            ObjectAnimator alpha = ObjectAnimator.ofFloat(appsView, View.ALPHA, alphas);
-            alpha.setDuration(CONTENT_ALPHA_DURATION);
-            alpha.setInterpolator(LINEAR);
-            appsView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            alpha.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    appsView.setLayerType(View.LAYER_TYPE_NONE, null);
-                }
-            });
-            ObjectAnimator transY = ObjectAnimator.ofFloat(appsView, View.TRANSLATION_Y, trans);
-            transY.setInterpolator(AGGRESSIVE_EASE);
-            transY.setDuration(CONTENT_TRANSLATION_DURATION);
-
-            launcherAnimator.play(alpha);
-            launcherAnimator.play(transY);
-
-            endListener = () -> {
-                appsView.setAlpha(startAlpha);
-                appsView.setTranslationY(startY);
-                appsView.setLayerType(View.LAYER_TYPE_NONE, null);
-            };
-        } else if (mLauncher.isInState(OVERVIEW)) {
-            AllAppsTransitionController allAppsController = mLauncher.getAllAppsController();
-            launcherAnimator.play(ObjectAnimator.ofFloat(allAppsController, ALL_APPS_PROGRESS,
-                    allAppsController.getProgress(), ALL_APPS_PROGRESS_OFF_SCREEN));
-            endListener = composeViewContentAnimator(launcherAnimator, alphas, trans);
-        } else {
+        {
             mDragLayerAlpha.setValue(alphas[0]);
             ObjectAnimator alpha =
                     ObjectAnimator.ofFloat(mDragLayerAlpha, MultiValueAlpha.VALUE, alphas);
@@ -402,9 +363,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
             transY.setDuration(CONTENT_TRANSLATION_DURATION);
             launcherAnimator.play(transY);
 
-            mDragLayer.getScrim().hideSysUiScrim(true);
-            // Pause page indicator animations as they lead to layer trashing.
-            mLauncher.getWorkspace().getPageIndicator().pauseAnimations();
             mDragLayer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
             endListener = this::resetContentView;
@@ -703,22 +661,10 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
      * Creates an animator that modifies Launcher as a result from {@link #getWallpaperOpenRunner}.
      */
     private void createLauncherResumeAnimation(AnimatorSet anim) {
-        if (mLauncher.isInState(LauncherState.ALL_APPS)) {
-            Pair<AnimatorSet, Runnable> contentAnimator =
-                    getLauncherContentAnimator(false /* isAppOpening */,
-                            new float[] {-mContentTransY, 0});
-            contentAnimator.first.setStartDelay(LAUNCHER_RESUME_START_DELAY);
-            anim.play(contentAnimator.first);
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    contentAnimator.second.run();
-                }
-            });
-        } else {
+        {
             AnimatorSet workspaceAnimator = new AnimatorSet();
 
-            mDragLayer.setTranslationY(-mWorkspaceTransY);;
+            mDragLayer.setTranslationY(-mWorkspaceTransY);
             workspaceAnimator.play(ObjectAnimator.ofFloat(mDragLayer, View.TRANSLATION_Y,
                     -mWorkspaceTransY, 0));
 
@@ -730,10 +676,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
             workspaceAnimator.setDuration(333);
             workspaceAnimator.setInterpolator(Interpolators.DEACCEL_1_7);
 
-            mDragLayer.getScrim().hideSysUiScrim(true);
-
-            // Pause page indicator animations as they lead to layer trashing.
-            mLauncher.getWorkspace().getPageIndicator().pauseAnimations();
             mDragLayer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
             workspaceAnimator.addListener(new AnimatorListenerAdapter() {
@@ -747,11 +689,9 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
     }
 
     private void resetContentView() {
-        mLauncher.getWorkspace().getPageIndicator().skipAnimationsToEnd();
         mDragLayerAlpha.setValue(1f);
         mDragLayer.setLayerType(View.LAYER_TYPE_NONE, null);
         mDragLayer.setTranslationY(0f);
-        mDragLayer.getScrim().hideSysUiScrim(false);
     }
 
     private boolean hasControlRemoteAppTransitionPermission() {

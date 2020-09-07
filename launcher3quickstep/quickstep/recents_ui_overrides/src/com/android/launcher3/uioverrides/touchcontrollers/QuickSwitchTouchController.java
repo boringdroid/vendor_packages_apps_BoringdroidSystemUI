@@ -109,13 +109,12 @@ public class QuickSwitchTouchController extends AbstractStateChangeTouchControll
     protected float initCurrentAnimation(int animComponents) {
         AnimatorSetBuilder animatorSetBuilder = new AnimatorSetBuilder();
         setupInterpolators(animatorSetBuilder);
-        long accuracy = (long) (getShiftRange() * 2);
         mCurrentAnimation = mLauncher.getStateManager().createAnimationToNewWorkspace(mToState,
-                animatorSetBuilder, accuracy, this::clearState, LauncherStateManager.ANIM_ALL);
+                animatorSetBuilder, 0, this::clearState, LauncherStateManager.ANIM_ALL);
         mCurrentAnimation.getAnimationPlayer().addUpdateListener(valueAnimator -> {
             updateFullscreenProgress((Float) valueAnimator.getAnimatedValue());
         });
-        return 1 / getShiftRange();
+        return 1;
     }
 
     private void setupInterpolators(AnimatorSetBuilder animatorSetBuilder) {
@@ -148,11 +147,6 @@ public class QuickSwitchTouchController extends AbstractStateChangeTouchControll
                     : 0;
             mLauncher.getSystemUiController().updateUiState(UI_STATE_OVERVIEW, sysuiFlags);
         }
-    }
-
-    @Override
-    protected float getShiftRange() {
-        return mLauncher.getDeviceProfile().widthPx / 2f;
     }
 
     @Override

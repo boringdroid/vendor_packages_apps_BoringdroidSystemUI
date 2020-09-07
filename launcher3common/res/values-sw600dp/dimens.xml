@@ -16,10 +16,8 @@
 
 <resources>
 <!-- All Apps -->
-    <dimen name="all_apps_background_canvas_width">850dp</dimen>
-    <dimen name="all_apps_background_canvas_height">525dp</dimen>
 
-<!-- Widget tray -->
+    <!-- Widget tray -->
 
     <!-- DragController -->
     <dimen name="drag_flingToDeleteMinVelocity">-1000dp</dimen>

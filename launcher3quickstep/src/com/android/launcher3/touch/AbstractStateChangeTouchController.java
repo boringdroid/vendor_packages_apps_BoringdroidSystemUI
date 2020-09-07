@@ -15,8 +15,6 @@
  */
 package com.android.launcher3.touch;
 
-import static com.android.launcher3.LauncherAnimUtils.MIN_PROGRESS_TO_ALL_APPS;
-import static com.android.launcher3.LauncherState.ALL_APPS;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherStateManager.ANIM_ALL;
@@ -163,10 +161,6 @@ public abstract class AbstractStateChangeTouchController
         return mDetector.onTouchEvent(ev);
     }
 
-    protected float getShiftRange() {
-        return mLauncher.getAllAppsController().getShiftRange();
-    }
-
     /**
      * Returns the state to go to from fromState given the drag direction. If there is no state in
      * that direction, returns fromState.
@@ -281,9 +275,7 @@ public abstract class AbstractStateChangeTouchController
     @Override
     public boolean onDrag(float displacement, MotionEvent ev) {
         if (!mIsLogContainerSet) {
-            if (mStartState == ALL_APPS) {
-                mStartContainerType = LauncherLogProto.ContainerType.ALLAPPS;
-            } else if (mStartState == NORMAL) {
+            if (mStartState == NORMAL) {
                 mStartContainerType = getLogContainerTypeForNormalState(ev);
             } else if (mStartState == OVERVIEW) {
                 mStartContainerType = LauncherLogProto.ContainerType.TASKSWITCHER;
@@ -340,9 +332,6 @@ public abstract class AbstractStateChangeTouchController
 
                     if (mCurrentAnimation != null) {
                         mAtomicComponentsStartProgress = mCurrentAnimation.getProgressFraction();
-                        long duration = (long) (getShiftRange() * 2);
-                        mAtomicComponentsController = AnimatorPlaybackController.wrap(
-                                createAtomicAnimForState(mFromState, mToState, duration), duration);
                         mAtomicComponentsController.dispatchOnStart();
                         mAtomicComponentsTargetState = mToState;
                         maybeAutoPlayAtomicComponentsAnim();
@@ -385,8 +374,7 @@ public abstract class AbstractStateChangeTouchController
                             ? mToState : mFromState;
             // snap to top or bottom using the release velocity
         } else {
-            float successProgress = mToState == ALL_APPS
-                    ? MIN_PROGRESS_TO_ALL_APPS : SUCCESS_TRANSITION_PROGRESS;
+            float successProgress = SUCCESS_TRANSITION_PROGRESS;
             targetState = (interpolatedProgress > successProgress) ? mToState : mFromState;
         }
 
@@ -514,7 +502,6 @@ public abstract class AbstractStateChangeTouchController
 
     protected void goToTargetState(LauncherState targetState, int logAction) {
         mLauncher.getStateManager().goToState(targetState, false /* animated */);
-        mLauncher.getDragLayer().getScrim().animateToSysuiMultiplier(1, 0, 0);
     }
 
     protected void clearState() {

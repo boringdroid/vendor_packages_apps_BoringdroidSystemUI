@@ -22,18 +22,13 @@ import static android.view.View.VISIBLE;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.drawable.AdaptiveIconDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Process;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -42,18 +37,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextClock;
 
-import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.CellLayout;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.InsettableFrameLayout;
 import com.android.launcher3.InvariantDeviceProfile;
-import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.R;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.WorkspaceLayoutManager;
-import com.android.launcher3.icons.BaseIconFactory;
-import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.icons.BitmapRenderer;
 import com.android.launcher3.views.ActivityContext;
 import com.android.launcher3.views.BaseDragLayer;
@@ -76,16 +65,12 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
 
     private final Handler mUiHandler;
     private final Context mContext;
-    private final InvariantDeviceProfile mIdp;
     private final DeviceProfile mDp;
     private final Rect mInsets;
-
-    private final WorkspaceItemInfo mWorkspaceItemInfo;
 
     public LauncherPreviewRenderer(Context context, InvariantDeviceProfile idp) {
         mUiHandler = new Handler(Looper.getMainLooper());
         mContext = context;
-        mIdp = idp;
         mDp = idp.portraitProfile.copy(context);
 
         // TODO: get correct insets once display cutout API is available.
@@ -93,19 +78,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         mInsets.left = mInsets.right = (mDp.widthPx - mDp.availableWidthPx) / 2;
         mInsets.top = mInsets.bottom = (mDp.heightPx - mDp.availableHeightPx) / 2;
         mDp.updateInsets(mInsets);
-
-        BaseIconFactory iconFactory =
-                new BaseIconFactory(context, mIdp.fillResIconDpi, mIdp.iconBitmapSize) { };
-        BitmapInfo iconInfo = iconFactory.createBadgedIconBitmap(new AdaptiveIconDrawable(
-                        new ColorDrawable(Color.WHITE), new ColorDrawable(Color.WHITE)),
-                Process.myUserHandle(),
-                Build.VERSION.SDK_INT);
-
-        mWorkspaceItemInfo = new WorkspaceItemInfo();
-        mWorkspaceItemInfo.applyFrom(iconInfo);
-        mWorkspaceItemInfo.intent = new Intent();
-        mWorkspaceItemInfo.contentDescription = mWorkspaceItemInfo.title =
-                context.getString(R.string.label_application);
     }
 
     @Override
@@ -131,7 +103,7 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
     }
 
     private class MainThreadRenderer extends ContextThemeWrapper
-            implements ActivityContext, WorkspaceLayoutManager, LayoutInflater.Factory2 {
+            implements ActivityContext, LayoutInflater.Factory2 {
 
         private final LayoutInflater mHomeElementInflater;
         private final InsettableFrameLayout mRootView;
@@ -198,18 +170,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
             return mDp;
         }
 
-        @Override
-        public CellLayout getScreenWithId(int screenId) {
-            return mWorkspace;
-        }
-
-        private void inflateAndAddIcon(WorkspaceItemInfo info) {
-            BubbleTextView icon = (BubbleTextView) mHomeElementInflater.inflate(
-                    R.layout.app_icon, mWorkspace, false);
-            icon.applyFromWorkspaceItem(info);
-            addInScreenFromBind(icon, info);
-        }
-
         private void dispatchVisibilityAggregated(View view, boolean isVisible) {
             // Similar to View.dispatchVisibilityAggregated implementation.
             final boolean thisVisible = view.getVisibility() == VISIBLE;
@@ -229,16 +189,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         }
 
         private void renderScreenShot(Canvas canvas) {
-            // Add workspace icons
-            for (int i = 0; i < mIdp.numColumns; i++) {
-                WorkspaceItemInfo info = new WorkspaceItemInfo(mWorkspaceItemInfo);
-                info.container = Favorites.CONTAINER_DESKTOP;
-                info.screenId = 0;
-                info.cellX = i;
-                info.cellY = mIdp.numRows - 1;
-                inflateAndAddIcon(info);
-            }
-
             mRootView.findViewById(R.id.apps_view).setTranslationY(mDp.heightPx);
 
             measureView(mRootView, mDp.widthPx, mDp.heightPx);

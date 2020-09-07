@@ -20,35 +20,19 @@ import static android.app.Activity.RESULT_CANCELED;
 
 import static com.android.launcher3.AbstractFloatingView.TYPE_ALL;
 import static com.android.launcher3.AbstractFloatingView.TYPE_HIDE_BACK_BUTTON;
-import static com.android.launcher3.LauncherState.ALL_APPS;
-import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.LauncherState.OVERVIEW;
-import static com.android.launcher3.allapps.DiscoveryBounce.BOUNCE_MAX_COUNT;
-import static com.android.launcher3.allapps.DiscoveryBounce.HOME_BOUNCE_COUNT;
-import static com.android.launcher3.allapps.DiscoveryBounce.HOME_BOUNCE_SEEN;
-import static com.android.launcher3.allapps.DiscoveryBounce.SHELF_BOUNCE_COUNT;
-import static com.android.launcher3.allapps.DiscoveryBounce.SHELF_BOUNCE_SEEN;
 import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
 
-import android.animation.AnimatorSet;
-import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.Person;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.ShortcutInfo;
 import android.os.Bundle;
-import android.os.CancellationSignal;
 import android.util.Base64;
 
 import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherState.ScaleAndTranslation;
-import com.android.launcher3.LauncherStateManager;
 import com.android.launcher3.LauncherStateManager.StateHandler;
-import com.android.launcher3.QuickstepAppTransitionManagerImpl;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.proxy.ProxyActivityStarter;
 import com.android.launcher3.proxy.StartActivityParams;
@@ -57,7 +41,6 @@ import com.android.quickstep.RecentsModel;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.SysUINavigationMode.NavigationModeChangeListener;
-import com.android.quickstep.util.RemoteFadeOutAnimationListener;
 import com.android.systemui.shared.system.ActivityCompat;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
 
@@ -80,8 +63,6 @@ public class UiFactory extends RecentsUiFactory {
 
     public static StateHandler[] getStateHandler(Launcher launcher) {
         return new StateHandler[] {
-                launcher.getAllAppsController(),
-                launcher.getWorkspace(),
                 createRecentsViewStateController(launcher),
                 new BackButtonAlphaHandler(launcher)};
     }
@@ -106,46 +87,6 @@ public class UiFactory extends RecentsUiFactory {
     }
 
     public static void onCreate(Launcher launcher) {
-        if (!launcher.getSharedPrefs().getBoolean(HOME_BOUNCE_SEEN, false)) {
-            launcher.getStateManager().addStateListener(new LauncherStateManager.StateListener() {
-                @Override
-                public void onStateTransitionStart(LauncherState toState) {
-                }
-
-                @Override
-                public void onStateTransitionComplete(LauncherState finalState) {
-                    boolean swipeUpEnabled = SysUINavigationMode.INSTANCE.get(launcher).getMode()
-                            .hasGestures;
-                    LauncherState prevState = launcher.getStateManager().getLastState();
-
-                    if (((swipeUpEnabled && finalState == OVERVIEW) || (!swipeUpEnabled
-                            && finalState == ALL_APPS && prevState == NORMAL) || BOUNCE_MAX_COUNT <=
-                            launcher.getSharedPrefs().getInt(HOME_BOUNCE_COUNT, 0))) {
-                        launcher.getSharedPrefs().edit().putBoolean(HOME_BOUNCE_SEEN, true).apply();
-                        launcher.getStateManager().removeStateListener(this);
-                    }
-                }
-            });
-        }
-
-        if (!launcher.getSharedPrefs().getBoolean(SHELF_BOUNCE_SEEN, false)) {
-            launcher.getStateManager().addStateListener(new LauncherStateManager.StateListener() {
-                @Override
-                public void onStateTransitionStart(LauncherState toState) {
-                }
-
-                @Override
-                public void onStateTransitionComplete(LauncherState finalState) {
-                    LauncherState prevState = launcher.getStateManager().getLastState();
-
-                    if ((finalState == ALL_APPS && prevState == OVERVIEW) || BOUNCE_MAX_COUNT <=
-                            launcher.getSharedPrefs().getInt(SHELF_BOUNCE_COUNT, 0)) {
-                        launcher.getSharedPrefs().edit().putBoolean(SHELF_BOUNCE_SEEN, true).apply();
-                        launcher.getStateManager().removeStateListener(this);
-                    }
-                }
-            });
-        }
     }
 
     public static void onEnterAnimationComplete(Context context) {
@@ -161,23 +102,6 @@ public class UiFactory extends RecentsUiFactory {
         if (model != null) {
             model.onTrimMemory(level);
         }
-    }
-
-    public static void useFadeOutAnimationForLauncherStart(Launcher launcher,
-            CancellationSignal cancellationSignal) {
-        QuickstepAppTransitionManagerImpl appTransitionManager =
-                (QuickstepAppTransitionManagerImpl) launcher.getAppTransitionManager();
-        appTransitionManager.setRemoteAnimationProvider((targets) -> {
-
-            // On the first call clear the reference.
-            cancellationSignal.cancel();
-
-            ValueAnimator fadeAnimation = ValueAnimator.ofFloat(1, 0);
-            fadeAnimation.addUpdateListener(new RemoteFadeOutAnimationListener(targets));
-            AnimatorSet anim = new AnimatorSet();
-            anim.play(fadeAnimation);
-            return anim;
-        }, cancellationSignal);
     }
 
     public static boolean dumpActivity(Activity activity, PrintWriter writer) {
@@ -247,10 +171,6 @@ public class UiFactory extends RecentsUiFactory {
             return new ScaleAndTranslation(1f, offscreenTranslationX, 0f);
         }
         return new ScaleAndTranslation(1.1f, 0f, 0f);
-    }
-
-    public static Person[] getPersons(ShortcutInfo si) {
-        return Utilities.EMPTY_PERSON_ARRAY;
     }
 
     /** Closes system windows. */

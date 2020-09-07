@@ -22,15 +22,11 @@ import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.PromiseAppInfo;
-import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.Workspace;
-import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.model.nano.LauncherDumpProto;
 import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.IntSparseArrayMap;
-import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.ViewOnDrawExecutor;
 
 import com.google.protobuf.nano.MessageNano;
@@ -85,9 +81,6 @@ public class BgDataModel {
             if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 screenSet.add(item.screenId);
             }
-        }
-        if (FeatureFlags.QSB_ON_FIRST_SCREEN || screenSet.isEmpty()) {
-            screenSet.add(Workspace.FIRST_SCREEN_ID);
         }
         return screenSet.getArray();
     }
@@ -159,22 +152,5 @@ public class BgDataModel {
 
     public interface Callbacks {
         void rebindModel();
-
-        int getCurrentWorkspaceScreen();
-        void clearPendingBinds();
-        void startBinding();
-        void bindItems(List<ItemInfo> shortcuts, boolean forceAnimateIcons);
-        void bindScreens(IntArray orderedScreenIds);
-        void finishFirstPageBind(ViewOnDrawExecutor executor);
-        void finishBindingItems(int pageBoundFirst);
-
-        void bindPromiseAppProgressUpdated(PromiseAppInfo app);
-        void bindWorkspaceItemsChanged(ArrayList<WorkspaceItemInfo> updated);
-        void bindRestoreItemsChange(HashSet<ItemInfo> updates);
-        void bindWorkspaceComponentsRemoved(ItemInfoMatcher matcher);
-        void onPageBoundSynchronously(int page);
-        void executeOnNextDraw(ViewOnDrawExecutor executor);
-
-        void bindAllApplications(AppInfo[] apps);
     }
 }

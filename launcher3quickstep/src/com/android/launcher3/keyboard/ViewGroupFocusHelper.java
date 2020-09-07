@@ -19,8 +19,6 @@ package com.android.launcher3.keyboard;
 import android.graphics.Rect;
 import android.view.View;
 
-import com.android.launcher3.PagedView;
-
 /**
  * {@link FocusIndicatorHelper} for a generic view group.
  */
@@ -55,11 +53,6 @@ public class ViewGroupFocusHelper extends FocusIndicatorHelper {
         outRect.top += child.getY();
 
         if (parent != mContainer) {
-            if (parent instanceof PagedView) {
-                PagedView page = (PagedView) parent;
-                outRect.left -= page.getScrollForPage(page.indexOfChild(child));
-            }
-
             computeLocationRelativeToContainer(parent, outRect);
         }
     }

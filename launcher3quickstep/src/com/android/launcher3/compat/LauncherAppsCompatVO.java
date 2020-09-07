@@ -32,7 +32,6 @@ import android.os.UserHandle;
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.icons.LauncherIcons;
 
 @TargetApi(26)
@@ -49,62 +48,6 @@ public class LauncherAppsCompatVO extends LauncherAppsCompatVL {
             return (info.flags & ApplicationInfo.FLAG_INSTALLED) == 0 || !info.enabled
                     ? null : info;
         } catch (PackageManager.NameNotFoundException e) {
-            return null;
-        }
-    }
-
-    /**
-     * request.accept() will initiate the following flow:
-     *      -> go-to-system-process for actual processing (a)
-     *      -> callback-to-launcher on UI thread (b)
-     *      -> post callback on the worker thread (c)
-     *      -> Update model and unpin (in system) any shortcut not in out model. (d)
-     *
-     * Note that (b) will take at-least one frame as it involves posting callback from binder
-     * thread to UI thread.
-     * If (d) happens before we add this shortcut to our model, we will end up unpinning
-     * the shortcut in the system.
-     * Here its the caller's responsibility to add the newly created WorkspaceItemInfo immediately
-     * to the model (which may involves a single post-to-worker-thread). That will guarantee
-     * that (d) happens after model is updated.
-     */
-    @Nullable
-    public static WorkspaceItemInfo createWorkspaceItemFromPinItemRequest(
-            Context context, final PinItemRequest request, final long acceptDelay) {
-        if (request != null &&
-                request.getRequestType() == PinItemRequest.REQUEST_TYPE_SHORTCUT &&
-                request.isValid()) {
-
-            if (acceptDelay <= 0) {
-                if (!request.accept()) {
-                    return null;
-                }
-            } else {
-                // Block the worker thread until the accept() is called.
-                MODEL_EXECUTOR.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(acceptDelay);
-                        } catch (InterruptedException e) {
-                            // Ignore
-                        }
-                        if (request.isValid()) {
-                            request.accept();
-                        }
-                    }
-                });
-            }
-
-            ShortcutInfo si = request.getShortcutInfo();
-            WorkspaceItemInfo info = new WorkspaceItemInfo(si, context);
-            // Apply the unbadged icon and fetch the actual icon asynchronously.
-            LauncherIcons li = LauncherIcons.obtain(context);
-            li.recycle();
-            LauncherAppState.getInstance(context).getModel()
-                    .updateAndBindWorkspaceItem(info);
-            return info;
-        } else {
             return null;
         }
     }

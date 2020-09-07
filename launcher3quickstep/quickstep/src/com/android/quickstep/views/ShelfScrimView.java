@@ -15,7 +15,6 @@
  */
 package com.android.quickstep.views;
 
-import static com.android.launcher3.LauncherState.ALL_APPS_HEADER_EXTRA;
 import static com.android.launcher3.LauncherState.BACKGROUND_APP;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherState.QUICK_SWITCH;
@@ -31,11 +30,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Path.Op;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.animation.Interpolator;
 
-import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.QuickstepAppTransitionManagerImpl;
 import com.android.launcher3.R;
@@ -46,7 +43,6 @@ import com.android.launcher3.views.ScrimView;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.SysUINavigationMode.NavigationModeChangeListener;
-import com.android.quickstep.util.LayoutUtils;
 import com.android.quickstep.util.ShelfPeekAnim;
 
 /**
@@ -144,34 +140,6 @@ public class ShelfScrimView extends ScrimView implements NavigationModeChangeLis
             mBeforeMidProgressColorInterpolator = ACCEL;
             mAfterMidProgressColorInterpolator = Interpolators.clampToProgress(ACCEL, 0.5f, 1f);
         }
-    }
-
-    @Override
-    public void reInitUi() {
-        DeviceProfile dp = mLauncher.getDeviceProfile();
-        mDrawingFlatColor = dp.isVerticalBarLayout();
-
-        if (!mDrawingFlatColor) {
-            mRemainingScreenPathValid = false;
-            mShiftRange = mLauncher.getAllAppsController().getShiftRange();
-
-            if ((OVERVIEW.getVisibleElements(mLauncher) & ALL_APPS_HEADER_EXTRA) == 0) {
-                mMidProgress = 1;
-                mDragHandleProgress = 1;
-                mMidAlpha = 0;
-            } else {
-                Context context = getContext();
-                mMidAlpha = Themes.getAttrInteger(context, R.attr.allAppsInterimScrimAlpha);
-                mMidProgress =  OVERVIEW.getVerticalProgress(mLauncher);
-                float dragHandleTop = Math.min(0, LayoutUtils.getDefaultSwipeHeight(context, dp));
-                mDragHandleProgress =  1 - (dragHandleTop / mShiftRange);
-            }
-            mTopOffset = dp.getInsets().top - mShelfOffset;
-            mShelfTopAtThreshold = mShiftRange * SCRIM_CATCHUP_THRESHOLD + mTopOffset;
-        }
-        updateColors();
-        updateDragHandleAlpha();
-        invalidate();
     }
 
     @Override

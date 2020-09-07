@@ -15,45 +15,24 @@
  */
 package com.android.launcher3.touch;
 
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_BY_PUBLISHER;
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_LOCKED_USER;
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_QUIET_USER;
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SAFEMODE;
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_DISABLED_SUSPENDED;
 import static com.android.launcher3.model.AppLaunchTracker.CONTAINER_ALL_APPS;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.LauncherApps;
-import android.content.pm.PackageInstaller.SessionInfo;
-import android.os.Process;
-import android.os.UserHandle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.PromiseAppInfo;
-import com.android.launcher3.R;
-import com.android.launcher3.Utilities;
-import com.android.launcher3.WorkspaceItemInfo;
-import com.android.launcher3.compat.PackageInstallerCompat;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.views.FloatingIconView;
 
 /**
  * Class for handling clicks on workspace and all-apps items
  */
 public class ItemClickHandler {
-
-    private static final String TAG = ItemClickHandler.class.getSimpleName();
 
     /**
      * Instance used for click handling on items
@@ -70,106 +49,12 @@ public class ItemClickHandler {
         if (v.getWindowToken() == null) return;
 
         Launcher launcher = Launcher.getLauncher(v.getContext());
-        if (!launcher.getWorkspace().isFinishedSwitchingState()) return;
 
         Object tag = v.getTag();
-        if (tag instanceof WorkspaceItemInfo) {
-            onClickAppShortcut(v, (WorkspaceItemInfo) tag, launcher, sourceContainer);
-        } else if (tag instanceof AppInfo) {
+        if (tag instanceof AppInfo) {
             startAppShortcutOrInfoActivity(v, (AppInfo) tag, launcher,
                     sourceContainer == null ? CONTAINER_ALL_APPS: sourceContainer);
         }
-    }
-
-    private static void onClickPendingAppItem(View v, Launcher launcher, String packageName,
-            boolean downloadStarted) {
-        if (downloadStarted) {
-            // If the download has started, simply direct to the market app.
-            startMarketIntentForPackage(v, launcher, packageName);
-            return;
-        }
-        UserHandle user = v.getTag() instanceof ItemInfo
-                ? ((ItemInfo) v.getTag()).user : Process.myUserHandle();
-        new AlertDialog.Builder(launcher)
-                .setTitle(R.string.abandoned_promises_title)
-                .setMessage(R.string.abandoned_promise_explanation)
-                .setPositiveButton(R.string.abandoned_search,
-                        (d, i) -> startMarketIntentForPackage(v, launcher, packageName))
-                .setNeutralButton(R.string.abandoned_clean_this,
-                        (d, i) -> launcher.getWorkspace()
-                                .removeAbandonedPromise(packageName, user))
-                .create().show();
-    }
-
-    private static void startMarketIntentForPackage(View v, Launcher launcher, String packageName) {
-        ItemInfo item = (ItemInfo) v.getTag();
-        if (Utilities.ATLEAST_Q) {
-            PackageInstallerCompat pkgInstaller = PackageInstallerCompat.getInstance(launcher);
-            SessionInfo sessionInfo = pkgInstaller.getActiveSessionInfo(item.user, packageName);
-            if (sessionInfo != null) {
-                LauncherApps launcherApps = launcher.getSystemService(LauncherApps.class);
-                try {
-                    launcherApps.startPackageInstallerSessionDetailsActivity(sessionInfo, null,
-                            launcher.getActivityLaunchOptionsAsBundle(v));
-                    return;
-                } catch (Exception e) {
-                    Log.e(TAG, "Unable to launch market intent for package=" + packageName, e);
-                }
-            }
-        }
-
-        // Fallback to using custom market intent.
-        Intent intent = new PackageManagerHelper(launcher).getMarketIntent(packageName);
-        launcher.startActivitySafely(v, intent, item, null);
-    }
-
-    /**
-     * Event handler for an app shortcut click.
-     *
-     * @param v The view that was clicked. Must be a tagged with a {@link WorkspaceItemInfo}.
-     */
-    public static void onClickAppShortcut(View v, WorkspaceItemInfo shortcut, Launcher launcher,
-            @Nullable String sourceContainer) {
-        if (shortcut.isDisabled()) {
-            final int disabledFlags = shortcut.runtimeStatusFlags
-                    & WorkspaceItemInfo.FLAG_DISABLED_MASK;
-            if ((disabledFlags &
-                    ~FLAG_DISABLED_SUSPENDED &
-                    ~FLAG_DISABLED_QUIET_USER) == 0) {
-                // If the app is only disabled because of the above flags, launch activity anyway.
-                // Framework will tell the user why the app is suspended.
-            } else {
-                if (!TextUtils.isEmpty(shortcut.disabledMessage)) {
-                    // Use a message specific to this shortcut, if it has one.
-                    Toast.makeText(launcher, shortcut.disabledMessage, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // Otherwise just use a generic error message.
-                int error = R.string.activity_not_available;
-                if ((shortcut.runtimeStatusFlags & FLAG_DISABLED_SAFEMODE) != 0) {
-                    error = R.string.safemode_shortcut_error;
-                } else if ((shortcut.runtimeStatusFlags & FLAG_DISABLED_BY_PUBLISHER) != 0 ||
-                        (shortcut.runtimeStatusFlags & FLAG_DISABLED_LOCKED_USER) != 0) {
-                    error = R.string.shortcut_not_available;
-                }
-                Toast.makeText(launcher, error, Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-
-        // Check for abandoned promise
-        if ((v instanceof BubbleTextView) && shortcut.hasPromiseIconUi()) {
-            String packageName = shortcut.intent.getComponent() != null ?
-                    shortcut.intent.getComponent().getPackageName() : shortcut.intent.getPackage();
-            if (!TextUtils.isEmpty(packageName)) {
-                onClickPendingAppItem(v, launcher, packageName,
-                        shortcut.hasStatusFlag(WorkspaceItemInfo.FLAG_INSTALL_SESSION_ACTIVE));
-                return;
-            }
-        }
-
-        // Start activities
-        startAppShortcutOrInfoActivity(v, shortcut, launcher, sourceContainer);
     }
 
     private static void startAppShortcutOrInfoActivity(View v, ItemInfo item, Launcher launcher,
@@ -183,18 +68,6 @@ public class ItemClickHandler {
         }
         if (intent == null) {
             throw new IllegalArgumentException("Input must have a valid intent");
-        }
-        if (item instanceof WorkspaceItemInfo) {
-            WorkspaceItemInfo si = (WorkspaceItemInfo) item;
-            if (si.hasStatusFlag(WorkspaceItemInfo.FLAG_SUPPORTS_WEB_UI)
-                    && Intent.ACTION_VIEW.equals(intent.getAction())) {
-                // make a copy of the intent that has the package set to null
-                // we do this because the platform sometimes disables instant
-                // apps temporarily (triggered by the user) and fallbacks to the
-                // web ui. This only works though if the package isn't set
-                intent = new Intent(intent);
-                intent.setPackage(null);
-            }
         }
         if (v != null && launcher.getAppTransitionManager().supportsAdaptiveIconAnimation()) {
             // Preload the icon to reduce latency b/w swapping the floating view with the original.

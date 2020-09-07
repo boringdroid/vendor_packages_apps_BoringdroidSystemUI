@@ -43,23 +43,6 @@ public class ViewOnDrawExecutor implements Executor, OnDrawListener, Runnable,
     private boolean mLoadAnimationCompleted;
     private boolean mFirstDrawCompleted;
 
-    public void attachTo(Launcher launcher) {
-        attachTo(launcher, launcher.getWorkspace(), true /* waitForLoadAnimation */);
-    }
-
-    public void attachTo(Launcher launcher, View attachedView, boolean waitForLoadAnimation) {
-        mLauncher = launcher;
-        mAttachedView = attachedView;
-        mAttachedView.addOnAttachStateChangeListener(this);
-        if (!waitForLoadAnimation) {
-            mLoadAnimationCompleted = true;
-        }
-
-        if (mAttachedView.isAttachedToWindow()) {
-            attachObserver();
-        }
-    }
-
     private void attachObserver() {
         if (!mCompleted) {
             mAttachedView.getViewTreeObserver().addOnDrawListener(this);
@@ -86,13 +69,6 @@ public class ViewOnDrawExecutor implements Executor, OnDrawListener, Runnable,
         mAttachedView.post(this);
     }
 
-    public void onLoadAnimationCompleted() {
-        mLoadAnimationCompleted = true;
-        if (mAttachedView != null) {
-            mAttachedView.post(this);
-        }
-    }
-
     @Override
     public void run() {
         // Post the pending tasks after both onDraw and onLoadAnimationCompleted have been called.
@@ -112,10 +88,6 @@ public class ViewOnDrawExecutor implements Executor, OnDrawListener, Runnable,
             mLauncher.clearPendingExecutor(this);
         }
         MODEL_EXECUTOR.setThreadPriority(Process.THREAD_PRIORITY_DEFAULT);
-    }
-
-    protected boolean isCompleted() {
-        return mCompleted;
     }
 
     protected void runAllTasks() {

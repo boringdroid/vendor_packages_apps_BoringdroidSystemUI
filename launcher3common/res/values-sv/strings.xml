@@ -23,20 +23,11 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Appen är inte installerad."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Appen är inte tillgänglig"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Den hämtade appen inaktiverades i säkert läge"</string>
-    <string name="shortcut_not_available" msgid="2536503539825726397">"Genvägen är inte tillgänglig"</string>
     <string name="home_screen" msgid="806512411299847073">"Startskärm"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Anpassade åtgärder"</string>
     <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Placera manuellt genom att trycka länge"</string>
     <string name="place_automatically" msgid="8064208734425456485">"Lägg till automatiskt"</string>
-    <string name="all_apps_loading_message" msgid="5813968043155271636">"Läser in appar …"</string>
-    <string name="all_apps_no_search_results" msgid="3200346862396363786">"Inga appar som matchar <xliff:g id="QUERY">%1$s</xliff:g> hittades"</string>
-    <string name="all_apps_search_market_message" msgid="1366263386197059176">"Sök efter fler appar"</string>
-    <string name="label_application" msgid="8531721983832654978">"App"</string>
-    <string name="out_of_space" msgid="4691004494942118364">"Det finns inte plats för mer på den här startskärmen."</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Applista"</string>
-    <string name="all_apps_button_personal_label" msgid="1315764287305224468">"Listan Personliga appar"</string>
-    <string name="all_apps_button_work_label" msgid="7270707118948892488">"Listan Jobbappar"</string>
-    <string name="all_apps_home_button_label" msgid="252062713717058851">"Startskärm"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Ta bort"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Avinstallera"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"installera genvägar"</string>
@@ -50,36 +41,21 @@
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"Det här är en systemapp som inte kan avinstalleras."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> har inaktiverats"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Sidan %1$d av %2$d"</string>
-    <string name="workspace_scroll_format" msgid="8458889198184077399">"Startskärmen %1$d av %2$d"</string>
-    <string name="workspace_new_page" msgid="257366611030256142">"Ny sida på startskärmen"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Widgetar"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Bakgrunder"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Startinställningar"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Visa aviseringsprickar"</string>
-    <string name="abandoned_clean_this" msgid="7610119707847920412">"Ta bort"</string>
-    <string name="abandoned_search" msgid="891119232568284442">"Sök"</string>
-    <string name="abandoned_promises_title" msgid="7096178467971716750">"Appen är inte installerad"</string>
-    <string name="abandoned_promise_explanation" msgid="3990027586878167529">"Appen för den här ikonen har inte installerats. Du kan ta bort den eller söka efter appen och installera den manuellt."</string>
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> laddas ned, <xliff:g id="PROGRESS">%2$s</xliff:g> klart"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> väntar på installation"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Lägg till på startskärmen"</string>
     <string name="action_move_here" msgid="2170188780612570250">"Flytta objekt hit"</string>
-    <string name="item_added_to_workspace" msgid="4211073925752213539">"Objektet har lagts till på startskärmen"</string>
     <string name="item_removed" msgid="851119963877842327">"Objektet har tagits bort"</string>
-    <string name="undo" msgid="4151576204245173321">"Ångra"</string>
     <string name="action_move" msgid="4339390619886385032">"Flytta objekt"</string>
-    <string name="move_to_empty_cell" msgid="2833711483015685619">"Flytta till rad <xliff:g id="NUMBER_0">%1$s</xliff:g>, kolumn <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
-    <string name="item_moved" msgid="4606538322571412879">"Objektet har flyttats"</string>
-    <string name="create_folder_with" msgid="4050141361160214248">"Skapa mapp med: <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="action_move_to_workspace" msgid="1603837886334246317">"Flytta till startskärmen"</string>
     <string name="action_resize" msgid="1802976324781771067">"Ändra storlek"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Privat"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Arbete"</string>
-    <string name="work_profile_toggle_label" msgid="3081029915775481146">"Jobbprofil"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Här hittar du jobbappar"</string>
     <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Alla jobbappar har ett märke och organisationen ser till att de är skyddade. Flytta apparna till startskärmen så kommer du åt dem lättare."</string>
-    <string name="work_mode_on_label" msgid="4781128097185272916">"Hanteras av organisationen"</string>
-    <string name="work_mode_off_label" msgid="3194894777601421047">"Aviseringar och appar är inaktiverade"</string>
     <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Stäng"</string>
     <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Stängd"</string>
 </resources>

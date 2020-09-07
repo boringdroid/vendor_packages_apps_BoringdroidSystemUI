@@ -52,7 +52,6 @@ import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherInitListenerEx;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.QuickstepAppTransitionManagerImpl;
-import com.android.launcher3.allapps.DiscoveryBounce;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
 import com.android.launcher3.views.FloatingIconView;
@@ -60,7 +59,6 @@ import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.util.LayoutUtils;
 import com.android.quickstep.util.ShelfPeekAnim;
 import com.android.quickstep.util.ShelfPeekAnim.ShelfAnimState;
-import com.android.quickstep.util.StaggeredWorkspaceAnim;
 import com.android.quickstep.views.LauncherRecentsView;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
@@ -96,7 +94,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
     public void onSwipeUpToRecentsComplete(Launcher activity) {
         // Re apply state in case we did something funky during the transition.
         activity.getStateManager().reapplyState();
-        DiscoveryBounce.showForOverviewIfNeeded(activity);
     }
 
     @Override
@@ -118,22 +115,9 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
     @Override
     public HomeAnimationFactory prepareHomeUI(Launcher activity) {
         final DeviceProfile dp = activity.getDeviceProfile();
-        final RecentsView recentsView = activity.getOverviewPanel();
-        final TaskView runningTaskView = recentsView.getRunningTaskView();
-        final View workspaceView;
-        if (runningTaskView != null && runningTaskView.getTask().key.getComponent() != null) {
-            workspaceView = activity.getWorkspace().getFirstMatchForAppClose(
-                    runningTaskView.getTask().key.getComponent().getPackageName(),
-                    UserHandleHelper.of(runningTaskView.getTask().key.userId));
-        } else {
-            workspaceView = null;
-        }
         final RectF iconLocation = new RectF();
-        boolean canUseWorkspaceView = workspaceView != null && workspaceView.isAttachedToWindow();
-        FloatingIconView floatingIconView = canUseWorkspaceView
-                ? FloatingIconView.getFloatingIconView(activity, workspaceView,
-                        true /* hideOriginal */, iconLocation, false /* isOpening */)
-                : null;
+        boolean canUseWorkspaceView = false;
+        FloatingIconView floatingIconView = null;
 
         return new HomeAnimationFactory() {
             @Nullable
@@ -163,8 +147,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
 
             @Override
             public void playAtomicAnimation(float velocity) {
-                new StaggeredWorkspaceAnim(activity, velocity, true /* animateOverviewScrim */)
-                        .start();
             }
         };
     }
@@ -182,9 +164,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
 
         final LauncherState fromState = animateActivity ? BACKGROUND_APP : OVERVIEW;
         activity.getStateManager().goToState(fromState, false);
-        // Since all apps is not visible, we can safely reset the scroll position.
-        // This ensures then the next swipe up to all-apps starts from scroll 0.
-        activity.getAppsView().reset(false /* animate */);
 
         return new AnimationFactory() {
             private final ShelfPeekAnim mShelfAnim =

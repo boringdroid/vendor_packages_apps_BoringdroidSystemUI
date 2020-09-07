@@ -1,48 +1,29 @@
 package com.android.launcher3.accessibility;
 
-import static com.android.launcher3.LauncherState.NORMAL;
-
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 
-import com.android.launcher3.AppInfo;
 import com.android.launcher3.ButtonDropTarget;
-import com.android.launcher3.CellLayout;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherSettings;
-import com.android.launcher3.LauncherSettings.Favorites;
-import com.android.launcher3.PendingAddItemInfo;
 import com.android.launcher3.R;
-import com.android.launcher3.Workspace;
-import com.android.launcher3.WorkspaceItemInfo;
 import com.android.launcher3.dragndrop.DragController.DragListener;
 import com.android.launcher3.dragndrop.DragOptions;
-import com.android.launcher3.touch.ItemLongClickListener;
-import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.Thunk;
 
-import java.util.ArrayList;
-
 public class LauncherAccessibilityDelegate extends AccessibilityDelegate implements DragListener {
-
-    private static final String TAG = "LauncherAccessibilityDelegate";
 
     public static final int REMOVE = R.id.action_remove;
     public static final int UNINSTALL = R.id.action_uninstall;
     public static final int RECONFIGURE = R.id.action_reconfigure;
-    protected static final int ADD_TO_WORKSPACE = R.id.action_add_to_workspace;
     protected static final int MOVE = R.id.action_move;
-    protected static final int MOVE_TO_WORKSPACE = R.id.action_move_to_workspace;
     protected static final int RESIZE = R.id.action_resize;
 
     public enum DragType {
@@ -69,12 +50,8 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
                 launcher.getText(R.string.uninstall_drop_target_label)));
         mActions.put(RECONFIGURE, new AccessibilityAction(RECONFIGURE,
                 launcher.getText(R.string.gadget_setup_text)));
-        mActions.put(ADD_TO_WORKSPACE, new AccessibilityAction(ADD_TO_WORKSPACE,
-                launcher.getText(R.string.action_add_to_workspace)));
         mActions.put(MOVE, new AccessibilityAction(MOVE,
                 launcher.getText(R.string.action_move)));
-        mActions.put(MOVE_TO_WORKSPACE, new AccessibilityAction(MOVE_TO_WORKSPACE,
-                launcher.getText(R.string.action_move_to_workspace)));
         mActions.put(RESIZE, new AccessibilityAction(RESIZE,
                         launcher.getText(R.string.action_resize)));
     }
@@ -98,22 +75,10 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
         // Do not add move actions for keyboard request as this uses virtual nodes.
         if (!fromKeyboard && itemSupportsAccessibleDrag(item)) {
             info.addAction(mActions.get(MOVE));
-
-            if (item.container >= 0) {
-                info.addAction(mActions.get(MOVE_TO_WORKSPACE));
-            }
-        }
-
-        if ((item instanceof AppInfo) || (item instanceof PendingAddItemInfo)) {
-            info.addAction(mActions.get(ADD_TO_WORKSPACE));
         }
     }
 
     private boolean itemSupportsAccessibleDrag(ItemInfo item) {
-        if (item instanceof WorkspaceItemInfo) {
-            // Support the action unless the item is in a context menu.
-            return item.screenId >= 0;
-        }
         return false;
     }
 
@@ -129,54 +94,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
     public boolean performAction(final View host, final ItemInfo item, int action) {
         if (action == MOVE) {
             beginAccessibleDrag(host, item);
-        } else if (action == ADD_TO_WORKSPACE) {
-            final int[] coordinates = new int[2];
-            final int screenId = findSpaceOnWorkspace(item, coordinates);
-            mLauncher.getStateManager().goToState(NORMAL, true, new Runnable() {
-
-                @Override
-                public void run() {
-                    if (item instanceof AppInfo) {
-                        WorkspaceItemInfo info = ((AppInfo) item).makeWorkspaceItem();
-                        mLauncher.getModelWriter().addItemToDatabase(info,
-                                Favorites.CONTAINER_DESKTOP,
-                                screenId, coordinates[0], coordinates[1]);
-
-                        ArrayList<ItemInfo> itemList = new ArrayList<>();
-                        itemList.add(info);
-                        mLauncher.bindItems(itemList, true);
-                    } else if (item instanceof PendingAddItemInfo) {
-                        PendingAddItemInfo info = (PendingAddItemInfo) item;
-                        Workspace workspace = mLauncher.getWorkspace();
-                        workspace.snapToPage(workspace.getPageIndexForScreenId(screenId));
-                        mLauncher.addPendingItem(info, Favorites.CONTAINER_DESKTOP,
-                                screenId, coordinates, info.spanX, info.spanY);
-                    }
-                    announceConfirmation(R.string.item_added_to_workspace);
-                }
-            });
-            return true;
-        } else if (action == MOVE_TO_WORKSPACE) {
-            WorkspaceItemInfo info = (WorkspaceItemInfo) item;
-
-            final int[] coordinates = new int[2];
-            final int screenId = findSpaceOnWorkspace(item, coordinates);
-            mLauncher.getModelWriter().moveItemInDatabase(info,
-                    LauncherSettings.Favorites.CONTAINER_DESKTOP,
-                    screenId, coordinates[0], coordinates[1]);
-
-            // Bind the item in next frame so that if a new workspace page was created,
-            // it will get laid out.
-            new Handler().post(new Runnable() {
-
-                @Override
-                public void run() {
-                    ArrayList<ItemInfo> itemList = new ArrayList<>();
-                    itemList.add(item);
-                    mLauncher.bindItems(itemList, true);
-                    announceConfirmation(R.string.item_moved);
-                }
-            });
         } else if (action == RESIZE) {
             return true;
         } else {
@@ -189,10 +106,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
             }
         }
         return false;
-    }
-
-    @Thunk void announceConfirmation(int resId) {
-        announceConfirmation(mLauncher.getResources().getString(resId));
     }
 
     @Thunk void announceConfirmation(String confirmation) {
@@ -247,7 +160,6 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
 
         DragOptions options = new DragOptions();
         options.isAccessibleDrag = true;
-        ItemLongClickListener.beginDrag(item, mLauncher, info, options);
     }
 
     @Override
@@ -259,42 +171,5 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
     public void onDragEnd() {
         mLauncher.getDragController().removeDragListener(this);
         mDragInfo = null;
-    }
-
-    /**
-     * Find empty space on the workspace and returns the screenId.
-     */
-    protected int findSpaceOnWorkspace(ItemInfo info, int[] outCoordinates) {
-        Workspace workspace = mLauncher.getWorkspace();
-        IntArray workspaceScreens = workspace.getScreenOrder();
-        int screenId;
-
-        // First check if there is space on the current screen.
-        int screenIndex = workspace.getCurrentPage();
-        screenId = workspaceScreens.get(screenIndex);
-        CellLayout layout = (CellLayout) workspace.getPageAt(screenIndex);
-
-        boolean found = layout.findCellForSpan(outCoordinates, info.spanX, info.spanY);
-        screenIndex = 0;
-        while (!found && screenIndex < workspaceScreens.size()) {
-            screenId = workspaceScreens.get(screenIndex);
-            layout = (CellLayout) workspace.getPageAt(screenIndex);
-            found = layout.findCellForSpan(outCoordinates, info.spanX, info.spanY);
-            screenIndex++;
-        }
-
-        if (found) {
-            return screenId;
-        }
-
-        workspace.addExtraEmptyScreen();
-        screenId = workspace.commitExtraEmptyScreen();
-        layout = workspace.getScreenWithId(screenId);
-        found = layout.findCellForSpan(outCoordinates, info.spanX, info.spanY);
-
-        if (!found) {
-            Log.wtf(TAG, "Not enough space on an empty screen");
-        }
-        return screenId;
     }
 }
