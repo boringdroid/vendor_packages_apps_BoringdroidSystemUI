@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> डाउनलोड होत आहे , <xliff:g id="PROGRESS">%2$s</xliff:g> पूर्ण झाले"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> इंस्टॉल करण्याची प्रतिक्षा करत आहे"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"होम स्क्रीनवर जोडा"</string>
-    <string name="item_removed" msgid="851119963877842327">"आयटम काढला"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"वैयक्तिक"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"कार्यालय"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"कामाची अ‍ॅप्स येथे मिळवा"</string>

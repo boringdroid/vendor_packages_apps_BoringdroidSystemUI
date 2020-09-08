@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"Fazendo download de <xliff:g id="NAME">%1$s</xliff:g>, <xliff:g id="PROGRESS">%2$s</xliff:g> concluído"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"Aguardando instalação de <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Adicionar à tela inicial"</string>
-    <string name="item_removed" msgid="851119963877842327">"Item removido"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Pessoais"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Comerciais"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Localizar apps de trabalho aqui"</string>

@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> డౌన్‌లోడ్ అవుతోంది, <xliff:g id="PROGRESS">%2$s</xliff:g> పూర్తయింది"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ఇన్‌స్టాల్ కావడానికి వేచి ఉంది"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"హోమ్ స్క్రీన్‌కు జోడించు"</string>
-    <string name="item_removed" msgid="851119963877842327">"అంశం తీసివేయబడింది"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"వ్యక్తిగతం"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"కార్యాలయం"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"కార్యాలయ యాప్‌లను ఇక్కడ కనుగొనండి"</string>

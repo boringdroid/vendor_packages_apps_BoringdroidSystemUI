@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> ਡਾਉਨਲੋਡ ਹੋਰ ਰਿਹਾ ਹੈ, <xliff:g id="PROGRESS">%2$s</xliff:g> ਸੰਪੂਰਣ"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ਸਥਾਪਤ ਕਰਨ ਦੀ ਉਡੀਕ ਕਰ ਰਿਹਾ ਹੈ"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"ਹੋਮ ਸਕ੍ਰੀਨ \'ਤੇ ਸ਼ਾਮਲ ਕਰੋ"</string>
-    <string name="item_removed" msgid="851119963877842327">"ਅਈਟਮ ਹਟਾਈ ਗਈ"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ਨਿੱਜੀ"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"ਕਾਰਜ-ਸਥਾਨ"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"ਕਾਰਜ-ਸਥਾਨ ਐਪਾਂ ਇੱਥੇ ਲੱਭੋ"</string>

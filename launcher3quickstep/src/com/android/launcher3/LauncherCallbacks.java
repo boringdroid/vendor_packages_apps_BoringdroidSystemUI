@@ -57,11 +57,6 @@ public interface LauncherCallbacks {
      */
     default void onStateChanged() { }
 
-    /*
-     * Extension points for providing custom behavior on certain user interactions.
-     */
-    void onLauncherProviderChange();
-
     /**
      * Starts a search with {@param initialQuery}. Return false if search was not started.
      */

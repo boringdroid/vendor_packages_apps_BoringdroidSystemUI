@@ -23,10 +23,5 @@ import android.content.SharedPreferences;
  * here should be safe to call from classes outside of com.android.launcher3.*
  */
 public interface LauncherExterns {
-
-    boolean setLauncherCallbacks(LauncherCallbacks callbacks);
-
     SharedPreferences getSharedPrefs();
-
-    void setLauncherOverlay(Launcher.LauncherOverlay overlay);
 }

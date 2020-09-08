@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> se preuzima, završeno <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> čeka da se instalira"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Dodaj na početni ekran"</string>
-    <string name="item_removed" msgid="851119963877842327">"Stavka je uklonjena"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Lične"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Poslovne"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Pronađite poslovne aplikacije ovdje"</string>

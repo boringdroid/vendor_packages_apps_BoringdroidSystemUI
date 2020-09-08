@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> ডাউনল’ড কৰি থকা হৈছে, <xliff:g id="PROGRESS">%2$s</xliff:g> সম্পূৰ্ণ হ’ল"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ইনষ্টল হোৱালৈ অপেক্ষা কৰি থকা হৈছে"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"গৃহ স্ক্ৰীণত যোগ কৰক"</string>
-    <string name="item_removed" msgid="851119963877842327">"বস্তুটো আঁতৰোৱা হ’ল"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ব্যক্তিগত"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"কৰ্মস্থান"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"ইয়াত কৰ্মস্থানৰ এপ্ বিচাৰি পাওক"</string>

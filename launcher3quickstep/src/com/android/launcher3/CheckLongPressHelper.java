@@ -53,11 +53,6 @@ public class CheckLongPressHelper {
         mView = v;
     }
 
-    public CheckLongPressHelper(View v, View.OnLongClickListener listener) {
-        mView = v;
-        mListener = listener;
-    }
-
     /**
      * Overrides the default long press timeout.
      */

@@ -415,20 +415,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private LauncherCallbacks mLauncherCallbacks;
 
-    /**
-     * Call this after onCreate to set or clear overlay.
-     */
-    public void setLauncherOverlay(LauncherOverlay overlay) {
-        if (overlay != null) {
-            overlay.setOverlayCallbacks(new LauncherOverlayCallbacksImpl());
-        }
-    }
-
-    public boolean setLauncherCallbacks(LauncherCallbacks callbacks) {
-        mLauncherCallbacks = callbacks;
-        return true;
-    }
-
     @Override
     public void invalidateParent(ItemInfo info) {
     }

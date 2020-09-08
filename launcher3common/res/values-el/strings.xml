@@ -47,7 +47,6 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"Λήψη <xliff:g id="NAME">%1$s</xliff:g>, ολοκληρώθηκε <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> σε αναμονή για εγκατάσταση"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Προσθήκη στην αρχική οθόνη"</string>
-    <string name="item_removed" msgid="851119963877842327">"Το στοιχείο καταργήθηκε"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Προσωπικές"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Εργασίας"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Βρείτε όλες τις εφαρμογές εργασίας εδώ"</string>
