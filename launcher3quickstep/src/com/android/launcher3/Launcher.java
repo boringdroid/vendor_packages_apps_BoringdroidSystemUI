@@ -96,8 +96,7 @@ import java.util.List;
  * Default launcher application.
  */
 public class Launcher extends BaseDraggingActivity implements LauncherExterns,
-        Callbacks, LauncherProviderChangeListener,
-        InvariantDeviceProfile.OnIDPChangeListener {
+        Callbacks, InvariantDeviceProfile.OnIDPChangeListener {
     public static final String TAG = "Launcher";
 
     static final boolean DEBUG_STRICT_MODE = false;
@@ -414,10 +413,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return mLauncherView.findViewById(id);
     }
 
-    @Override
-    public void onAppWidgetHostReset() {
-    }
-
     private LauncherCallbacks mLauncherCallbacks;
 
     /**
@@ -432,13 +427,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     public boolean setLauncherCallbacks(LauncherCallbacks callbacks) {
         mLauncherCallbacks = callbacks;
         return true;
-    }
-
-    @Override
-    public void onLauncherProviderChanged() {
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onLauncherProviderChange();
-        }
     }
 
     @Override
@@ -742,10 +730,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public <T extends View> T getOverviewPanel() {
         return (T) mOverviewPanel;
-    }
-
-    public DropTargetBar getDropTargetBar() {
-        return mDropTargetBar;
     }
 
     public LauncherModel getModel() {

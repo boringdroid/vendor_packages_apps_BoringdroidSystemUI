@@ -16,10 +16,6 @@
 
 package com.android.launcher3;
 
-import android.content.ContentResolver;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.Bundle;
 import android.provider.BaseColumns;
 
 /**
@@ -31,11 +27,6 @@ public class LauncherSettings {
      * Favorites.
      */
     public static final class Favorites implements BaseColumns {
-        /**
-         * The time of the last update to this row.
-         * <P>Type: INTEGER</P>
-         */
-        public static final String MODIFIED = "modified";
 
         /**
          * Descriptive name of the gesture that can be displayed to the user.
@@ -68,47 +59,10 @@ public class LauncherSettings {
         public static final int ITEM_TYPE_APPLICATION = 0;
 
         /**
-         * The icon package name in Intent.ShortcutIconResource
-         * <P>Type: TEXT</P>
-         */
-        public static final String ICON_PACKAGE = "iconPackage";
-
-        /**
-         * The icon resource name in Intent.ShortcutIconResource
-         * <P>Type: TEXT</P>
-         */
-        public static final String ICON_RESOURCE = "iconResource";
-
-        /**
          * The custom icon bitmap.
          * <P>Type: BLOB</P>
          */
         public static final String ICON = "icon";
-
-        public static final String TABLE_NAME = "favorites";
-
-        /**
-         * Backup table created when when the favorites table is modified during grid migration
-         */
-        public static final String BACKUP_TABLE_NAME = "favorites_bakup";
-
-        /**
-         * The content:// style URL for this table
-         */
-        public static final Uri CONTENT_URI = Uri.parse("content://" +
-                LauncherProvider.AUTHORITY + "/" + TABLE_NAME);
-
-        /**
-         * The content:// style URL for a given row, identified by its id.
-         *
-         * @param id The row id.
-         *
-         * @return The unique content URL for the specified row.
-         */
-        public static Uri getContentUri(int id) {
-            return Uri.parse("content://" + LauncherProvider.AUTHORITY +
-                    "/" + TABLE_NAME + "/" + id);
-        }
 
         /**
          * The container holding the favorite
@@ -188,42 +142,6 @@ public class LauncherSettings {
          */
         public static final String RANK = "rank";
 
-        /**
-         * Stores general flag based options for {@link ItemInfo}s.
-         * <p>Type: INTEGER</p>
-         */
-        public static final String OPTIONS = "options";
-
-        public static void addTableToDb(SQLiteDatabase db, long myProfileId, boolean optional) {
-            addTableToDb(db, myProfileId, optional, TABLE_NAME);
-        }
-
-        public static void addTableToDb(SQLiteDatabase db, long myProfileId, boolean optional,
-                String tableName) {
-            String ifNotExists = optional ? " IF NOT EXISTS " : "";
-            db.execSQL("CREATE TABLE " + ifNotExists + tableName + " (" +
-                    "_id INTEGER PRIMARY KEY," +
-                    "title TEXT," +
-                    "intent TEXT," +
-                    "container INTEGER," +
-                    "screen INTEGER," +
-                    "cellX INTEGER," +
-                    "cellY INTEGER," +
-                    "spanX INTEGER," +
-                    "spanY INTEGER," +
-                    "itemType INTEGER," +
-                    "appWidgetId INTEGER NOT NULL DEFAULT -1," +
-                    "iconPackage TEXT," +
-                    "iconResource TEXT," +
-                    "icon BLOB," +
-                    "appWidgetProvider TEXT," +
-                    "modified INTEGER NOT NULL DEFAULT 0," +
-                    "restored INTEGER NOT NULL DEFAULT 0," +
-                    "profileId INTEGER DEFAULT " + myProfileId + "," +
-                    "rank INTEGER NOT NULL DEFAULT 0," +
-                    "options INTEGER NOT NULL DEFAULT 0" +
-                    ");");
-        }
     }
 
     /**
@@ -231,27 +149,13 @@ public class LauncherSettings {
      */
     public static final class Settings {
 
-        public static final Uri CONTENT_URI = Uri.parse("content://" +
-                LauncherProvider.AUTHORITY + "/settings");
-
-        public static final String METHOD_CLEAR_EMPTY_DB_FLAG = "clear_empty_db_flag";
-        public static final String METHOD_WAS_EMPTY_DB_CREATED = "get_empty_db_flag";
-
         public static final String METHOD_NEW_ITEM_ID = "generate_new_item_id";
-        public static final String METHOD_NEW_SCREEN_ID = "generate_new_screen_id";
 
         public static final String METHOD_CREATE_EMPTY_DB = "create_empty_db";
 
         public static final String METHOD_LOAD_DEFAULT_FAVORITES = "load_default_favorites";
 
-        public static final String METHOD_NEW_TRANSACTION = "new_db_transaction";
-
-        public static final String METHOD_REFRESH_BACKUP_TABLE = "refresh_backup_table";
-
         public static final String EXTRA_VALUE = "value";
 
-        public static Bundle call(ContentResolver cr, String method) {
-            return cr.call(CONTENT_URI, method, null, null);
-        }
     }
 }

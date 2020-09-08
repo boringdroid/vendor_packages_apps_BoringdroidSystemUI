@@ -20,7 +20,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.UserHandle;
 
 import com.android.launcher3.LauncherAppState;
@@ -36,13 +35,11 @@ public class ContentWriter {
     private final ContentValues mValues;
     private final Context mContext;
 
-    private CommitParams mCommitParams;
     private Bitmap mIcon;
     private UserHandle mUser;
 
     public ContentWriter(Context context, CommitParams commitParams) {
         this(context);
-        mCommitParams = commitParams;
     }
 
     public ContentWriter(Context context) {
@@ -79,12 +76,6 @@ public class ContentWriter {
         return this;
     }
 
-    public ContentWriter putIcon(Bitmap value, UserHandle user) {
-        mIcon = value;
-        mUser = user;
-        return this;
-    }
-
     public ContentWriter put(String key, UserHandle user) {
         return put(key, UserManagerCompat.getInstance(mContext).getSerialNumberForUser(user));
     }
@@ -104,16 +95,10 @@ public class ContentWriter {
     }
 
     public int commit() {
-        if (mCommitParams != null) {
-            return mContext.getContentResolver().update(mCommitParams.mUri, getValues(mContext),
-                    mCommitParams.mWhere, mCommitParams.mSelectionArgs);
-        }
         return 0;
     }
 
     public static final class CommitParams {
-
-        final Uri mUri = LauncherSettings.Favorites.CONTENT_URI;
         String mWhere;
         String[] mSelectionArgs;
 

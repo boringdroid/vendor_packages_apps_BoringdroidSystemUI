@@ -19,8 +19,6 @@ package com.android.launcher3.model;
 import static com.android.launcher3.model.LoaderResults.filterCurrentWorkspaceItems;
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,15 +27,12 @@ import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInstaller.SessionInfo;
 import android.os.Process;
 import android.os.UserHandle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.util.LongSparseArray;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherModel;
-import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
@@ -46,10 +41,8 @@ import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
-import com.android.launcher3.util.IOUtils;
 import com.android.launcher3.util.LooperIdleLock;
 import com.android.launcher3.util.MultiHashMap;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.PackageUserKey;
 import com.android.launcher3.util.TraceHelper;
 
@@ -202,188 +195,29 @@ public class LoaderTask implements Runnable {
 
     private void loadWorkspace() {
         final Context context = mApp.getContext();
-        final ContentResolver contentResolver = context.getContentResolver();
-        final PackageManagerHelper pmHelper = new PackageManagerHelper(context);
         final boolean isSdCardReady = Utilities.isBootCompleted();
         final MultiHashMap<UserHandle, String> pendingPackages = new MultiHashMap<>();
-
-        boolean clearDb = false;
-
-        if (!clearDb && !GridSizeMigrationTask.migrateGridIfNeeded(context)) {
-            // Migration failed. Clear workspace.
-            clearDb = true;
-        }
-
-        if (clearDb) {
-            Log.d(TAG, "loadWorkspace: resetting launcher database");
-            LauncherSettings.Settings.call(contentResolver,
-                    LauncherSettings.Settings.METHOD_CREATE_EMPTY_DB);
-        }
-
-        Log.d(TAG, "loadWorkspace: loading default favorites");
-        LauncherSettings.Settings.call(contentResolver,
-                LauncherSettings.Settings.METHOD_LOAD_DEFAULT_FAVORITES);
 
         synchronized (mBgDataModel) {
             mBgDataModel.clear();
 
             final HashMap<PackageUserKey, SessionInfo> installingPkgs =
                     mPackageInstaller.updateAndGetActiveSessionCache();
-            final PackageUserKey tempPackageKey = new PackageUserKey(null, null);
             mFirstScreenBroadcast = new FirstScreenBroadcast(installingPkgs);
 
-            final LoaderCursor c = new LoaderCursor(contentResolver.query(
-                    LauncherSettings.Favorites.CONTENT_URI, null, null, null, null), mApp);
+            final LongSparseArray<Boolean> quietMode = new LongSparseArray<>();
+            final LongSparseArray<Boolean> unlockedUsers = new LongSparseArray<>();
+            for (UserHandle user : mUserManager.getUserProfiles()) {
+                long serialNo = mUserManager.getSerialNumberForUser(user);
+                quietMode.put(serialNo, mUserManager.isQuietModeEnabled(user));
 
-            try {
+                boolean userUnlocked = mUserManager.isUserUnlocked(user);
 
-                final LongSparseArray<UserHandle> allUsers = c.allUsers;
-                final LongSparseArray<Boolean> quietMode = new LongSparseArray<>();
-                final LongSparseArray<Boolean> unlockedUsers = new LongSparseArray<>();
-                for (UserHandle user : mUserManager.getUserProfiles()) {
-                    long serialNo = mUserManager.getSerialNumberForUser(user);
-                    allUsers.put(serialNo, user);
-                    quietMode.put(serialNo, mUserManager.isQuietModeEnabled(user));
-
-                    boolean userUnlocked = mUserManager.isUserUnlocked(user);
-
-                    // We can only query for shortcuts when the user is unlocked.
-                    if (userUnlocked) {
-                        userUnlocked = false;
-                    }
-                    unlockedUsers.put(serialNo, userUnlocked);
+                // We can only query for shortcuts when the user is unlocked.
+                if (userUnlocked) {
+                    userUnlocked = false;
                 }
-
-                Intent intent;
-                String targetPkg;
-
-                while (!mStopped && c.moveToNext()) {
-                    try {
-                        if (c.user == null) {
-                            // User has been deleted, remove the item.
-                            c.markDeleted();
-                            continue;
-                        }
-
-                        switch (c.itemType) {
-                        case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                            intent = c.parseIntent();
-                            if (intent == null) {
-                                c.markDeleted();
-                                continue;
-                            }
-
-                            ComponentName cn = intent.getComponent();
-                            targetPkg = cn == null ? intent.getPackage() : cn.getPackageName();
-
-                            if (allUsers.indexOfValue(c.user) < 0) {
-                                if (c.restoreFlag != 0) {
-                                    // Don't restore items for other profiles.
-                                    c.markDeleted();
-                                    continue;
-                                }
-                            }
-                            if (TextUtils.isEmpty(targetPkg)) {
-                                c.markDeleted();
-                                continue;
-                            }
-
-                            // If there is no target package, its an implicit intent
-                            // (legacy shortcut) which is always valid
-                            boolean validTarget = TextUtils.isEmpty(targetPkg) ||
-                                    mLauncherApps.isPackageEnabledForProfile(targetPkg, c.user);
-
-                            // If it's a deep shortcut, we'll use pinned shortcuts to restore it
-                            if (cn != null && validTarget) {
-                                // If the apk is present and the shortcut points to a specific
-                                // component.
-
-                                // If the component is already present
-                                if (mLauncherApps.isActivityEnabledForProfile(cn, c.user)) {
-                                    // no special handling necessary for this item
-                                    c.markRestored();
-                                } else {
-                                    // Gracefully try to find a fallback activity.
-                                    intent = pmHelper.getAppLaunchIntent(targetPkg, c.user);
-                                    if (intent != null) {
-                                        c.restoreFlag = 0;
-                                        c.updater().put(
-                                                LauncherSettings.Favorites.INTENT,
-                                                intent.toUri(0)).commit();
-                                    } else {
-                                        c.markDeleted();
-                                        continue;
-                                    }
-                                }
-                            }
-                            // else if cn == null => can't infer much, leave it
-                            // else if !validPkg => could be restored icon or missing sd-card
-
-                            if (!TextUtils.isEmpty(targetPkg) && !validTarget) {
-                                // Points to a valid app (superset of cn != null) but the apk
-                                // is not available.
-
-                                if (c.restoreFlag != 0) {
-                                    tempPackageKey.update(targetPkg, c.user);
-                                    if (installingPkgs.containsKey(tempPackageKey)) {
-                                        // App restore has started. Update the flag
-                                        c.updater().put(LauncherSettings.Favorites.RESTORED,
-                                                c.restoreFlag).commit();
-                                    } else {
-                                        c.markDeleted();
-                                        continue;
-                                    }
-                                } else if (pmHelper.isAppOnSdcard(targetPkg, c.user)) {
-                                    // Add the icon on the workspace anyway.
-                                } else if (!isSdCardReady) {
-                                    // SdCard is not ready yet. Package might get available,
-                                    // once it is ready.
-                                    Log.d(TAG, "Missing pkg, will check later: " + targetPkg);
-                                    pendingPackages.addToList(c.user, targetPkg);
-                                    // Add the icon on the workspace anyway.
-                                } else {
-                                    // Do not wait for external media load anymore.
-                                    c.markDeleted();
-                                    continue;
-                                }
-                            }
-
-                            if (validTarget) {
-                                // The shortcut points to a valid target (either no target
-                                // or something which is ready to be used)
-                                c.markRestored();
-                            }
-
-                            if (c.restoreFlag != 0) {
-                                // Already verified above that user is same as default user
-                            } else if (c.itemType ==
-                                    LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
-                            } else { // item type == ITEM_TYPE_SHORTCUT
-                                // Shortcuts are only available on the primary profile
-                                if (!TextUtils.isEmpty(targetPkg)
-                                        && pmHelper.isAppSuspended(targetPkg, c.user)) {
-                                }
-
-                                // App shortcuts that used to be automatically added to Launcher
-                                // didn't always have the correct intent flags set, so do that
-                                // here
-                                if (intent.getAction() != null &&
-                                    intent.getCategories() != null &&
-                                    intent.getAction().equals(Intent.ACTION_MAIN) &&
-                                    intent.getCategories().contains(Intent.CATEGORY_LAUNCHER)) {
-                                    intent.addFlags(
-                                        Intent.FLAG_ACTIVITY_NEW_TASK |
-                                        Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                                }
-                            }
-                            break;
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Desktop items loading interrupted", e);
-                    }
-                }
-            } finally {
-                IOUtils.closeSilently(c);
+                unlockedUsers.put(serialNo, userUnlocked);
             }
 
             // Break early if we've stopped loading
@@ -392,7 +226,6 @@ public class LoaderTask implements Runnable {
                 return;
             }
 
-            c.commitRestoredItems();
             if (!isSdCardReady && !pendingPackages.isEmpty()) {
                 context.registerReceiver(
                         new SdCardAvailableReceiver(mApp, pendingPackages),

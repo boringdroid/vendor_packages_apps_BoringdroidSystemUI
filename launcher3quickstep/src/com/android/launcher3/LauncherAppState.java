@@ -18,7 +18,6 @@ package com.android.launcher3;
 
 import static com.android.launcher3.InvariantDeviceProfile.CHANGE_FLAG_ICON_PARAMS;
 
-import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -59,10 +58,6 @@ public class LauncherAppState {
     }
 
     private LauncherAppState(Context context) {
-        if (getLocalProvider(context) == null) {
-            throw new RuntimeException(
-                    "Initializing LauncherAppState in the absence of LauncherProvider");
-        }
         Log.v(Launcher.TAG, "LauncherAppState initiated");
         Preconditions.assertUIThread();
         mContext = context;
@@ -108,7 +103,6 @@ public class LauncherAppState {
     }
 
     LauncherModel setLauncher(Launcher launcher) {
-        getLocalProvider(mContext).setLauncherProviderChangeListener(launcher);
         mModel.initialize(launcher);
         return mModel;
     }
@@ -130,12 +124,5 @@ public class LauncherAppState {
      */
     public static InvariantDeviceProfile getIDP(Context context) {
         return InvariantDeviceProfile.INSTANCE.get(context);
-    }
-
-    private static LauncherProvider getLocalProvider(Context context) {
-        try (ContentProviderClient cl = context.getContentResolver()
-                .acquireContentProviderClient(LauncherProvider.AUTHORITY)) {
-            return (LauncherProvider) cl.getLocalContentProvider();
-        }
     }
 }
