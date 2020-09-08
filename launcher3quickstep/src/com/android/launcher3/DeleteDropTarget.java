@@ -21,7 +21,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.dragndrop.DragOptions;
 
 public class DeleteDropTarget extends ButtonDropTarget {
@@ -55,11 +54,6 @@ public class DeleteDropTarget extends ButtonDropTarget {
     @Override
     public boolean supportsAccessibilityDrop(ItemInfo info, View view) {
         return false;
-    }
-
-    @Override
-    public int getAccessibilityAction() {
-        return LauncherAccessibilityDelegate.REMOVE;
     }
 
     @Override

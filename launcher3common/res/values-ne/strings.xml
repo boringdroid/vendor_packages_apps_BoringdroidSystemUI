@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"गृह सेटिङहरू र सर्टकटहरू लेख्नुहोस्"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"गृहमा एउटा अनुप्रयोगलाई सेटिङ र सर्टकट बदल्न अनुमति दिनुहोस्।"</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> ले फोन कलहरू गर्न अनुमति छैन"</string>
-    <string name="gadget_setup_text" msgid="8274003207686040488">"सेटअप"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"यो प्रणाली अनुप्रयोग हो र यसलाई स्थापना रद्द गर्न सकिँदैन।"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"असक्षम पारिएको <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"पृष्ठ %2$d को %1$d"</string>
@@ -48,10 +47,7 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> डाउनलोड गर्दै, <xliff:g id="PROGRESS">%2$s</xliff:g> सम्पन्‍न"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> स्थापना गर्न प्रतीक्षा गर्दै"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"गृह स्क्रिनमा थप्नुहोस्"</string>
-    <string name="action_move_here" msgid="2170188780612570250">"वस्तु यहाँ सार्नुहोस्"</string>
     <string name="item_removed" msgid="851119963877842327">"वस्तु हटाइयो"</string>
-    <string name="action_move" msgid="4339390619886385032">"वस्तु सार्नुहोस्"</string>
-    <string name="action_resize" msgid="1802976324781771067">"पुनःआकार मिलाउनुहोस्"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"व्यक्तिगत"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"कार्यसम्बन्धी"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"कार्यसम्बन्धी अनुप्रयोगहरू यहाँ प्राप्त गर्नुहोस्"</string>

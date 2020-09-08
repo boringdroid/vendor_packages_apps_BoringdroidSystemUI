@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"მთავარი ეკრანის პარამეტრებისა და მალსახმობების ჩაწერა"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"აპისთვის მთავარი ეკრანის პარამეტრებისა და მალსახმობების შეცვლის უფლების მიცემა."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g>-ს არ აქვს სატელეფონო ზარების განხორციელების უფლება"</string>
-    <string name="gadget_setup_text" msgid="8274003207686040488">"დაყენება"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ეს სისტემური აპია და მისი წაშლა შეუძლებელია."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> გაითიშა"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"გვერდი %1$d %2$d-დან"</string>
@@ -48,10 +47,7 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"მიმდინარეობს <xliff:g id="NAME">%1$s</xliff:g>-ის ჩამოტვირთვა, <xliff:g id="PROGRESS">%2$s</xliff:g> დასრულდა"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ელოდება ინსტალაციას"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"მთავარ ეკრანზე დამატება"</string>
-    <string name="action_move_here" msgid="2170188780612570250">"ერთეულის გადაადგილება აქ"</string>
     <string name="item_removed" msgid="851119963877842327">"ერთეული წაიშალა"</string>
-    <string name="action_move" msgid="4339390619886385032">"ერთეულის გადაადგილება"</string>
-    <string name="action_resize" msgid="1802976324781771067">"ზომის შეცვლა"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"პირადი"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"სამსახური"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"აქ თავმოყრილია სამსახურის აპები"</string>

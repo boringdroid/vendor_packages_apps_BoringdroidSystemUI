@@ -110,7 +110,6 @@
     <!-- Text to show user in place of a gadget when we can't display it properly -->
 
     <!-- Text to show user in place of a gadget when it is not yet initialized. -->
-    <string name="gadget_setup_text">Setup</string>
 
     <!-- Text to inform the user that they can't uninstall a system application -->
     <string name="uninstall_system_app_text">This is a system app and can\'t be uninstalled.</string>
@@ -184,7 +183,6 @@
     <string name="action_add_to_workspace">Add to Home screen</string>
 
     <!-- Accessibility action to move item to the current location. [CHAR_LIMIT=30] -->
-    <string name="action_move_here">Move item here</string>
 
     <!-- Accessibility confirmation for item added to workspace. -->
 
@@ -194,7 +192,6 @@
     <!-- Action shown in snackbar to undo item removal. [CHAR_LIMIT=20] -->
 
     <!-- Accessibility action to move an item on the workspace. [CHAR_LIMIT=30] -->
-    <string name="action_move">Move item</string>
 
     <!-- Accessibility description to move item to empty cell. -->
 
@@ -217,7 +214,6 @@
     <!-- Accessibility action to move an item from folder to workspace. [CHAR_LIMIT=30] -->
 
     <!-- Accessibility action to resize a widget. [CHAR_LIMIT=30] -->
-    <string name="action_resize">Resize</string>
 
     <!-- Accessibility action to increase width of a widget. [CHAR_LIMIT=30] -->
 

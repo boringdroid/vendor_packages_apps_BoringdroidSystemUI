@@ -26,7 +26,6 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,13 +38,11 @@ import java.util.List;
 public class CustomActionsPopup implements OnMenuItemClickListener {
 
     private final Launcher mLauncher;
-    private final LauncherAccessibilityDelegate mDelegate;
     private final View mIcon;
 
     public CustomActionsPopup(Launcher launcher, View icon) {
         mLauncher = launcher;
         mIcon = icon;
-        mDelegate = launcher.getAccessibilityDelegate();
     }
 
     private List<AccessibilityAction> getActionList() {
@@ -54,7 +51,6 @@ public class CustomActionsPopup implements OnMenuItemClickListener {
         }
 
         AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
-        mDelegate.addSupportedActions(mIcon, info, true);
         List<AccessibilityAction> result = new ArrayList<>(info.getActionList());
         info.recycle();
         return result;
@@ -82,6 +78,6 @@ public class CustomActionsPopup implements OnMenuItemClickListener {
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        return mDelegate.performAction(mIcon, (ItemInfo) mIcon.getTag(), menuItem.getItemId());
+        return true;
     }
 }

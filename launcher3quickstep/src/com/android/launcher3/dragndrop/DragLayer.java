@@ -40,7 +40,6 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
 import com.android.launcher3.AbstractFloatingView;
-import com.android.launcher3.DropTargetBar;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.Interpolators;
@@ -133,16 +132,8 @@ public class DragLayer extends BaseDragLayer<Launcher> {
         return false;
     }
 
-
-    private boolean isInAccessibleDrag() {
-        return mActivity.getAccessibilityDelegate().isInAccessibleDrag();
-    }
-
     @Override
     public boolean onRequestSendAccessibilityEvent(View child, AccessibilityEvent event) {
-        if (isInAccessibleDrag() && child instanceof DropTargetBar) {
-            return true;
-        }
         return super.onRequestSendAccessibilityEvent(child, event);
     }
 
@@ -152,9 +143,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
                 AbstractFloatingView.TYPE_ACCESSIBLE);
         if (topView != null) {
             addAccessibleChildToList(topView, childrenForAccessibility);
-            if (isInAccessibleDrag()) {
-                addAccessibleChildToList(mActivity.getDropTargetBar(), childrenForAccessibility);
-            }
         } else {
             super.addChildrenForAccessibility(childrenForAccessibility);
         }

@@ -2,8 +2,6 @@ package com.android.launcher3;
 
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_SYSTEM_MASK;
 import static com.android.launcher3.ItemInfoWithIcon.FLAG_SYSTEM_NO;
-import static com.android.launcher3.accessibility.LauncherAccessibilityDelegate.RECONFIGURE;
-import static com.android.launcher3.accessibility.LauncherAccessibilityDelegate.UNINSTALL;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,9 +22,6 @@ import android.widget.Toast;
 import com.android.launcher3.Launcher.OnResumeCallback;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.dragndrop.DragOptions;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ControlType;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
-import com.android.launcher3.util.Themes;
 
 import java.net.URISyntaxException;
 
@@ -44,7 +39,6 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
 
     private final Alarm mCacheExpireAlarm;
 
-    protected int mCurrentAccessibilityAction = -1;
     public SecondaryDropTarget(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
@@ -59,34 +53,11 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        setupUi(UNINSTALL);
-    }
-
-    protected void setupUi(int action) {
-        if (action == mCurrentAccessibilityAction) {
-            return;
-        }
-        mCurrentAccessibilityAction = action;
-
-        if (action == UNINSTALL) {
-            mHoverColor = getResources().getColor(R.color.uninstall_target_hover_tint);
-            setDrawable(R.drawable.ic_uninstall_shadow);
-            updateText(R.string.uninstall_drop_target_label);
-        } else {
-            mHoverColor = Themes.getColorAccent(getContext());
-            setDrawable(R.drawable.ic_setup_shadow);
-            updateText(R.string.gadget_setup_text);
-        }
     }
 
     @Override
     public void onAlarm(Alarm alarm) {
         mUninstallDisabledCache.clear();
-    }
-
-    @Override
-    public int getAccessibilityAction() {
-        return mCurrentAccessibilityAction;
     }
 
     @Override
@@ -96,7 +67,6 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
 
     @Override
     public boolean supportsAccessibilityDrop(ItemInfo info, View view) {
-        setupUi(UNINSTALL);
         Boolean uninstallDisabled = mUninstallDisabledCache.get(info.user);
         if (uninstallDisabled == null) {
             UserManager userManager =
@@ -173,9 +143,6 @@ public class SecondaryDropTarget extends ButtonDropTarget implements OnAlarmList
      * the action was not performed.
      */
     protected ComponentName performDropAction(View view, ItemInfo info) {
-        if (mCurrentAccessibilityAction == RECONFIGURE) {
-            return null;
-        }
         // else: mCurrentAccessibilityAction == UNINSTALL
 
         ComponentName cn = getUninstallTarget(info);

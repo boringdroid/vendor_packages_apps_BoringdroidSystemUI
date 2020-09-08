@@ -63,7 +63,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragLayer;
@@ -153,7 +152,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private LauncherModel mModel;
     private ModelWriter mModelWriter;
-    private LauncherAccessibilityDelegate mAccessibilityDelegate;
 
     // We only want to get the SharedPreferences once since it does an FS stat each time we get
     // it from the context.
@@ -211,7 +209,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         initDeviceProfile(idp);
         idp.addOnChangeListener(this);
         mSharedPrefs = Utilities.getPrefs(this);
-        mAccessibilityDelegate = new LauncherAccessibilityDelegate(this);
 
         mDragController = new DragController(this);
         mStateManager = new LauncherStateManager(this);
@@ -248,7 +245,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                 mDragLayer.getAlphaProperty(ALPHA_INDEX_LAUNCHER_LOAD).setValue(0);
             }
         } else {
-            setWorkspaceLoading(true);
         }
 
         // For handling default keys
@@ -467,11 +463,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private void handleActivityResult(
             final int requestCode, final int resultCode, final Intent data) {
-        if (isWorkspaceLoading()) {
-            // process the result once the workspace has loaded.
-            mPendingActivityResult = new ActivityResultInfo(requestCode, resultCode, data);
-            return;
-        }
         mPendingActivityResult = null;
 
         // Reset the startActivity waiting flag
@@ -778,10 +769,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         TraceHelper.beginSection("NEW_INTENT");
         super.onNewIntent(intent);
 
-        boolean alreadyOnHome = hasWindowFocus() && ((intent.getFlags() &
-                Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-
         // Check this condition before handling isActionMain, as this will get reset.
         boolean isActionMain = Intent.ACTION_MAIN.equals(intent.getAction());
         boolean internalStateHandled = InternalStateHandler
@@ -881,10 +868,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    public LauncherAccessibilityDelegate getAccessibilityDelegate() {
-        return mAccessibilityDelegate;
-    }
-
     public DragController getDragController() {
         return mDragController;
     }
@@ -937,18 +920,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         // We need to show the workspace after starting the search
         mStateManager.goToState(NORMAL);
-    }
-
-    public boolean isWorkspaceLocked() {
-        return mWorkspaceLoading || mPendingRequestArgs != null;
-    }
-
-    public boolean isWorkspaceLoading() {
-        return mWorkspaceLoading;
-    }
-
-    private void setWorkspaceLoading(boolean value) {
-        mWorkspaceLoading = value;
     }
 
     public void setWaitingForResult(PendingRequestArgs args) {

@@ -46,7 +46,6 @@ import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.dragndrop.DragOptions;
 import com.android.launcher3.dragndrop.DragView;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.Thunk;
 
@@ -179,15 +178,7 @@ public abstract class ButtonDropTarget extends TextView
 
         d.dragView.setColor(mHoverColor);
         animateTextColor(mHoverColor);
-        if (d.stateAnnouncer != null) {
-            d.stateAnnouncer.cancel();
-        }
         sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
-    }
-
-    @Override
-    public void onDragOver(DragObject d) {
-        // Do nothing
     }
 
     protected void resetHoverColor() {
@@ -303,24 +294,9 @@ public abstract class ButtonDropTarget extends TextView
                 DragLayer.ANIMATION_END_DISAPPEAR, null);
     }
 
-    public abstract int getAccessibilityAction();
-
-    @Override
-    public void prepareAccessibilityDrop() { }
-
     public abstract void onAccessibilityDrop(View view, ItemInfo item);
 
     public abstract void completeDrop(DragObject d);
-
-    @Override
-    public void getHitRectRelativeToDragLayer(android.graphics.Rect outRect) {
-        super.getHitRect(outRect);
-        outRect.bottom += mBottomDragPadding;
-
-        sTempCords[0] = sTempCords[1] = 0;
-        mLauncher.getDragLayer().getDescendantCoordRelativeToSelf(this, sTempCords);
-        outRect.offsetTo(sTempCords[0], sTempCords[1]);
-    }
 
     public Rect getIconRect(DragObject dragObject) {
         int viewWidth = dragObject.dragView.getMeasuredWidth();
@@ -362,7 +338,6 @@ public abstract class ButtonDropTarget extends TextView
 
     @Override
     public void onClick(View v) {
-        mLauncher.getAccessibilityDelegate().handleAccessibleDrop(this, null, null);
     }
 
     public int getTextColor() {

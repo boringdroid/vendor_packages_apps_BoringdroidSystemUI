@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"హోమ్ సెట్టింగ్‌లు మరియు సత్వరమార్గాలను వ్రాయడం"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"హోమ్‌లో సెట్టింగ్‌లు మరియు సత్వరమార్గాలను మార్చడానికి అనువర్తనాన్ని అనుమతిస్తుంది."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"ఫోన్ కాల్‌లను చేసేందుకు <xliff:g id="APP_NAME">%1$s</xliff:g>కి అనుమతి లేదు"</string>
-    <string name="gadget_setup_text" msgid="8274003207686040488">"సెటప్ చేయి"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"ఇది సిస్టమ్ యాప్ మరియు దీన్ని అన్‌ఇన్‌స్టాల్ చేయడం సాధ్యపడదు."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> నిలిపివేయబడింది"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$dలో %1$dవ పేజీ"</string>
@@ -48,10 +47,7 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> డౌన్‌లోడ్ అవుతోంది, <xliff:g id="PROGRESS">%2$s</xliff:g> పూర్తయింది"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> ఇన్‌స్టాల్ కావడానికి వేచి ఉంది"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"హోమ్ స్క్రీన్‌కు జోడించు"</string>
-    <string name="action_move_here" msgid="2170188780612570250">"అంశాన్ని ఇక్కడికి తరలించు"</string>
     <string name="item_removed" msgid="851119963877842327">"అంశం తీసివేయబడింది"</string>
-    <string name="action_move" msgid="4339390619886385032">"అంశాన్ని తరలించు"</string>
-    <string name="action_resize" msgid="1802976324781771067">"పరిమాణం మార్చు"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"వ్యక్తిగతం"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"కార్యాలయం"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"కార్యాలయ యాప్‌లను ఇక్కడ కనుగొనండి"</string>

@@ -125,7 +125,6 @@
     <!-- arrow_horizontal_offset_start - (ellipsis_size - arrow_width) / 2 -->
 
     <!-- Overview -->
-    <dimen name="options_menu_icon_size">24dp</dimen>
 
     <!-- Snackbar -->
     <dimen name="snackbar_height">48dp</dimen>

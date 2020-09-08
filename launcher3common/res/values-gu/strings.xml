@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"હોમ સેટિંગ્સ અને શોર્ટકટ્સ લખો"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"એપ્લિકેશનને હોમમાં સેટિંગ્સ અને શોર્ટકટ્સ બદલવાની મંજૂરી આપે છે."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> ને ફોન કૉલ્સ કરવાની મંજૂરી નથી"</string>
-    <string name="gadget_setup_text" msgid="8274003207686040488">"સેટઅપ"</string>
     <string name="uninstall_system_app_text" msgid="4172046090762920660">"આ એક સિસ્ટમ ઍપ્લિકેશન છે અને અનઇન્સ્ટોલ કરી શકાતી નથી."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> અક્ષમ કરી"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d માંથી %1$d પૃષ્ઠ"</string>
@@ -48,10 +47,7 @@
     <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> ડાઉનલોડ કરી રહ્યાં છે, <xliff:g id="PROGRESS">%2$s</xliff:g> પૂર્ણ"</string>
     <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g>, ઇન્સ્ટૉલ થવાની રાહ જોઈ રહ્યું છે"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"હોમ સ્ક્રીન પર ઉમેરો"</string>
-    <string name="action_move_here" msgid="2170188780612570250">"આઇટમ અહીં ખસેડો"</string>
     <string name="item_removed" msgid="851119963877842327">"આઇટમ દૂર કરી"</string>
-    <string name="action_move" msgid="4339390619886385032">"આઇટમ ખસેડો"</string>
-    <string name="action_resize" msgid="1802976324781771067">"આકાર બદલો"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"મનગમતી ઍપ"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"કાર્યાલયની ઍપ"</string>
     <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"કાર્ય ઍપને અહીંથી મેળવો"</string>
