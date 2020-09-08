@@ -192,22 +192,6 @@ public class PreloadIconDrawable extends FastBitmapDrawable {
         return true;
     }
 
-    /**
-     * Runs the finish animation if it is has not been run after last call to
-     * {@link #onLevelChange}
-     */
-    public void maybePerformFinishedAnimation() {
-        // If the drawable was recently initialized, skip the progress animation.
-        if (mInternalStateProgress == 0) {
-            mInternalStateProgress = 1;
-        }
-        updateInternalState(1 + COMPLETE_ANIM_FRACTION, true, true);
-    }
-
-    public boolean hasNotCompleted() {
-        return !mRanFinishAnimation;
-    }
-
     private void updateInternalState(float finalProgress, boolean shouldAnimate, boolean isFinish) {
         if (mCurrentAnim != null) {
             mCurrentAnim.cancel();

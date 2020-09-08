@@ -62,7 +62,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Stack;
 
 public class CellLayout extends ViewGroup implements Transposable {
     private static final String TAG = "CellLayout";
@@ -84,7 +83,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     // These are temporary variables to prevent having to allocate a new object just to
     // return an (x, y) value from helper functions. Do NOT use them to maintain other state.
     @Thunk final int[] mTmpPoint = new int[2];
-    @Thunk final int[] mTempLocation = new int[2];
 
     private GridOccupancy mOccupied;
     private GridOccupancy mTmpOccupied;
@@ -106,10 +104,6 @@ public class CellLayout extends ViewGroup implements Transposable {
 
     private final Paint mDragOutlinePaint = new Paint();
 
-    @Thunk final ArrayMap<View, ReorderPreviewAnimation> mShakeAnimators = new ArrayMap<>();
-
-    private boolean mItemPlacementDirty = false;
-
     // When a drag operation is in progress, holds the nearest cell to the touch point
     private final int[] mDragCell = new int[2];
 
@@ -129,8 +123,6 @@ public class CellLayout extends ViewGroup implements Transposable {
     private static final int REORDER_ANIMATION_DURATION = 150;
     @Thunk final float mReorderPreviewAnimationMagnitude;
 
-    private final ArrayList<View> mIntersectingViews = new ArrayList<>();
-    private final Rect mOccupiedRect = new Rect();
     final int[] mPreviousReorderDirection = new int[2];
     private static final int INVALID_DIRECTION = -100;
 
@@ -419,21 +411,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         result[1] = vStartPadding + cellY * mCellHeight + (spanY * mCellHeight) / 2;
     }
 
-     /**
-     * Given a cell coordinate and span fills out a corresponding pixel rect
-     *
-     * @param cellX X coordinate of the cell
-     * @param cellY Y coordinate of the cell
-     * @param result Rect in which to write the result
-     */
-     void regionToRect(int cellX, int cellY, int spanX, int spanY, Rect result) {
-        final int hStartPadding = getPaddingLeft();
-        final int vStartPadding = getPaddingTop();
-        final int left = hStartPadding + cellX * mCellWidth;
-        final int top = vStartPadding + cellY * mCellHeight;
-        result.set(left, top, left + (spanX * mCellWidth), top + (spanY * mCellHeight));
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -502,173 +479,6 @@ public class CellLayout extends ViewGroup implements Transposable {
 
     /**
      * Find a vacant area that will fit the given bounds nearest the requested
-     * cell location. Uses Euclidean distance to score multiple vacant areas.
-     *
-     * @param pixelX The X location at which you want to search for a vacant area.
-     * @param pixelY The Y location at which you want to search for a vacant area.
-     * @param minSpanX The minimum horizontal span required
-     * @param minSpanY The minimum vertical span required
-     * @param spanX Horizontal span of the object.
-     * @param spanY Vertical span of the object.
-     * @param result Array in which to place the result, or null (in which case a new array will
-     *        be allocated)
-     * @return The X, Y cell of a vacant area that can contain this object,
-     *         nearest the requested location.
-     */
-    int[] findNearestVacantArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX,
-            int spanY, int[] result, int[] resultSpan) {
-        return findNearestArea(pixelX, pixelY, minSpanX, minSpanY, spanX, spanY, true,
-                result, resultSpan);
-    }
-
-    private final Stack<Rect> mTempRectStack = new Stack<>();
-    private void lazyInitTempRectStack() {
-        if (mTempRectStack.isEmpty()) {
-            for (int i = 0; i < mCountX * mCountY; i++) {
-                mTempRectStack.push(new Rect());
-            }
-        }
-    }
-
-    private void recycleTempRects(Stack<Rect> used) {
-        while (!used.isEmpty()) {
-            mTempRectStack.push(used.pop());
-        }
-    }
-
-    /**
-     * Find a vacant area that will fit the given bounds nearest the requested
-     * cell location. Uses Euclidean distance to score multiple vacant areas.
-     *
-     * @param pixelX The X location at which you want to search for a vacant area.
-     * @param pixelY The Y location at which you want to search for a vacant area.
-     * @param minSpanX The minimum horizontal span required
-     * @param minSpanY The minimum vertical span required
-     * @param spanX Horizontal span of the object.
-     * @param spanY Vertical span of the object.
-     * @param ignoreOccupied If true, the result can be an occupied cell
-     * @param result Array in which to place the result, or null (in which case a new array will
-     *        be allocated)
-     * @return The X, Y cell of a vacant area that can contain this object,
-     *         nearest the requested location.
-     */
-    private int[] findNearestArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX,
-            int spanY, boolean ignoreOccupied, int[] result, int[] resultSpan) {
-        lazyInitTempRectStack();
-
-        // For items with a spanX / spanY > 1, the passed in point (pixelX, pixelY) corresponds
-        // to the center of the item, but we are searching based on the top-left cell, so
-        // we translate the point over to correspond to the top-left.
-        pixelX -= mCellWidth * (spanX - 1) / 2f;
-        pixelY -= mCellHeight * (spanY - 1) / 2f;
-
-        // Keep track of best-scoring drop area
-        final int[] bestXY = result != null ? result : new int[2];
-        double bestDistance = Double.MAX_VALUE;
-        final Rect bestRect = new Rect(-1, -1, -1, -1);
-        final Stack<Rect> validRegions = new Stack<>();
-
-        final int countX = mCountX;
-        final int countY = mCountY;
-
-        if (minSpanX <= 0 || minSpanY <= 0 || spanX <= 0 || spanY <= 0 ||
-                spanX < minSpanX || spanY < minSpanY) {
-            return bestXY;
-        }
-
-        for (int y = 0; y < countY - (minSpanY - 1); y++) {
-            inner:
-            for (int x = 0; x < countX - (minSpanX - 1); x++) {
-                int ySize = -1;
-                int xSize = -1;
-                if (ignoreOccupied) {
-                    // First, let's see if this thing fits anywhere
-                    for (int i = 0; i < minSpanX; i++) {
-                        for (int j = 0; j < minSpanY; j++) {
-                            if (mOccupied.cells[x + i][y + j]) {
-                                continue inner;
-                            }
-                        }
-                    }
-                    xSize = minSpanX;
-                    ySize = minSpanY;
-
-                    // We know that the item will fit at _some_ acceptable size, now let's see
-                    // how big we can make it. We'll alternate between incrementing x and y spans
-                    // until we hit a limit.
-                    boolean incX = true;
-                    boolean hitMaxX = xSize >= spanX;
-                    boolean hitMaxY = ySize >= spanY;
-                    while (!(hitMaxX && hitMaxY)) {
-                        if (incX && !hitMaxX) {
-                            for (int j = 0; j < ySize; j++) {
-                                if (x + xSize > countX -1 || mOccupied.cells[x + xSize][y + j]) {
-                                    // We can't move out horizontally
-                                    hitMaxX = true;
-                                }
-                            }
-                            if (!hitMaxX) {
-                                xSize++;
-                            }
-                        } else if (!hitMaxY) {
-                            for (int i = 0; i < xSize; i++) {
-                                if (y + ySize > countY - 1 || mOccupied.cells[x + i][y + ySize]) {
-                                    // We can't move out vertically
-                                    hitMaxY = true;
-                                }
-                            }
-                            if (!hitMaxY) {
-                                ySize++;
-                            }
-                        }
-                        hitMaxX |= xSize >= spanX;
-                        hitMaxY |= ySize >= spanY;
-                        incX = !incX;
-                    }
-                }
-                final int[] cellXY = mTmpPoint;
-                cellToCenterPoint(x, y, cellXY);
-
-                // We verify that the current rect is not a sub-rect of any of our previous
-                // candidates. In this case, the current rect is disqualified in favour of the
-                // containing rect.
-                Rect currentRect = mTempRectStack.pop();
-                currentRect.set(x, y, x + xSize, y + ySize);
-                boolean contained = false;
-                for (Rect r : validRegions) {
-                    if (r.contains(currentRect)) {
-                        contained = true;
-                        break;
-                    }
-                }
-                validRegions.push(currentRect);
-                double distance = Math.hypot(cellXY[0] - pixelX,  cellXY[1] - pixelY);
-
-                if ((distance <= bestDistance && !contained) ||
-                        currentRect.contains(bestRect)) {
-                    bestDistance = distance;
-                    bestXY[0] = x;
-                    bestXY[1] = y;
-                    if (resultSpan != null) {
-                        resultSpan[0] = xSize;
-                        resultSpan[1] = ySize;
-                    }
-                    bestRect.set(currentRect);
-                }
-            }
-        }
-
-        // Return -1, -1 if no suitable location found
-        if (bestDistance == Double.MAX_VALUE) {
-            bestXY[0] = -1;
-            bestXY[1] = -1;
-        }
-        recycleTempRects(validRegions);
-        return bestXY;
-    }
-
-    /**
-     * Find a vacant area that will fit the given bounds nearest the requested
      * cell location, and will also weigh in a suggested direction vector of the
      * desired location. This method computers distance based on unit grid distances,
      * not pixel distances.
@@ -732,25 +542,6 @@ public class CellLayout extends ViewGroup implements Transposable {
             bestXY[1] = -1;
         }
         return bestXY;
-    }
-
-    private boolean addViewToTempLocation(View v, Rect rectOccupiedByPotentialDrop,
-            int[] direction, ItemConfiguration currentState) {
-        CellAndSpan c = currentState.map.get(v);
-        boolean success = false;
-        mTmpOccupied.markCells(c, false);
-        mTmpOccupied.markCells(rectOccupiedByPotentialDrop, true);
-
-        findNearestArea(c.cellX, c.cellY, c.spanX, c.spanY, direction,
-                mTmpOccupied.cells, null, mTempLocation);
-
-        if (mTempLocation[0] >= 0 && mTempLocation[1] >= 0) {
-            c.cellX = mTempLocation[0];
-            c.cellY = mTempLocation[1];
-            success = true;
-        }
-        mTmpOccupied.markCells(c, true);
-        return success;
     }
 
     /**
@@ -1033,210 +824,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         return foundSolution;
     }
 
-    private boolean addViewsToTempLocation(ArrayList<View> views, Rect rectOccupiedByPotentialDrop,
-            int[] direction, View dragView, ItemConfiguration currentState) {
-        if (views.size() == 0) return true;
-
-        boolean success = false;
-        Rect boundingRect = new Rect();
-        // We construct a rect which represents the entire group of views passed in
-        currentState.getBoundingRectForViews(views, boundingRect);
-
-        // Mark the occupied state as false for the group of views we want to move.
-        for (View v: views) {
-            CellAndSpan c = currentState.map.get(v);
-            mTmpOccupied.markCells(c, false);
-        }
-
-        GridOccupancy blockOccupied = new GridOccupancy(boundingRect.width(), boundingRect.height());
-        int top = boundingRect.top;
-        int left = boundingRect.left;
-        // We mark more precisely which parts of the bounding rect are truly occupied, allowing
-        // for interlocking.
-        for (View v: views) {
-            CellAndSpan c = currentState.map.get(v);
-            blockOccupied.markCells(c.cellX - left, c.cellY - top, c.spanX, c.spanY, true);
-        }
-
-        mTmpOccupied.markCells(rectOccupiedByPotentialDrop, true);
-
-        findNearestArea(boundingRect.left, boundingRect.top, boundingRect.width(),
-                boundingRect.height(), direction,
-                mTmpOccupied.cells, blockOccupied.cells, mTempLocation);
-
-        // If we successfuly found a location by pushing the block of views, we commit it
-        if (mTempLocation[0] >= 0 && mTempLocation[1] >= 0) {
-            int deltaX = mTempLocation[0] - boundingRect.left;
-            int deltaY = mTempLocation[1] - boundingRect.top;
-            for (View v: views) {
-                CellAndSpan c = currentState.map.get(v);
-                c.cellX += deltaX;
-                c.cellY += deltaY;
-            }
-            success = true;
-        }
-
-        // In either case, we set the occupied array as marked for the location of the views
-        for (View v: views) {
-            CellAndSpan c = currentState.map.get(v);
-            mTmpOccupied.markCells(c, true);
-        }
-        return success;
-    }
-
-    // This method tries to find a reordering solution which satisfies the push mechanic by trying
-    // to push items in each of the cardinal directions, in an order based on the direction vector
-    // passed.
-    private boolean attemptPushInDirection(ArrayList<View> intersectingViews, Rect occupied,
-            int[] direction, View ignoreView, ItemConfiguration solution) {
-        if ((Math.abs(direction[0]) + Math.abs(direction[1])) > 1) {
-            // If the direction vector has two non-zero components, we try pushing
-            // separately in each of the components.
-            int temp = direction[1];
-            direction[1] = 0;
-
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-            direction[1] = temp;
-            temp = direction[0];
-            direction[0] = 0;
-
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-            // Revert the direction
-            direction[0] = temp;
-
-            // Now we try pushing in each component of the opposite direction
-            direction[0] *= -1;
-            direction[1] *= -1;
-            temp = direction[1];
-            direction[1] = 0;
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-
-            direction[1] = temp;
-            temp = direction[0];
-            direction[0] = 0;
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-            // revert the direction
-            direction[0] = temp;
-            direction[0] *= -1;
-            direction[1] *= -1;
-
-        } else {
-            // If the direction vector has a single non-zero component, we push first in the
-            // direction of the vector
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-            // Then we try the opposite direction
-            direction[0] *= -1;
-            direction[1] *= -1;
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-            // Switch the direction back
-            direction[0] *= -1;
-            direction[1] *= -1;
-
-            // If we have failed to find a push solution with the above, then we try
-            // to find a solution by pushing along the perpendicular axis.
-
-            // Swap the components
-            int temp = direction[1];
-            direction[1] = direction[0];
-            direction[0] = temp;
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-
-            // Then we try the opposite direction
-            direction[0] *= -1;
-            direction[1] *= -1;
-            if (pushViewsToTempLocation(intersectingViews, occupied, direction,
-                    ignoreView, solution)) {
-                return true;
-            }
-            // Switch the direction back
-            direction[0] *= -1;
-            direction[1] *= -1;
-
-            // Swap the components back
-            temp = direction[1];
-            direction[1] = direction[0];
-            direction[0] = temp;
-        }
-        return false;
-    }
-
-    private boolean rearrangementExists(int cellX, int cellY, int spanX, int spanY, int[] direction,
-            View ignoreView, ItemConfiguration solution) {
-        // Return early if get invalid cell positions
-        if (cellX < 0 || cellY < 0) return false;
-
-        mIntersectingViews.clear();
-        mOccupiedRect.set(cellX, cellY, cellX + spanX, cellY + spanY);
-
-        // Mark the desired location of the view currently being dragged.
-        if (ignoreView != null) {
-            CellAndSpan c = solution.map.get(ignoreView);
-            if (c != null) {
-                c.cellX = cellX;
-                c.cellY = cellY;
-            }
-        }
-        Rect r0 = new Rect(cellX, cellY, cellX + spanX, cellY + spanY);
-        Rect r1 = new Rect();
-        for (View child: solution.map.keySet()) {
-            if (child == ignoreView) continue;
-            CellAndSpan c = solution.map.get(child);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            r1.set(c.cellX, c.cellY, c.cellX + c.spanX, c.cellY + c.spanY);
-            if (Rect.intersects(r0, r1)) {
-                if (!lp.canReorder) {
-                    return false;
-                }
-                mIntersectingViews.add(child);
-            }
-        }
-
-        solution.intersectingViews = new ArrayList<>(mIntersectingViews);
-
-        // First we try to find a solution which respects the push mechanic. That is,
-        // we try to find a solution such that no displaced item travels through another item
-        // without also displacing that item.
-        if (attemptPushInDirection(mIntersectingViews, mOccupiedRect, direction, ignoreView,
-                solution)) {
-            return true;
-        }
-
-        // Next we try moving the views as a block, but without requiring the push mechanic.
-        if (addViewsToTempLocation(mIntersectingViews, mOccupiedRect, direction, ignoreView,
-                solution)) {
-            return true;
-        }
-
-        // Ok, they couldn't move as a block, let's move them individually
-        for (View v : mIntersectingViews) {
-            if (!addViewToTempLocation(v, mOccupiedRect, direction, solution)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /*
      * Returns a pair (x, y), where x,y are in {-1, 0, 1} corresponding to vector between
      * the provided point and the provided cell
@@ -1252,9 +839,6 @@ public class CellLayout extends ViewGroup implements Transposable {
         if (Math.abs(Math.sin(angle)) > 0.5f) {
             result[1] = (int) Math.signum(deltaY);
         }
-    }
-
-    private void copyCurrentStateToSolution(ItemConfiguration solution, boolean temp) {
     }
 
 
@@ -1341,35 +925,10 @@ public class CellLayout extends ViewGroup implements Transposable {
         }
     }
 
-    private void completeAndClearReorderPreviewAnimations() {
-        for (ReorderPreviewAnimation a: mShakeAnimators.values()) {
-            a.completeAnimationImmediately();
-        }
-        mShakeAnimators.clear();
-    }
-
-    // For a given cell and span, fetch the set of views intersecting the region.
-    private void getViewsIntersectingRegion(int cellX, int cellY, int spanX, int spanY,
-            View dragView, Rect boundingRect, ArrayList<View> intersectingViews) {
-        if (boundingRect != null) {
-            boundingRect.set(cellX, cellY, cellX + spanX, cellY + spanY);
-        }
-        intersectingViews.clear();
-    }
-
-    void setItemPlacementDirty(boolean dirty) {
-        mItemPlacementDirty = dirty;
-    }
-    boolean isItemPlacementDirty() {
-        return mItemPlacementDirty;
-    }
-
     private static class ItemConfiguration extends CellAndSpan {
         final ArrayMap<View, CellAndSpan> map = new ArrayMap<>();
         private final ArrayMap<View, CellAndSpan> savedMap = new ArrayMap<>();
         final ArrayList<View> sortedViews = new ArrayList<>();
-        ArrayList<View> intersectingViews;
-        boolean isSolution = false;
 
         void save() {
             // Copy current state into savedMap

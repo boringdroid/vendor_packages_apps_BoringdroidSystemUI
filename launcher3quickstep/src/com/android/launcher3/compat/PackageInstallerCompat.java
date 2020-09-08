@@ -18,12 +18,10 @@ package com.android.launcher3.compat;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInstaller.SessionInfo;
 import android.os.Process;
 import android.os.UserHandle;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,13 +60,6 @@ public abstract class PackageInstallerCompat {
      * @return a map of active installs to their progress
      */
     public abstract HashMap<PackageUserKey, SessionInfo> updateAndGetActiveSessionCache();
-
-    /**
-     * @return an active SessionInfo for {@param pkg} or null if none exists.
-     */
-    public abstract SessionInfo getActiveSessionInfo(UserHandle user, String pkg);
-
-    public abstract void onStop();
 
     public static final class PackageInstallInfo {
         public final ComponentName componentName;

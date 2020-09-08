@@ -38,14 +38,8 @@ public interface DropTarget {
         /** The view that moves around while you drag.  */
         public DragView dragView = null;
 
-        /** The data associated with the object, after item is dropped. */
-        public ItemInfo dragInfo = null;
-
         /** Where the drag originated */
         public DragSource dragSource = null;
-
-        /** The object is part of an accessible drag operation */
-        public boolean accessibleDrag;
 
         /** Indicates that the drag operation was cancelled */
         public boolean cancelled = false;
@@ -58,33 +52,5 @@ public interface DropTarget {
 
     }
 
-    /**
-     * Used to temporarily disable certain drop targets
-     *
-     * @return boolean specifying whether this drop target is currently enabled
-     */
-    boolean isDropEnabled();
-
-    /**
-     * Handle an object being dropped on the DropTarget.
-     *
-     * This will be called only if this target previously returned true for {@link #acceptDrop}. It
-     * is the responsibility of this target to exit out of the spring loaded mode (either
-     * immediately or after any pending animations).
-     *
-     * If the drop was cancelled for some reason, onDrop will never get called, the UI will
-     * automatically exit out of this mode.
-     */
-    void onDrop(DragObject dragObject, DragOptions options);
-
-    void onDragEnter(DragObject dragObject);
-
     void onDragExit(DragObject dragObject);
-
-    /**
-     * Check if a drop action can occur at, or near, the requested location.
-     * This will be called just before onDrop.
-     * @return True if the drop will be accepted, false otherwise.
-     */
-    boolean acceptDrop(DragObject dragObject);
 }

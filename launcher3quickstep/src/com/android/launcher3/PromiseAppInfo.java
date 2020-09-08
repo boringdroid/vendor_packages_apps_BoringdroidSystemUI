@@ -36,8 +36,4 @@ public class PromiseAppInfo extends AppInfo {
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
     }
-
-    public Intent getMarketIntent(Context context) {
-        return new PackageManagerHelper(context).getMarketIntent(componentName.getPackageName());
-    }
 }

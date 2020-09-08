@@ -17,7 +17,6 @@
 package com.android.launcher3.dragndrop;
 
 import android.content.Context;
-import android.view.DragEvent;
 import android.view.MotionEvent;
 
 import com.android.launcher3.DropTarget.DragObject;
@@ -30,7 +29,7 @@ public abstract class DragDriver {
 
     public interface EventListener {
         void onDriverDragMove(float x, float y);
-        void onDriverDragExitWindow();
+
         void onDriverDragEnd(float x, float y);
         void onDriverDragCancel();
     }
@@ -63,8 +62,6 @@ public abstract class DragDriver {
         return true;
     }
 
-    public abstract boolean onDragEvent (DragEvent event);
-
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = ev.getAction();
@@ -96,9 +93,6 @@ public abstract class DragDriver {
  */
 class SystemDragDriver extends DragDriver {
 
-    float mLastX = 0;
-    float mLastY = 0;
-
     SystemDragDriver(DragController dragController, Context context, DragObject dragObject) {
         super(dragController);
     }
@@ -113,43 +107,6 @@ class SystemDragDriver extends DragDriver {
         return false;
     }
 
-    @Override
-    public boolean onDragEvent (DragEvent event) {
-        final int action = event.getAction();
-
-        switch (action) {
-            case DragEvent.ACTION_DRAG_STARTED:
-                mLastX = event.getX();
-                mLastY = event.getY();
-                return true;
-
-            case DragEvent.ACTION_DRAG_ENTERED:
-                return true;
-
-            case DragEvent.ACTION_DRAG_LOCATION:
-                mLastX = event.getX();
-                mLastY = event.getY();
-                mEventListener.onDriverDragMove(event.getX(), event.getY());
-                return true;
-
-            case DragEvent.ACTION_DROP:
-                mLastX = event.getX();
-                mLastY = event.getY();
-                mEventListener.onDriverDragMove(event.getX(), event.getY());
-                mEventListener.onDriverDragEnd(mLastX, mLastY);
-                return true;
-            case DragEvent.ACTION_DRAG_EXITED:
-                mEventListener.onDriverDragExitWindow();
-                return true;
-
-            case DragEvent.ACTION_DRAG_ENDED:
-                mEventListener.onDriverDragCancel();
-                return true;
-
-            default:
-                return false;
-        }
-    }
 }
 
 /**
@@ -160,6 +117,4 @@ class InternalDragDriver extends DragDriver {
         super(dragController);
     }
 
-    @Override
-    public boolean onDragEvent (DragEvent event) { return false; }
 }

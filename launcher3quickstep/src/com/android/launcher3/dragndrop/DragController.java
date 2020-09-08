@@ -73,7 +73,6 @@ public class DragController implements DragDriver.EventListener, TouchController
     private DropTarget mLastDropTarget;
 
     private final int[] mLastTouch = new int[2];
-    private long mLastTouchUpTime = -1;
     private int mLastTouchClassification;
     private int mDistanceSinceScroll = 0;
 
@@ -244,7 +243,6 @@ public class DragController implements DragDriver.EventListener, TouchController
     }
 
     public void resetLastGestureUpTime() {
-        mLastTouchUpTime = -1;
     }
 
     @Override
@@ -252,14 +250,6 @@ public class DragController implements DragDriver.EventListener, TouchController
         final int[] dragLayerPos = getClampedDragLayerPos(x, y);
 
         handleMoveEvent(dragLayerPos[0], dragLayerPos[1]);
-    }
-
-    @Override
-    public void onDriverDragExitWindow() {
-        if (mLastDropTarget != null) {
-            mLastDropTarget.onDragExit(mDragObject);
-            mLastDropTarget = null;
-        }
     }
 
     @Override
@@ -299,7 +289,6 @@ public class DragController implements DragDriver.EventListener, TouchController
                 mMotionDownY = dragLayerY;
                 break;
             case MotionEvent.ACTION_UP:
-                mLastTouchUpTime = System.currentTimeMillis();
                 break;
         }
 

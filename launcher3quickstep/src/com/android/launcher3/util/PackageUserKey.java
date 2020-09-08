@@ -2,8 +2,6 @@ package com.android.launcher3.util;
 
 import android.os.UserHandle;
 
-import com.android.launcher3.ItemInfo;
-
 import java.util.Arrays;
 
 /** Creates a hash key based on package name and user. */
@@ -21,15 +19,6 @@ public class PackageUserKey {
         mPackageName = packageName;
         mUser = user;
         mHashCode = Arrays.hashCode(new Object[] {packageName, user});
-    }
-
-    /**
-     * This should only be called to avoid new object creations in a loop.
-     * @return Whether this PackageUserKey was successfully updated - it shouldn't be used if not.
-     */
-    public boolean updateFromItemInfo(ItemInfo info) {
-        if (info.getTargetComponent() == null) return false;
-        return false;
     }
 
     @Override

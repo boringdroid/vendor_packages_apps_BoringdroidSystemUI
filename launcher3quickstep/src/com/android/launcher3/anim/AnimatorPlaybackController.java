@@ -150,15 +150,6 @@ public abstract class AnimatorPlaybackController implements ValueAnimator.Animat
     }
 
     /**
-     * Starts playing the animation backwards from current position
-     */
-    public void reverse() {
-        mAnimationPlayer.setFloatValues(mCurrentFraction, 0);
-        mAnimationPlayer.setDuration(clampDuration(mCurrentFraction));
-        mAnimationPlayer.start();
-    }
-
-    /**
      * Pauses the currently playing animation.
      */
     public void pause() {

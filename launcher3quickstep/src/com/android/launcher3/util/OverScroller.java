@@ -26,7 +26,6 @@ import android.view.ViewConfiguration;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
-import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
@@ -92,17 +91,6 @@ public class OverScroller {
     }
 
     /**
-     * The amount of friction applied to flings. The default value
-     * is {@link ViewConfiguration#getScrollFriction}.
-     *
-     * @param friction A scalar dimension-less value representing the coefficient of
-     *         friction.
-     */
-    public final void setFriction(float friction) {
-        mScroller.setFriction(friction);
-    }
-
-    /**
      *
      * Returns whether the scroller has finished scrolling.
      *
@@ -140,15 +128,6 @@ public class OverScroller {
      */
     public float getCurrVelocity() {
         return mScroller.mCurrVelocity;
-    }
-
-    /**
-     * Returns the start offset in the scroll.
-     *
-     * @return The start offset as an absolute distance from the origin.
-     */
-    public final int getStartPos() {
-        return mScroller.mStart;
     }
 
     /**
@@ -324,38 +303,6 @@ public class OverScroller {
     }
 
     /**
-     * Notify the scroller that we've reached a horizontal boundary.
-     * Normally the information to handle this will already be known
-     * when the animation is started, such as in a call to one of the
-     * fling functions. However there are cases where this cannot be known
-     * in advance. This function will transition the current motion and
-     * animate from startX to finalX as appropriate.
-     *  @param start Starting/current X position
-     * @param finalPos Desired final X position
-     * @param over Magnitude of overscroll allowed. This should be the maximum
-     */
-    public void notifyEdgeReached(int start, int finalPos, int over) {
-        mScroller.notifyEdgeReached(start, finalPos, over);
-    }
-
-    /**
-     * Returns whether the current Scroller is currently returning to a valid position.
-     * Valid bounds were provided by the
-     * {@link #fling(int, int, int, int, int)} method.
-     *
-     * One should check this value before calling
-     * {@link #startScroll(int, int)} as the interpolation currently in progress
-     * to restore a valid position will then be stopped. The caller has to take into account
-     * the fact that the started scroll will start from an overscrolled position.
-     *
-     * @return true when the current position is overscrolled and in the process of
-     *         interpolating back to a valid value.
-     */
-    public boolean isOverScrolled() {
-        return (!mScroller.mFinished && mScroller.mState != SplineOverScroller.SPLINE);
-    }
-
-    /**
      * Stops the animation. Contrary to {@link #forceFinished(boolean)},
      * aborting the animating causes the scroller to move to the final x and y
      * positions.
@@ -364,18 +311,6 @@ public class OverScroller {
      */
     public void abortAnimation() {
         mScroller.finish();
-    }
-
-    /**
-     * Returns the time elapsed since the beginning of the scrolling.
-     *
-     * @return The elapsed time in milliseconds.
-     *
-     * @hide
-     */
-    public int timePassed() {
-        final long time = AnimationUtils.currentAnimationTimeMillis();
-        return (int) (time - mScroller.mStartTime);
     }
 
     public boolean isSpringing() {
@@ -493,10 +428,6 @@ public class OverScroller {
                 SPLINE_TIME[i] = coef * ((1.0f - y) * P1 + y * P2) + y * y * y;
             }
             SPLINE_POSITION[NB_SAMPLES] = SPLINE_TIME[NB_SAMPLES] = 1.0f;
-        }
-
-        void setFriction(float friction) {
-            mFlingFriction = friction;
         }
 
         SplineOverScroller(Context context) {
@@ -727,17 +658,6 @@ public class OverScroller {
                 } else {
                     startSpringback(start, edge, velocity);
                 }
-            }
-        }
-
-        void notifyEdgeReached(int start, int end, int over) {
-            // mState is used to detect successive notifications
-            if (mState == SPLINE) {
-                mOver = over;
-                mStartTime = AnimationUtils.currentAnimationTimeMillis();
-                // We were in fling/scroll mode before: current velocity is such that distance to
-                // edge is increasing. This ensures that startAfterEdge will not start a new fling.
-                startAfterEdge(start, end, end, (int) mCurrVelocity);
             }
         }
 

@@ -90,10 +90,6 @@ public class FastBitmapDrawable extends Drawable {
     private int mAlpha = 255;
     private int mPrevUpdateKey = Integer.MAX_VALUE;
 
-    public FastBitmapDrawable(Bitmap b) {
-        this(b, Color.TRANSPARENT);
-    }
-
     public FastBitmapDrawable(BitmapInfo info) {
         this(info.icon, info.color);
     }
@@ -255,10 +251,6 @@ public class FastBitmapDrawable extends Drawable {
             mIsDisabled = isDisabled;
             invalidateDesaturationAndBrightness();
         }
-    }
-
-    protected boolean isDisabled() {
-        return mIsDisabled;
     }
 
     /**

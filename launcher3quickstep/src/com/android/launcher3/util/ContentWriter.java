@@ -19,13 +19,9 @@ package com.android.launcher3.util;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.UserHandle;
 
-import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.icons.GraphicsUtils;
 
 /**
  * A wrapper around {@link ContentValues} with some utility methods.
@@ -34,17 +30,6 @@ public class ContentWriter {
 
     private final ContentValues mValues;
     private final Context mContext;
-
-    private Bitmap mIcon;
-    private UserHandle mUser;
-
-    public ContentWriter(Context context, CommitParams commitParams) {
-        this(context);
-    }
-
-    public ContentWriter(Context context) {
-        this(new ContentValues(), context);
-    }
 
     public ContentWriter(ContentValues values, Context context) {
         mValues = values;
@@ -78,34 +63,5 @@ public class ContentWriter {
 
     public ContentWriter put(String key, UserHandle user) {
         return put(key, UserManagerCompat.getInstance(mContext).getSerialNumberForUser(user));
-    }
-
-    /**
-     * Commits any pending validation and returns the final values.
-     * Must not be called on UI thread.
-     */
-    public ContentValues getValues(Context context) {
-        Preconditions.assertNonUiThread();
-        if (mIcon != null && !LauncherAppState.getInstance(context).getIconCache()
-                .isDefaultIcon(mIcon, mUser)) {
-            mValues.put(LauncherSettings.Favorites.ICON, GraphicsUtils.flattenBitmap(mIcon));
-            mIcon = null;
-        }
-        return mValues;
-    }
-
-    public int commit() {
-        return 0;
-    }
-
-    public static final class CommitParams {
-        String mWhere;
-        String[] mSelectionArgs;
-
-        public CommitParams(String where, String[] selectionArgs) {
-            mWhere = where;
-            mSelectionArgs = selectionArgs;
-        }
-
     }
 }

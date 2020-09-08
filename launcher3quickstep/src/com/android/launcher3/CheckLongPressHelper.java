@@ -53,13 +53,6 @@ public class CheckLongPressHelper {
         mView = v;
     }
 
-    /**
-     * Overrides the default long press timeout.
-     */
-    public void setLongPressTimeoutFactor(float longPressTimeoutFactor) {
-        mLongPressTimeoutFactor = longPressTimeoutFactor;
-    }
-
     public void postCheckForLongPress() {
         mHasPerformedLongPress = false;
 

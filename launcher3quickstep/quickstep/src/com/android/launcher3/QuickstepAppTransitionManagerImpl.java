@@ -59,7 +59,6 @@ import androidx.annotation.Nullable;
 
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
@@ -186,12 +185,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
     @Override
     public void onDeviceProfileChanged(DeviceProfile dp) {
         mDeviceProfile = dp;
-    }
-
-    @Override
-    public boolean supportsAdaptiveIconAnimation() {
-        return hasControlRemoteAppTransitionPermission()
-                && FeatureFlags.ADAPTIVE_ICON_WINDOW_ANIM.get();
     }
 
     /**

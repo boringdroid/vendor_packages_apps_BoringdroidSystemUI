@@ -29,20 +29,6 @@ public class LauncherSettings {
     public static final class Favorites implements BaseColumns {
 
         /**
-         * Descriptive name of the gesture that can be displayed to the user.
-         * <P>Type: TEXT</P>
-         */
-        public static final String TITLE = "title";
-
-        /**
-         * The Intent URL of the gesture, describing what it points to. This
-         * value is given to {@link android.content.Intent#parseUri(String, int)} to create
-         * an Intent that can be launched.
-         * <P>Type: TEXT</P>
-         */
-        public static final String INTENT = "intent";
-
-        /**
          * The type of the gesture
          *
          * <P>Type: INTEGER</P>
@@ -57,12 +43,6 @@ public class LauncherSettings {
          * The gesture is an application
          */
         public static final int ITEM_TYPE_APPLICATION = 0;
-
-        /**
-         * The custom icon bitmap.
-         * <P>Type: BLOB</P>
-         */
-        public static final String ICON = "icon";
 
         /**
          * The container holding the favorite
@@ -123,39 +103,10 @@ public class LauncherSettings {
         public static final String SPANY = "spanY";
 
         /**
-         * The profile id of the item in the cell.
-         * <P>
-         * Type: INTEGER
-         * </P>
-         */
-        public static final String PROFILE_ID = "profileId";
-
-        /**
-         * Boolean indicating that his item was restored and not yet successfully bound.
-         * <P>Type: INTEGER</P>
-         */
-        public static final String RESTORED = "restored";
-
-        /**
          * Indicates the position of the item inside an auto-arranged view like folder.
          * <p>Type: INTEGER</p>
          */
         public static final String RANK = "rank";
-
-    }
-
-    /**
-     * Launcher settings
-     */
-    public static final class Settings {
-
-        public static final String METHOD_NEW_ITEM_ID = "generate_new_item_id";
-
-        public static final String METHOD_CREATE_EMPTY_DB = "create_empty_db";
-
-        public static final String METHOD_LOAD_DEFAULT_FAVORITES = "load_default_favorites";
-
-        public static final String EXTRA_VALUE = "value";
 
     }
 }

@@ -34,11 +34,6 @@ public class DragOptions {
     /** Determines when a pre-drag should transition to a drag. By default, this is immediate. */
     public PreDragCondition preDragCondition = null;
 
-    /** Scale of the icons over the workspace icon size. */
-    public float intrinsicIconScaleFactor = 1f;
-
-    public boolean isFlingToDelete;
-
     /**
      * Specifies a condition that must be met before DragListener#onDragStart() is called.
      * By default, there is no condition and onDragStart() is called immediately following
@@ -51,13 +46,7 @@ public class DragOptions {
      */
     public interface PreDragCondition {
 
-        public boolean shouldStartDrag(double distanceDragged);
-
-        /**
-         * The pre-drag has started, but onDragStart() is
-         * deferred until shouldStartDrag() returns true.
-         */
-        void onPreDragStart(DropTarget.DragObject dragObject);
+        boolean shouldStartDrag(double distanceDragged);
 
         /**
          * The pre-drag has ended. This gets called at the same time as onDragStart()

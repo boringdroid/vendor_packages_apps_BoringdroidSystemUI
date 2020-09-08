@@ -34,12 +34,6 @@ public class PendingRequestArgs extends ItemInfo implements Parcelable {
     private final int mObjectType;
     private final Parcelable mObject;
 
-    private PendingRequestArgs(int arg1, int objectType, Parcelable object) {
-        mArg1 = arg1;
-        mObjectType = objectType;
-        mObject = object;
-    }
-
     public PendingRequestArgs(Parcel parcel) {
         readFromValues(ContentValues.CREATOR.createFromParcel(parcel));
         user = parcel.readParcelable(null);
@@ -72,12 +66,6 @@ public class PendingRequestArgs extends ItemInfo implements Parcelable {
 
     public int getRequestCode() {
         return mObjectType == TYPE_INTENT ? mArg1 : 0;
-    }
-
-    public static PendingRequestArgs forIntent(int requestCode, Intent intent, ItemInfo info) {
-        PendingRequestArgs args = new PendingRequestArgs(requestCode, TYPE_INTENT, intent);
-        args.copyFrom(info);
-        return args;
     }
 
     public static final Parcelable.Creator<PendingRequestArgs> CREATOR =

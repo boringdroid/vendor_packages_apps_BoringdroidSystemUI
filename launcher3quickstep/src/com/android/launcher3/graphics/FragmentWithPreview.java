@@ -41,8 +41,4 @@ public class FragmentWithPreview extends Fragment {
     void enterPreviewMode(Context context) {
         mPreviewContext = context;
     }
-
-    public boolean isInPreviewMode() {
-        return mPreviewContext != null;
-    }
 }

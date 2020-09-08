@@ -1,6 +1,5 @@
 package com.android.launcher3.compat;
 
-import android.content.Context;
 import android.icu.text.AlphabeticIndex;
 import android.os.LocaleList;
 
@@ -16,10 +15,6 @@ public class AlphabeticIndexCompat {
     private final String mDefaultMiscLabel;
 
     private final AlphabeticIndex.ImmutableIndex mBaseIndex;
-
-    public AlphabeticIndexCompat(Context context) {
-        this(context.getResources().getConfiguration().getLocales());
-    }
 
     public AlphabeticIndexCompat(LocaleList locales) {
         int localeCount = locales.size();

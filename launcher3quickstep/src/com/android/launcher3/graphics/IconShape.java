@@ -26,9 +26,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -37,8 +35,6 @@ import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.SparseArray;
-import android.util.TypedValue;
 import android.util.Xml;
 import android.view.View;
 import android.view.ViewOutlineProvider;
@@ -48,8 +44,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.RoundedRectRevealOutlineProvider;
 import com.android.launcher3.icons.GraphicsUtils;
 import com.android.launcher3.icons.IconNormalizer;
-import com.android.launcher3.util.IntArray;
-import com.android.launcher3.util.Themes;
 import com.android.launcher3.views.ClipPathView;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -58,8 +52,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.Nullable;
 
 /**
  * Abstract representation of the shape of an icon shape
@@ -89,24 +81,14 @@ public abstract class IconShape {
         return sNormalizationScale;
     }
 
-    private SparseArray<TypedValue> mAttrs;
-
     public boolean enableShapeDetection(){
         return false;
     };
-
-    public abstract void drawShape(Canvas canvas, float offsetX, float offsetY, float radius,
-            Paint paint);
 
     public abstract void addToPath(Path path, float offsetX, float offsetY, float radius);
 
     public abstract <T extends View & ClipPathView> Animator createRevealAnimator(T target,
             Rect startRect, Rect endRect, float endRadius, boolean isReversed);
-
-    @Nullable
-    public TypedValue getAttrValue(int attr) {
-        return mAttrs == null ? null : mAttrs.get(attr);
-    }
 
     /**
      * Abstract shape where the reveal animation is a derivative of a round rect animation
@@ -132,16 +114,6 @@ public abstract class IconShape {
      * Abstract shape which draws using {@link Path}
      */
     private static abstract class PathShape extends IconShape {
-
-        private final Path mTmpPath = new Path();
-
-        @Override
-        public final void drawShape(Canvas canvas, float offsetX, float offsetY, float radius,
-                Paint paint) {
-            mTmpPath.reset();
-            addToPath(mTmpPath, offsetX, offsetY, radius);
-            canvas.drawPath(mTmpPath, paint);
-        }
 
         protected abstract AnimatorUpdateListener newUpdateListener(
                 Rect startRect, Rect endRect, float endRadius, Path outPath);
@@ -185,11 +157,6 @@ public abstract class IconShape {
     public static final class Circle extends SimpleRectShape {
 
         @Override
-        public void drawShape(Canvas canvas, float offsetX, float offsetY, float radius, Paint p) {
-            canvas.drawCircle(radius + offsetX, radius + offsetY, radius, p);
-        }
-
-        @Override
         public void addToPath(Path path, float offsetX, float offsetY, float radius) {
             path.addCircle(radius + offsetX, radius + offsetY, radius, Path.Direction.CW);
         }
@@ -214,14 +181,6 @@ public abstract class IconShape {
 
         public RoundedSquare(float radiusRatio) {
             mRadiusRatio = radiusRatio;
-        }
-
-        @Override
-        public void drawShape(Canvas canvas, float offsetX, float offsetY, float radius, Paint p) {
-            float cx = radius + offsetX;
-            float cy = radius + offsetY;
-            float cr = radius * mRadiusRatio;
-            canvas.drawRoundRect(cx - radius, cy - radius, cx + radius, cy + radius, cr, cr, p);
         }
 
         @Override
@@ -414,7 +373,6 @@ public abstract class IconShape {
 
             final int depth = parser.getDepth();
             int[] radiusAttr = new int[] {R.attr.folderIconRadius};
-            IntArray keysToIgnore = new IntArray(0);
 
             while (((type = parser.next()) != XmlPullParser.END_TAG ||
                     parser.getDepth() > depth) && type != XmlPullParser.END_DOCUMENT) {
@@ -425,7 +383,6 @@ public abstract class IconShape {
                     IconShape shape = getShapeDefinition(parser.getName(), a.getFloat(0, 1));
                     a.recycle();
 
-                    shape.mAttrs = Themes.createValueMap(context, attrs, keysToIgnore);
                     result.add(shape);
                 }
             }

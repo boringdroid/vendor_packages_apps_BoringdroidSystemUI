@@ -102,30 +102,12 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
         return activePackages;
     }
 
-    public SessionInfo getActiveSessionInfo(UserHandle user, String pkg) {
-        for (SessionInfo info : getAllVerifiedSessions()) {
-            boolean match = pkg.equals(info.getAppPackageName());
-            if (Utilities.ATLEAST_Q && !user.equals(getUserHandle(info))) {
-                match = false;
-            }
-            if (match) {
-                return info;
-            }
-        }
-        return null;
-    }
-
     @Thunk void addSessionInfoToCache(SessionInfo info, UserHandle user) {
         String packageName = info.getAppPackageName();
         if (packageName != null) {
             mCache.cachePackageInstallInfo(packageName, user, info.getAppIcon(),
                     info.getAppLabel());
         }
-    }
-
-    @Override
-    public void onStop() {
-        mLauncherApps.unregisterSessionCallback(mCallback);
     }
 
     @Thunk void sendUpdate(PackageInstallInfo info) {

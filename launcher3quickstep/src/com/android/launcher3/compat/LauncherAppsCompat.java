@@ -76,13 +76,10 @@ public abstract class LauncherAppsCompat {
             Rect sourceBounds, Bundle opts);
     public abstract ApplicationInfo getApplicationInfo(
             String packageName, int flags, UserHandle user);
-    public abstract void showAppDetailsForProfile(ComponentName component, UserHandle user,
-            Rect sourceBounds, Bundle opts);
+
     public abstract void addOnAppsChangedCallback(OnAppsChangedCallbackCompat listener);
 
     public abstract boolean isPackageEnabledForProfile(String packageName, UserHandle user);
-    public abstract boolean isActivityEnabledForProfile(ComponentName component,
-            UserHandle user);
 
     public abstract List<PackageInstaller.SessionInfo> getAllPackageInstallerSessions();
 

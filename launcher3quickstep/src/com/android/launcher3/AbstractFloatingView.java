@@ -186,14 +186,6 @@ public abstract class AbstractFloatingView extends LinearLayout implements Touch
         return null;
     }
 
-    public static void closeOpenContainer(ActivityContext activity,
-            @FloatingViewType int type) {
-        AbstractFloatingView view = getOpenView(activity, type);
-        if (view != null) {
-            view.close(true);
-        }
-    }
-
     public static void closeOpenViews(ActivityContext activity, boolean animate,
             @FloatingViewType int type) {
         BaseDragLayer dragLayer = activity.getDragLayer();

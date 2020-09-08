@@ -18,20 +18,16 @@ package com.android.launcher3;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
-import android.app.Person;
 import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
-import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -40,9 +36,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -53,12 +46,8 @@ import android.view.animation.Interpolator;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.graphics.TintedDrawableSpan;
-import com.android.launcher3.util.IntArray;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.views.Transposable;
 
-import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,9 +64,6 @@ public final class Utilities {
 
     private static final Matrix sMatrix = new Matrix();
     private static final Matrix sInverseMatrix = new Matrix();
-
-    public static final String[] EMPTY_STRING_ARRAY = new String[0];
-    public static final Person[] EMPTY_PERSON_ARRAY = new Person[0];
 
     public static final boolean ATLEAST_Q = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
 
@@ -99,23 +85,6 @@ public final class Utilities {
     public static final boolean IS_DEBUG_DEVICE =
             Build.TYPE.toLowerCase(Locale.ROOT).contains("debug") ||
             Build.TYPE.toLowerCase(Locale.ROOT).equals("eng");
-
-    // An intent extra to indicate the horizontal scroll of the wallpaper.
-    public static final String EXTRA_WALLPAPER_OFFSET = "com.android.launcher3.WALLPAPER_OFFSET";
-    public static final String EXTRA_WALLPAPER_FLAVOR = "com.android.launcher3.WALLPAPER_FLAVOR";
-
-    public static boolean IS_RUNNING_IN_TEST_HARNESS =
-                    ActivityManager.isRunningInTestHarness();
-
-    public static boolean isPropertyEnabled(String propertyName) {
-        return Log.isLoggable(propertyName, Log.VERBOSE);
-    }
-
-    public static boolean existsStyleWallpapers(Context context) {
-        ResolveInfo ri = context.getPackageManager().resolveActivity(
-                PackageManagerHelper.getStyleWallpapersIntent(context), 0);
-        return ri != null;
-    }
 
     /**
      * Given a coordinate relative to the descendant, find the coordinate in a parent view's
@@ -328,28 +297,6 @@ public final class Utilities {
                 size, metrics));
     }
 
-    public static String createDbSelectionQuery(String columnName, IntArray values) {
-        return String.format(Locale.ENGLISH, "%s IN (%s)", columnName, values.toConcatString());
-    }
-
-    public static boolean isBootCompleted() {
-        return "1".equals(getSystemProperty("sys.boot_completed", "1"));
-    }
-
-    public static String getSystemProperty(String property, String defaultValue) {
-        try {
-            Class clazz = Class.forName("android.os.SystemProperties");
-            Method getter = clazz.getDeclaredMethod("get", String.class);
-            String value = (String) getter.invoke(null, property);
-            if (!TextUtils.isEmpty(value)) {
-                return value;
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Unable to read system properties");
-        }
-        return defaultValue;
-    }
-
     /**
      * Ensures that a value is within given bounds. Specifically:
      * If value is less than lowerBound, return lowerBound; else if value is greater than upperBound,
@@ -371,20 +318,6 @@ public final class Utilities {
      */
     public static long boundToRange(long value, long lowerBound, long upperBound) {
         return Math.max(lowerBound, Math.min(value, upperBound));
-    }
-
-    /**
-     * Prefixes a text with the provided icon
-     */
-    public static CharSequence prefixTextWithIcon(Context context, int iconRes, CharSequence msg) {
-        // Update the hint to contain the icon.
-        // Prefix the original hint with two spaces. The first space gets replaced by the icon
-        // using span. The second space is used for a singe space character between the hint
-        // and the icon.
-        SpannableString spanned = new SpannableString("  " + msg);
-        spanned.setSpan(new TintedDrawableSpan(context, iconRes),
-                0, 1, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
-        return spanned;
     }
 
     public static SharedPreferences getPrefs(Context context) {
@@ -414,21 +347,6 @@ public final class Utilities {
         Message msg = Message.obtain(handler, callback);
         msg.setAsynchronous(true);
         handler.sendMessage(msg);
-    }
-
-    /**
-     * Parses a string encoded using {@link #getPointString(int, int)}
-     */
-    public static Point parsePoint(String point) {
-        String[] split = point.split(",");
-        return new Point(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-    }
-
-    /**
-     * Encodes a point to string to that it can be persisted atomically.
-     */
-    public static String getPointString(int x, int y) {
-        return String.format(Locale.ENGLISH, "%d,%d", x, y);
     }
 
     public static void unregisterReceiverSafely(Context context, BroadcastReceiver receiver) {

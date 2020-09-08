@@ -28,12 +28,6 @@ public class ActivityResultInfo implements Parcelable {
     public final int resultCode;
     public final Intent data;
 
-    public ActivityResultInfo(int requestCode, int resultCode, Intent data) {
-        this.requestCode = requestCode;
-        this.resultCode = resultCode;
-        this.data = data;
-    }
-
     private ActivityResultInfo(Parcel parcel) {
         requestCode = parcel.readInt();
         resultCode = parcel.readInt();

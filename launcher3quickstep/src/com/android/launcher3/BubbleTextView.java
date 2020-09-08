@@ -19,7 +19,6 @@ package com.android.launcher3;
 import static com.android.launcher3.icons.GraphicsUtils.setColorAlphaBound;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -69,20 +68,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
 
     private static final int[] STATE_PRESSED = new int[] {android.R.attr.state_pressed};
 
-
-    private static final Property<BubbleTextView, Float> DOT_SCALE_PROPERTY
-            = new Property<BubbleTextView, Float>(Float.TYPE, "dotScale") {
-        @Override
-        public Float get(BubbleTextView bubbleTextView) {
-            return bubbleTextView.mDotParams.scale;
-        }
-
-        @Override
-        public void set(BubbleTextView bubbleTextView, Float value) {
-            bubbleTextView.mDotParams.scale = value;
-            bubbleTextView.invalidate();
-        }
-    };
 
     public static final Property<BubbleTextView, Float> TEXT_ALPHA_PROPERTY
             = new Property<BubbleTextView, Float>(Float.class, "textAlpha") {
@@ -217,18 +202,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
         }
     }
 
-    private void animateDotScale(float... dotScales) {
-        cancelDotScaleAnim();
-        mDotScaleAnim = ObjectAnimator.ofFloat(this, DOT_SCALE_PROPERTY, dotScales);
-        mDotScaleAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mDotScaleAnim = null;
-            }
-        });
-        mDotScaleAnim.start();
-    }
-
     @Override
     public void setAccessibilityDelegate(AccessibilityDelegate delegate) {
     }
@@ -270,13 +243,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
                     ? getContext().getString(R.string.disabled_app_label, info.contentDescription)
                     : info.contentDescription);
         }
-    }
-
-    /**
-     * Overrides the default long press timeout.
-     */
-    public void setLongPressTimeoutFactor(float longPressTimeoutFactor) {
-        mLongPressHelper.setLongPressTimeoutFactor(longPressTimeoutFactor);
     }
 
     @Override

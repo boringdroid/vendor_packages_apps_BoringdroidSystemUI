@@ -332,10 +332,6 @@ public class DragLayer extends BaseDragLayer<Launcher> {
         invalidate();
     }
 
-    public View getAnimatedView() {
-        return mDropView;
-    }
-
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);

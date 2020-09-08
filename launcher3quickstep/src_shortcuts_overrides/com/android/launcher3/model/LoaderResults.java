@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
 public class LoaderResults extends BaseLoaderResults {
 
     public LoaderResults(LauncherAppState app, BgDataModel dataModel,
-            AllAppsList allAppsList, int pageToBindFirst, WeakReference<Callbacks> callbacks) {
+                         int pageToBindFirst, WeakReference<Callbacks> callbacks) {
         super(app, dataModel, pageToBindFirst, callbacks);
     }
 }

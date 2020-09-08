@@ -162,14 +162,6 @@ public class ItemInfo {
         rank = values.getAsInteger(LauncherSettings.Favorites.RANK);
     }
 
-    /**
-     * Write the fields of this item to the DB
-     */
-    public void onAddToDatabase(ContentWriter writer) {
-        writeToValues(writer);
-        writer.put(LauncherSettings.Favorites.PROFILE_ID, user);
-    }
-
     @Override
     public final String toString() {
         return getClass().getSimpleName() + "(" + dumpProperties() + ")";

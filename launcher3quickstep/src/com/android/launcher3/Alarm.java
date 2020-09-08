@@ -80,8 +80,4 @@ public class Alarm implements Runnable{
             }
         }
     }
-
-    public boolean alarmPending() {
-        return mAlarmPending;
-    }
 }

@@ -140,18 +140,6 @@ public class IconCache extends BaseIconCache {
     }
 
     /**
-     * Updates {@param application} only if a valid entry is found.
-     */
-    public synchronized void updateTitleAndIcon(AppInfo application) {
-        CacheEntry entry = cacheLocked(application.componentName,
-                application.user, () -> null, mLauncherActivityInfoCachingLogic,
-                false, application.usingLowResIcon());
-        if (entry.icon != null && !isDefaultIcon(entry.icon, application.user)) {
-            applyCacheEntry(entry, application);
-        }
-    }
-
-    /**
      * Fill in {@param info} with the icon and label for {@param activityInfo}
      */
     public synchronized void getTitleAndIcon(ItemInfoWithIcon info,

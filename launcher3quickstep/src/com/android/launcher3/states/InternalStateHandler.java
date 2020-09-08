@@ -61,10 +61,6 @@ public abstract class InternalStateHandler extends Binder {
         return sScheduler.clearReference(this);
     }
 
-    public static boolean hasPending() {
-        return sScheduler.hasPending();
-    }
-
     public static boolean handleCreate(Launcher launcher, Intent intent) {
         return handleIntent(launcher, intent, false, false);
     }
@@ -136,10 +132,6 @@ public abstract class InternalStateHandler extends Binder {
                 }
                 return false;
             }
-        }
-
-        public boolean hasPending() {
-            return mPendingHandler.get() != null;
         }
     }
 }

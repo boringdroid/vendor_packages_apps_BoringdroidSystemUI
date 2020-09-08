@@ -260,7 +260,7 @@ public class LauncherModel extends BroadcastReceiver
                 // If there is already one running, tell it to stop.
                 stopLoader();
                 LoaderResults loaderResults = new LoaderResults(mApp, sBgDataModel,
-                        mBgAllAppsList, synchronousBindPage, mCallbacks);
+                        synchronousBindPage, mCallbacks);
                 if (mModelLoaded && !mIsLoaderTaskRunning) {
                     return true;
                 } else {
@@ -356,15 +356,6 @@ public class LauncherModel extends BroadcastReceiver
     public void enqueueModelUpdateTask(ModelUpdateTask task) {
         task.init(mApp, this, sBgDataModel, mBgAllAppsList, MAIN_EXECUTOR);
         MODEL_EXECUTOR.execute(task);
-    }
-
-    /**
-     * A task to be executed on the current callbacks on the UI thread.
-     * If there is no current callbacks, the task is ignored.
-     */
-    public interface CallbackTask {
-
-        void execute(Callbacks callbacks);
     }
 
     /**

@@ -27,7 +27,6 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 
-import com.android.launcher3.CellLayout.ContainerType;
 import com.android.launcher3.graphics.IconShape;
 import com.android.launcher3.icons.DotRenderer;
 import com.android.launcher3.icons.IconNormalizer;
@@ -466,26 +465,6 @@ public class DeviceProfile {
         }
     }
 
-    /**
-     * @return the bounds for which the open folders should be contained within
-     */
-    public Rect getAbsoluteOpenFolderBounds() {
-        if (isVerticalBarLayout()) {
-            // Folders should only appear right of the drop target bar
-            return new Rect(mInsets.left + dropTargetBarSizePx + edgeMarginPx,
-                    mInsets.top,
-                    mInsets.left + availableWidthPx - edgeMarginPx,
-                    mInsets.top + availableHeightPx);
-        } else {
-            // Folders should only appear below the drop target bar
-            return new Rect(mInsets.left + edgeMarginPx,
-                    mInsets.top + dropTargetBarSizePx + edgeMarginPx,
-                    mInsets.left + availableWidthPx - edgeMarginPx,
-                    mInsets.top + availableHeightPx
-                            - verticalDragHandleSizePx - edgeMarginPx);
-        }
-    }
-
     public static int calculateCellWidth(int width, int countX) {
         return width / countX;
     }
@@ -518,22 +497,6 @@ public class DeviceProfile {
 
     public boolean isSeascape() {
         return isVerticalBarLayout() && mIsSeascape;
-    }
-
-    public boolean shouldFadeAdjacentWorkspaceScreens() {
-        return isVerticalBarLayout() || isLargeTablet;
-    }
-
-    public int getCellHeight(@ContainerType int containerType) {
-        switch (containerType) {
-            case CellLayout.WORKSPACE:
-                return cellHeightPx;
-            case CellLayout.FOLDER:
-                return folderCellHeightPx;
-            default:
-                // ??
-                return 0;
-        }
     }
 
     private static Context getContext(Context c, int orientation) {

@@ -75,16 +75,6 @@ public class SpringAnimationBuilder<T> extends FloatProperty<T> {
         mStartValue = mProperty.get(target);
     }
 
-    public SpringAnimationBuilder<T> setEndValue(float value) {
-        mEndValue = value;
-        return this;
-    }
-
-    public SpringAnimationBuilder<T> setStartValue(float value) {
-        mStartValue = value;
-        return this;
-    }
-
     public SpringAnimationBuilder<T> setValues(float... values) {
         if (values.length > 1) {
             mStartValue = values[0];
@@ -111,20 +101,6 @@ public class SpringAnimationBuilder<T> extends FloatProperty<T> {
             throw new IllegalArgumentException("Damping ratio must be between 0 and 1");
         }
         mDampingRatio = dampingRatio;
-        return this;
-    }
-
-    public SpringAnimationBuilder<T> setMinimumVisibleChange(
-            @FloatRange(from = 0.0, fromInclusive = false) float minimumVisibleChange) {
-        if (minimumVisibleChange <= 0) {
-            throw new IllegalArgumentException("Minimum visible change must be positive.");
-        }
-        mMinVisibleChange = minimumVisibleChange;
-        return this;
-    }
-
-    public SpringAnimationBuilder<T> setStartVelocity(float startVelocity) {
-        mVelocity = startVelocity;
         return this;
     }
 

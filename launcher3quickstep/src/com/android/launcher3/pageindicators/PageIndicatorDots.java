@@ -18,10 +18,7 @@ package com.android.launcher3.pageindicators;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Outline;
@@ -32,8 +29,6 @@ import android.util.AttributeSet;
 import android.util.Property;
 import android.view.View;
 import android.view.ViewOutlineProvider;
-import android.view.animation.Interpolator;
-import android.view.animation.OvershootInterpolator;
 
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
@@ -48,13 +43,6 @@ public class PageIndicatorDots extends View implements PageIndicator {
     private static final float SHIFT_PER_ANIMATION = 0.5f;
     private static final float SHIFT_THRESHOLD = 0.1f;
     private static final long ANIMATION_DURATION = 150;
-
-    private static final int ENTER_ANIMATION_START_DELAY = 300;
-    private static final int ENTER_ANIMATION_STAGGERED_DELAY = 150;
-    private static final int ENTER_ANIMATION_DURATION = 400;
-
-    // This value approximately overshoots to 1.5 times the original size.
-    private static final float ENTER_ANIMATION_OVERSHOOT_TENSION = 4.9f;
 
     private static final RectF sTempRect = new RectF();
 
@@ -119,31 +107,6 @@ public class PageIndicatorDots extends View implements PageIndicator {
         mIsRtl = Utilities.isRtl(getResources());
     }
 
-    @Override
-    public void setScroll(int currentScroll, int totalScroll) {
-        if (mNumPages > 1) {
-            if (mIsRtl) {
-                currentScroll = totalScroll - currentScroll;
-            }
-            int scrollPerPage = totalScroll / (mNumPages - 1);
-            int pageToLeft = currentScroll / scrollPerPage;
-            int pageToLeftScroll = pageToLeft * scrollPerPage;
-            int pageToRightScroll = pageToLeftScroll + scrollPerPage;
-
-            float scrollThreshold = SHIFT_THRESHOLD * scrollPerPage;
-            if (currentScroll < pageToLeftScroll + scrollThreshold) {
-                // scroll is within the left page's threshold
-                animateToPosition(pageToLeft);
-            } else if (currentScroll > pageToRightScroll - scrollThreshold) {
-                // scroll is far enough from left page to go to the right page
-                animateToPosition(pageToLeft + 1);
-            } else {
-                // scroll is between left and right page
-                animateToPosition(pageToLeft + SHIFT_PER_ANIMATION);
-            }
-        }
-    }
-
     private void animateToPosition(float position) {
         mFinalPosition = position;
         if (Math.abs(mCurrentPosition - mFinalPosition) < SHIFT_THRESHOLD) {
@@ -157,61 +120,6 @@ public class PageIndicatorDots extends View implements PageIndicator {
             mAnimator.setDuration(ANIMATION_DURATION);
             mAnimator.start();
         }
-    }
-
-    public void stopAllAnimations() {
-        if (mAnimator != null) {
-            mAnimator.cancel();
-            mAnimator = null;
-        }
-        mFinalPosition = mActivePage;
-        CURRENT_POSITION.set(this, mFinalPosition);
-    }
-
-    /**
-     * Sets up up the page indicator to play the entry animation.
-     * {@link #playEntryAnimation()} must be called after this.
-     */
-    public void prepareEntryAnimation() {
-        mEntryAnimationRadiusFactors = new float[mNumPages];
-        invalidate();
-    }
-
-    public void playEntryAnimation() {
-        int count  = mEntryAnimationRadiusFactors.length;
-        if (count == 0) {
-            mEntryAnimationRadiusFactors = null;
-            invalidate();
-            return;
-        }
-
-        Interpolator interpolator = new OvershootInterpolator(ENTER_ANIMATION_OVERSHOOT_TENSION);
-        AnimatorSet animSet = new AnimatorSet();
-        for (int i = 0; i < count; i++) {
-            ValueAnimator anim = ValueAnimator.ofFloat(0, 1).setDuration(ENTER_ANIMATION_DURATION);
-            final int index = i;
-            anim.addUpdateListener(new AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    mEntryAnimationRadiusFactors[index] = (Float) animation.getAnimatedValue();
-                    invalidate();
-                }
-            });
-            anim.setInterpolator(interpolator);
-            anim.setStartDelay(ENTER_ANIMATION_START_DELAY + ENTER_ANIMATION_STAGGERED_DELAY * i);
-            animSet.play(anim);
-        }
-
-        animSet.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mEntryAnimationRadiusFactors = null;
-                invalidateOutline();
-                invalidate();
-            }
-        });
-        animSet.start();
     }
 
     @Override

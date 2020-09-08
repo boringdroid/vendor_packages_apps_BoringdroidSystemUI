@@ -20,20 +20,11 @@ import android.graphics.drawable.Drawable;
 import android.util.FloatProperty;
 import android.util.Property;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 
 public class LauncherAnimUtils {
-    /**
-     * Durations for various state animations. These are not defined in resources to allow
-     * easier access from static classes and enums
-     */
-    public static final int ALL_APPS_TRANSITION_MS = 320;
     public static final int OVERVIEW_TRANSITION_MS = 250;
     public static final int SPRING_LOADED_TRANSITION_MS = 150;
     public static final int SPRING_LOADED_EXIT_DELAY = 500;
-
-    // The progress of an animation to all apps must be at least this far along to snap to all apps.
-    public static final float MIN_PROGRESS_TO_ALL_APPS = 0.5f;
 
     public static final Property<Drawable, Integer> DRAWABLE_ALPHA =
             new Property<Drawable, Integer>(Integer.TYPE, "drawableAlpha") {
@@ -66,32 +57,6 @@ public class LauncherAnimUtils {
     public static int blockedFlingDurationFactor(float velocity) {
         return (int) Utilities.boundToRange(Math.abs(velocity) / 2, 2f, 6f);
     }
-
-    public static final Property<LayoutParams, Integer> LAYOUT_WIDTH =
-            new Property<LayoutParams, Integer>(Integer.TYPE, "width") {
-                @Override
-                public Integer get(LayoutParams lp) {
-                    return lp.width;
-                }
-
-                @Override
-                public void set(LayoutParams lp, Integer width) {
-                    lp.width = width;
-                }
-            };
-
-    public static final Property<LayoutParams, Integer> LAYOUT_HEIGHT =
-            new Property<LayoutParams, Integer>(Integer.TYPE, "height") {
-                @Override
-                public Integer get(LayoutParams lp) {
-                    return lp.height;
-                }
-
-                @Override
-                public void set(LayoutParams lp, Integer height) {
-                    lp.height = height;
-                }
-            };
 
     public static final FloatProperty<View> VIEW_TRANSLATE_X =
             View.TRANSLATION_X instanceof FloatProperty ? (FloatProperty) View.TRANSLATION_X

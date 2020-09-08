@@ -16,7 +16,6 @@
 
 package com.android.launcher3.util;
 
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 
@@ -31,8 +30,6 @@ public class SystemUiController {
 
     // Various UI states in increasing order of priority
     public static final int UI_STATE_BASE_WINDOW = 0;
-    public static final int UI_STATE_ALL_APPS = 1;
-    public static final int UI_STATE_WIDGET_BOTTOM_SHEET = 2;
     public static final int UI_STATE_ROOT_VIEW = 3;
     public static final int UI_STATE_OVERVIEW = 4;
 

@@ -129,14 +129,6 @@ public class RotationHelper implements OnSharedPreferenceChangeListener {
         }
     }
 
-    public void setStateHandlerRequest(int request) {
-        if (mStateHandlerRequest != request) {
-            mStateHandlerRequest = request;
-            updateRotationAnimation();
-            notifyChange();
-        }
-    }
-
     public void setCurrentTransitionRequest(int request) {
         if (mCurrentTransitionRequest != request) {
             mCurrentTransitionRequest = request;
@@ -149,13 +141,6 @@ public class RotationHelper implements OnSharedPreferenceChangeListener {
             mCurrentStateRequest = request;
             notifyChange();
         }
-    }
-
-    // Used by tests only.
-    public void forceAllowRotationForTesting(boolean allowRotation) {
-        mIgnoreAutoRotateSettings =
-                allowRotation || mLauncher.getResources().getBoolean(R.bool.allow_rotation);
-        notifyChange();
     }
 
     public void initialize() {

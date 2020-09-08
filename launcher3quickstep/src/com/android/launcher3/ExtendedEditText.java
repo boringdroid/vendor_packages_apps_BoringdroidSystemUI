@@ -39,7 +39,7 @@ public class ExtendedEditText extends EditText {
      * Implemented by listeners of the back key.
      */
     public interface OnBackKeyListener {
-        public boolean onBackKey();
+        boolean onBackKey();
     }
 
     private OnBackKeyListener mBackKeyListener;
@@ -56,10 +56,6 @@ public class ExtendedEditText extends EditText {
 
     public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public void setOnBackKeyListener(OnBackKeyListener listener) {
-        mBackKeyListener = listener;
     }
 
     @Override
@@ -95,10 +91,6 @@ public class ExtendedEditText extends EditText {
         }
     }
 
-    public void showKeyboard() {
-        mShowImeAfterFirstLayout = !showSoftInput();
-    }
-
     public void hideKeyboard() {
         UiThreadHelper.hideKeyboardAsync(getContext(), getWindowToken());
     }
@@ -107,21 +99,6 @@ public class ExtendedEditText extends EditText {
         return requestFocus() &&
                 ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
                     .showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
-    }
-
-    public void dispatchBackKey() {
-        hideKeyboard();
-        if (mBackKeyListener != null) {
-            mBackKeyListener.onBackKey();
-        }
-    }
-
-    /**
-     * Set to true when you want isSuggestionsEnabled to return false.
-     * Use this to disable the red underlines that appear under typos when suggestions is enabled.
-     */
-    public void forceDisableSuggestions(boolean forceDisableSuggestions) {
-        mForceDisableSuggestions = forceDisableSuggestions;
     }
 
     @Override

@@ -30,10 +30,6 @@ public abstract class RotationMode {
         isTransposed = surfaceRotation != 0;
     }
 
-    public final void mapRect(Rect rect, Rect out) {
-        mapRect(rect.left, rect.top, rect.right, rect.bottom, out);
-    }
-
     public void mapRect(int left, int top, int right, int bottom, Rect out) {
         out.set(left, top, right, bottom);
     }

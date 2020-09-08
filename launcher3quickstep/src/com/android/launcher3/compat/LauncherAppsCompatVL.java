@@ -91,12 +91,6 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
     }
 
     @Override
-    public void showAppDetailsForProfile(ComponentName component, UserHandle user,
-            Rect sourceBounds, Bundle opts) {
-        mLauncherApps.startAppDetailsActivity(component, user, sourceBounds, opts);
-    }
-
-    @Override
     public void addOnAppsChangedCallback(LauncherAppsCompat.OnAppsChangedCallbackCompat callback) {
         WrappedCallback wrappedCallback = new WrappedCallback(callback);
         synchronized (mCallbacks) {
@@ -108,11 +102,6 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
     @Override
     public boolean isPackageEnabledForProfile(String packageName, UserHandle user) {
         return mLauncherApps.isPackageEnabled(packageName, user);
-    }
-
-    @Override
-    public boolean isActivityEnabledForProfile(ComponentName component, UserHandle user) {
-        return mLauncherApps.isActivityEnabled(component, user);
     }
 
     private static class WrappedCallback extends LauncherApps.Callback {

@@ -10,8 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.Gravity;
@@ -34,46 +32,20 @@ import com.android.launcher3.uioverrides.WallpaperColorInfo;
 public class WorkspacePageIndicator extends View implements Insettable, PageIndicator {
 
     private static final int LINE_ANIMATE_DURATION = ViewConfiguration.getScrollBarFadeDuration();
-    private static final int LINE_FADE_DELAY = ViewConfiguration.getScrollDefaultDelay();
-    public static final int WHITE_ALPHA = (int) (0.70f * 255);
-    public static final int BLACK_ALPHA = (int) (0.65f * 255);
 
-    private static final int LINE_ALPHA_ANIMATOR_INDEX = 0;
     private static final int NUM_PAGES_ANIMATOR_INDEX = 1;
-    private static final int TOTAL_SCROLL_ANIMATOR_INDEX = 2;
     private static final int ANIMATOR_COUNT = 3;
 
     private ValueAnimator[] mAnimators = new ValueAnimator[ANIMATOR_COUNT];
 
-    private final Handler mDelayedLineFadeHandler = new Handler(Looper.getMainLooper());
     private final Launcher mLauncher;
 
-    private boolean mShouldAutoHide = true;
-
-    // The alpha of the line when it is showing.
-    private int mActiveAlpha = 0;
-    // The alpha that the line is being animated to or already at (either 0 or mActiveAlpha).
-    private int mToAlpha;
     // A float value representing the number of pages, to allow for an animation when it changes.
     private float mNumPagesFloat;
     private int mCurrentScroll;
     private int mTotalScroll;
     private Paint mLinePaint;
     private final int mLineHeight;
-
-    private static final Property<WorkspacePageIndicator, Integer> PAINT_ALPHA
-            = new Property<WorkspacePageIndicator, Integer>(Integer.class, "paint_alpha") {
-        @Override
-        public Integer get(WorkspacePageIndicator obj) {
-            return obj.mLinePaint.getAlpha();
-        }
-
-        @Override
-        public void set(WorkspacePageIndicator obj, Integer alpha) {
-            obj.mLinePaint.setAlpha(alpha);
-            obj.invalidate();
-        }
-    };
 
     private static final Property<WorkspacePageIndicator, Float> NUM_PAGES
             = new Property<WorkspacePageIndicator, Float>(Float.class, "num_pages") {
@@ -88,22 +60,6 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
             obj.invalidate();
         }
     };
-
-    private static final Property<WorkspacePageIndicator, Integer> TOTAL_SCROLL
-            = new Property<WorkspacePageIndicator, Integer>(Integer.class, "total_scroll") {
-        @Override
-        public Integer get(WorkspacePageIndicator obj) {
-            return obj.mTotalScroll;
-        }
-
-        @Override
-        public void set(WorkspacePageIndicator obj, Integer totalScroll) {
-            obj.mTotalScroll = totalScroll;
-            obj.invalidate();
-        }
-    };
-
-    private Runnable mHideLineRunnable = () -> animateLineToAlpha(0);
 
     public WorkspacePageIndicator(Context context) {
         this(context, null);
@@ -124,7 +80,6 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
         mLineHeight = res.getDimensionPixelSize(R.dimen.dynamic_grid_page_indicator_line_height);
 
         boolean darkText = WallpaperColorInfo.getInstance(context).supportsDarkText();
-        mActiveAlpha = darkText ? BLACK_ALPHA : WHITE_ALPHA;
         mLinePaint.setColor(darkText ? Color.BLACK : Color.WHITE);
     }
 
@@ -146,32 +101,6 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
     }
 
     @Override
-    public void setScroll(int currentScroll, int totalScroll) {
-        if (getAlpha() == 0) {
-            return;
-        }
-        animateLineToAlpha(mActiveAlpha);
-
-        mCurrentScroll = currentScroll;
-        if (mTotalScroll == 0) {
-            mTotalScroll = totalScroll;
-        } else if (mTotalScroll != totalScroll) {
-            animateToTotalScroll(totalScroll);
-        } else {
-            invalidate();
-        }
-
-        if (mShouldAutoHide) {
-            hideAfterDelay();
-        }
-    }
-
-    private void hideAfterDelay() {
-        mDelayedLineFadeHandler.removeCallbacksAndMessages(null);
-        mDelayedLineFadeHandler.postDelayed(mHideLineRunnable, LINE_FADE_DELAY);
-    }
-
-    @Override
     public void setActiveMarker(int activePage) { }
 
     @Override
@@ -185,30 +114,6 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
                 mAnimators[NUM_PAGES_ANIMATOR_INDEX] = null;
             }
         }
-    }
-
-    public void setShouldAutoHide(boolean shouldAutoHide) {
-        mShouldAutoHide = shouldAutoHide;
-        if (shouldAutoHide && mLinePaint.getAlpha() > 0) {
-            hideAfterDelay();
-        } else if (!shouldAutoHide) {
-            mDelayedLineFadeHandler.removeCallbacksAndMessages(null);
-        }
-    }
-
-    private void animateLineToAlpha(int alpha) {
-        if (alpha == mToAlpha) {
-            // Ignore the new animation if it is going to the same alpha as the current animation.
-            return;
-        }
-        mToAlpha = alpha;
-        setupAndRunAnimation(ObjectAnimator.ofInt(this, PAINT_ALPHA, alpha),
-                LINE_ALPHA_ANIMATOR_INDEX);
-    }
-
-    private void animateToTotalScroll(int totalScroll) {
-        setupAndRunAnimation(ObjectAnimator.ofInt(this, TOTAL_SCROLL, totalScroll),
-                TOTAL_SCROLL_ANIMATOR_INDEX);
     }
 
     /**
@@ -231,28 +136,6 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
         });
         mAnimators[animatorIndex].setDuration(LINE_ANIMATE_DURATION);
         mAnimators[animatorIndex].start();
-    }
-
-    /**
-     * Pauses all currently running animations.
-     */
-    public void pauseAnimations() {
-        for (int i = 0; i < ANIMATOR_COUNT; i++) {
-            if (mAnimators[i] != null) {
-                mAnimators[i].pause();
-            }
-        }
-    }
-
-    /**
-     * Force-ends all currently running or paused animations.
-     */
-    public void skipAnimationsToEnd() {
-        for (int i = 0; i < ANIMATOR_COUNT; i++) {
-            if (mAnimators[i] != null) {
-                mAnimators[i].end();
-            }
-        }
     }
 
     @Override

@@ -600,9 +600,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mStateManager.onWindowFocusChanged();
     }
 
-    public interface LauncherOverlayCallbacks {
-    }
-
     public boolean isInState(LauncherState state) {
         return mStateManager.getState() == state;
     }

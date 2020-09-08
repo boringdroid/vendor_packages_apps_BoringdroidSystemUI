@@ -65,13 +65,6 @@ public class IntSet {
         return mArray;
     }
 
-    /**
-     * Sets this set to be same as {@param other}
-     */
-    public void copyFrom(IntSet other) {
-        mArray.copyFrom(other.mArray);
-    }
-
     public static IntSet wrap(IntArray array) {
         IntSet set = new IntSet();
         set.mArray.addAll(array);

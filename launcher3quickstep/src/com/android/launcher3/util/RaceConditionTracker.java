@@ -33,14 +33,6 @@ public class RaceConditionTracker {
 
     private static EventProcessor sEventProcessor;
 
-    static void setEventProcessor(EventProcessor eventProcessor) {
-        sEventProcessor = eventProcessor;
-    }
-
-    public static void onEvent(String eventName) {
-        if (sEventProcessor != null) sEventProcessor.onEvent(eventName);
-    }
-
     public static void onEvent(String eventName, boolean isEnter) {
         if (sEventProcessor != null) {
             sEventProcessor.onEvent(enterExitEvt(eventName, isEnter));
@@ -49,13 +41,5 @@ public class RaceConditionTracker {
 
     public static String enterExitEvt(String eventName, boolean isEnter) {
         return eventName + ":" + (isEnter ? ENTER_POSTFIX : EXIT_POSTFIX);
-    }
-
-    public static String enterEvt(String eventName) {
-        return enterExitEvt(eventName, ENTER);
-    }
-
-    public static String exitEvt(String eventName) {
-        return enterExitEvt(eventName, EXIT);
     }
 }

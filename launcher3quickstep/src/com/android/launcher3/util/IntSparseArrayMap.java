@@ -25,10 +25,6 @@ import java.util.Iterator;
  */
 public class IntSparseArrayMap<E> extends SparseArray<E> implements Iterable<E> {
 
-    public boolean containsKey(int key) {
-        return indexOfKey(key) >= 0;
-    }
-
     public boolean isEmpty() {
         return size() <= 0;
     }

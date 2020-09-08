@@ -19,7 +19,6 @@ package com.android.launcher3.compat;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
@@ -54,20 +53,6 @@ public class UserManagerCompatVNMr1 extends UserManagerCompat {
     }
 
     @Override
-    public boolean isAnyProfileQuietModeEnabled() {
-        List<UserHandle> userProfiles = getUserProfiles();
-        for (UserHandle userProfile : userProfiles) {
-            if (Process.myUserHandle().equals(userProfile)) {
-                continue;
-            }
-            if (isQuietModeEnabled(userProfile)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public long getSerialNumberForUser(UserHandle user) {
         synchronized (this) {
             if (mUserToSerialMap != null) {
@@ -76,26 +61,6 @@ public class UserManagerCompatVNMr1 extends UserManagerCompat {
             }
         }
         return mUserManager.getSerialNumberForUser(user);
-    }
-
-    @Override
-    public UserHandle getUserForSerialNumber(long serialNumber) {
-        synchronized (this) {
-            if (mUsers != null) {
-                return mUsers.get(serialNumber);
-            }
-        }
-        return mUserManager.getUserForSerialNumber(serialNumber);
-    }
-
-    @Override
-    public boolean isDemoUser() {
-        return mUserManager.isDemoUser();
-    }
-
-    @Override
-    public boolean requestQuietModeEnabled(boolean enableQuietMode, UserHandle user) {
-        return false;
     }
 
     @Override
@@ -126,13 +91,4 @@ public class UserManagerCompatVNMr1 extends UserManagerCompat {
         return users == null ? Collections.<UserHandle>emptyList() : users;
     }
 
-    @Override
-    public boolean hasWorkProfile() {
-        synchronized (this) {
-            if (mUsers != null) {
-                return mUsers.size() > 1;
-            }
-        }
-        return getUserProfiles().size() > 1;
-    }
 }

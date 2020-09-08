@@ -16,8 +16,6 @@
 
 package com.android.launcher3.compat;
 
-import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -25,14 +23,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.LauncherApps.PinItemRequest;
 import android.content.pm.PackageManager;
-import android.content.pm.ShortcutInfo;
 import android.os.Parcelable;
 import android.os.UserHandle;
-
-import androidx.annotation.Nullable;
-
-import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.icons.LauncherIcons;
 
 @TargetApi(26)
 public class LauncherAppsCompatVO extends LauncherAppsCompatVL {

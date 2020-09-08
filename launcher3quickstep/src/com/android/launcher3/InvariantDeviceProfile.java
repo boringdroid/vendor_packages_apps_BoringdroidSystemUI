@@ -550,7 +550,6 @@ public class InvariantDeviceProfile {
     private static final class DisplayOption {
         private final GridOption grid;
 
-        private final String name;
         private final float minWidthDps;
         private final float minHeightDps;
         private final boolean canBeDefault;
@@ -565,7 +564,6 @@ public class InvariantDeviceProfile {
             TypedArray a = context.obtainStyledAttributes(
                     attrs, R.styleable.ProfileDisplayOption);
 
-            name = a.getString(R.styleable.ProfileDisplayOption_name);
             minWidthDps = a.getFloat(R.styleable.ProfileDisplayOption_minWidthDps, 0);
             minHeightDps = a.getFloat(R.styleable.ProfileDisplayOption_minHeightDps, 0);
             canBeDefault = a.getBoolean(
@@ -581,7 +579,6 @@ public class InvariantDeviceProfile {
 
         DisplayOption() {
             grid = null;
-            name = null;
             minWidthDps = 0;
             minHeightDps = 0;
             canBeDefault = false;

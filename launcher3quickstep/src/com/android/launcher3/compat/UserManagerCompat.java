@@ -50,13 +50,7 @@ public abstract class UserManagerCompat {
 
     public abstract List<UserHandle> getUserProfiles();
     public abstract long getSerialNumberForUser(UserHandle user);
-    public abstract UserHandle getUserForSerialNumber(long serialNumber);
+
     public abstract boolean isQuietModeEnabled(UserHandle user);
     public abstract boolean isUserUnlocked(UserHandle user);
-
-    public abstract boolean isDemoUser();
-    public abstract boolean requestQuietModeEnabled(boolean enableQuietMode, UserHandle user);
-    public abstract boolean isAnyProfileQuietModeEnabled();
-
-    public abstract boolean hasWorkProfile();
 }

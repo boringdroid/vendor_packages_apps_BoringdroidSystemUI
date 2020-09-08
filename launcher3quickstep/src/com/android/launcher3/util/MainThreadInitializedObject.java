@@ -20,8 +20,6 @@ import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import android.content.Context;
 import android.os.Looper;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.android.launcher3.util.ResourceBasedOverride.Overrides;
 
 import java.util.concurrent.ExecutionException;
@@ -55,11 +53,6 @@ public class MainThreadInitializedObject<T> {
 
     public T getNoCreate() {
         return mValue;
-    }
-
-    @VisibleForTesting
-    public void initializeForTesting(T value) {
-        mValue = value;
     }
 
     /**

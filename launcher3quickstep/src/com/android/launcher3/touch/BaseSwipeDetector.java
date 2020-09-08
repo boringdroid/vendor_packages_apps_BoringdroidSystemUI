@@ -83,26 +83,11 @@ public abstract class BaseSwipeDetector {
         return duration;
     }
 
-    public int getDownX() {
-        return (int) mDownPos.x;
-    }
-
-    public int getDownY() {
-        return (int) mDownPos.y;
-    }
     /**
      * There's no touch and there's no animation.
      */
     public boolean isIdleState() {
         return mState == ScrollState.IDLE;
-    }
-
-    public boolean isSettlingState() {
-        return mState == ScrollState.SETTLING;
-    }
-
-    public boolean isDraggingState() {
-        return mState == ScrollState.DRAGGING;
     }
 
     public boolean isDraggingOrSettling() {
