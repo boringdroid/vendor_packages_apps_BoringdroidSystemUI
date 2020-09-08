@@ -66,8 +66,6 @@ public class DragController implements DragDriver.EventListener, TouchController
 
     private DropTarget.DragObject mDragObject;
 
-    /** Who can receive drop events */
-    private ArrayList<DropTarget> mDropTargets = new ArrayList<>();
     private ArrayList<DragListener> mListeners = new ArrayList<>();
 
     private View mMoveTarget;
@@ -107,7 +105,7 @@ public class DragController implements DragDriver.EventListener, TouchController
      */
     public DragController(Launcher launcher) {
         mLauncher = launcher;
-        mFlingToDeleteHelper = new FlingToDeleteHelper(launcher);
+        mFlingToDeleteHelper = new FlingToDeleteHelper();
     }
 
     private void callOnDragStart() {
@@ -245,14 +243,6 @@ public class DragController implements DragDriver.EventListener, TouchController
         return mTmpPoint;
     }
 
-    public long getLastGestureUpTime() {
-        if (mDragDriver != null) {
-            return System.currentTimeMillis();
-        } else {
-            return mLastTouchUpTime;
-        }
-    }
-
     public void resetLastGestureUpTime() {
         mLastTouchUpTime = -1;
     }
@@ -274,13 +264,6 @@ public class DragController implements DragDriver.EventListener, TouchController
 
     @Override
     public void onDriverDragEnd(float x, float y) {
-        DropTarget dropTarget;
-        Runnable flingAnimation = mFlingToDeleteHelper.getFlingAnimation(mDragObject, mOptions);
-        if (flingAnimation != null) {
-            dropTarget = mFlingToDeleteHelper.getDropTarget();
-            drop(dropTarget, flingAnimation);
-            endDrag();
-        }
     }
 
     @Override
@@ -332,13 +315,6 @@ public class DragController implements DragDriver.EventListener, TouchController
         }
     }
 
-    /**
-     * Sets the view that should handle move events.
-     */
-    public void setMoveTarget(View view) {
-        mMoveTarget = view;
-    }
-
     public boolean dispatchUnhandledMove(View focused, int direction) {
         return mMoveTarget != null && mMoveTarget.dispatchUnhandledMove(focused, direction);
     }
@@ -364,10 +340,6 @@ public class DragController implements DragDriver.EventListener, TouchController
                 && mOptions.preDragCondition.shouldStartDrag(distanceDragged)) {
             callOnDragStart();
         }
-    }
-
-    public float getDistanceDragged() {
-        return mDistanceSinceScroll;
     }
 
     /**
@@ -396,87 +368,4 @@ public class DragController implements DragDriver.EventListener, TouchController
 
         return mDragDriver.onTouchEvent(ev);
     }
-
-    /**
-     * Since accessible drag and drop won't cause the same sequence of touch events, we manually
-     * inject the appropriate state.
-     */
-    public void prepareAccessibleDrag(int x, int y) {
-        mMotionDownX = x;
-        mMotionDownY = y;
-    }
-
-    /**
-     * As above, since accessible drag and drop won't cause the same sequence of touch events,
-     * we manually ensure appropriate drag and drop events get emulated for accessible drag.
-     */
-    public void completeAccessibleDrag(int[] location) {
-        final int[] coordinates = mCoordinatesTemp;
-
-        mDragObject.x = coordinates[0];
-        mDragObject.y = coordinates[1];
-    }
-
-    private void drop(DropTarget dropTarget, Runnable flingAnimation) {
-        final int[] coordinates = mCoordinatesTemp;
-        mDragObject.x = coordinates[0];
-        mDragObject.y = coordinates[1];
-
-        // Move dragging to the final target.
-        if (dropTarget != mLastDropTarget) {
-            if (mLastDropTarget != null) {
-                mLastDropTarget.onDragExit(mDragObject);
-            }
-            mLastDropTarget = dropTarget;
-            if (dropTarget != null) {
-                dropTarget.onDragEnter(mDragObject);
-            }
-        }
-
-        mDragObject.dragComplete = true;
-        if (mIsInPreDrag) {
-            if (dropTarget != null) {
-                dropTarget.onDragExit(mDragObject);
-            }
-            return;
-        }
-
-        // Drop onto the target.
-        boolean accepted = false;
-        if (dropTarget != null) {
-            dropTarget.onDragExit(mDragObject);
-            if (dropTarget.acceptDrop(mDragObject)) {
-                if (flingAnimation != null) {
-                    flingAnimation.run();
-                } else {
-                    dropTarget.onDrop(mDragObject, mOptions);
-                }
-                accepted = true;
-            }
-        }
-        final View dropTargetAsView = dropTarget instanceof View ? (View) dropTarget : null;
-        dispatchDropComplete(dropTargetAsView, accepted);
-    }
-
-    /**
-     * Sets the drag listener which will be notified when a drag starts or ends.
-     */
-    public void addDragListener(DragListener l) {
-        mListeners.add(l);
-    }
-
-    /**
-     * Remove a previously installed drag listener.
-     */
-    public void removeDragListener(DragListener l) {
-        mListeners.remove(l);
-    }
-
-    /**
-     * Add a DropTarget to the list of potential places to receive drop events.
-     */
-    public void addDropTarget(DropTarget target) {
-        mDropTargets.add(target);
-    }
-
 }

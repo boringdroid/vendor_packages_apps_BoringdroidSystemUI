@@ -71,7 +71,6 @@ import com.android.launcher3.keyboard.CustomActionsPopup;
 import com.android.launcher3.keyboard.ViewGroupFocusHelper;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
-import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.states.InternalStateHandler;
 import com.android.launcher3.states.RotationHelper;
 import com.android.launcher3.uioverrides.UiFactory;
@@ -133,8 +132,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     DragLayer mDragLayer;
     private DragController mDragController;
 
-    private DropTargetBar mDropTargetBar;
-
     // Scrim view for the all apps and overview state.
     @Thunk
     ScrimView mScrimView;
@@ -150,7 +147,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private ViewOnDrawExecutor mPendingExecutor;
 
     private LauncherModel mModel;
-    private ModelWriter mModelWriter;
 
     // We only want to get the SharedPreferences once since it does an FS stat each time we get
     // it from the context.
@@ -373,7 +369,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         mRotationHelper.updateRotationAnimation();
         onDeviceProfileInitiated();
-        mModelWriter = mModel.getWriter(true);
     }
 
     public void updateInsets(Rect insets) {
@@ -588,7 +583,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         super.onPause();
         mDragController.cancelDrag();
         mDragController.resetLastGestureUpTime();
-        mDropTargetBar.animateToVisibility(false);
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onPause();
         }
@@ -606,20 +600,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mStateManager.onWindowFocusChanged();
     }
 
-    public interface LauncherOverlay {
-
-        /**
-         * Called when the launcher is ready to use the overlay
-         * @param callbacks A set of callbacks provided by Launcher in relation to the overlay
-         */
-        void setOverlayCallbacks(LauncherOverlayCallbacks callbacks);
-    }
-
     public interface LauncherOverlayCallbacks {
-    }
-
-    static class LauncherOverlayCallbacksImpl implements LauncherOverlayCallbacks {
-
     }
 
     public boolean isInState(LauncherState state) {
@@ -667,9 +648,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         // Setup the drag layer
         mCancelTouchController = UiFactory.enableLiveUIChanges(this);
-
-        // Get the search/delete/uninstall bar
-        mDropTargetBar = mDragLayer.findViewById(R.id.drop_target_bar);
 
         // Setup Scrim
         mScrimView = findViewById(R.id.scrim_view);
@@ -720,10 +698,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public LauncherModel getModel() {
         return mModel;
-    }
-
-    public ModelWriter getModelWriter() {
-        return mModelWriter;
     }
 
     public SharedPreferences getSharedPrefs() {
@@ -894,17 +868,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public void setWaitingForResult(PendingRequestArgs args) {
         mPendingRequestArgs = args;
-    }
-
-    /**
-     * Unbinds the view for the specified item, and removes the item and all its children.
-     *
-     * @param v the view being removed.
-     * @param itemInfo the {@link ItemInfo} for this view.
-     * @param deleteFromDb whether or not to delete this item from the db.
-     */
-    public boolean removeItem(View v, final ItemInfo itemInfo, boolean deleteFromDb) {
-        return false;
     }
 
     @Override
