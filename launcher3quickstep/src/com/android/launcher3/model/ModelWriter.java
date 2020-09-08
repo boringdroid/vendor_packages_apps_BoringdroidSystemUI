@@ -24,7 +24,6 @@ import android.os.Looper;
 
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherModel;
-import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.util.ItemInfoMatcher;
 
@@ -75,16 +74,6 @@ public class ModelWriter {
                 verifier.verifyModel();
             }
         });
-    }
-
-    public void prepareToUndoDelete() {
-        if (!mPreparingToUndo) {
-            if (!mDeleteRunnables.isEmpty() && FeatureFlags.IS_DOGFOOD_BUILD) {
-                throw new IllegalStateException("There are still uncommitted delete operations!");
-            }
-            mDeleteRunnables.clear();
-            mPreparingToUndo = true;
-        }
     }
 
     private void enqueueDeleteRunnable(Runnable r) {

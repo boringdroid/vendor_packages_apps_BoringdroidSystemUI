@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Нүүрний тохиргоо болон товчлолыг бичих"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Апп нь Нүүрэндэх товчлол болон тохиргоог өөрчилж чадна."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> утасны дуудлага хийх боломжгүй"</string>
-    <string name="uninstall_system_app_text" msgid="4172046090762920660">"Энэ апп нь системийн апп ба устгах боломжгүй."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г идэвхгүй болгосон"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d-н %1$d хуудас"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Виджет"</string>

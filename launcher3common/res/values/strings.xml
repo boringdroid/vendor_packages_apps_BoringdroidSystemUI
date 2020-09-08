@@ -112,7 +112,6 @@
     <!-- Text to show user in place of a gadget when it is not yet initialized. -->
 
     <!-- Text to inform the user that they can't uninstall a system application -->
-    <string name="uninstall_system_app_text">This is a system app and can\'t be uninstalled.</string>
 
     <!-- Default folder title -->
 

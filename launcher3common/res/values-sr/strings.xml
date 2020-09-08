@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"уписивање подешавања и пречица на почетном екрану"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Дозвољава апликацији да мења подешавања и пречице на почетном екрану."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> нема дозволу за упућивање телефонских позива"</string>
-    <string name="uninstall_system_app_text" msgid="4172046090762920660">"Ово је системска апликација и не може да се деинсталира."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Апликација <xliff:g id="APP_NAME">%1$s</xliff:g> је онемогућена"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%1$d. страница од %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Виџети"</string>

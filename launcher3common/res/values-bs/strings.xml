@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"zapisuj postavke na početnom ekranu i prečice"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Dopušta aplikaciji promjenu postavki i prečica na početnom ekranu."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> nema odobrenje da uspostavlja telefonske pozive"</string>
-    <string name="uninstall_system_app_text" msgid="4172046090762920660">"Ovo je sistemska aplikacija i ne može se deinstalirati."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> je onemogućena"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Strana %1$d od %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Vidžeti"</string>

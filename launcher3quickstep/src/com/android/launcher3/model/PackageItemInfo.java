@@ -29,11 +29,6 @@ public class PackageItemInfo extends ItemInfoWithIcon {
      */
     public String packageName;
 
-    public PackageItemInfo(String packageName) {
-        this.packageName = packageName;
-        this.itemType = LauncherSettings.Favorites.ITEM_TYPE_NON_ACTIONABLE;
-    }
-
     public PackageItemInfo(PackageItemInfo copy) {
         this.packageName = copy.packageName;
         this.itemType = LauncherSettings.Favorites.ITEM_TYPE_NON_ACTIONABLE;

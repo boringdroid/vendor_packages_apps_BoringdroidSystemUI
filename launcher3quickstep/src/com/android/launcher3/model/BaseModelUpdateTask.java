@@ -17,12 +17,9 @@ package com.android.launcher3.model;
 
 import android.util.Log;
 
-import com.android.launcher3.AppInfo;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherModel.ModelUpdateTask;
-import com.android.launcher3.LauncherModel.CallbackTask;
-import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.util.ItemInfoMatcher;
 
 import java.util.concurrent.Executor;
@@ -39,7 +36,6 @@ public abstract class BaseModelUpdateTask implements ModelUpdateTask {
     private LauncherModel mModel;
     private BgDataModel mDataModel;
     private AllAppsList mAllAppsList;
-    private Executor mUiExecutor;
 
     public void init(LauncherAppState app, LauncherModel model,
             BgDataModel dataModel, AllAppsList allAppsList, Executor uiExecutor) {
@@ -47,7 +43,6 @@ public abstract class BaseModelUpdateTask implements ModelUpdateTask {
         mModel = model;
         mDataModel = dataModel;
         mAllAppsList = allAppsList;
-        mUiExecutor = uiExecutor;
     }
 
     @Override
@@ -67,19 +62,6 @@ public abstract class BaseModelUpdateTask implements ModelUpdateTask {
      */
     public abstract void execute(
             LauncherAppState app, BgDataModel dataModel, AllAppsList apps);
-
-    /**
-     * Schedules a {@param task} to be executed on the current callbacks.
-     */
-    public final void scheduleCallbackTask(final CallbackTask task) {
-        final Callbacks callbacks = mModel.getCallback();
-        mUiExecutor.execute(() -> {
-            Callbacks cb = mModel.getCallback();
-            if (callbacks == cb && cb != null) {
-                task.execute(callbacks);
-            }
-        });
-    }
 
     public ModelWriter getModelWriter() {
         return mModel.getWriter(false /* verifyChanges */);

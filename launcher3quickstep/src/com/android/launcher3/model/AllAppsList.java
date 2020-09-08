@@ -16,15 +16,11 @@
 
 package com.android.launcher3.model;
 
-import static com.android.launcher3.AppInfo.COMPONENT_KEY_COMPARATOR;
-import static com.android.launcher3.AppInfo.EMPTY_ARRAY;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.os.LocaleList;
-import android.os.Process;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -34,15 +30,12 @@ import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.compat.AlphabeticIndexCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
-import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.SafeCloseable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -125,26 +118,6 @@ public class AllAppsList {
         }
     }
 
-    public PromiseAppInfo updatePromiseInstallInfo(PackageInstallInfo installInfo) {
-        UserHandle user = Process.myUserHandle();
-        for (int i=0; i < data.size(); i++) {
-            final AppInfo appInfo = data.get(i);
-            final ComponentName tgtComp = appInfo.getTargetComponent();
-            if (tgtComp != null && tgtComp.getPackageName().equals(installInfo.packageName)
-                    && appInfo.user.equals(user)
-                    && appInfo instanceof PromiseAppInfo) {
-                final PromiseAppInfo promiseAppInfo = (PromiseAppInfo) appInfo;
-                if (installInfo.state == PackageInstallerCompat.STATUS_INSTALLING) {
-                    promiseAppInfo.level = installInfo.progress;
-                    return promiseAppInfo;
-                } else if (installInfo.state == PackageInstallerCompat.STATUS_FAILED) {
-                    removeApp(i);
-                }
-            }
-        }
-        return null;
-    }
-
     private void removeApp(int index) {
         AppInfo removed = data.remove(index);
         if (removed != null) {
@@ -195,16 +168,6 @@ public class AllAppsList {
             AppInfo info = data.get(i);
             if (matcher.matches(info, info.componentName)) {
                 info.runtimeStatusFlags = op.apply(info.runtimeStatusFlags);
-                mDataChanged = true;
-            }
-        }
-    }
-
-    public void updateIconsAndLabels(HashSet<String> packages, UserHandle user) {
-        for (AppInfo info : data) {
-            if (info.user.equals(user) && packages.contains(info.componentName.getPackageName())) {
-                mIconCache.updateTitleAndIcon(info);
-                info.sectionName = mIndex.computeSectionName(info.title);
                 mDataChanged = true;
             }
         }
@@ -283,12 +246,6 @@ public class AllAppsList {
             }
         }
         return null;
-    }
-
-    public AppInfo[] copyData() {
-        AppInfo[] result = data.toArray(EMPTY_ARRAY);
-        Arrays.sort(result, COMPONENT_KEY_COMPARATOR);
-        return result;
     }
 
     public SafeCloseable trackRemoves(Consumer<AppInfo> removeListener) {

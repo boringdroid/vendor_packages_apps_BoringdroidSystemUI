@@ -18,16 +18,13 @@ package com.android.launcher3.model;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
-import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.model.nano.LauncherDumpProto;
 import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.IntSparseArrayMap;
-import com.android.launcher3.util.ViewOnDrawExecutor;
 
 import com.google.protobuf.nano.MessageNano;
 
@@ -37,8 +34,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * All the data stored in-memory and managed by the LauncherModel
@@ -136,17 +131,6 @@ public class BgDataModel {
                     break;
             }
             itemsIdMap.remove(item.id);
-        }
-    }
-
-    public synchronized void addItem(Context context, ItemInfo item, boolean newItem) {
-        itemsIdMap.put(item.id, item);
-        switch (item.itemType) {
-            case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                    workspaceItems.add(item);
-                }
-                break;
         }
     }
 

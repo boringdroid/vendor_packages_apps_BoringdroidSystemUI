@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Үйдүн тууралоолорун жана тез чакырмаларын жазуу"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Колдонмого Үйдүн тууралоолорун жана тез чакырмаларын өзгөртүүгө уруксат берет."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> телефон чалууларды аткарууга уруксаты жок"</string>
-    <string name="uninstall_system_app_text" msgid="4172046090762920660">"Бул системдик колдонмо жана аны чечкенге болбойт."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> өчүрүлгөн"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d ичинен %1$d барак"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Виджеттер"</string>

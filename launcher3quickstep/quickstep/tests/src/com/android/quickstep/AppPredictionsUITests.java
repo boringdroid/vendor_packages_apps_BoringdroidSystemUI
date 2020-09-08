@@ -36,7 +36,6 @@ import com.android.launcher3.appprediction.PredictionRowView;
 import com.android.launcher3.appprediction.PredictionUiStateManager;
 import com.android.launcher3.appprediction.PredictionUiStateManager.Client;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.model.AppLaunchTracker;
 
 import org.junit.After;
 import org.junit.Before;

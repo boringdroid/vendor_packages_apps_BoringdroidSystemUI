@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"ຂຽນການຕັ້ງຄ່າໜ້າຫຼັກ ແລະທາງລັດ"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ອະນຸຍາດໃຫ້ແອັບຯດັ່ງກ່າວ ປ່ຽນການຕັ້ງຄ່າ ແລະທາງລັດໃນໜ້າຫຼັກ."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> ບໍ່​ໄດ້​ຮັບ​ອະ​ນຸ​ຍາດ​ໃຫ້​ໂທ"</string>
-    <string name="uninstall_system_app_text" msgid="4172046090762920660">"ນີ້ແມ່ນແອັບຯຂອງລະບົບ ແລະບໍ່ສາມາດຖອນການຕິດຕັ້ງອອກໄດ້."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"ປິດການນຳໃຊ້ <xliff:g id="APP_NAME">%1$s</xliff:g> ແລ້ວ"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"ໜ້າ %1$d ຈາກ %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"ວິດເຈັດ"</string>

@@ -20,5 +20,4 @@
     <!-- Widget tray -->
 
     <!-- DragController -->
-    <dimen name="drag_flingToDeleteMinVelocity">-1000dp</dimen>
 </resources>

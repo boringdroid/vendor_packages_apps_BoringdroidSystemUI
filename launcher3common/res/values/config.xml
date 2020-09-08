@@ -14,9 +14,8 @@
     <string name="market_search_intent" translatable="false">market://search?c=apps</string>
 
     <!-- String representing the intent to delete a package.-->
-    <string name="delete_package_intent" translatable="false">#Intent;action=android.intent.action.DELETE;launchFlags=0x10800000;end</string>
 
-<!-- DragController -->
+    <!-- DragController -->
     <item type="id" name="drag_event_parity" />
 
 <!-- AllApps & Launcher transitions -->

@@ -37,7 +37,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Főoldal beállításainak és parancsikonjainak írása"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Lehetővé teszi az alkalmazás számára, hogy módosítsa a kezdőképernyő beállításait és parancsikonjait."</string>
     <string name="msg_no_phone_permission" msgid="9208659281529857371">"A(z) <xliff:g id="APP_NAME">%1$s</xliff:g> nem kezdeményezhet telefonhívásokat"</string>
-    <string name="uninstall_system_app_text" msgid="4172046090762920660">"Ez egy rendszeralkalmazás, és nem lehet eltávolítani."</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"A(z) <xliff:g id="APP_NAME">%1$s</xliff:g> letiltva"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d/%1$d. oldal"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Modulok"</string>
