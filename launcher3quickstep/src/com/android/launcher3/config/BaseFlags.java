@@ -18,20 +18,17 @@ package com.android.launcher3.config;
 
 import static androidx.core.util.Preconditions.checkNotNull;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Keep;
-import androidx.annotation.VisibleForTesting;
 
 import com.android.launcher3.Utilities;
 import com.android.launcher3.uioverrides.TogglableFlag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * Defines a set of flags used to control various launcher behaviors.
@@ -61,14 +58,8 @@ public abstract class BaseFlags {
             new TogglableFlag("PROMISE_APPS_NEW_INSTALLS", true,
                     "Adds a promise icon to the home screen for new install sessions.");
 
-    // Enable moving the QSB on the 0th screen of the workspace
-    public static final boolean QSB_ON_FIRST_SCREEN = false;
-
     //Feature flag to enable pulling down navigation shade from workspace.
     public static final boolean PULL_DOWN_STATUS_BAR = true;
-
-    // When enabled shows a work profile tab in all apps
-    public static final boolean ALL_APPS_TABS_ENABLED = true;
 
     // When true, overview shows screenshots in the orientation they were taken rather than
     // trying to make them fit the orientation the device is in.
@@ -102,9 +93,6 @@ public abstract class BaseFlags {
             "APP_SEARCH_IMPROVEMENTS", true,
             "Adds localized title and keyword search and ranking");
 
-    public static final TogglableFlag ENABLE_PREDICTION_DISMISS = new TogglableFlag(
-            "ENABLE_PREDICTION_DISMISS", false, "Allow option to dimiss apps from predicted list");
-
     public static final TogglableFlag ASSISTANT_GIVES_LAUNCHER_FOCUS = new TogglableFlag(
             "ASSISTANT_GIVES_LAUNCHER_FOCUS", false,
             "Allow Launcher to handle nav bar gestures while Assistant is running over it");
@@ -129,6 +117,7 @@ public abstract class BaseFlags {
         private final String description;
         private boolean currentValue;
 
+        @SuppressLint("RestrictedApi")
         public BaseTogglableFlag(
                 String key,
                 boolean defaultValue,

@@ -37,7 +37,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextClock;
 
-import com.android.launcher3.CellLayout;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.InsettableFrameLayout;
 import com.android.launcher3.InvariantDeviceProfile;
@@ -108,8 +107,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         private final LayoutInflater mHomeElementInflater;
         private final InsettableFrameLayout mRootView;
 
-        private final CellLayout mWorkspace;
-
         MainThreadRenderer(Context context) {
             super(context, R.style.AppTheme);
 
@@ -121,12 +118,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
                     R.layout.launcher_preview_layout, null, false);
             mRootView.setInsets(mInsets);
             measureView(mRootView, mDp.widthPx, mDp.heightPx);
-
-            mWorkspace = mRootView.findViewById(R.id.workspace);
-            mWorkspace.setPadding(mDp.workspacePadding.left + mDp.cellLayoutPaddingLeftRightPx,
-                    mDp.workspacePadding.top,
-                    mDp.workspacePadding.right + mDp.cellLayoutPaddingLeftRightPx,
-                    mDp.workspacePadding.bottom);
         }
 
         @Override
