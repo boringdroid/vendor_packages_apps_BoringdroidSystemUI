@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Naka-disable ang na-download na app sa Safe mode"</string>
     <string name="home_screen" msgid="806512411299847073">"Home screen"</string>
     <string name="custom_actions" msgid="3747508247759093328">"Mga custom na pagkilos"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"Pindutin nang matagal para manual na ilagay"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"Awtomatikong idagdag"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Listahan ng mga app"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Alisin"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"I-uninstall"</string>

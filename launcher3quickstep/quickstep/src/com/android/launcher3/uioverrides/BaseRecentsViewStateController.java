@@ -19,13 +19,11 @@ package com.android.launcher3.uioverrides;
 import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_FADE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_SCALE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_SCRIM_FADE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_TRANSLATE_X;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_TRANSLATE_Y;
 import static com.android.launcher3.anim.AnimatorSetBuilder.FLAG_DONT_ANIMATE_OVERVIEW;
 import static com.android.launcher3.anim.Interpolators.AGGRESSIVE_EASE_IN_OUT;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.graphics.Scrim.SCRIM_PROGRESS;
 
 import android.util.FloatProperty;
 import android.view.View;
@@ -40,7 +38,6 @@ import com.android.launcher3.LauncherStateManager.AnimationConfig;
 import com.android.launcher3.LauncherStateManager.StateHandler;
 import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.PropertySetter;
-import com.android.launcher3.graphics.OverviewScrim;
 
 /**
  * State handler for recents view. Manages UI changes and animations for recents view based off the
@@ -70,8 +67,6 @@ public abstract class BaseRecentsViewStateController<T extends View>
         mRecentsView.setTranslationX(translationX);
         mRecentsView.setTranslationY(scaleAndTranslation.translationY);
         getContentAlphaProperty().set(mRecentsView, state.overviewUi ? 1f : 0);
-        OverviewScrim scrim = mLauncher.getDragLayer().getOverviewScrim();
-        SCRIM_PROGRESS.set(scrim, state.getOverviewScrimAlpha(mLauncher));
     }
 
     @Override
@@ -115,9 +110,6 @@ public abstract class BaseRecentsViewStateController<T extends View>
                 translateYInterpolator);
         setter.setFloat(mRecentsView, getContentAlphaProperty(), toState.overviewUi ? 1 : 0,
                 builder.getInterpolator(ANIM_OVERVIEW_FADE, AGGRESSIVE_EASE_IN_OUT));
-        OverviewScrim scrim = mLauncher.getDragLayer().getOverviewScrim();
-        setter.setFloat(scrim, SCRIM_PROGRESS, toState.getOverviewScrimAlpha(mLauncher),
-                builder.getInterpolator(ANIM_OVERVIEW_SCRIM_FADE, LINEAR));
     }
 
     /**

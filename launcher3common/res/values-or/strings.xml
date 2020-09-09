@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ନିରାପଦ ମୋଡରେ ଡାଉନଲୋଡ୍‌ ହେଇଥିବା ଆପ୍‌ ଅକ୍ଷମ କରାଗଲା"</string>
     <string name="home_screen" msgid="806512411299847073">"ହୋମ୍‌ ସ୍କ୍ରୀନ୍‌"</string>
     <string name="custom_actions" msgid="3747508247759093328">"କାର୍ଯ୍ୟ କଷ୍ଟମ୍ କରନ୍ତୁ"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"ମାନୁଆଲ୍‌ ଭାବରେ ରଖିବାକୁ ସ୍ପର୍ଶ କରନ୍ତୁ ଏବଂ ଧରି ରଖନ୍ତୁ"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"ସ୍ୱଚାଳିତ ଭାବେ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"ଆପ୍‌ ତାଲିକା"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"ବାହାର କରନ୍ତୁ"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"ଅନଇନଷ୍ଟଲ୍‌ କରନ୍ତୁ"</string>

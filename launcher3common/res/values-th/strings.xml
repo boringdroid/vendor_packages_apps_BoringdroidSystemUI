@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"แอปที่ดาวน์โหลดถูกปิดในโหมดปลอดภัย"</string>
     <string name="home_screen" msgid="806512411299847073">"หน้าจอหลัก"</string>
     <string name="custom_actions" msgid="3747508247759093328">"การทำงานที่กำหนดเอง"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"แตะค้างไว้เพื่อวางด้วยตัวเอง"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"เพิ่มโดยอัตโนมัติ"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"รายชื่อแอป"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"นำออก"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"ถอนการติดตั้ง"</string>

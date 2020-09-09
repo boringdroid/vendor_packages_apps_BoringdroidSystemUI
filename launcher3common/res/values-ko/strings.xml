@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"다운로드한 앱은 안전 모드에서 사용할 수 없습니다."</string>
     <string name="home_screen" msgid="806512411299847073">"홈 화면"</string>
     <string name="custom_actions" msgid="3747508247759093328">"맞춤 작업"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"길게 터치하여 직접 추가"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"자동으로 추가"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"앱 목록"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"삭제"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"제거"</string>

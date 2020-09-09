@@ -919,7 +919,6 @@ public class CellLayout extends ViewGroup implements Transposable {
                     .translationY(initDeltaY)
                     .build(child)
                     .setDuration(REORDER_ANIMATION_DURATION);
-            Launcher.cast(mActivity).getDragController().addFirstFrameAnimationHelper(a);
             a.setInterpolator(DEACCEL_1_5);
             a.start();
         }

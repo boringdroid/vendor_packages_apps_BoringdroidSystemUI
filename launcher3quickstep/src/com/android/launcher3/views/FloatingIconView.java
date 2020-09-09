@@ -27,7 +27,6 @@ import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -45,7 +44,6 @@ import android.os.CancellationSignal;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
@@ -62,7 +60,6 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.graphics.IconShape;
 import com.android.launcher3.icons.LauncherIcons;
 
@@ -79,7 +76,6 @@ public class FloatingIconView extends View implements
     private static @Nullable IconLoadResult sIconLoadResult;
 
     public static final float SHAPE_PROGRESS_DURATION = 0.10f;
-    private static final int FADE_DURATION_MS = 200;
     private static final Rect sTmpRect = new Rect();
     private static final RectF sTmpRectF = new RectF();
     private static final Object[] sTmpObjArray = new Object[1];
@@ -697,10 +693,9 @@ public class FloatingIconView extends View implements
      */
     public static FloatingIconView getFloatingIconView(Launcher launcher, View originalView,
             boolean hideOriginal, RectF positionOut, boolean isOpening) {
-        final DragLayer dragLayer = launcher.getDragLayer();
-        ViewGroup parent = (ViewGroup) dragLayer.getParent();
+        // TODO recheck launcher.getRootView()
         FloatingIconView view = launcher.getViewCache().getView(R.layout.floating_icon_view,
-                launcher, parent);
+                launcher, launcher.getRootView());
         view.recycle();
 
         // Get the drawable on the background thread
@@ -725,8 +720,6 @@ public class FloatingIconView extends View implements
 
         // We need to add it to the overlay, but keep it invisible until animation starts..
         view.setVisibility(INVISIBLE);
-        parent.addView(view);
-        dragLayer.addView(view.mListenerView);
         view.mListenerView.setListener(view::fastFinish);
 
         view.mEndRunnable = () -> {
@@ -740,13 +733,7 @@ public class FloatingIconView extends View implements
                     } else {
                         originalView.setVisibility(VISIBLE);
                     }
-                    view.finish(dragLayer);
-                } else {
-                    view.mFadeAnimatorSet = view.createFadeAnimation(originalView, dragLayer);
-                    view.mFadeAnimatorSet.start();
                 }
-            } else {
-                view.finish(dragLayer);
             }
         };
 
@@ -758,62 +745,6 @@ public class FloatingIconView extends View implements
         }
 
         return view;
-    }
-
-    private AnimatorSet createFadeAnimation(View originalView, DragLayer dragLayer) {
-        AnimatorSet fade = new AnimatorSet();
-        fade.setDuration(FADE_DURATION_MS);
-        fade.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                originalView.setVisibility(VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                finish(dragLayer);
-            }
-        });
-
-        if (mBadge != null) {
-            ObjectAnimator badgeFade = ObjectAnimator.ofInt(mBadge, DRAWABLE_ALPHA, 255);
-            badgeFade.addUpdateListener(valueAnimator -> invalidate());
-            fade.play(badgeFade);
-        }
-
-        if (originalView instanceof IconLabelDotView) {
-            IconLabelDotView view = (IconLabelDotView) originalView;
-            fade.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    view.setIconVisible(true);
-                    view.setForceHideDot(false);
-                }
-            });
-        }
-
-        if (originalView instanceof BubbleTextView) {
-            BubbleTextView btv = (BubbleTextView) originalView;
-            fade.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    btv.setIconVisible(true);
-                    btv.setForceHideDot(true);
-                }
-            });
-            fade.play(ObjectAnimator.ofInt(btv.getIcon(), DRAWABLE_ALPHA, 0, 255));
-        } else {
-            fade.play(ObjectAnimator.ofFloat(originalView, ALPHA, 0f, 1f));
-        }
-
-        return fade;
-    }
-
-    private void finish(DragLayer dragLayer) {
-        ((ViewGroup) dragLayer.getParent()).removeView(this);
-        dragLayer.removeView(mListenerView);
-        recycle();
-        mLauncher.getViewCache().recycleView(R.layout.floating_icon_view, this);
     }
 
     private void recycle() {

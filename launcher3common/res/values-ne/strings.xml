@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"सुरक्षित मोडमा डाउनलोड गरेको अनुप्रयोग अक्षम गरिएको छ"</string>
     <string name="home_screen" msgid="806512411299847073">"गृह स्क्रिन"</string>
     <string name="custom_actions" msgid="3747508247759093328">"आफू अनुकूलका कारबाहीहरू"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"म्यानुअल तरिकाले थप्न छुनुहोस् र थिची राख्नुहोस्‌"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"स्वतः थप्नुहोस्"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"अनुप्रयोगको सूची"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"हटाउनुहोस्"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"विस्थापित गर्नुहोस्"</string>

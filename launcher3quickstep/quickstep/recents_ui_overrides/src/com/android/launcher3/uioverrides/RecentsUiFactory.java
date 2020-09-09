@@ -143,7 +143,6 @@ public abstract class RecentsUiFactory {
         Mode mode = SysUINavigationMode.getMode(launcher);
 
         ArrayList<TouchController> list = new ArrayList<>();
-        list.add(launcher.getDragController());
         if (mode == NO_BUTTON) {
             list.add(new NoButtonQuickSwitchTouchController(launcher));
             list.add(new NavBarToHomeTouchController(launcher));

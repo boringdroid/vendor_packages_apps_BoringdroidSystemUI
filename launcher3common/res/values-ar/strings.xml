@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"تم إيقاف التطبيق الذي تم تنزيله في الوضع الآمن"</string>
     <string name="home_screen" msgid="806512411299847073">"الشاشة الرئيسية"</string>
     <string name="custom_actions" msgid="3747508247759093328">"الإجراءات المخصّصة"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"انقر مع الاستمرار لإضافة العنصر يدويًا"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"الإضافة تلقائيًا"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"قائمة التطبيقات"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"إزالة"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"إلغاء التثبيت"</string>

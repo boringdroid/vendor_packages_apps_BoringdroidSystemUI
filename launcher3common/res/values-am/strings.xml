@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"የወረደው መተግበሪያ ደህንነቱ በተጠበቀ ሁኔታ ውስጥ ተሰናክሏል"</string>
     <string name="home_screen" msgid="806512411299847073">"መነሻ ገጽ"</string>
     <string name="custom_actions" msgid="3747508247759093328">"ብጁ እርምጃዎች"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"ራስዎ ለማስቀመጥ ነክተው ይያዙት"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"በራስ-ሰር አክል"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"የመተግበሪያዎች ዝርዝር"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"አስወግድ"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"አራግፍ"</string>

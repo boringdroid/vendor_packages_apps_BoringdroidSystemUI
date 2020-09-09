@@ -21,8 +21,6 @@ import android.view.ContextThemeWrapper;
 import android.view.View.AccessibilityDelegate;
 
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.ItemInfo;
-import com.android.launcher3.graphics.RotationMode;
 
 /**
  * An interface to be used along with a context for various activities in Launcher. This allows a
@@ -34,19 +32,13 @@ public interface ActivityContext {
         return false;
     }
 
-    /**
-     * For items with tree hierarchy, notifies the activity to invalidate the parent when a root
-     * is invalidated
-     * @param info info associated with a root node.
-     */
-    default void invalidateParent(ItemInfo info) { }
-
     default AccessibilityDelegate getAccessibilityDelegate() {
         return null;
     }
 
     /**
      * The root view to support drag-and-drop and popup support.
+     * @return
      */
     BaseDragLayer getDragLayer();
 
@@ -59,10 +51,6 @@ public interface ActivityContext {
      */
     default DeviceProfile getWallpaperDeviceProfile() {
         return getDeviceProfile();
-    }
-
-    default RotationMode getRotationMode() {
-        return RotationMode.NORMAL;
     }
 
     static ActivityContext lookupContext(Context context) {

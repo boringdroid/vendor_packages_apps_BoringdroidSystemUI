@@ -24,7 +24,6 @@ import static com.android.launcher3.AbstractFloatingView.TYPE_REBIND_SAFE;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherState.OVERVIEW_PEEK;
-import static com.android.launcher3.dragndrop.DragLayer.ALPHA_INDEX_LAUNCHER_LOAD;
 import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
@@ -64,11 +63,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.dragndrop.DragController;
-import com.android.launcher3.dragndrop.DragLayer;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.keyboard.CustomActionsPopup;
-import com.android.launcher3.keyboard.ViewGroupFocusHelper;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.states.InternalStateHandler;
@@ -83,7 +79,7 @@ import com.android.launcher3.util.Thunk;
 import com.android.launcher3.util.TraceHelper;
 import com.android.launcher3.util.UiThreadHelper;
 import com.android.launcher3.util.ViewOnDrawExecutor;
-import com.android.launcher3.views.ActivityContext;
+import com.android.launcher3.views.BaseDragLayer;
 import com.android.launcher3.views.ScrimView;
 
 import java.io.FileDescriptor;
@@ -128,9 +124,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private Configuration mOldConfig;
 
     private View mLauncherView;
-    @Thunk
-    DragLayer mDragLayer;
-    private DragController mDragController;
 
     // Scrim view for the all apps and overview state.
     @Thunk
@@ -161,8 +154,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private PendingRequestArgs mPendingRequestArgs;
     // Request id for any pending activity result
     private int mPendingActivityRequestCode = -1;
-
-    public ViewGroupFocusHelper mFocusHandler;
 
     private RotationHelper mRotationHelper;
     private Runnable mCancelTouchController;
@@ -205,9 +196,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         idp.addOnChangeListener(this);
         mSharedPrefs = Utilities.getPrefs(this);
 
-        mDragController = new DragController(this);
         mStateManager = new LauncherStateManager(this);
-        UiFactory.onCreate(this);
+        UiFactory.onCreate();
 
         mLauncherView = LayoutInflater.from(this).inflate(R.layout.launcher, null);
 
@@ -228,20 +218,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         // We only load the page synchronously if the user rotates (or triggers a
         // configuration change) while launcher is in the foreground
-        int currentScreen = PagedView.INVALID_RESTORE_PAGE;
-        if (savedInstanceState != null) {
-            currentScreen = savedInstanceState.getInt(RUNTIME_STATE_CURRENT_SCREEN, currentScreen);
-        }
-
-        if (!mModel.startLoader(currentScreen)) {
-            if (!internalStateHandled) {
-                // If we are not binding synchronously, show a fade in animation when
-                // the first page bind completes.
-                mDragLayer.getAlphaProperty(ALPHA_INDEX_LAUNCHER_LOAD).setValue(0);
-            }
-        } else {
-        }
-
         // For handling default keys
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
@@ -328,7 +304,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         initDeviceProfile(idp);
         dispatchDeviceProfileChanged();
         reapplyUi();
-        mDragLayer.recreateControllers();
 
         // Calling onSaveInstanceState ensures that static cache used by listWidgets is
         // initialized properly.
@@ -381,8 +356,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     }
 
     @Override
-    public RotationMode getRotationMode() {
-        return mRotationMode;
+    public BaseDragLayer getDragLayer() {
+        return null;
     }
 
     /**
@@ -410,16 +385,11 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private LauncherCallbacks mLauncherCallbacks;
 
-    @Override
-    public void invalidateParent(ItemInfo info) {
-    }
-
     /**
      * Returns whether we should delay spring loaded mode -- for shortcuts and widgets that have
      * a configuration step, this allows the proper animations to run after other transitions.
      */
-    private int completeAdd(
-            int requestCode, Intent intent, PendingRequestArgs info) {
+    private int completeAdd(PendingRequestArgs info) {
         int screenId = info.screenId;
         if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
             // When the screen id represents an actual screen (as opposed to a rank) we make sure
@@ -431,7 +401,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     }
 
     private void handleActivityResult(
-            final int requestCode, final int resultCode, final Intent data) {
+            final int requestCode, final int resultCode) {
         mPendingActivityResult = null;
 
         // Reset the startActivity waiting flag
@@ -444,19 +414,18 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (requestCode == REQUEST_CREATE_SHORTCUT) {
             // Handle custom shortcuts created using ACTION_CREATE_SHORTCUT.
             if (resultCode == RESULT_OK && requestArgs.container != ItemInfo.NO_ID) {
-                completeAdd(requestCode, data, requestArgs);
+                completeAdd(requestArgs);
 
             } else if (resultCode == RESULT_CANCELED) {
             }
         }
-        mDragLayer.clearAnimatedView();
     }
 
     @Override
     public void onActivityResult(
             final int requestCode, final int resultCode, final Intent data) {
         mPendingActivityRequestCode = -1;
-        handleActivityResult(requestCode, resultCode, data);
+        handleActivityResult(requestCode, resultCode);
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onActivityResult(requestCode, resultCode, data);
         }
@@ -538,7 +507,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    public void onStateSetStart(LauncherState state) {
+    public void onStateSetStart() {
         if (mDeferredResumePending) {
             handleDeferredResume();
         }
@@ -547,7 +516,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    public void onStateSetEnd(LauncherState state) {
+    public void onStateSetEnd() {
         finishAutoCancelActionMode();
     }
 
@@ -581,8 +550,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     @Override
     protected void onPause() {
         super.onPause();
-        mDragController.cancelDrag();
-        mDragController.resetLastGestureUpTime();
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onPause();
         }
@@ -635,8 +602,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
      * Finds all the views we need and configure them properly.
      */
     private void setupViews() {
-        mDragLayer = findViewById(R.id.drag_layer);
-        mFocusHandler = mDragLayer.getFocusIndicatorHelper();
         mOverviewPanel = findViewById(R.id.overview_panel);
 
         mLauncherView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -682,11 +647,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     @Override
     public LauncherRootView getRootView() {
         return (LauncherRootView) mLauncherView;
-    }
-
-    @Override
-    public DragLayer getDragLayer() {
-        return mDragLayer;
     }
 
     public <T extends View> T getOverviewPanel() {
@@ -809,10 +769,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
     }
 
-    public DragController getDragController() {
-        return mDragController;
-    }
-
     @Override
     public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
         if (requestCode != -1) {
@@ -878,11 +834,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             return;
         }
         if (mLauncherCallbacks != null && mLauncherCallbacks.handleBackPressed()) {
-            return;
-        }
-
-        if (mDragController.isDragging()) {
-            mDragController.cancelDrag();
             return;
         }
 
@@ -980,7 +931,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         writer.println(prefix + "\tmRotationHelper: " + mRotationHelper);
 
         // Extra logging for b/116853349
-        mDragLayer.dump(prefix, writer);
         mStateManager.dump(prefix, writer);
 
         mModel.dumpState(prefix, fd, writer, args);
@@ -1048,7 +998,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             // KEYCODE_MENU is sent by some tests, for example
             // LauncherJankTests#testWidgetsContainerFling. Don't just remove its handling.
-            if (!mDragController.isDragging() && isInState(NORMAL)) {
+            if (isInState(NORMAL)) {
                 // Close any open floating views.
                 AbstractFloatingView.closeAllOpenViews(this);
             }
@@ -1065,13 +1015,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     public void returnToHomescreen() {
         super.returnToHomescreen();
         getStateManager().goToState(LauncherState.NORMAL);
-    }
-
-    /**
-     * Just a wrapper around the type cast to allow easier tracking of calls.
-     */
-    public static <T extends Launcher> T cast(ActivityContext activityContext) {
-        return (T) activityContext;
     }
 
     /**

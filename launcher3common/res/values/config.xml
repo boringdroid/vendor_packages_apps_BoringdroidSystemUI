@@ -11,7 +11,6 @@
 
     <!-- String representing the intent for search on the apps market. To specify a query, add
     q=<query> to the data to the intent -->
-    <string name="market_search_intent" translatable="false">market://search?c=apps</string>
 
     <!-- String representing the intent to delete a package.-->
 
@@ -37,13 +36,10 @@
 
     <!-- Parameters controlling the animation for when an item is dropped on the home screen,
          and it animates from its old position to the new one. -->
-    <integer name="config_dropAnimMinDuration">100</integer>
-    <integer name="config_dropAnimMaxDuration">500</integer>
 
     <!-- The duration of the UserFolder opening and closing animation -->
 
     <!-- The distance at which the animation should take the max duration -->
-    <integer name="config_dropAnimMaxDist">800</integer>
 
     <!-- The duration of the caret animation -->
 

@@ -51,10 +51,8 @@ import java.util.zip.Deflater;
 public class UiFactory extends RecentsUiFactory {
 
     public static Runnable enableLiveUIChanges(Launcher launcher) {
-        NavigationModeChangeListener listener = m -> {
-            launcher.getDragLayer().recreateControllers();
-            launcher.getRotationHelper().setRotationHadDifferentUI(m != Mode.NO_BUTTON);
-        };
+        NavigationModeChangeListener listener =
+                m -> launcher.getRotationHelper().setRotationHadDifferentUI(m != Mode.NO_BUTTON);
         SysUINavigationMode mode = SysUINavigationMode.INSTANCE.get(launcher);
         SysUINavigationMode.Mode m = mode.addModeChangeListener(listener);
         launcher.getRotationHelper().setRotationHadDifferentUI(m != Mode.NO_BUTTON);
@@ -86,7 +84,7 @@ public class UiFactory extends RecentsUiFactory {
         }
     }
 
-    public static void onCreate(Launcher launcher) {
+    public static void onCreate() {
     }
 
     public static void onEnterAnimationComplete(Context context) {

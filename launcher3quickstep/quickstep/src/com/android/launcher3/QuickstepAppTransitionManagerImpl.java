@@ -25,7 +25,6 @@ import static com.android.launcher3.anim.Interpolators.AGGRESSIVE_EASE;
 import static com.android.launcher3.anim.Interpolators.DEACCEL_1_7;
 import static com.android.launcher3.anim.Interpolators.EXAGGERATED_EASE;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.dragndrop.DragLayer.ALPHA_INDEX_TRANSITIONS;
 import static com.android.launcher3.views.FloatingIconView.SHAPE_PROGRESS_DURATION;
 import static com.android.quickstep.TaskUtils.taskIsATargetWithMode;
 import static com.android.systemui.shared.system.QuickStepContract.getWindowCornerRadius;
@@ -36,7 +35,6 @@ import static com.android.systemui.shared.system.RemoteAnimationTargetCompat.MOD
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
@@ -58,10 +56,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
-import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.dragndrop.DragLayer;
-import com.android.launcher3.util.MultiValueAlpha;
-import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
 import com.android.launcher3.views.FloatingIconView;
 import com.android.quickstep.util.MultiValueUpdateListener;
 import com.android.quickstep.util.RemoteAnimationProvider;
@@ -131,9 +125,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
 
     protected final Launcher mLauncher;
 
-    private final DragLayer mDragLayer;
-    private final AlphaProperty mDragLayerAlpha;
-
     final Handler mHandler;
     private final boolean mIsRtl;
 
@@ -161,8 +152,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
 
     public QuickstepAppTransitionManagerImpl(Context context) {
         mLauncher = Launcher.getLauncher(context);
-        mDragLayer = mLauncher.getDragLayer();
-        mDragLayerAlpha = mDragLayer.getAlphaProperty(ALPHA_INDEX_TRANSITIONS);
         mHandler = new Handler(Looper.getMainLooper());
         mIsRtl = Utilities.isRtl(mLauncher.getResources());
         mDeviceProfile = mLauncher.getDeviceProfile();
@@ -342,24 +331,7 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
                 ? new float[] {1, 0}
                 : new float[] {0, 1};
 
-        {
-            mDragLayerAlpha.setValue(alphas[0]);
-            ObjectAnimator alpha =
-                    ObjectAnimator.ofFloat(mDragLayerAlpha, MultiValueAlpha.VALUE, alphas);
-            alpha.setDuration(CONTENT_ALPHA_DURATION);
-            alpha.setInterpolator(LINEAR);
-            launcherAnimator.play(alpha);
-
-            mDragLayer.setTranslationY(trans[0]);
-            ObjectAnimator transY = ObjectAnimator.ofFloat(mDragLayer, View.TRANSLATION_Y, trans);
-            transY.setInterpolator(AGGRESSIVE_EASE);
-            transY.setDuration(CONTENT_TRANSLATION_DURATION);
-            launcherAnimator.play(transY);
-
-            mDragLayer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-
-            endListener = this::resetContentView;
-        }
+        endListener = this::resetContentView;
         return new Pair<>(launcherAnimator, endListener);
     }
 
@@ -407,7 +379,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
         final float initialStartScale = startScale;
 
         int[] dragLayerBounds = new int[2];
-        mDragLayer.getLocationOnScreen(dragLayerBounds);
 
         // Animate the app icon to the center of the window bounds in screen coordinates.
         float centerX = windowTargetBounds.centerX() - dragLayerBounds[0];
@@ -579,8 +550,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
      * Animator that controls the transformations of the windows when unlocking the device.
      */
     private Animator getUnlockWindowAnimator(RemoteAnimationTargetCompat[] targets) {
-        SyncRtSurfaceTransactionApplierCompat surfaceApplier =
-                new SyncRtSurfaceTransactionApplierCompat(mDragLayer);
         ValueAnimator unlockAnimator = ValueAnimator.ofFloat(0, 1);
         unlockAnimator.setDuration(CLOSING_TRANSITION_DURATION_MS);
         float cornerRadius = mDeviceProfile.isMultiWindowMode ? 0 :
@@ -588,14 +557,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
         unlockAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                SurfaceParams[] params = new SurfaceParams[targets.length];
-                for (int i = targets.length - 1; i >= 0; i--) {
-                    RemoteAnimationTargetCompat target = targets[i];
-                    params[i] = new SurfaceParams(target.leash, 1f, null,
-                            target.sourceContainerBounds,
-                            RemoteAnimationProvider.getLayer(target, MODE_OPENING), cornerRadius);
-                }
-                surfaceApplier.scheduleApply(params);
             }
         });
         return unlockAnimator;
@@ -605,8 +566,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
      * Animator that controls the transformations of the windows the targets that are closing.
      */
     private Animator getClosingWindowAnimators(RemoteAnimationTargetCompat[] targets) {
-        SyncRtSurfaceTransactionApplierCompat surfaceApplier =
-                new SyncRtSurfaceTransactionApplierCompat(mDragLayer);
         Matrix matrix = new Matrix();
         ValueAnimator closingAnimator = ValueAnimator.ofFloat(0, 1);
         int duration = CLOSING_TRANSITION_DURATION_MS;
@@ -620,71 +579,13 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
 
             @Override
             public void onUpdate(float percent) {
-                SurfaceParams[] params = new SurfaceParams[targets.length];
-                for (int i = targets.length - 1; i >= 0; i--) {
-                    RemoteAnimationTargetCompat target = targets[i];
-                    final float alpha;
-                    final float cornerRadius;
-                    if (target.mode == MODE_CLOSING) {
-                        matrix.setScale(mScale.value, mScale.value,
-                                target.sourceContainerBounds.centerX(),
-                                target.sourceContainerBounds.centerY());
-                        matrix.postTranslate(0, mDy.value);
-                        matrix.postTranslate(target.position.x, target.position.y);
-                        alpha = mAlpha.value;
-                        cornerRadius = windowCornerRadius;
-                    } else {
-                        matrix.setTranslate(target.position.x, target.position.y);
-                        alpha = 1f;
-                        cornerRadius = 0f;
-                    }
-                    params[i] = new SurfaceParams(target.leash, alpha, matrix,
-                            target.sourceContainerBounds,
-                            RemoteAnimationProvider.getLayer(target, MODE_CLOSING),
-                            cornerRadius);
-                }
-                surfaceApplier.scheduleApply(params);
             }
         });
 
         return closingAnimator;
     }
 
-    /**
-     * Creates an animator that modifies Launcher as a result from {@link #getWallpaperOpenRunner}.
-     */
-    private void createLauncherResumeAnimation(AnimatorSet anim) {
-        {
-            AnimatorSet workspaceAnimator = new AnimatorSet();
-
-            mDragLayer.setTranslationY(-mWorkspaceTransY);
-            workspaceAnimator.play(ObjectAnimator.ofFloat(mDragLayer, View.TRANSLATION_Y,
-                    -mWorkspaceTransY, 0));
-
-            mDragLayerAlpha.setValue(0);
-            workspaceAnimator.play(ObjectAnimator.ofFloat(
-                    mDragLayerAlpha, MultiValueAlpha.VALUE, 0, 1f));
-
-            workspaceAnimator.setStartDelay(LAUNCHER_RESUME_START_DELAY);
-            workspaceAnimator.setDuration(333);
-            workspaceAnimator.setInterpolator(Interpolators.DEACCEL_1_7);
-
-            mDragLayer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-
-            workspaceAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    resetContentView();
-                }
-            });
-            anim.play(workspaceAnimator);
-        }
-    }
-
     private void resetContentView() {
-        mDragLayerAlpha.setValue(1f);
-        mDragLayer.setLayerType(View.LAYER_TYPE_NONE, null);
-        mDragLayer.setTranslationY(0f);
     }
 
     private boolean hasControlRemoteAppTransitionPermission() {
@@ -756,8 +657,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
                                 contentAnimator.second.run();
                             }
                         });
-                    } else {
-                        createLauncherResumeAnimation(anim);
                     }
                 }
             }

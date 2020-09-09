@@ -381,7 +381,7 @@ public class LauncherStateManager {
         }
         mState = state;
         mState.onStateEnabled(mLauncher);
-        mLauncher.onStateSetStart(mState);
+        mLauncher.onStateSetStart();
 
         UiFactory.onLauncherStateOrResumeChanged(mLauncher);
 
@@ -398,7 +398,7 @@ public class LauncherStateManager {
         }
 
         state.onStateTransitionEnd(mLauncher);
-        mLauncher.onStateSetEnd(state);
+        mLauncher.onStateSetEnd();
 
         if (state == NORMAL) {
             setRestState(null);

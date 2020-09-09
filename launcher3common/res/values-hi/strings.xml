@@ -25,8 +25,6 @@
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"डाउनलोड किए गए ऐप्लिकेशन सुरक्षित मोड में अक्षम है"</string>
     <string name="home_screen" msgid="806512411299847073">"होम स्क्रीन"</string>
     <string name="custom_actions" msgid="3747508247759093328">"कस्टम कार्रवाइयां"</string>
-    <string name="add_item_request_drag_hint" msgid="5899764264480397019">"खुद जोड़ने के लिए दबाकर रखें"</string>
-    <string name="place_automatically" msgid="8064208734425456485">"अपने आप जोड़ें"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"ऐप्लिकेशन सूची"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"निकालें"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"अनइंस्टॉल करें"</string>

@@ -60,7 +60,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.AnimatorSetBuilder;
-import com.android.launcher3.graphics.OverviewScrim;
 import com.android.launcher3.touch.BaseSwipeDetector;
 import com.android.launcher3.touch.BothAxesSwipeDetector;
 import com.android.launcher3.util.TouchController;
@@ -233,9 +232,6 @@ public class NoButtonQuickSwitchTouchController implements TouchController,
         AnimatorSet xOverviewAnim = new AnimatorSet();
         xOverviewAnim.play(ObjectAnimator.ofFloat(recentsView, View.TRANSLATION_X,
                 toScaleAndTranslation.translationX));
-        xOverviewAnim.play(ObjectAnimator.ofFloat(
-                mLauncher.getDragLayer().getOverviewScrim(), OverviewScrim.SCRIM_PROGRESS,
-                toState.getOverviewScrimAlpha(mLauncher)));
         long xAccuracy = (long) (mXRange * 2);
         xOverviewAnim.setDuration(xAccuracy);
         mXOverviewAnim = AnimatorPlaybackController.wrap(xOverviewAnim, xAccuracy);
