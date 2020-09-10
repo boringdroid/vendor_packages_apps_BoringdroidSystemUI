@@ -17,7 +17,6 @@ package com.android.quickstep.views;
 
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
-import static com.android.launcher3.LauncherState.RECENTS_CLEAR_ALL_BUTTON;
 import static com.android.launcher3.LauncherState.SPRING_LOADED;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
@@ -141,20 +140,10 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
     /**
      * @return The translationX to apply to this view so that the first task is just offscreen.
      */
-    public float getOffscreenTranslationX(float recentsScale) {
-        float offscreenX = NORMAL.getOverviewScaleAndTranslation(mActivity).translationX;
+    public float getOffscreenTranslationX() {
         // Offset since scale pushes tasks outwards.
         getTaskSize(sTempRect);
-        int taskWidth = sTempRect.width();
-        offscreenX += taskWidth * (recentsScale - 1) / 2;
-        if (mRunningTaskTileHidden) {
-            // The first task is hidden, so offset by its width.
-            offscreenX -= (taskWidth + getPageSpacing()) * recentsScale;
-        }
-        if (isRtl()) {
-            offscreenX = -offscreenX;
-        }
-        return offscreenX;
+        return 0;
     }
 
     @Override
@@ -251,12 +240,6 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
     @Override
     public void setOverviewStateEnabled(boolean enabled) {
         super.setOverviewStateEnabled(enabled);
-        if (enabled) {
-            LauncherState state = mActivity.getStateManager().getState();
-            boolean hasClearAllButton = (state.getVisibleElements(mActivity)
-                    & RECENTS_CLEAR_ALL_BUTTON) != 0;
-            setDisallowScrollToClearAll(!hasClearAllButton);
-        }
     }
 
     @Override

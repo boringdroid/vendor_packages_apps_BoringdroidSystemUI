@@ -56,7 +56,7 @@ public class FlingAndHoldTouchController extends PortraitStatesTouchController {
     private AnimatorSet mPeekAnim;
 
     public FlingAndHoldTouchController(Launcher l) {
-        super(l, false /* allowDragToOverview */);
+        super(l  /* allowDragToOverview */);
         mMotionPauseDetector = new MotionPauseDetector(l);
         mMotionPauseMinDisplacement = ViewConfiguration.get(l).getScaledTouchSlop();
         mMotionPauseMaxDisplacement = MAX_DISPLACEMENT_PERCENT;
@@ -83,7 +83,7 @@ public class FlingAndHoldTouchController extends PortraitStatesTouchController {
                 LauncherState fromState = isPaused ? NORMAL : OVERVIEW_PEEK;
                 LauncherState toState = isPaused ? OVERVIEW_PEEK : NORMAL;
                 long peekDuration = isPaused ? PEEK_IN_ANIM_DURATION : PEEK_OUT_ANIM_DURATION;
-                mPeekAnim = mLauncher.getStateManager().createAtomicAnimation(fromState, toState,
+                mPeekAnim = mLauncher.getStateManager().createAtomicAnimation(toState,
                         new AnimatorSetBuilder(), ATOMIC_OVERVIEW_PEEK_COMPONENT, peekDuration);
                 mPeekAnim.addListener(new AnimatorListenerAdapter() {
                     @Override

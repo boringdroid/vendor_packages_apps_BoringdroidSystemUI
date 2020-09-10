@@ -16,16 +16,11 @@
 package com.android.quickstep.util;
 
 import static com.android.launcher3.LauncherAppTransitionManagerImpl.INDEX_SHELF_ANIM;
-import static com.android.launcher3.LauncherState.BACKGROUND_APP;
-import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.view.animation.Interpolator;
 
 import com.android.launcher3.Launcher;
-import com.android.launcher3.uioverrides.states.OverviewState;
 
 /**
  * Animates the shelf between states HIDE, PEEK, and OVERVIEW.
@@ -39,7 +34,6 @@ public class ShelfPeekAnim {
     private final Launcher mLauncher;
 
     private ShelfAnimState mShelfState;
-    private boolean mIsPeeking;
 
     public ShelfPeekAnim(Launcher launcher) {
         mLauncher = launcher;
@@ -48,48 +42,12 @@ public class ShelfPeekAnim {
     /**
      * Animates to the given state, canceling the previous animation if it was still running.
      */
-    public void setShelfState(ShelfAnimState shelfState, Interpolator interpolator, long duration) {
+    public void setShelfState(ShelfAnimState shelfState) {
         if (mShelfState == shelfState) {
             return;
         }
         mLauncher.getStateManager().cancelStateElementAnimation(INDEX_SHELF_ANIM);
         mShelfState = shelfState;
-        mIsPeeking = mShelfState == ShelfAnimState.PEEK || mShelfState == ShelfAnimState.HIDE;
-        if (mShelfState == ShelfAnimState.CANCEL) {
-            return;
-        }
-        float shelfHiddenProgress = BACKGROUND_APP.getVerticalProgress(mLauncher);
-        float shelfOverviewProgress = OVERVIEW.getVerticalProgress(mLauncher);
-        // Peek based on default overview progress so we can see hotseat if we're showing
-        // that instead of predictions in overview.
-        float defaultOverviewProgress = OverviewState.getDefaultVerticalProgress(mLauncher);
-        float shelfPeekingProgress = shelfHiddenProgress
-                - (shelfHiddenProgress - defaultOverviewProgress) * 0.25f;
-        float toProgress = mShelfState == ShelfAnimState.HIDE
-                ? shelfHiddenProgress
-                : mShelfState == ShelfAnimState.PEEK
-                        ? shelfPeekingProgress
-                        : shelfOverviewProgress;
-        Animator shelfAnim = mLauncher.getStateManager()
-                .createStateElementAnimation(INDEX_SHELF_ANIM, toProgress);
-        shelfAnim.setInterpolator(interpolator);
-        shelfAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                mShelfState = ShelfAnimState.CANCEL;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                mIsPeeking = mShelfState == ShelfAnimState.PEEK;
-            }
-        });
-        shelfAnim.setDuration(duration).start();
-    }
-
-    /** @return Whether the shelf is currently peeking or animating to or from peeking. */
-    public boolean isPeeking() {
-        return mIsPeeking;
     }
 
     /** The various shelf states we can animate to. */

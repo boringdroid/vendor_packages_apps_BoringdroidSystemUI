@@ -35,7 +35,7 @@ import com.android.quickstep.views.RecentsView;
 public class OverviewToAllAppsTouchController extends PortraitStatesTouchController {
 
     public OverviewToAllAppsTouchController(Launcher l) {
-        super(l, true /* allowDragToOverview */);
+        super(l  /* allowDragToOverview */);
     }
 
     @Override

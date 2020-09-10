@@ -16,24 +16,17 @@
 
 package com.android.launcher3.uioverrides;
 
-import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_FADE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_SCALE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_TRANSLATE_X;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_TRANSLATE_Y;
 import static com.android.launcher3.anim.AnimatorSetBuilder.FLAG_DONT_ANIMATE_OVERVIEW;
 import static com.android.launcher3.anim.Interpolators.AGGRESSIVE_EASE_IN_OUT;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
 
 import android.util.FloatProperty;
 import android.view.View;
-import android.view.animation.Interpolator;
 
 import androidx.annotation.NonNull;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
-import com.android.launcher3.LauncherState.ScaleAndTranslation;
 import com.android.launcher3.LauncherStateManager.AnimationConfig;
 import com.android.launcher3.LauncherStateManager.StateHandler;
 import com.android.launcher3.anim.AnimatorSetBuilder;
@@ -57,15 +50,6 @@ public abstract class BaseRecentsViewStateController<T extends View>
 
     @Override
     public void setState(@NonNull LauncherState state) {
-        ScaleAndTranslation scaleAndTranslation = state
-                .getOverviewScaleAndTranslation(mLauncher);
-        SCALE_PROPERTY.set(mRecentsView, scaleAndTranslation.scale);
-        float translationX = scaleAndTranslation.translationX;
-        if (mRecentsView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
-            translationX = -translationX;
-        }
-        mRecentsView.setTranslationX(translationX);
-        mRecentsView.setTranslationY(scaleAndTranslation.translationY);
         getContentAlphaProperty().set(mRecentsView, state.overviewUi ? 1f : 0);
     }
 
@@ -94,20 +78,6 @@ public abstract class BaseRecentsViewStateController<T extends View>
     void setStateWithAnimationInternal(@NonNull final LauncherState toState,
             @NonNull AnimatorSetBuilder builder, @NonNull AnimationConfig config) {
         PropertySetter setter = config.getPropertySetter(builder);
-        ScaleAndTranslation scaleAndTranslation = toState.getOverviewScaleAndTranslation(mLauncher);
-        Interpolator scaleInterpolator = builder.getInterpolator(ANIM_OVERVIEW_SCALE, LINEAR);
-        setter.setFloat(mRecentsView, SCALE_PROPERTY, scaleAndTranslation.scale, scaleInterpolator);
-        Interpolator translateXInterpolator = builder.getInterpolator(
-                ANIM_OVERVIEW_TRANSLATE_X, LINEAR);
-        Interpolator translateYInterpolator = builder.getInterpolator(
-                ANIM_OVERVIEW_TRANSLATE_Y, LINEAR);
-        float translationX = scaleAndTranslation.translationX;
-        if (mRecentsView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
-            translationX = -translationX;
-        }
-        setter.setFloat(mRecentsView, View.TRANSLATION_X, translationX, translateXInterpolator);
-        setter.setFloat(mRecentsView, View.TRANSLATION_Y, scaleAndTranslation.translationY,
-                translateYInterpolator);
         setter.setFloat(mRecentsView, getContentAlphaProperty(), toState.overviewUi ? 1 : 0,
                 builder.getInterpolator(ANIM_OVERVIEW_FADE, AGGRESSIVE_EASE_IN_OUT));
     }

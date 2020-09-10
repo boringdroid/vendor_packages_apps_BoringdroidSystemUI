@@ -34,11 +34,9 @@ import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.touch.AbstractStateChangeTouchController;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
-import com.android.launcher3.uioverrides.states.OverviewState;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.quickstep.RecentsModel;
-import com.android.quickstep.util.LayoutUtils;
 
 /**
  * Touch controller for handling various state transitions in portrait UI.
@@ -47,11 +45,6 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
 
     private static final String TAG = "PortraitStatesTouchCtrl";
 
-    /**
-     * The progress at which all apps content will be fully visible when swiping up from overview.
-     */
-    protected static final float ALL_APPS_CONTENT_FADE_THRESHOLD = 0.08f;
-
     private final PortraitOverviewStateTouchHelper mOverviewPortraitStateTouchHelper;
 
     private final InterpolatorWrapper mAllAppsInterpolatorWrapper = new InterpolatorWrapper();
@@ -59,7 +52,7 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
     // If true, we will finish the current animation instantly on second touch.
     private boolean mFinishFastOnSecondTouch;
 
-    public PortraitStatesTouchController(Launcher l, boolean allowDragToOverview) {
+    public PortraitStatesTouchController(Launcher l) {
         super(l, SingleAxisSwipeDetector.VERTICAL);
         mOverviewPortraitStateTouchHelper = new PortraitOverviewStateTouchHelper(l);
     }
@@ -85,10 +78,7 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
             }
         }  // If we are swiping to all apps instead of overview, allow it from anywhere.
 
-        if (AbstractFloatingView.getTopOpenViewWithType() != null) {
-            return false;
-        }
-        return true;
+        return AbstractFloatingView.getTopOpenViewWithType() == null;
     }
 
     @Override
@@ -123,13 +113,7 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
     protected float initCurrentAnimation(@AnimationComponents int animComponents) {
         long maxAccuracy = (long) (2);
 
-        float startVerticalShift = mFromState.getVerticalProgress(mLauncher);
-        float endVerticalShift = mToState.getVerticalProgress(mLauncher);
-
-        float totalShift = endVerticalShift - startVerticalShift;
-
-        final AnimatorSetBuilder builder = totalShift == 0 ? new AnimatorSetBuilder()
-                : getAnimatorSetBuilderForStates(mFromState, mToState);
+        final AnimatorSetBuilder builder = new AnimatorSetBuilder();
         updateAnimatorBuilderOnReinit(builder);
 
         cancelPendingAnim();
@@ -149,19 +133,13 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
             mCurrentAnimation = AnimatorPlaybackController.wrap(mPendingAnimation.anim, maxAccuracy,
                     onCancelRunnable);
             mLauncher.getStateManager().setCurrentUserControlledAnimation(mCurrentAnimation);
-            totalShift = LayoutUtils.getShelfTrackingDistance(mLauncher,
-                    mLauncher.getDeviceProfile());
         } else {
             mCurrentAnimation = mLauncher.getStateManager()
                     .createAnimationToNewWorkspace(mToState, builder, maxAccuracy, this::clearState,
                             animComponents);
         }
 
-        if (totalShift == 0) {
-            totalShift = Math.signum(mFromState.ordinal - mToState.ordinal)
-                    * OverviewState.getDefaultSwipeHeight(mLauncher);
-        }
-        return 1 / totalShift;
+        return 1;
     }
 
     /**

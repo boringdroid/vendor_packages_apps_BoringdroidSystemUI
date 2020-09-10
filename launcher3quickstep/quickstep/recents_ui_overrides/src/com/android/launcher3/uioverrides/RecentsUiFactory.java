@@ -28,29 +28,13 @@ import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager.StateHandler;
-import com.android.launcher3.anim.AnimatorPlaybackController;
-import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.uioverrides.touchcontrollers.FlingAndHoldTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.LandscapeEdgeSwipeController;
-import com.android.launcher3.uioverrides.touchcontrollers.NavBarToHomeTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.NoButtonQuickSwitchTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.OverviewToAllAppsTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.PortraitStatesTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.QuickSwitchTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.StatusBarTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.TaskViewTouchController;
-import com.android.launcher3.uioverrides.touchcontrollers.TransposedQuickSwitchTouchController;
-import com.android.launcher3.util.TouchController;
 import com.android.launcher3.util.UiThreadHelper;
 import com.android.launcher3.util.UiThreadHelper.AsyncCommand;
 import com.android.quickstep.SysUINavigationMode;
-import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.TouchInteractionService;
 import com.android.quickstep.views.RecentsView;
 import com.android.systemui.shared.system.WindowManagerWrapper;
-
-import java.util.ArrayList;
 
 /**
  * Provides recents-related {@link UiFactory} logic and classes.
@@ -134,44 +118,6 @@ public abstract class RecentsUiFactory {
         }
     };
 
-    public static RotationMode getRotationMode(DeviceProfile dp) {
-        return !dp.isVerticalBarLayout() ? RotationMode.NORMAL
-                : (dp.isSeascape() ? ROTATION_SEASCAPE : ROTATION_LANDSCAPE);
-    }
-
-    public static TouchController[] createTouchControllers(Launcher launcher) {
-        Mode mode = SysUINavigationMode.getMode(launcher);
-
-        ArrayList<TouchController> list = new ArrayList<>();
-        if (mode == NO_BUTTON) {
-            list.add(new NoButtonQuickSwitchTouchController(launcher));
-            list.add(new NavBarToHomeTouchController(launcher));
-            list.add(new FlingAndHoldTouchController(launcher));
-        } else {
-            if (launcher.getDeviceProfile().isVerticalBarLayout()) {
-                list.add(new OverviewToAllAppsTouchController(launcher));
-                list.add(new LandscapeEdgeSwipeController(launcher));
-                if (mode.hasGestures) {
-                    list.add(new TransposedQuickSwitchTouchController(launcher));
-                }
-            } else {
-                list.add(new PortraitStatesTouchController(launcher,
-                        mode.hasGestures /* allowDragToOverview */));
-                if (mode.hasGestures) {
-                    list.add(new QuickSwitchTouchController(launcher));
-                }
-            }
-        }
-
-        if (FeatureFlags.PULL_DOWN_STATUS_BAR
-                && !launcher.getDeviceProfile().isMultiWindowMode) {
-            list.add(new StatusBarTouchController(launcher));
-        }
-
-        list.add(new LauncherTaskViewController(launcher));
-        return list.toArray(new TouchController[list.size()]);
-    }
-
     /**
      * Creates and returns the controller responsible for recents view state transitions.
      *
@@ -207,21 +153,4 @@ public abstract class RecentsUiFactory {
         }
     }
 
-    private static final class LauncherTaskViewController extends
-            TaskViewTouchController<Launcher> {
-
-        LauncherTaskViewController(Launcher activity) {
-            super(activity);
-        }
-
-        @Override
-        protected boolean isRecentsInteractive() {
-            return mActivity.isInState(OVERVIEW);
-        }
-
-        @Override
-        protected void onUserControlledAnimationCreated(AnimatorPlaybackController animController) {
-            mActivity.getStateManager().setCurrentUserControlledAnimation(animController);
-        }
-    }
 }

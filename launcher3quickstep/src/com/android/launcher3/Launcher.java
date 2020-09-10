@@ -580,22 +580,6 @@ public class Launcher extends BaseDraggingActivity implements
         return (event.getKeyCode() == KeyEvent.KEYCODE_HOME) || super.dispatchKeyEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (finishAutoCancelActionMode()) {
-            return;
-        }
-
-        // Note: There should be at most one log per method call. This is enforced implicitly
-        // by using if-else statements.
-        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView();
-        if (topView != null && topView.onBackPressed()) {
-            // Handled by the floating view.
-        } else {
-            mStateManager.getState().onBackPressed(this);
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public ActivityOptions getActivityLaunchOptions(View v) {

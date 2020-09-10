@@ -128,10 +128,6 @@ public class LauncherStateManager {
         return mState;
     }
 
-    public LauncherState getCurrentStableState() {
-        return mCurrentStableState;
-    }
-
     public void dump(String prefix, PrintWriter writer) {
         writer.println(prefix + "LauncherState:");
         writer.println(prefix + "\tmLastStableState:" + mLastStableState);
@@ -150,10 +146,6 @@ public class LauncherStateManager {
 
     public void addStateListener(StateListener listener) {
         mListeners.add(listener);
-    }
-
-    public void removeStateListener(StateListener listener) {
-        mListeners.remove(listener);
     }
 
     /**
@@ -186,20 +178,6 @@ public class LauncherStateManager {
      */
     public void goToState(LauncherState state, boolean animated, Runnable onCompleteRunnable) {
         goToState(state, animated, 0, onCompleteRunnable);
-    }
-
-    /**
-     * Changes the Launcher state to the provided state after the given delay.
-     */
-    public void goToState(LauncherState state, long delay, Runnable onCompleteRunnable) {
-        goToState(state, true, delay, onCompleteRunnable);
-    }
-
-    /**
-     * Changes the Launcher state to the provided state after the given delay.
-     */
-    public void goToState(LauncherState state, long delay) {
-        goToState(state, true, delay, null);
     }
 
     public void reapplyState() {
@@ -287,25 +265,13 @@ public class LauncherStateManager {
         mConfig.duration = state == NORMAL ? fromState.transitionDuration : state.transitionDuration;
 
         AnimatorSetBuilder builder = new AnimatorSetBuilder();
-        prepareForAtomicAnimation(fromState, state, builder);
         AnimatorSet animation = createAnimationToNewWorkspaceInternal(
                 state, builder, onCompleteRunnable);
         mUiHandler.post(new StartAnimRunnable(animation));
     }
 
-    /**
-     * Prepares for a non-user controlled animation from fromState to toState. Preparations include:
-     * - Setting interpolators for various animations included in the state transition.
-     * - Setting some start values (e.g. scale) for views that are hidden but about to be shown.
-     */
-    public void prepareForAtomicAnimation(LauncherState fromState, LauncherState toState,
-            AnimatorSetBuilder builder) {
-        toState.prepareForAtomicAnimation(mLauncher, fromState, builder);
-    }
-
-    public AnimatorSet createAtomicAnimation(LauncherState fromState, LauncherState toState,
-            AnimatorSetBuilder builder, @AnimationComponents int atomicComponent, long duration) {
-        prepareForAtomicAnimation(fromState, toState, builder);
+    public AnimatorSet createAtomicAnimation(LauncherState toState,
+                                             AnimatorSetBuilder builder, @AnimationComponents int atomicComponent, long duration) {
         AnimationConfig config = new AnimationConfig();
         config.animComponents = atomicComponent;
         config.duration = duration;
@@ -376,11 +342,7 @@ public class LauncherStateManager {
     }
 
     private void onStateTransitionStart(LauncherState state) {
-        if (mState != state) {
-            mState.onStateDisabled(mLauncher);
-        }
         mState = state;
-        mState.onStateEnabled(mLauncher);
         mLauncher.onStateSetStart();
 
         UiFactory.onLauncherStateOrResumeChanged(mLauncher);
@@ -397,7 +359,6 @@ public class LauncherStateManager {
             mCurrentStableState = state;
         }
 
-        state.onStateTransitionEnd(mLauncher);
         mLauncher.onStateSetEnd();
 
         if (state == NORMAL) {
@@ -413,10 +374,6 @@ public class LauncherStateManager {
 
     public void onWindowFocusChanged() {
         UiFactory.onLauncherStateOrFocusChanged(mLauncher);
-    }
-
-    public LauncherState getLastState() {
-        return mLastStableState;
     }
 
     public void moveToRestState() {

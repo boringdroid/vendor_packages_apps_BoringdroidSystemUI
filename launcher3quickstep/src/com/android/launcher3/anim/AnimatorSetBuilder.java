@@ -27,16 +27,11 @@ import java.util.List;
  * Utility class for building animator set
  */
 public class AnimatorSetBuilder {
-
     public static final int ANIM_VERTICAL_PROGRESS = 0;
-    public static final int ANIM_WORKSPACE_SCALE = 1;
-    public static final int ANIM_WORKSPACE_TRANSLATE = 2;
-    public static final int ANIM_WORKSPACE_FADE = 3;
     public static final int ANIM_OVERVIEW_SCALE = 6;
     public static final int ANIM_OVERVIEW_TRANSLATE_X = 7;
     public static final int ANIM_OVERVIEW_TRANSLATE_Y = 8;
     public static final int ANIM_OVERVIEW_FADE = 9;
-    public static final int ANIM_ALL_APPS_FADE = 10;
     public static final int ANIM_OVERVIEW_SCRIM_FADE = 11;
 
     public static final int FLAG_DONT_ANIMATE_OVERVIEW = 1 << 0;

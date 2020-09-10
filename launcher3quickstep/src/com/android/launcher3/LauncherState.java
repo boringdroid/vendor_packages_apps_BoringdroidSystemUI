@@ -17,22 +17,8 @@ package com.android.launcher3;
 
 import static android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 import static android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS;
-import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_FADE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_SCALE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_TRANSLATE_X;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_FADE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_SCALE;
-import static com.android.launcher3.anim.Interpolators.ACCEL;
-import static com.android.launcher3.anim.Interpolators.DEACCEL;
-import static com.android.launcher3.anim.Interpolators.DEACCEL_1_7;
-import static com.android.launcher3.anim.Interpolators.clampToProgress;
-import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
-
-import com.android.launcher3.anim.AnimatorSetBuilder;
 import com.android.launcher3.states.SpringLoadedState;
-import com.android.launcher3.uioverrides.UiFactory;
 import com.android.launcher3.uioverrides.states.OverviewState;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 
@@ -43,17 +29,6 @@ import java.util.Arrays;
  * Base state for various states used for the Launcher
  */
 public class LauncherState {
-
-
-    /**
-     * Set of elements indicating various workspace elements which change visibility across states
-     * Note that workspace is not included here as in that case, we animate individual pages
-     */
-    public static final int NONE = 0;
-    public static final int ALL_APPS_HEADER_EXTRA = 1 << 3; // e.g. app predictions
-    public static final int VERTICAL_SWIPE_INDICATOR = 1 << 5;
-    public static final int RECENTS_CLEAR_ALL_BUTTON = 1 << 6;
-
     protected static final int FLAG_MULTI_PAGE = 1 << 0;
     protected static final int FLAG_DISABLE_ACCESSIBILITY = 1 << 1;
     protected static final int FLAG_DISABLE_RESTORE = 1 << 2;
@@ -121,11 +96,6 @@ public class LauncherState {
     public final int transitionDuration;
 
     /**
-     * True if the state allows workspace icons to be dragged.
-     */
-    public final boolean workspaceIconsCanBeDragged;
-
-    /**
      * True if the workspace pages should not be clipped relative to the workspace bounds
      * for this state.
      */
@@ -159,7 +129,6 @@ public class LauncherState {
                 ? IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                 : IMPORTANT_FOR_ACCESSIBILITY_AUTO;
         this.disableRestore = (flags & FLAG_DISABLE_RESTORE) != 0;
-        this.workspaceIconsCanBeDragged = (flags & FLAG_WORKSPACE_ICONS_CAN_BE_DRAGGED) != 0;
         this.disablePageClipping = (flags & FLAG_DISABLE_PAGE_CLIPPING) != 0;
         this.disableInteraction = (flags & FLAG_DISABLE_INTERACTION) != 0;
         this.overviewUi = (flags & FLAG_OVERVIEW_UI) != 0;
@@ -174,73 +143,13 @@ public class LauncherState {
         return Arrays.copyOf(sAllStates, sAllStates.length);
     }
 
-    public ScaleAndTranslation getOverviewScaleAndTranslation(Launcher launcher) {
-        return UiFactory.getOverviewScaleAndTranslationForNormalState(launcher);
-    }
-
     public float getOverviewFullscreenProgress() {
         return 0;
-    }
-
-    public void onStateEnabled(Launcher launcher) {
-        dispatchWindowStateChanged(launcher);
-    }
-
-    public void onStateDisabled(Launcher launcher) { }
-
-    public int getVisibleElements(Launcher launcher) {
-        return VERTICAL_SWIPE_INDICATOR;
-    }
-
-    public float getVerticalProgress(Launcher launcher) {
-        return 1f;
     }
 
     public LauncherState getHistoryForState() {
         // No history is supported
         return NORMAL;
-    }
-
-    /**
-     * Called when the start transition ends and the user settles on this particular state.
-     */
-    public void onStateTransitionEnd(Launcher launcher) {
-        if (this == NORMAL) {
-            // Clear any rotation locks when going to normal state
-            launcher.getRotationHelper().setCurrentStateRequest(REQUEST_NONE);
-        }
-    }
-
-    public void onBackPressed(Launcher launcher) {
-        if (this != NORMAL) {
-            LauncherStateManager lsm = launcher.getStateManager();
-            LauncherState lastState = lsm.getLastState();
-            lsm.goToState(lastState);
-        }
-    }
-
-    /**
-     * Prepares for a non-user controlled animation from fromState to this state. Preparations
-     * include:
-     * - Setting interpolators for various animations included in the state transition.
-     * - Setting some start values (e.g. scale) for views that are hidden but about to be shown.
-     */
-    public void prepareForAtomicAnimation(Launcher launcher, LauncherState fromState,
-            AnimatorSetBuilder builder) {
-        if (this == NORMAL && fromState == OVERVIEW) {
-            builder.setInterpolator(ANIM_WORKSPACE_SCALE, DEACCEL);
-            builder.setInterpolator(ANIM_WORKSPACE_FADE, ACCEL);
-            builder.setInterpolator(ANIM_OVERVIEW_SCALE, clampToProgress(ACCEL, 0, 0.9f));
-            builder.setInterpolator(ANIM_OVERVIEW_TRANSLATE_X, ACCEL);
-            builder.setInterpolator(ANIM_OVERVIEW_FADE, DEACCEL_1_7);
-        } else if (this == NORMAL && fromState == OVERVIEW_PEEK) {
-            // Keep fully visible until the very end (when overview is offscreen) to make invisible.
-            builder.setInterpolator(ANIM_OVERVIEW_FADE, t -> t < 1 ? 0 : 1);
-        }
-    }
-
-    protected static void dispatchWindowStateChanged(Launcher launcher) {
-        launcher.getWindow().getDecorView().sendAccessibilityEvent(TYPE_WINDOW_STATE_CHANGED);
     }
 
     public static class ScaleAndTranslation {

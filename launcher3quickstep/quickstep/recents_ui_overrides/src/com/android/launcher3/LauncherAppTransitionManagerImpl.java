@@ -39,10 +39,8 @@ import static com.android.launcher3.LauncherAnimUtils.VIEW_TRANSLATE_X;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.LauncherStateManager.ANIM_ALL;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_ALL_APPS_FADE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_VERTICAL_PROGRESS;
 import static com.android.launcher3.anim.Interpolators.AGGRESSIVE_EASE;
-import static com.android.launcher3.anim.Interpolators.DEACCEL_3;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
 import static com.android.quickstep.TaskViewUtils.findTaskViewToLaunch;
@@ -166,10 +164,9 @@ public final class LauncherAppTransitionManagerImpl extends QuickstepAppTransiti
             case INDEX_PAUSE_TO_OVERVIEW_ANIM: {
                 AnimatorSetBuilder builder = new AnimatorSetBuilder();
                 builder.setInterpolator(ANIM_VERTICAL_PROGRESS, OVERSHOOT_1_2);
-                builder.setInterpolator(ANIM_ALL_APPS_FADE, DEACCEL_3);
                 LauncherStateManager stateManager = mLauncher.getStateManager();
                 return stateManager.createAtomicAnimation(
-                        stateManager.getCurrentStableState(), OVERVIEW, builder,
+                        OVERVIEW, builder,
                         ANIM_ALL, ATOMIC_DURATION_FROM_PAUSED_TO_OVERVIEW);
             }
 

@@ -16,9 +16,7 @@
 package com.android.launcher3.states;
 
 import static com.android.launcher3.LauncherAnimUtils.SPRING_LOADED_TRANSITION_MS;
-import static com.android.launcher3.states.RotationHelper.REQUEST_LOCK;
 
-import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 
@@ -26,24 +24,11 @@ import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
  * Definition for spring loaded state used during drag and drop.
  */
 public class SpringLoadedState extends LauncherState {
-
     private static final int STATE_FLAGS = FLAG_MULTI_PAGE |
             FLAG_DISABLE_ACCESSIBILITY | FLAG_DISABLE_RESTORE | FLAG_WORKSPACE_ICONS_CAN_BE_DRAGGED |
             FLAG_DISABLE_PAGE_CLIPPING | FLAG_PAGE_BACKGROUNDS | FLAG_HIDE_BACK_BUTTON;
 
     public SpringLoadedState(int id) {
         super(id, ContainerType.OVERVIEW, SPRING_LOADED_TRANSITION_MS, STATE_FLAGS);
-    }
-
-    @Override
-    public void onStateEnabled(Launcher launcher) {
-        // Prevent any Un/InstallShortcutReceivers from updating the db while we are
-        // in spring loaded mode
-        launcher.getRotationHelper().setCurrentStateRequest(REQUEST_LOCK);
-    }
-
-    @Override
-    public void onStateDisabled(final Launcher launcher) {
-
     }
 }

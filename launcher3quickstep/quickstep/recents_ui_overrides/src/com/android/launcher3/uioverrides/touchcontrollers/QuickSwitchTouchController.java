@@ -17,15 +17,11 @@ package com.android.launcher3.uioverrides.touchcontrollers;
 
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.QUICK_SWITCH;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_ALL_APPS_FADE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_FADE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_SCALE;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_OVERVIEW_TRANSLATE_Y;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_VERTICAL_PROGRESS;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_FADE;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_WORKSPACE_TRANSLATE;
 import static com.android.launcher3.anim.Interpolators.ACCEL_2;
-import static com.android.launcher3.anim.Interpolators.DEACCEL_2;
 import static com.android.launcher3.anim.Interpolators.INSTANT;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
 import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
@@ -58,10 +54,6 @@ import com.android.systemui.shared.system.ActivityManagerWrapper;
 public class QuickSwitchTouchController extends AbstractStateChangeTouchController {
 
     private @Nullable TaskView mTaskToLaunch;
-
-    public QuickSwitchTouchController(Launcher launcher) {
-        this(launcher, SingleAxisSwipeDetector.HORIZONTAL);
-    }
 
     protected QuickSwitchTouchController(Launcher l, SingleAxisSwipeDetector.Direction dir) {
         super(l, dir);
@@ -118,17 +110,13 @@ public class QuickSwitchTouchController extends AbstractStateChangeTouchControll
     }
 
     private void setupInterpolators(AnimatorSetBuilder animatorSetBuilder) {
-        animatorSetBuilder.setInterpolator(ANIM_WORKSPACE_FADE, DEACCEL_2);
-        animatorSetBuilder.setInterpolator(ANIM_ALL_APPS_FADE, DEACCEL_2);
         if (SysUINavigationMode.getMode(mLauncher) == Mode.NO_BUTTON) {
             // Overview lives to the left of workspace, so translate down later than over
-            animatorSetBuilder.setInterpolator(ANIM_WORKSPACE_TRANSLATE, ACCEL_2);
             animatorSetBuilder.setInterpolator(ANIM_VERTICAL_PROGRESS, ACCEL_2);
             animatorSetBuilder.setInterpolator(ANIM_OVERVIEW_SCALE, ACCEL_2);
             animatorSetBuilder.setInterpolator(ANIM_OVERVIEW_TRANSLATE_Y, ACCEL_2);
             animatorSetBuilder.setInterpolator(ANIM_OVERVIEW_FADE, INSTANT);
         } else {
-            animatorSetBuilder.setInterpolator(ANIM_WORKSPACE_TRANSLATE, LINEAR);
             animatorSetBuilder.setInterpolator(ANIM_VERTICAL_PROGRESS, LINEAR);
         }
     }

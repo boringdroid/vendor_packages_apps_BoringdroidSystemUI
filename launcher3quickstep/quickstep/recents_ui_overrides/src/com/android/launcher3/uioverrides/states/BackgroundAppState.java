@@ -17,11 +17,7 @@ package com.android.launcher3.uioverrides.states;
 
 import static com.android.launcher3.LauncherAnimUtils.OVERVIEW_TRANSITION_MS;
 
-import com.android.launcher3.AbstractFloatingView;
-import com.android.launcher3.Launcher;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.quickstep.views.RecentsView;
-import com.android.quickstep.views.TaskView;
 
 /**
  * State indicating that the Launcher is behind an app
@@ -41,48 +37,7 @@ public class BackgroundAppState extends OverviewState {
     }
 
     @Override
-    public void onStateEnabled(Launcher launcher) {
-        AbstractFloatingView.closeAllOpenViews(launcher);
-    }
-
-    @Override
-    public float getVerticalProgress(Launcher launcher) {
-        if (launcher.getDeviceProfile().isVerticalBarLayout()) {
-            return super.getVerticalProgress(launcher);
-        }
-        return super.getVerticalProgress(launcher);
-    }
-
-    @Override
-    public ScaleAndTranslation getOverviewScaleAndTranslation(Launcher launcher) {
-        // Initialize the recents view scale to what it would be when starting swipe up
-        RecentsView recentsView = launcher.getOverviewPanel();
-        int taskCount = recentsView.getTaskViewCount();
-        if (taskCount == 0) {
-            return super.getOverviewScaleAndTranslation(launcher);
-        }
-        TaskView dummyTask;
-        if (recentsView.getCurrentPage() >= 0) {
-            if (recentsView.getCurrentPage() <= taskCount - 1) {
-                dummyTask = recentsView.getCurrentPageTaskView();
-            } else {
-                dummyTask = recentsView.getTaskViewAt(taskCount - 1);
-            }
-        } else {
-            dummyTask = recentsView.getTaskViewAt(0);
-        }
-        return recentsView.getTempClipAnimationHelper().updateForFullscreenOverview(dummyTask)
-                .getScaleAndTranslation();
-    }
-
-    @Override
     public float getOverviewFullscreenProgress() {
         return 1;
-    }
-
-    @Override
-    public int getVisibleElements(Launcher launcher) {
-        return super.getVisibleElements(launcher)
-                & ~RECENTS_CLEAR_ALL_BUTTON & ~VERTICAL_SWIPE_INDICATOR;
     }
 }
