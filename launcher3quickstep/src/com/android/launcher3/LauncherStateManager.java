@@ -17,7 +17,6 @@
 package com.android.launcher3;
 
 import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.anim.PropertySetter.NO_ANIM_PROPERTY_SETTER;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -30,8 +29,6 @@ import androidx.annotation.IntDef;
 import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.AnimatorSetBuilder;
-import com.android.launcher3.anim.PropertySetter;
-import com.android.launcher3.anim.PropertySetter.AnimatedPropertySetter;
 import com.android.launcher3.uioverrides.UiFactory;
 
 import java.io.PrintWriter;
@@ -139,7 +136,7 @@ public class LauncherStateManager {
 
     public StateHandler[] getStateHandlers() {
         if (mStateHandlers == null) {
-            mStateHandlers = UiFactory.getStateHandler(mLauncher);
+            mStateHandlers = UiFactory.getStateHandler();
         }
         return mStateHandlers;
     }
@@ -345,8 +342,6 @@ public class LauncherStateManager {
         mState = state;
         mLauncher.onStateSetStart();
 
-        UiFactory.onLauncherStateOrResumeChanged(mLauncher);
-
         for (int i = mListeners.size() - 1; i >= 0; i--) {
             mListeners.get(i).onStateTransitionStart(state);
         }
@@ -365,15 +360,12 @@ public class LauncherStateManager {
             setRestState(null);
         }
 
-        UiFactory.onLauncherStateOrResumeChanged(mLauncher);
-
         for (int i = mListeners.size() - 1; i >= 0; i--) {
             mListeners.get(i).onStateTransitionComplete(state);
         }
     }
 
     public void onWindowFocusChanged() {
-        UiFactory.onLauncherStateOrFocusChanged(mLauncher);
     }
 
     public void moveToRestState() {
@@ -511,7 +503,6 @@ public class LauncherStateManager {
         public boolean userControlled;
         public AnimatorPlaybackController playbackController;
         public @AnimationComponents int animComponents = ANIM_ALL;
-        private PropertySetter mPropertySetter;
 
         private AnimatorSet mCurrentAnimation;
         private LauncherState mTargetState;
@@ -525,7 +516,6 @@ public class LauncherStateManager {
             duration = 0;
             userControlled = false;
             animComponents = ANIM_ALL;
-            mPropertySetter = null;
             mTargetState = null;
 
             if (playbackController != null) {
@@ -539,14 +529,6 @@ public class LauncherStateManager {
             mCurrentAnimation = null;
             playbackController = null;
             mChangeId ++;
-        }
-
-        public PropertySetter getPropertySetter(AnimatorSetBuilder builder) {
-            if (mPropertySetter == null) {
-                mPropertySetter = duration == 0 ? NO_ANIM_PROPERTY_SETTER
-                        : new AnimatedPropertySetter(duration, builder);
-            }
-            return mPropertySetter;
         }
 
         @Override
@@ -565,17 +547,6 @@ public class LauncherStateManager {
             mCurrentAnimation.addListener(this);
         }
 
-        public boolean playAtomicOverviewScaleComponent() {
-            return (animComponents & ATOMIC_OVERVIEW_SCALE_COMPONENT) != 0;
-        }
-
-        public boolean playAtomicOverviewPeekComponent() {
-            return (animComponents & ATOMIC_OVERVIEW_PEEK_COMPONENT) != 0;
-        }
-
-        public boolean playNonAtomicComponent() {
-            return (animComponents & NON_ATOMIC_COMPONENT) != 0;
-        }
     }
 
     public interface StateHandler {

@@ -173,7 +173,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
                         && mPromiseIconIds.contains(sessionId)) {
                     LauncherAppState appState = LauncherAppState.getInstanceNoCreate();
                     if (appState != null) {
-                        appState.getModel().onSessionFailure(packageName, key.mUser);
+                        appState.getModel().onSessionFailure();
                     }
                     // If it is successful, the id is removed in the the package added flow.
                     removePromiseIconId(sessionId);

@@ -17,21 +17,13 @@
 package com.android.launcher3;
 
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
-import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.LauncherActivityInfo;
-import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -43,10 +35,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.Interpolator;
-
-import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.views.Transposable;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -61,9 +49,6 @@ public final class Utilities {
 
     private static final Pattern sTrimPattern =
             Pattern.compile("^[\\s|\\p{javaSpaceChar}]*(.*)[\\s|\\p{javaSpaceChar}]*$");
-
-    private static final Matrix sMatrix = new Matrix();
-    private static final Matrix sInverseMatrix = new Matrix();
 
     public static final boolean ATLEAST_Q = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
 
@@ -85,120 +70,6 @@ public final class Utilities {
     public static final boolean IS_DEBUG_DEVICE =
             Build.TYPE.toLowerCase(Locale.ROOT).contains("debug") ||
             Build.TYPE.toLowerCase(Locale.ROOT).equals("eng");
-
-    /**
-     * Given a coordinate relative to the descendant, find the coordinate in a parent view's
-     * coordinates.
-     *
-     * @param descendant The descendant to which the passed coordinate is relative.
-     * @param ancestor The root view to make the coordinates relative to.
-     * @param coord The coordinate that we want mapped.
-     * @param includeRootScroll Whether or not to account for the scroll of the descendant:
-     *          sometimes this is relevant as in a child's coordinates within the descendant.
-     * @return The factor by which this descendant is scaled relative to this DragLayer. Caution
-     *         this scale factor is assumed to be equal in X and Y, and so if at any point this
-     *         assumption fails, we will need to return a pair of scale factors.
-     */
-    public static float getDescendantCoordRelativeToAncestor(
-            View descendant, View ancestor, float[] coord, boolean includeRootScroll) {
-        return getDescendantCoordRelativeToAncestor(descendant, ancestor, coord, includeRootScroll,
-                false, null);
-    }
-
-    /**
-     * Given a coordinate relative to the descendant, find the coordinate in a parent view's
-     * coordinates.
-     *
-     * @param descendant The descendant to which the passed coordinate is relative.
-     * @param ancestor The root view to make the coordinates relative to.
-     * @param coord The coordinate that we want mapped.
-     * @param includeRootScroll Whether or not to account for the scroll of the descendant:
-     *          sometimes this is relevant as in a child's coordinates within the descendant.
-     * @param ignoreTransform If true, view transform is ignored
-     * @param outRotation If not null, and {@param ignoreTransform} is true, this is set to the
-     *                   overall rotation of the view in degrees.
-     * @return The factor by which this descendant is scaled relative to this DragLayer. Caution
-     *         this scale factor is assumed to be equal in X and Y, and so if at any point this
-     *         assumption fails, we will need to return a pair of scale factors.
-     */
-    public static float getDescendantCoordRelativeToAncestor(View descendant, View ancestor,
-            float[] coord, boolean includeRootScroll, boolean ignoreTransform,
-            float[] outRotation) {
-        float scale = 1.0f;
-        View v = descendant;
-        while(v != ancestor && v != null) {
-            // For TextViews, scroll has a meaning which relates to the text position
-            // which is very strange... ignore the scroll.
-            if (v != descendant || includeRootScroll) {
-                offsetPoints(coord, -v.getScrollX(), -v.getScrollY());
-            }
-
-            if (ignoreTransform) {
-                if (v instanceof Transposable) {
-                    RotationMode m = ((Transposable) v).getRotationMode();
-                    if (m.isTransposed) {
-                        sMatrix.setRotate(m.surfaceRotation, v.getPivotX(), v.getPivotY());
-                        sMatrix.mapPoints(coord);
-
-                        if (outRotation != null) {
-                            outRotation[0] += m.surfaceRotation;
-                        }
-                    }
-                }
-            } else {
-                v.getMatrix().mapPoints(coord);
-            }
-            offsetPoints(coord, v.getLeft(), v.getTop());
-            scale *= v.getScaleX();
-
-            v = (View) v.getParent();
-        }
-        return scale;
-    }
-
-    /**
-     * Inverse of {@link #getDescendantCoordRelativeToAncestor(View, View, float[], boolean)}.
-     */
-    public static void mapCoordInSelfToDescendant(View descendant, View root, float[] coord) {
-        sMatrix.reset();
-        View v = descendant;
-        while(v != root) {
-            sMatrix.postTranslate(-v.getScrollX(), -v.getScrollY());
-            sMatrix.postConcat(v.getMatrix());
-            sMatrix.postTranslate(v.getLeft(), v.getTop());
-            v = (View) v.getParent();
-        }
-        sMatrix.postTranslate(-v.getScrollX(), -v.getScrollY());
-        sMatrix.invert(sInverseMatrix);
-        sInverseMatrix.mapPoints(coord);
-    }
-
-    /**
-     * Sets {@param out} to be same as {@param in} by rounding individual values
-     */
-    public static void roundArray(float[] in, int[] out) {
-       for (int i = 0; i < in.length; i++) {
-           out[i] = Math.round(in[i]);
-       }
-    }
-
-    public static void offsetPoints(float[] points, float offsetX, float offsetY) {
-        for (int i = 0; i < points.length; i += 2) {
-            points[i] += offsetX;
-            points[i + 1] += offsetY;
-        }
-    }
-
-    /**
-     * Utility method to determine whether the given point, in local coordinates,
-     * is inside the view, where the area of the view is expanded by the slop factor.
-     * This method is called while processing touch-move events to determine if the event
-     * is still within the view.
-     */
-    public static boolean pointInView(View v, float localX, float localY, float slop) {
-        return localX >= -slop && localY >= -slop && localX < (v.getWidth() + slop) &&
-                localY < (v.getHeight() + slop);
-    }
 
     public static void scaleRectFAboutCenter(RectF r, float scale) {
         if (scale != 1.0f) {
@@ -336,10 +207,6 @@ public final class Utilities {
                 : !context.getSystemService(PowerManager.class).isPowerSaveMode();
     }
 
-    public static boolean isWallpaperAllowed(Context context) {
-        return context.getSystemService(WallpaperManager.class).isSetWallpaperAllowed();
-    }
-
     /**
      * Utility method to post a runnable on the handler, skipping the synchronization barriers.
      */
@@ -355,35 +222,6 @@ public final class Utilities {
         } catch (IllegalArgumentException e) {}
     }
 
-    /**
-     * Returns the full drawable for {@param info}.
-     * @param outObj this is set to the internal data associated with {@param info},
-     *               eg {@link LauncherActivityInfo} or {@link ShortcutInfo}.
-     */
-    public static Drawable getFullDrawable(Launcher launcher, ItemInfo info,
-                                           boolean flattenDrawable, Object[] outObj) {
-        LauncherAppState appState = LauncherAppState.getInstance(launcher);
-        LauncherActivityInfo activityInfo = LauncherAppsCompat.getInstance(launcher)
-                .resolveActivity(info.getIntent(), info.user);
-        outObj[0] = activityInfo;
-        return (activityInfo != null) ? appState.getIconCache()
-                .getFullResIcon(activityInfo, flattenDrawable) : null;
-    }
-
-    /**
-     * For apps icons and shortcut icons that have badges, this method creates a drawable that can
-     * later on be rendered on top of the layers for the badges. For app icons, work profile badges
-     * can only be applied. For deep shortcuts, when dragged from the pop up container, there's no
-     * badge. When dragged from workspace or folder, it may contain app AND/OR work profile badge
-     **/
-    @TargetApi(Build.VERSION_CODES.O)
-    public static Drawable getBadge(Launcher launcher, ItemInfo info) {
-        LauncherAppState appState = LauncherAppState.getInstance(launcher);
-        int iconSize = appState.getInvariantDeviceProfile().iconBitmapSize;
-        return launcher.getPackageManager()
-                .getUserBadgedIcon(new FixedSizeEmptyDrawable(iconSize), info.user);
-    }
-
     public static float squaredHypot(float x, float y) {
         return x * x + y * y;
     }
@@ -391,25 +229,5 @@ public final class Utilities {
     public static float squaredTouchSlop(Context context) {
         float slop = ViewConfiguration.get(context).getScaledTouchSlop();
         return slop * slop;
-    }
-
-    private static class FixedSizeEmptyDrawable extends ColorDrawable {
-
-        private final int mSize;
-
-        public FixedSizeEmptyDrawable(int size) {
-            super(Color.TRANSPARENT);
-            mSize = size;
-        }
-
-        @Override
-        public int getIntrinsicHeight() {
-            return mSize;
-        }
-
-        @Override
-        public int getIntrinsicWidth() {
-            return mSize;
-        }
     }
 }

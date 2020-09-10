@@ -15,12 +15,9 @@
  */
 package com.android.quickstep.util;
 
-import static com.android.launcher3.LauncherAppTransitionManagerImpl.INDEX_SHELF_ANIM;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
 
 import android.view.animation.Interpolator;
-
-import com.android.launcher3.Launcher;
 
 /**
  * Animates the shelf between states HIDE, PEEK, and OVERVIEW.
@@ -31,23 +28,7 @@ public class ShelfPeekAnim {
     public static final Interpolator INTERPOLATOR = OVERSHOOT_1_2;
     public static final long DURATION = 240;
 
-    private final Launcher mLauncher;
-
-    private ShelfAnimState mShelfState;
-
-    public ShelfPeekAnim(Launcher launcher) {
-        mLauncher = launcher;
-    }
-
-    /**
-     * Animates to the given state, canceling the previous animation if it was still running.
-     */
-    public void setShelfState(ShelfAnimState shelfState) {
-        if (mShelfState == shelfState) {
-            return;
-        }
-        mLauncher.getStateManager().cancelStateElementAnimation(INDEX_SHELF_ANIM);
-        mShelfState = shelfState;
+    public ShelfPeekAnim() {
     }
 
     /** The various shelf states we can animate to. */

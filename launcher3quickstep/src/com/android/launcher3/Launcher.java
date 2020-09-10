@@ -20,7 +20,6 @@ import static android.content.pm.ActivityInfo.CONFIG_ORIENTATION;
 import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
 
 import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
 
@@ -28,7 +27,6 @@ import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentCallbacks2;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
@@ -54,8 +52,6 @@ import androidx.annotation.Nullable;
 
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.model.BgDataModel.Callbacks;
-import com.android.launcher3.states.InternalStateHandler;
-import com.android.launcher3.states.RotationHelper;
 import com.android.launcher3.uioverrides.UiFactory;
 import com.android.launcher3.util.ActivityResultInfo;
 import com.android.launcher3.util.RaceConditionTracker;
@@ -63,7 +59,6 @@ import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.TraceHelper;
 import com.android.launcher3.util.UiThreadHelper;
-import com.android.launcher3.util.ViewOnDrawExecutor;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -103,8 +98,6 @@ public class Launcher extends BaseDraggingActivity implements
 
     private ArrayList<OnResumeCallback> mOnResumeCallbacks = new ArrayList<>();
 
-    private ViewOnDrawExecutor mPendingExecutor;
-
     private LauncherModel mModel;
 
     // Activity result which needs to be processed after workspace has loaded.
@@ -112,7 +105,6 @@ public class Launcher extends BaseDraggingActivity implements
     // Request id for any pending activity result
     private int mPendingActivityRequestCode = -1;
 
-    private RotationHelper mRotationHelper;
     private Runnable mCancelTouchController;
 
     final Handler mHandler = new Handler();
@@ -146,7 +138,6 @@ public class Launcher extends BaseDraggingActivity implements
         LauncherAppState app = LauncherAppState.getInstance(this);
         mOldConfig = new Configuration(getResources().getConfiguration());
         mModel = app.setLauncher(this);
-        mRotationHelper = new RotationHelper(this);
         InvariantDeviceProfile idp = app.getInvariantDeviceProfile();
         initDeviceProfile(idp);
         idp.addOnChangeListener(this);
@@ -160,14 +151,6 @@ public class Launcher extends BaseDraggingActivity implements
 
         mAppTransitionManager = LauncherAppTransitionManager.newInstance(this);
 
-        boolean internalStateHandled = InternalStateHandler.handleCreate(this, getIntent());
-        if (internalStateHandled) {
-            if (savedInstanceState != null) {
-                // InternalStateHandler has already set the appropriate state.
-                // We dont need to do anything.
-                savedInstanceState.remove(RUNTIME_STATE);
-            }
-        }
         restoreState(savedInstanceState);
         mStateManager.reapplyState();
 
@@ -180,8 +163,6 @@ public class Launcher extends BaseDraggingActivity implements
 
         getSystemUiController().updateUiState(SystemUiController.UI_STATE_BASE_WINDOW,
                 Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText));
-
-        mRotationHelper.initialize();
 
         TraceHelper.endSection("Launcher-onCreate");
         RaceConditionTracker.onEvent(ON_CREATE_EVT, EXIT);
@@ -200,7 +181,6 @@ public class Launcher extends BaseDraggingActivity implements
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
         UiFactory.onEnterAnimationComplete(this);
-        mRotationHelper.setCurrentTransitionRequest(REQUEST_NONE);
     }
 
     @Override
@@ -212,16 +192,11 @@ public class Launcher extends BaseDraggingActivity implements
         }
 
         mOldConfig.setTo(newConfig);
-        UiFactory.onLauncherStateOrResumeChanged(this);
         super.onConfigurationChanged(newConfig);
     }
 
-    public void reload() {
-        onIdpChanged(mDeviceProfile.inv);
-    }
-
     private boolean supportsFakeLandscapeUI() {
-        return FeatureFlags.FAKE_LANDSCAPE_UI.get() && !mRotationHelper.homeScreenCanRotate();
+        return FeatureFlags.FAKE_LANDSCAPE_UI.get();
     }
 
     @Override
@@ -274,7 +249,6 @@ public class Launcher extends BaseDraggingActivity implements
             mStableDeviceProfile = null;
         }
 
-        mRotationHelper.updateRotationAnimation();
         onDeviceProfileInitiated();
     }
 
@@ -286,10 +260,6 @@ public class Launcher extends BaseDraggingActivity implements
     @Override
     public DeviceProfile getWallpaperDeviceProfile() {
         return mStableDeviceProfile == null ? mDeviceProfile : mStableDeviceProfile;
-    }
-
-    public RotationHelper getRotationHelper() {
-        return mRotationHelper;
     }
 
     public LauncherStateManager getStateManager() {
@@ -323,8 +293,6 @@ public class Launcher extends BaseDraggingActivity implements
 
         getStateManager().moveToRestState();
 
-        UiFactory.onLauncherStateOrResumeChanged(this);
-
         // Workaround for b/78520668, explicitly trim memory once UI is hidden
         onTrimMemory(TRIM_MEMORY_UI_HIDDEN);
     }
@@ -338,10 +306,8 @@ public class Launcher extends BaseDraggingActivity implements
 
     private void handleDeferredResume() {
         if (hasBeenResumed() && !mStateManager.getState().disableInteraction) {
-            UiFactory.onLauncherStateOrResumeChanged(this);
-
             if (mPendingActivityRequestCode != -1 && isInState(NORMAL)) {
-                UiFactory.resetPendingActivityResults(this, mPendingActivityRequestCode);
+                UiFactory.resetPendingActivityResults();
             }
             mDeferredResumePending = false;
         } else {
@@ -385,7 +351,6 @@ public class Launcher extends BaseDraggingActivity implements
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-        UiFactory.onLauncherStateOrResumeChanged(this);
     }
 
     @Override
@@ -431,7 +396,7 @@ public class Launcher extends BaseDraggingActivity implements
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 
         // Setup the drag layer
-        mCancelTouchController = UiFactory.enableLiveUIChanges(this);
+        mCancelTouchController = UiFactory.enableLiveUIChanges();
     }
 
     public <T extends View> T getOverviewPanel() {
@@ -453,19 +418,14 @@ public class Launcher extends BaseDraggingActivity implements
 
         // Check this condition before handling isActionMain, as this will get reset.
         boolean isActionMain = Intent.ACTION_MAIN.equals(intent.getAction());
-        boolean internalStateHandled = InternalStateHandler
-                .handleNewIntent(this, intent, isStarted());
-
         if (isActionMain) {
-            if (!internalStateHandled) {
-                // In all these cases, only animate if we're already on home
-                UiFactory.closeSystemWindows();
+            // In all these cases, only animate if we're already on home
+            UiFactory.closeSystemWindows();
 
-                if (!isInState(NORMAL)) {
-                    // Only change state, if not already the same. This prevents cancelling any
-                    // animations running as part of resume
-                    mStateManager.goToState(NORMAL);
-                }
+            if (!isInState(NORMAL)) {
+                // Only change state, if not already the same. This prevents cancelling any
+                // animations running as part of resume
+                mStateManager.goToState(NORMAL);
             }
 
             final View v = getWindow().peekDecorView();
@@ -524,7 +484,6 @@ public class Launcher extends BaseDraggingActivity implements
             mModel.stopLoader();
             LauncherAppState.getInstance(this).setLauncher(null);
         }
-        mRotationHelper.destroy();
 
         TextKeyListener.getInstance().release();
         LauncherAppState.getIDP(this).removeOnChangeListener(this);
@@ -583,7 +542,7 @@ public class Launcher extends BaseDraggingActivity implements
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public ActivityOptions getActivityLaunchOptions(View v) {
-        return mAppTransitionManager.getActivityLaunchOptions(this, v);
+        return mAppTransitionManager.getActivityLaunchOptions(v);
     }
 
     public LauncherAppTransitionManager getAppTransitionManager() {
@@ -630,12 +589,6 @@ public class Launcher extends BaseDraggingActivity implements
         mOnResumeCallbacks.add(callback);
     }
 
-    public void clearPendingExecutor(ViewOnDrawExecutor executor) {
-        if (mPendingExecutor == executor) {
-            mPendingExecutor = null;
-        }
-    }
-
     /**
      * $ adb shell dumpsys activity com.android.launcher3.Launcher [--all]
      */
@@ -645,7 +598,6 @@ public class Launcher extends BaseDraggingActivity implements
 
         writer.println(prefix + "Misc:");
         dumpMisc(prefix + "\t", writer);
-        writer.println(prefix + "\tmRotationHelper: " + mRotationHelper);
 
         // Extra logging for b/116853349
         mStateManager.dump(prefix, writer);
@@ -704,10 +656,6 @@ public class Launcher extends BaseDraggingActivity implements
             return true;
         }
         return super.onKeyUp(keyCode, event);
-    }
-
-    public static Launcher getLauncher(Context context) {
-        return (Launcher) fromContext(context);
     }
 
     /**

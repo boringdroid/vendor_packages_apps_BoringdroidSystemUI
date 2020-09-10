@@ -16,8 +16,6 @@
 
 package com.android.launcher3.uioverrides;
 
-import static android.app.Activity.RESULT_CANCELED;
-
 import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
 
 import android.app.Activity;
@@ -27,18 +25,11 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Base64;
 
-import com.android.launcher3.AbstractFloatingView;
-import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherState.ScaleAndTranslation;
 import com.android.launcher3.LauncherStateManager.StateHandler;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.proxy.ProxyActivityStarter;
 import com.android.launcher3.proxy.StartActivityParams;
-import com.android.quickstep.OverviewInteractionState;
 import com.android.quickstep.RecentsModel;
-import com.android.quickstep.SysUINavigationMode;
-import com.android.quickstep.SysUINavigationMode.Mode;
-import com.android.quickstep.SysUINavigationMode.NavigationModeChangeListener;
 import com.android.systemui.shared.system.ActivityCompat;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
 
@@ -48,35 +39,18 @@ import java.util.zip.Deflater;
 
 public class UiFactory extends RecentsUiFactory {
 
-    public static Runnable enableLiveUIChanges(Launcher launcher) {
-        NavigationModeChangeListener listener =
-                m -> launcher.getRotationHelper().setRotationHadDifferentUI(m != Mode.NO_BUTTON);
-        SysUINavigationMode mode = SysUINavigationMode.INSTANCE.get(launcher);
-        SysUINavigationMode.Mode m = mode.addModeChangeListener(listener);
-        launcher.getRotationHelper().setRotationHadDifferentUI(m != Mode.NO_BUTTON);
-        return () -> mode.removeModeChangeListener(listener);
+    public static Runnable enableLiveUIChanges() {
+        return () -> {};
     }
 
-    public static StateHandler[] getStateHandler(Launcher launcher) {
-        return new StateHandler[] {
-                createRecentsViewStateController(launcher),
-                new BackButtonAlphaHandler(launcher)};
+    public static StateHandler[] getStateHandler() {
+        return new StateHandler[] {};
     }
 
     /**
      * Sets the back button visibility based on the current state/window focus.
      */
-    public static void onLauncherStateOrFocusChanged(Launcher launcher) {
-        boolean shouldBackButtonBeHidden = launcher != null
-                && launcher.getStateManager().getState().hideBackButton
-                && launcher.hasWindowFocus();
-        if (shouldBackButtonBeHidden) {
-            // Show the back button if there is a floating view visible.
-            shouldBackButtonBeHidden = AbstractFloatingView.getTopOpenViewWithType(
-            ) == null;
-        }
-        OverviewInteractionState.INSTANCE.get(launcher)
-                .setBackButtonAlpha(shouldBackButtonBeHidden ? 0 : 1, true /* animate */);
+    public static void onLauncherStateOrFocusChanged() {
     }
 
     public static void onCreate() {
@@ -152,18 +126,7 @@ public class UiFactory extends RecentsUiFactory {
      * ProxyActivityStarter is started with clear task to reset the task after which it removes the
      * task itself.
      */
-    public static void resetPendingActivityResults(Launcher launcher, int requestCode) {
-        launcher.onActivityResult(requestCode, RESULT_CANCELED, null);
-        launcher.startActivity(ProxyActivityStarter.getLaunchIntent(launcher, null));
-    }
-
-    public static ScaleAndTranslation getOverviewScaleAndTranslationForNormalState(Launcher l) {
-        if (SysUINavigationMode.getMode(l) == Mode.NO_BUTTON) {
-            float offscreenTranslationX = l.getDeviceProfile().widthPx
-                    - l.getOverviewPanel().getPaddingStart();
-            return new ScaleAndTranslation(1f, offscreenTranslationX, 0f);
-        }
-        return new ScaleAndTranslation(1.1f, 0f, 0f);
+    public static void resetPendingActivityResults() {
     }
 
     /** Closes system windows. */

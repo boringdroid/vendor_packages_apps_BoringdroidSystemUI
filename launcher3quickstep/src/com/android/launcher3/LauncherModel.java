@@ -16,8 +16,6 @@
 
 package com.android.launcher3;
 
-import static com.android.launcher3.LauncherAppState.ACTION_FORCE_ROLOAD;
-import static com.android.launcher3.config.FeatureFlags.IS_DOGFOOD_BUILD;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
@@ -132,7 +130,7 @@ public class LauncherModel extends BroadcastReceiver
         enqueueModelUpdateTask(new PackageUpdatedTask(op, user, packageName));
     }
 
-    public void onSessionFailure(String packageName, UserHandle user) {
+    public void onSessionFailure() {
         enqueueModelUpdateTask(new BaseModelUpdateTask() {
             @Override
             public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
@@ -214,9 +212,6 @@ public class LauncherModel extends BroadcastReceiver
                             PackageUpdatedTask.OP_USER_AVAILABILITY_CHANGE, user));
                 }
             }
-        } else if (IS_DOGFOOD_BUILD && ACTION_FORCE_ROLOAD.equals(action)) {
-            Launcher l = (Launcher) getCallback();
-            l.reload();
         }
     }
 

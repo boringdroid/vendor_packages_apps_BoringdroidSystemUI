@@ -17,34 +17,15 @@
 package com.android.launcher3;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.launcher3.anim.AnimatorPlaybackController;
-import com.android.launcher3.anim.AnimatorSetBuilder;
-import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.anim.SpringAnimationBuilder;
-import com.android.quickstep.util.ClipAnimationHelper;
 import com.android.quickstep.views.RecentsView;
-import com.android.quickstep.views.TaskView;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
-
-import static com.android.launcher3.LauncherAnimUtils.VIEW_TRANSLATE_X;
-import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.LauncherState.OVERVIEW;
-import static com.android.launcher3.LauncherStateManager.ANIM_ALL;
-import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_VERTICAL_PROGRESS;
-import static com.android.launcher3.anim.Interpolators.AGGRESSIVE_EASE;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
-import static com.android.quickstep.TaskViewUtils.findTaskViewToLaunch;
-import static com.android.quickstep.TaskViewUtils.getRecentsWindowAnimator;
 
 /**
  * A {@link QuickstepAppTransitionManagerImpl} that also implements recents transitions from
@@ -55,9 +36,6 @@ public final class LauncherAppTransitionManagerImpl extends QuickstepAppTransiti
     public static final int INDEX_SHELF_ANIM = 0;
     public static final int INDEX_RECENTS_FADE_ANIM = 1;
     public static final int INDEX_RECENTS_TRANSLATE_X_ANIM = 2;
-    public static final int INDEX_PAUSE_TO_OVERVIEW_ANIM = 3;
-
-    public static final long ATOMIC_DURATION_FROM_PAUSED_TO_OVERVIEW = 300;
 
     public LauncherAppTransitionManagerImpl(Context context) {
         super(context);
@@ -66,82 +44,19 @@ public final class LauncherAppTransitionManagerImpl extends QuickstepAppTransiti
     @Override
     protected boolean isLaunchingFromRecents(@NonNull View v,
             @Nullable RemoteAnimationTargetCompat[] targets) {
-        return mLauncher.getStateManager().getState().overviewUi
-                && findTaskViewToLaunch(mLauncher, v, targets) != null;
+        // TODO recheck it
+        return true;
     }
 
     @Override
     protected void composeRecentsLaunchAnimator(@NonNull AnimatorSet anim, @NonNull View v,
             @NonNull RemoteAnimationTargetCompat[] targets, boolean launcherClosing) {
-        RecentsView recentsView = mLauncher.getOverviewPanel();
-        boolean skipLauncherChanges = !launcherClosing;
-
-        TaskView taskView = findTaskViewToLaunch(mLauncher, v, targets);
-
-        ClipAnimationHelper helper = new ClipAnimationHelper(mLauncher);
-        anim.play(getRecentsWindowAnimator(taskView, skipLauncherChanges, targets, helper)
-                .setDuration(RECENTS_LAUNCH_DURATION));
-
-        Animator childStateAnimation = null;
-        // Found a visible recents task that matches the opening app, lets launch the app from there
-        Animator launcherAnim;
-        final AnimatorListenerAdapter windowAnimEndListener;
-        if (launcherClosing) {
-            launcherAnim = recentsView.createAdjacentPageAnimForTaskLaunch(taskView, helper);
-            launcherAnim.setInterpolator(Interpolators.TOUCH_RESPONSE_INTERPOLATOR);
-            launcherAnim.setDuration(RECENTS_LAUNCH_DURATION);
-
-            // Make sure recents gets fixed up by resetting task alphas and scales, etc.
-            windowAnimEndListener = new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLauncher.getStateManager().moveToRestState();
-                    mLauncher.getStateManager().reapplyState();
-                }
-            };
-        } else {
-            AnimatorPlaybackController controller =
-                    mLauncher.getStateManager().createAnimationToNewWorkspace(NORMAL,
-                            RECENTS_LAUNCH_DURATION);
-            controller.dispatchOnStart();
-            childStateAnimation = controller.getTarget();
-            launcherAnim = controller.getAnimationPlayer().setDuration(RECENTS_LAUNCH_DURATION);
-            windowAnimEndListener = new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLauncher.getStateManager().goToState(NORMAL, false);
-                }
-            };
-        }
-        anim.play(launcherAnim);
-
-        // Set the current animation first, before adding windowAnimEndListener. Setting current
-        // animation adds some listeners which need to be called before windowAnimEndListener
-        // (the ordering of listeners matter in this case).
-        mLauncher.getStateManager().setCurrentAnimation(anim, childStateAnimation);
-        anim.addListener(windowAnimEndListener);
     }
 
     @Override
     protected Runnable composeViewContentAnimator(@NonNull AnimatorSet anim, float[] alphas,
             float[] trans) {
-        RecentsView overview = mLauncher.getOverviewPanel();
-        ObjectAnimator alpha = ObjectAnimator.ofFloat(overview,
-                RecentsView.CONTENT_ALPHA, alphas);
-        alpha.setDuration(CONTENT_ALPHA_DURATION);
-        alpha.setInterpolator(LINEAR);
-        anim.play(alpha);
-        overview.setFreezeViewVisibility(true);
-
-        ObjectAnimator transY = ObjectAnimator.ofFloat(overview, View.TRANSLATION_Y, trans);
-        transY.setInterpolator(AGGRESSIVE_EASE);
-        transY.setDuration(CONTENT_TRANSLATION_DURATION);
-        anim.play(transY);
-
-        return () -> {
-            overview.setFreezeViewVisibility(false);
-            mLauncher.getStateManager().reapplyState();
-        };
+        return () -> { };
     }
 
     @Override
@@ -151,27 +66,6 @@ public final class LauncherAppTransitionManagerImpl extends QuickstepAppTransiti
 
     @Override
     public Animator createStateElementAnimation(int index, float... values) {
-        switch (index) {
-            case INDEX_RECENTS_FADE_ANIM:
-                return ObjectAnimator.ofFloat(mLauncher.getOverviewPanel(),
-                        RecentsView.CONTENT_ALPHA, values);
-            case INDEX_RECENTS_TRANSLATE_X_ANIM:
-                return new SpringAnimationBuilder<>(mLauncher.getOverviewPanel(), VIEW_TRANSLATE_X)
-                        .setDampingRatio(0.8f)
-                        .setStiffness(250)
-                        .setValues(values)
-                        .build(mLauncher);
-            case INDEX_PAUSE_TO_OVERVIEW_ANIM: {
-                AnimatorSetBuilder builder = new AnimatorSetBuilder();
-                builder.setInterpolator(ANIM_VERTICAL_PROGRESS, OVERSHOOT_1_2);
-                LauncherStateManager stateManager = mLauncher.getStateManager();
-                return stateManager.createAtomicAnimation(
-                        OVERVIEW, builder,
-                        ANIM_ALL, ATOMIC_DURATION_FROM_PAUSED_TO_OVERVIEW);
-            }
-
-            default:
-                return super.createStateElementAnimation(index, values);
-        }
+        return super.createStateElementAnimation(index, values);
     }
 }

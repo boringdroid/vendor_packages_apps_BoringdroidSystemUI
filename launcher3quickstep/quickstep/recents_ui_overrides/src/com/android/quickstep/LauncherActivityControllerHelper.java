@@ -44,13 +44,10 @@ import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherState;
-import com.android.launcher3.QuickstepAppTransitionManagerImpl;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.userevent.nano.LauncherLogProto;
-import com.android.launcher3.views.FloatingIconView;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.util.LayoutUtils;
-import com.android.quickstep.util.ShelfPeekAnim;
 import com.android.quickstep.util.ShelfPeekAnim.ShelfAnimState;
 import com.android.quickstep.views.LauncherRecentsView;
 import com.android.quickstep.views.RecentsView;
@@ -103,13 +100,12 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
     @Override
     public HomeAnimationFactory prepareHomeUI(Launcher activity) {
         final DeviceProfile dp = activity.getDeviceProfile();
-        FloatingIconView floatingIconView = null;
 
         return new HomeAnimationFactory() {
             @Nullable
             @Override
             public View getFloatingView() {
-                return floatingIconView;
+                return null;
             }
 
             @NonNull
@@ -148,9 +144,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
         activity.getStateManager().goToState(fromState, false);
 
         return new AnimationFactory() {
-            private final ShelfPeekAnim mShelfAnim =
-                    ((QuickstepAppTransitionManagerImpl) activity.getAppTransitionManager())
-                            .getShelfPeekAnim();
             private boolean mIsAttachedToWindow;
 
             @Override
@@ -179,7 +172,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
             @Override
             public void setShelfState(ShelfAnimState shelfState, Interpolator interpolator,
                     long duration) {
-                mShelfAnim.setShelfState(shelfState);
             }
 
             @Override
@@ -197,7 +189,6 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
                 if (runningTaskIndex == recentsView.getTaskViewStartIndex()) {
                     // If we are on the first task (we haven't quick switched), translate recents in
                     // from the side. Calculate the start translation based on current scale/scroll.
-                    float currScale = recentsView.getScaleX();
                     float scrollOffsetX = recentsView.getScrollOffset();
                     float offscreenX = recentsView.getOffscreenTranslationX();
 

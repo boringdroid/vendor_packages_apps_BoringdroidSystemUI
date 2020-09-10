@@ -34,7 +34,7 @@ public class LauncherAppTransitionManager implements ResourceBasedOverride {
                 context, R.string.app_transition_manager_class);
     }
 
-    public ActivityOptions getActivityLaunchOptions(Launcher launcher, View v) {
+    public ActivityOptions getActivityLaunchOptions(View v) {
         int left = 0, top = 0;
         int width = v.getMeasuredWidth(), height = v.getMeasuredHeight();
         return ActivityOptions.makeClipRevealAnimation(v, left, top, width, height);

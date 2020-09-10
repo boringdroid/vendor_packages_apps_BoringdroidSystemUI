@@ -89,7 +89,6 @@
     <dimen name="profile_badge_size">24dp</dimen>
 
     <!-- Shadows and outlines -->
-    <dimen name="blur_size_medium_outline">2dp</dimen>
 
     <!-- Pending widget -->
 

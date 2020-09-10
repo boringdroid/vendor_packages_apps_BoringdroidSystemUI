@@ -69,5 +69,4 @@
     <dimen name="gestures_assistant_fling_threshold">55dp</dimen>
 
     <!-- Distance to move elements when swiping up to go home from launcher -->
-    <dimen name="home_pullback_distance">28dp</dimen>
 </resources>

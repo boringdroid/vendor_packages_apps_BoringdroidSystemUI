@@ -21,7 +21,6 @@ import static com.android.launcher3.anim.Interpolators.DEACCEL;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.VibratorWrapper.OVERVIEW_HAPTIC;
-import static com.android.launcher3.views.FloatingIconView.SHAPE_PROGRESS_DURATION;
 
 import android.animation.Animator;
 import android.annotation.TargetApi;
@@ -50,7 +49,6 @@ import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.VibratorWrapper;
-import com.android.launcher3.views.FloatingIconView;
 import com.android.quickstep.ActivityControlHelper.HomeAnimationFactory;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.inputconsumers.InputConsumer;
@@ -325,14 +323,8 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         final RectF targetRect = homeAnimationFactory.getWindowTargetRect();
 
         final View floatingView = homeAnimationFactory.getFloatingView();
-        final boolean isFloatingIconView = floatingView instanceof FloatingIconView;
+        final boolean isFloatingIconView = false;
         RectFSpringAnim anim = new RectFSpringAnim(startRect, targetRect, mContext.getResources());
-        if (isFloatingIconView) {
-            FloatingIconView fiv = (FloatingIconView) floatingView;
-            anim.addAnimatorListener(fiv);
-            fiv.setOnTargetChangeListener(anim::onTargetPositionChanged);
-        }
-
         AnimatorPlaybackController homeAnim = homeAnimationFactory.createActivityAnimationToHome();
 
         // End on a "round-enough" radius so that the shape reveal doesn't have to do too much
@@ -345,7 +337,7 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
 
         // We want the window alpha to be 0 once this threshold is met, so that the
         // FolderIconView can be seen morphing into the icon shape.
-        final float windowAlphaThreshold = isFloatingIconView ? 1f - SHAPE_PROGRESS_DURATION : 1f;
+        final float windowAlphaThreshold = 1f;
         anim.addOnUpdateListener(new RectFSpringAnim.OnUpdateListener() {
 
             // Alpha interpolates between [1, 0] between progress values [start, end]
@@ -369,25 +361,12 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
                 mTransformParams.setProgress(
                         Utilities.mapRange(progress, startTransformProgress, endTransformProgress))
                         .setCurrentRectAndTargetAlpha(currentRect, getWindowAlpha(progress));
-                if (isFloatingIconView) {
-                    mTransformParams.setCornerRadius(endRadius * progress + startRadius
-                            * (1f - progress));
-                }
                 mClipAnimationHelper.applyTransform(targetSet, mTransformParams,
                         false /* launcherOnTop */);
-
-                if (isFloatingIconView) {
-                    ((FloatingIconView) floatingView).update(currentRect, 1f, progress,
-                            windowAlphaThreshold, mClipAnimationHelper.getCurrentCornerRadius(),
-                            false);
-                }
             }
 
             @Override
             public void onCancel() {
-                if (isFloatingIconView) {
-                    ((FloatingIconView) floatingView).fastFinish();
-                }
             }
         });
         anim.addAnimatorListener(new AnimationSuccessListener() {

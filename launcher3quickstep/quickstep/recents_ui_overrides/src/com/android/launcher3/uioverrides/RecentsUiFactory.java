@@ -16,25 +16,15 @@
 
 package com.android.launcher3.uioverrides;
 
-import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.quickstep.SysUINavigationMode.Mode.NO_BUTTON;
 
 import android.content.Context;
 import android.graphics.Rect;
 import android.view.Gravity;
 
-import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherState;
-import com.android.launcher3.LauncherStateManager.StateHandler;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.util.UiThreadHelper;
-import com.android.launcher3.util.UiThreadHelper.AsyncCommand;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.TouchInteractionService;
-import com.android.quickstep.views.RecentsView;
-import com.android.systemui.shared.system.WindowManagerWrapper;
 
 /**
  * Provides recents-related {@link UiFactory} logic and classes.
@@ -42,8 +32,6 @@ import com.android.systemui.shared.system.WindowManagerWrapper;
 public abstract class RecentsUiFactory {
 
     public static final boolean GO_LOW_RAM_RECENTS_ENABLED = false;
-    private static final AsyncCommand SET_SHELF_HEIGHT_CMD = (visible, height) ->
-            WindowManagerWrapper.getInstance().setShelfHeight(visible != 0, height);
 
     public static RotationMode ROTATION_LANDSCAPE = new RotationMode(-90) {
         @Override
@@ -119,38 +107,9 @@ public abstract class RecentsUiFactory {
     };
 
     /**
-     * Creates and returns the controller responsible for recents view state transitions.
-     *
-     * @param launcher the launcher activity
-     * @return state handler for recents
-     */
-    public static StateHandler createRecentsViewStateController(Launcher launcher) {
-        return new RecentsViewStateController(launcher);
-    }
-
-    /**
      * Clears the swipe shared state for the current swipe gesture.
      */
     public static void clearSwipeSharedState(boolean finishAnimation) {
         TouchInteractionService.getSwipeSharedState().clearAllState(finishAnimation);
     }
-
-    /**
-     * Recents logic that triggers when launcher state changes or launcher activity stops/resumes.
-     *
-     * @param launcher the launcher activity
-     */
-    public static void onLauncherStateOrResumeChanged(Launcher launcher) {
-        LauncherState state = launcher.getStateManager().getState();
-        DeviceProfile profile = launcher.getDeviceProfile();
-        boolean visible = (state == NORMAL || state == OVERVIEW) && launcher.isUserActive()
-                && !profile.isVerticalBarLayout();
-        UiThreadHelper.runAsyncCommand(launcher, SET_SHELF_HEIGHT_CMD,
-                visible ? 1 : 0, 0);
-
-        if (state == NORMAL) {
-            launcher.<RecentsView>getOverviewPanel().setSwipeDownShouldLaunchApp(false);
-        }
-    }
-
 }
