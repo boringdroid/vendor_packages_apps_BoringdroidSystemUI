@@ -33,14 +33,11 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Permite que la aplicación consulte los ajustes y los accesos directos de la pantalla de inicio."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"escribir información de accesos directos y de ajustes de la pantalla de inicio"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Permite que las aplicaciones cambien los ajustes y los accesos directos de la pantalla de inicio."</string>
-    <string name="disabled_app_label" msgid="6673129024321402780">"Se ha inhabilitado <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Página %1$d de %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Widgets"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Fondos de pantalla"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Ajustes de la pantalla de inicio"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Mostrar puntos de notificación"</string>
-    <string name="app_downloading_title" msgid="8336702962104482644">"Descargando <xliff:g id="NAME">%1$s</xliff:g> (<xliff:g id="PROGRESS">%2$s</xliff:g> completado)"</string>
-    <string name="app_waiting_download_title" msgid="7053938513995617849">"Esperando para instalar <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Añadir a la pantalla de inicio"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personal"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Trabajo"</string>

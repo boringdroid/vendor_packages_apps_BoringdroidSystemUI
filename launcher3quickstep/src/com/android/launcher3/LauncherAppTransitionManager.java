@@ -20,8 +20,6 @@ package com.android.launcher3;
 import android.animation.Animator;
 import android.app.ActivityOptions;
 import android.content.Context;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import com.android.launcher3.util.ResourceBasedOverride;
@@ -39,17 +37,6 @@ public class LauncherAppTransitionManager implements ResourceBasedOverride {
     public ActivityOptions getActivityLaunchOptions(Launcher launcher, View v) {
         int left = 0, top = 0;
         int width = v.getMeasuredWidth(), height = v.getMeasuredHeight();
-        if (v instanceof BubbleTextView) {
-            // Launch from center of icon, not entire view
-            Drawable icon = ((BubbleTextView) v).getIcon();
-            if (icon != null) {
-                Rect bounds = icon.getBounds();
-                left = (width - bounds.width()) / 2;
-                top = v.getPaddingTop();
-                width = bounds.width();
-                height = bounds.height();
-            }
-        }
         return ActivityOptions.makeClipRevealAnimation(v, left, top, width, height);
     }
 

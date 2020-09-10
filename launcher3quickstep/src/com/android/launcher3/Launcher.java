@@ -762,17 +762,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             return true;
         }
 
-        boolean success = super.startActivitySafely(v, intent, item, sourceContainer);
-        if (success && v instanceof BubbleTextView) {
-            // This is set to the view that launched the activity that navigated the user away
-            // from launcher. Since there is no callback for when the activity has finished
-            // launching, enable the press state and keep this reference to reset the press
-            // state when we return to launcher.
-            BubbleTextView btv = (BubbleTextView) v;
-            btv.setStayPressed(true);
-            addOnResumeCallback(btv);
-        }
-        return success;
+        return super.startActivitySafely(v, intent, item, sourceContainer);
     }
 
     @Override

@@ -54,7 +54,6 @@ import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 
-import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.InsettableFrameLayout.LayoutParams;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
@@ -344,11 +343,7 @@ public class FloatingIconView extends View implements
         }
 
         Rect iconBounds = new Rect();
-        if (v instanceof BubbleTextView) {
-            ((BubbleTextView) v).getIconBounds(iconBounds);
-        } else {
-            iconBounds.set(0, 0, v.getWidth(), v.getHeight());
-        }
+        iconBounds.set(0, 0, v.getWidth(), v.getHeight());
 
         float[] points = new float[] {iconBounds.left, iconBounds.top, iconBounds.right,
                 iconBounds.bottom};
@@ -369,22 +364,18 @@ public class FloatingIconView extends View implements
      * ready to display the icon. Otherwise, the FloatingIconView will grab the results when its
      * initialized.
      *
-     * @param originalView The View that the FloatingIconView will replace.
      * @param info ItemInfo of the originalView
      * @param pos The position of the view.
      */
     @WorkerThread
     @SuppressWarnings("WrongThread")
-    private static void getIconResult(Launcher l, View originalView, ItemInfo info, RectF pos,
-            IconLoadResult iconLoadResult) {
+    private static void getIconResult(Launcher l, ItemInfo info, RectF pos,
+                                      IconLoadResult iconLoadResult) {
         Drawable drawable = null;
         Drawable badge = null;
         boolean supportsAdaptiveIcons = ADAPTIVE_ICON_WINDOW_ANIM.get()
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
-        Drawable btvIcon = originalView instanceof BubbleTextView
-                ? ((BubbleTextView) originalView).getIcon() : null;
-        int width = (int) pos.width();
-        int height = (int) pos.height();
+        Drawable btvIcon = null;
         if (supportsAdaptiveIcons) {
             drawable = getFullDrawable(l, info, false, sTmpObjArray);
             if (drawable instanceof AdaptiveIconDrawable) {
@@ -395,12 +386,7 @@ public class FloatingIconView extends View implements
                 drawable = btvIcon;
             }
         } else {
-            if (originalView instanceof BubbleTextView) {
-                // Similar to DragView, we simply use the BubbleTextView icon here.
-                drawable = btvIcon;
-            } else {
-                drawable = getFullDrawable(l, info, false, sTmpObjArray);
-            }
+            drawable = getFullDrawable(l, info, false, sTmpObjArray);
         }
 
         drawable = drawable == null ? null : drawable.getConstantState().newDrawable();
@@ -420,14 +406,13 @@ public class FloatingIconView extends View implements
     /**
      * Sets the drawables of the {@param originalView} onto this view.
      *
-     * @param originalView The View that the FloatingIconView will replace.
      * @param drawable The drawable of the original view.
      * @param badge The badge of the original view.
      * @param iconOffset The amount of offset needed to match this view with the original view.
      */
     @UiThread
-    private void setIcon(View originalView, @Nullable Drawable drawable, @Nullable Drawable badge,
-            int iconOffset) {
+    private void setIcon(@Nullable Drawable drawable, @Nullable Drawable badge,
+                         int iconOffset) {
         mBadge = badge;
 
         mIsAdaptiveIcon = drawable instanceof AdaptiveIconDrawable;
@@ -521,7 +506,7 @@ public class FloatingIconView extends View implements
 
         synchronized (mIconLoadResult) {
             if (mIconLoadResult.isIconLoaded) {
-                setIcon(originalView, mIconLoadResult.drawable, mIconLoadResult.badge,
+                setIcon(mIconLoadResult.drawable, mIconLoadResult.badge,
                         mIconLoadResult.iconOffset);
                 hideOriginalView(originalView);
             } else {
@@ -530,7 +515,7 @@ public class FloatingIconView extends View implements
                         return;
                     }
 
-                    setIcon(originalView, mIconLoadResult.drawable, mIconLoadResult.badge,
+                    setIcon(mIconLoadResult.drawable, mIconLoadResult.badge,
                             mIconLoadResult.iconOffset);
                     setVisibility(VISIBLE);
                     hideOriginalView(originalView);
@@ -676,7 +661,7 @@ public class FloatingIconView extends View implements
         MODEL_EXECUTOR.getHandler().postAtFrontOfQueue(() -> {
             RectF position = new RectF();
             getLocationBoundsForView(l, v, isOpening, position);
-            getIconResult(l, v, info, position, result);
+            getIconResult(l, info, position, result);
         });
 
         sIconLoadResult = result;
@@ -727,12 +712,7 @@ public class FloatingIconView extends View implements
 
             if (hideOriginal) {
                 if (isOpening) {
-                    if (originalView instanceof BubbleTextView) {
-                        ((BubbleTextView) originalView).setIconVisible(true);
-                        ((BubbleTextView) originalView).setForceHideDot(false);
-                    } else {
-                        originalView.setVisibility(VISIBLE);
-                    }
+                    originalView.setVisibility(VISIBLE);
                 }
             }
         };

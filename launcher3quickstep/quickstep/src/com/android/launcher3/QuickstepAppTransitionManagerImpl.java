@@ -44,7 +44,6 @@ import android.content.res.Resources;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -370,12 +369,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
         float maxScaleY = smallestSize / bounds.height();
         float scale = Math.max(maxScaleX, maxScaleY);
         float startScale = 1f;
-        if (v instanceof BubbleTextView) {
-            Drawable dr = ((BubbleTextView) v).getIcon();
-            if (dr instanceof FastBitmapDrawable) {
-                startScale = ((FastBitmapDrawable) dr).getAnimatedScale();
-            }
-        }
         final float initialStartScale = startScale;
 
         int[] dragLayerBounds = new int[2];
@@ -407,9 +400,6 @@ public abstract class QuickstepAppTransitionManagerImpl extends LauncherAppTrans
         appAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (v instanceof BubbleTextView) {
-                    ((BubbleTextView) v).setStayPressed(false);
-                }
                 openingTargets.release();
             }
         });

@@ -33,14 +33,11 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Разрешава на приложението да чете настройките и преките пътища в Начало."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"запис на настройките и преките пътища в Начало"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Разрешава на приложението да променя настройките и преките пътища в Начало."</string>
-    <string name="disabled_app_label" msgid="6673129024321402780">"Деактивирахте <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Страница %1$d от %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Приспособления"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Тапети"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Настройки за началния екран"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Показване на точките за известия"</string>
-    <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> се изтегля. Завършено: <xliff:g id="PROGRESS">%2$s</xliff:g>"</string>
-    <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> изчаква инсталиране"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Добавяне към началния екран"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Лични"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Служебни"</string>

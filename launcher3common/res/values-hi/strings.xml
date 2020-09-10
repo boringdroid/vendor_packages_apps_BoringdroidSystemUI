@@ -33,14 +33,11 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"ऐप्लिकेशन को होम पेज में सेटिंग और शॉर्टकट पढ़ने देती है."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"होम पेज की सेटिंग और शॉर्टकट लिखें"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ऐप्लिकेशन को होम पेज में सेटिंग और शॉर्टकट बदलने देती है."</string>
-    <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> अक्षम है"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"पेज %2$d में से %1$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"विजेट"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"वॉलपेपर"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"होम पेज की सेटिंग"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"नई सूचनाएं बताने वाला गोल निशान दिखाएं"</string>
-    <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> डाउनलोड हो रहा है, <xliff:g id="PROGRESS">%2$s</xliff:g> पूरी हुई"</string>
-    <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> के इंस्टॉल होने की प्रतीक्षा की जा रही है"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"होम स्‍क्रीन में जोड़ें"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"निजी ऐप"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"काम से जुड़े ऐप"</string>

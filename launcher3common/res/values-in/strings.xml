@@ -33,14 +33,11 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Mengizinkan aplikasi membaca setelan dan pintasan di layar Utama."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"menulis setelan dan pintasan layar Utama"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Mengizinkan aplikasi mengubah setelan dan pintasan di layar Utama."</string>
-    <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> dinonaktifkan"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Halaman %1$d dari %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Widget"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Wallpaper"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Setelan layar utama"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Tampilkan titik notifikasi"</string>
-    <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> sedang didownload, <xliff:g id="PROGRESS">%2$s</xliff:g> selesai"</string>
-    <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> menunggu dipasang"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Tambahkan ke Layar Utama"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Pribadi"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Kantor"</string>

@@ -33,14 +33,11 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Lejon aplikacionin të lexojë cilësimet dhe shkurtoret në ekranin bazë."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"shkruaj cilësimet dhe shkurtoret e ekranit bazë"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Lejon aplikacionin të ndryshojë cilësimet dhe shkurtoret në ekranin bazë."</string>
-    <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> u çaktivizua"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Faqja: %1$d nga gjithsej %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Miniaplikacionet"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"Imazhet e sfondit"</string>
     <string name="settings_button_text" msgid="8873672322605444408">"Cilësimet e Home"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Shfaq pikat e njoftimeve"</string>
-    <string name="app_downloading_title" msgid="8336702962104482644">"<xliff:g id="NAME">%1$s</xliff:g> po shkarkohet, <xliff:g id="PROGRESS">%2$s</xliff:g> të përfunduara"</string>
-    <string name="app_waiting_download_title" msgid="7053938513995617849">"<xliff:g id="NAME">%1$s</xliff:g> po pret të instalohet"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Shto në Ekranin bazë"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personale"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Punë"</string>
