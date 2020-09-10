@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"အက်ပ်လက်လှမ်း မမှီပါ"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ဒေါင်းလုဒ် အက်ပ်ကို လုံခြုံရေး မုဒ်ထဲမှာ ပိတ်ထား"</string>
     <string name="home_screen" msgid="806512411299847073">"ပင်မစာမျက်နှာ"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"စိတ်ကြိုက် လုပ်ဆောင်ချက်များ"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"အက်ပ်စာရင်း"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"ဖယ်ရှားမည်"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"ဖြုတ်ရန်"</string>

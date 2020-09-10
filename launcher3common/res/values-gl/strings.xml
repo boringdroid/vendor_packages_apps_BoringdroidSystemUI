@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"A aplicación non está dispoñible"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"A aplicación que descargaches está desactivada no modo seguro"</string>
     <string name="home_screen" msgid="806512411299847073">"Pantalla de inicio"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"Accións personalizadas"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Lista de aplicacións"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Eliminar"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Desinstalar"</string>

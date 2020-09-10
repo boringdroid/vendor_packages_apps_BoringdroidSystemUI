@@ -60,7 +60,6 @@ import androidx.annotation.Nullable;
 
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.keyboard.CustomActionsPopup;
 import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.states.InternalStateHandler;
@@ -844,13 +843,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             shortcutInfos.add(new KeyboardShortcutInfo(getString(R.string.widget_button_text),
                     KeyEvent.KEYCODE_W, KeyEvent.META_CTRL_ON));
         }
-        final View currentFocus = getCurrentFocus();
-        if (currentFocus != null) {
-            if (new CustomActionsPopup(this, currentFocus).canShow()) {
-                shortcutInfos.add(new KeyboardShortcutInfo(getString(R.string.custom_actions),
-                        KeyEvent.KEYCODE_O, KeyEvent.META_CTRL_ON));
-            }
-        }
         if (!shortcutInfos.isEmpty()) {
             data.add(new KeyboardShortcutGroup(getString(R.string.home_screen), shortcutInfos));
         }
@@ -863,6 +855,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (event.hasModifiers(KeyEvent.META_CTRL_ON)) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_A:
+                case KeyEvent.KEYCODE_W:
                     if (isInState(NORMAL)) {
                         return true;
                     }
@@ -872,14 +865,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
                     break;
                 }
                 case KeyEvent.KEYCODE_O:
-                    if (new CustomActionsPopup(this, getCurrentFocus()).show()) {
-                        return true;
-                    }
-                    break;
-                case KeyEvent.KEYCODE_W:
-                    if (isInState(NORMAL)) {
-                        return true;
-                    }
                     break;
             }
         }

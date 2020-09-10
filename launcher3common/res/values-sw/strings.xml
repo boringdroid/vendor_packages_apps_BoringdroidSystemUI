@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"Programu haipatikani"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Programu iliyopakuliwa imezimwa katika Hali Salama"</string>
     <string name="home_screen" msgid="806512411299847073">"Skrini ya kwanza"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"Vitendo maalum"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Orodha ya programu"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Ondoa"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Sakinua"</string>

@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"Апп-г ашиглах боломжгүй"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Татаж авсан апп-г Аюулгүй горим дотроос идэвхгүйжүүлсэн"</string>
     <string name="home_screen" msgid="806512411299847073">"Үндсэн нүүр"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"Захиалгат үйлдэл"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Апп-н жагсаалт"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Арилгах"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Устгах"</string>

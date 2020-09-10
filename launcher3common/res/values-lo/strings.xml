@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"ແອັບຯ​ໃຊ້​ບໍ່​ໄດ້"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ແອັບຯ​ທີ່​ດາວ​ໂຫລດ​ແລ້ວ​ຖືກ​ປິດ​ການ​ນຳ​ໃຊ້​ໃນ Safe mode"</string>
     <string name="home_screen" msgid="806512411299847073">"ໜ້າຈໍຫຼັກ"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"ຄຳສັ່ງແບບກຳນົດເອງ"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"ລາຍຊື່ແອັບ"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"ເອົາ​ອອກ"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"ຖອນ​ການ​ຕິດ​ຕັ້ງ"</string>

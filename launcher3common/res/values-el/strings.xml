@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"Η εφαρμογή δεν είναι διαθέσιμη"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Η λήψη εφαρμογών απενεργοποήθηκε στην Ασφαλή λειτουργία"</string>
     <string name="home_screen" msgid="806512411299847073">"Αρχική οθόνη"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"Προσαρμοσμένες ενέργειες"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"Λίστα εφαρμογών"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"Κατάργηση"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Απεγκατάσταση"</string>

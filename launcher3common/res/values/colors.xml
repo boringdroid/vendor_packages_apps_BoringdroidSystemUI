@@ -21,8 +21,6 @@
     <!-- The color tints to apply to the text and drag view when hovering
          over the delete target or the info target -->
 
-    <color name="focused_background">#80c6c5c5</color>
-
     <!-- Popup container -->
     <!-- Gray 600 -->
 

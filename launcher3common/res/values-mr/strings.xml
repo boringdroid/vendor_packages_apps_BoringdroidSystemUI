@@ -24,7 +24,6 @@
     <string name="activity_not_available" msgid="7456344436509528827">"अ‍ॅप उपलब्ध नाही"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"डाउनलोड केलेला अ‍ॅप सुरक्षित मोड मध्‍ये अक्षम केला"</string>
     <string name="home_screen" msgid="806512411299847073">"होम स्क्रीन"</string>
-    <string name="custom_actions" msgid="3747508247759093328">"कस्टम क्रिया"</string>
     <string name="all_apps_button_label" msgid="8130441508702294465">"अ‍ॅप्स सूची"</string>
     <string name="remove_drop_target_label" msgid="7812859488053230776">"काढा"</string>
     <string name="uninstall_drop_target_label" msgid="4722034217958379417">"अनइंस्टॉल करा"</string>
