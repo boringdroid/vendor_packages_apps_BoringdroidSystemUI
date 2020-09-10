@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.InvariantDeviceProfile;
@@ -80,8 +79,6 @@ public abstract class BaseRecentsActivity extends BaseDraggingActivity {
     protected void onHandleConfigChanged() {
         initDeviceProfile();
 
-        AbstractFloatingView.closeOpenViews(this, true,
-                AbstractFloatingView.TYPE_ALL & ~AbstractFloatingView.TYPE_REBIND_SAFE);
         dispatchDeviceProfileChanged();
 
         reapplyUi();

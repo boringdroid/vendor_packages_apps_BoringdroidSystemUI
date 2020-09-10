@@ -44,7 +44,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.icons.BitmapRenderer;
 import com.android.launcher3.views.ActivityContext;
-import com.android.launcher3.views.BaseDragLayer;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -149,11 +148,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
         @Override
         public View onCreateView(String name, Context context, AttributeSet attrs) {
             return onCreateView(null, name, context, attrs);
-        }
-
-        @Override
-        public BaseDragLayer getDragLayer() {
-            throw new UnsupportedOperationException();
         }
 
         @Override

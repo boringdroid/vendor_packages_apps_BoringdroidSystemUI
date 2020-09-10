@@ -233,7 +233,7 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         dp.updateInsets(targetSet.homeContentInsets);
         dp.updateIsSeascape(mContext);
         if (runningTaskTarget != null) {
-            mClipAnimationHelper.updateSource(overviewStackBounds, runningTaskTarget);
+            mClipAnimationHelper.updateSource(runningTaskTarget);
         }
 
         mClipAnimationHelper.prepareAnimation(dp, false /* isOpening */);
@@ -251,13 +251,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
 
         mTransitionDragLength = mActivityControlHelper.getSwipeUpDestinationAndLength(
                 dp, mContext, TEMP_RECT);
-        if (!dp.isMultiWindowMode) {
-            // When updating the target rect, also update the home bounds since the location on
-            // screen of the launcher window may be stale (position is not updated until first
-            // traversal after the window is resized).  We only do this for non-multiwindow because
-            // we otherwise use the minimized home bounds provided by the system.
-            mClipAnimationHelper.updateHomeBounds(getStackBounds(dp));
-        }
         mClipAnimationHelper.updateTargetRect(TEMP_RECT);
         if (mMode == Mode.NO_BUTTON) {
             // We can drag all the way to the top of the screen.

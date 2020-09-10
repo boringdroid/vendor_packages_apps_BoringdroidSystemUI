@@ -38,7 +38,6 @@ import com.android.launcher3.LauncherState;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.views.BaseDragLayer;
 import com.android.quickstep.RecentsModel;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskThumbnailView;
@@ -72,9 +71,6 @@ public class ClipAnimationHelper {
     // The insets to be used for clipping the app window. For live tile, we don't transform the clip
     // relative to the target rect.
     private final RectF mSourceWindowClipInsetsForLiveTile = new RectF();
-
-    // The bounds of launcher (not including insets) in device coordinates
-    public final Rect mHomeStackBounds = new Rect();
 
     // The clip rect in source app window coordinates
     private final RectF mClipRectF = new RectF();
@@ -117,13 +113,8 @@ public class ClipAnimationHelper {
 
     }
 
-    public void updateSource(Rect homeStackBounds, RemoteAnimationTargetCompat target) {
+    public void updateSource(RemoteAnimationTargetCompat target) {
         updateSourceStack(target);
-        updateHomeBounds(homeStackBounds);
-    }
-
-    public void updateHomeBounds(Rect homeStackBounds) {
-        mHomeStackBounds.set(homeStackBounds);
     }
 
     public void updateTargetRect(Rect targetRect) {
@@ -131,8 +122,6 @@ public class ClipAnimationHelper {
                 mSourceStackBounds.width() - mSourceInsets.right,
                 mSourceStackBounds.height() - mSourceInsets.bottom);
         mTargetRect.set(targetRect);
-        mTargetRect.offset(mHomeStackBounds.left - mSourceStackBounds.left,
-                mHomeStackBounds.top - mSourceStackBounds.top);
 
         // Calculate the clip based on the target rect (since the content insets and the
         // launcher insets may differ, so the aspect ratio of the target rect can differ
@@ -273,25 +262,13 @@ public class ClipAnimationHelper {
     public void fromTaskThumbnailView(TaskThumbnailView ttv, RecentsView rv,
             @Nullable RemoteAnimationTargetCompat target) {
         BaseDraggingActivity activity = BaseDraggingActivity.fromContext(ttv.getContext());
-        BaseDragLayer dl = activity.getDragLayer();
-
-        int[] pos = new int[2];
-        dl.getLocationOnScreen(pos);
-        mHomeStackBounds.set(0, 0, dl.getWidth(), dl.getHeight());
-        mHomeStackBounds.offset(pos[0], pos[1]);
 
         if (target != null) {
             updateSourceStack(target);
         } else  if (rv.shouldUseMultiWindowTaskSizeStrategy()) {
             updateStackBoundsToMultiWindowTaskSize(activity);
-        } else {
-            mSourceStackBounds.set(mHomeStackBounds);
-            Rect fallback = dl.getInsets();
-            mSourceInsets.set(ttv.getInsets(fallback));
         }
-
         Rect targetRect = new Rect();
-        dl.getDescendantRectRelativeToSelf(ttv, targetRect);
         updateTargetRect(targetRect);
 
         if (target == null) {

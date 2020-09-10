@@ -348,8 +348,6 @@ public class FloatingIconView extends View implements
         float[] points = new float[] {iconBounds.left, iconBounds.top, iconBounds.right,
                 iconBounds.bottom};
         float[] rotation = new float[] {0};
-        Utilities.getDescendantCoordRelativeToAncestor(v, launcher.getDragLayer(), points,
-                false, ignoreTransform, rotation);
         outRect.set(
                 Math.min(points[0], points[2]),
                 Math.min(points[1], points[3]),

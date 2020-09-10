@@ -42,7 +42,7 @@ public class BackgroundAppState extends OverviewState {
 
     @Override
     public void onStateEnabled(Launcher launcher) {
-        AbstractFloatingView.closeAllOpenViews(launcher, false);
+        AbstractFloatingView.closeAllOpenViews(launcher);
     }
 
     @Override

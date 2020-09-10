@@ -31,12 +31,6 @@ public interface ActivityContext {
         return false;
     }
 
-    /**
-     * The root view to support drag-and-drop and popup support.
-     * @return
-     */
-    BaseDragLayer getDragLayer();
-
     DeviceProfile getDeviceProfile();
 
     /**

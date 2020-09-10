@@ -66,11 +66,6 @@ public class ListenerView extends AbstractFloatingView {
     }
 
     @Override
-    protected boolean isOfType(int type) {
-        return (type & TYPE_LISTENER) != 0;
-    }
-
-    @Override
     public boolean onControllerInterceptTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             handleClose(false);

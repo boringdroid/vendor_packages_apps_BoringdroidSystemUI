@@ -537,7 +537,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
         BaseDraggingActivity activity = mActivityControlHelper.getCreatedActivity();
         return activity == null
-                ? InputConsumer.NO_OP : new OverviewInputConsumer(activity, null, true);
+                ? InputConsumer.NO_OP : new OverviewInputConsumer(activity, true);
     }
 
     private void endRunningWindowAnim(boolean cancel) {

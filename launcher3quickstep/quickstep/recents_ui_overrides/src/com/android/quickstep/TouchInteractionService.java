@@ -687,7 +687,7 @@ public class TouchInteractionService extends Service implements
         if (sSwipeSharedState.goingToLauncher
                 || (BaseFlags.ASSISTANT_GIVES_LAUNCHER_FOCUS.get()
                     && forceOverviewInputConsumer)) {
-            return new OverviewInputConsumer(activity, mInputMonitorCompat,
+            return new OverviewInputConsumer(activity,
                     false /* startingInActivityBounds */);
         } else {
             return new OverviewWithoutFocusInputConsumer(activity, mInputMonitorCompat,

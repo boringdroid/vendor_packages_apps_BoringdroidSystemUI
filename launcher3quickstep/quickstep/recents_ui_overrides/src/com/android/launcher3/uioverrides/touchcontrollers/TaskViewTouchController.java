@@ -15,7 +15,6 @@
  */
 package com.android.launcher3.uioverrides.touchcontrollers;
 
-import static com.android.launcher3.AbstractFloatingView.TYPE_ACCESSIBLE;
 import static com.android.launcher3.anim.Interpolators.scrollInterpolatorForVelocity;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.launcher3.config.FeatureFlags.QUICKSTEP_SPRINGS;
@@ -34,15 +33,12 @@ import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.LauncherAnimUtils;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
-import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.touch.BaseSwipeDetector;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.util.FlingBlockCheck;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.TouchController;
-import com.android.launcher3.views.BaseDragLayer;
-import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
 
@@ -85,7 +81,7 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
             // If we are already animating from a previous state, we can intercept.
             return true;
         }
-        if (AbstractFloatingView.getTopOpenViewWithType(mActivity, TYPE_ACCESSIBLE) != null) {
+        if (AbstractFloatingView.getTopOpenViewWithType() != null) {
             return false;
         }
         return isRecentsInteractive();
@@ -120,29 +116,8 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
                 ignoreSlopWhenSettling = true;
             } else {
                 mTaskBeingDragged = null;
-
-                for (int i = 0; i < mRecentsView.getTaskViewCount(); i++) {
-                    TaskView view = mRecentsView.getTaskViewAt(i);
-                    if (mRecentsView.isTaskViewVisible(view) && mActivity.getDragLayer()
-                            .isEventOverView(view, ev)) {
-                        mTaskBeingDragged = view;
-                        if (!SysUINavigationMode.getMode(mActivity).hasGestures) {
-                            // Don't allow swipe down to open if we don't support swipe up
-                            // to enter overview.
-                            directionsToDetectScroll = DIRECTION_POSITIVE;
-                        } else {
-                            // The task can be dragged up to dismiss it,
-                            // and down to open if it's the current page.
-                            directionsToDetectScroll = i == mRecentsView.getCurrentPage()
-                                    ? DIRECTION_BOTH : DIRECTION_POSITIVE;
-                        }
-                        break;
-                    }
-                }
-                if (mTaskBeingDragged == null) {
-                    mNoIntercept = true;
-                    return false;
-                }
+                mNoIntercept = true;
+                return false;
             }
 
             mDetector.setDetectableScrollConditions(
@@ -182,29 +157,16 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         }
 
         mCurrentAnimationIsGoingUp = goingUp;
-        BaseDragLayer dl = mActivity.getDragLayer();
-        long maxDuration = (long) (2 * dl.getHeight());
-
         if (goingUp) {
-            mPendingAnimation = mRecentsView.createTaskDismissAnimation(mTaskBeingDragged,
-                    true /* animateTaskView */, true /* removeTask */, maxDuration);
-
             mEndDisplacement = -mTaskBeingDragged.getHeight();
         } else {
-            mPendingAnimation = mRecentsView.createTaskLauncherAnimation(
-                    mTaskBeingDragged, maxDuration);
-            mPendingAnimation.anim.setInterpolator(Interpolators.ZOOM_IN);
 
             mTempCords[1] = mTaskBeingDragged.getHeight();
-            dl.getDescendantCoordRelativeToSelf(mTaskBeingDragged, mTempCords);
-            mEndDisplacement = dl.getHeight() - mTempCords[1];
         }
 
         if (mCurrentAnimation != null) {
             mCurrentAnimation.setOnCancelRunnable(null);
         }
-        mCurrentAnimation = AnimatorPlaybackController
-                .wrap(mPendingAnimation.anim, maxDuration, this::clearState);
         onUserControlledAnimationCreated(mCurrentAnimation);
         mCurrentAnimation.getTarget().addListener(this);
         mCurrentAnimation.dispatchOnStart();

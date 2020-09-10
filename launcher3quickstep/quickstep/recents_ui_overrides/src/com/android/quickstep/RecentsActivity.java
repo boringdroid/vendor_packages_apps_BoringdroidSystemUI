@@ -40,7 +40,6 @@ import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.LauncherAnimationRunner;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.views.BaseDragLayer;
 import com.android.quickstep.fallback.FallbackRecentsView;
 import com.android.quickstep.fallback.RecentsRootView;
 import com.android.quickstep.util.ClipAnimationHelper;
@@ -118,11 +117,6 @@ public final class RecentsActivity extends BaseRecentsActivity {
         return (mRecentsRootView != null) && isInMultiWindowMode()
                 ? dp.getMultiWindowProfile(this, mRecentsRootView.getLastKnownSize())
                 : super.createDeviceProfile();
-    }
-
-    @Override
-    public BaseDragLayer getDragLayer() {
-        return mRecentsRootView;
     }
 
     @Override

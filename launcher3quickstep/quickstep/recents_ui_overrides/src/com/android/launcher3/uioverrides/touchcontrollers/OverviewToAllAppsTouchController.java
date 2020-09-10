@@ -44,7 +44,7 @@ public class OverviewToAllAppsTouchController extends PortraitStatesTouchControl
             // If we are already animating from a previous state, we can intercept.
             return true;
         }
-        if (AbstractFloatingView.getTopOpenView(mLauncher) != null) {
+        if (AbstractFloatingView.getTopOpenView() != null) {
             return false;
         }
         if (mLauncher.isInState(NORMAL)) {

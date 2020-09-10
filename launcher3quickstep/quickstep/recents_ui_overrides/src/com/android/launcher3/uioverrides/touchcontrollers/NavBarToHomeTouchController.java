@@ -96,7 +96,7 @@ public class NavBarToHomeTouchController implements TouchController,
         if (mStartState == OVERVIEW) {
             return true;
         }
-        if (AbstractFloatingView.getTopOpenView(mLauncher) != null) {
+        if (AbstractFloatingView.getTopOpenView() != null) {
             return true;
         }
         if (BaseFlags.ASSISTANT_GIVES_LAUNCHER_FOCUS.get()
@@ -133,9 +133,9 @@ public class NavBarToHomeTouchController implements TouchController,
             pullback.setInterpolator(PULLBACK_INTERPOLATOR);
             anim.play(pullback);
         }
-        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(mLauncher);
+        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView();
         if (topView != null) {
-            Animator hintCloseAnim = topView.createHintCloseAnim(mPullbackDistance);
+            Animator hintCloseAnim = topView.createHintCloseAnim();
             if (hintCloseAnim != null) {
                 hintCloseAnim.setInterpolator(PULLBACK_INTERPOLATOR);
                 anim.play(hintCloseAnim);
@@ -170,7 +170,7 @@ public class NavBarToHomeTouchController implements TouchController,
         if (success) {
             mLauncher.getStateManager().goToState(mEndState, true,
                     () -> onSwipeInteractionCompleted(mEndState));
-            AbstractFloatingView topOpenView = AbstractFloatingView.getTopOpenView(mLauncher);
+            AbstractFloatingView topOpenView = AbstractFloatingView.getTopOpenView();
             if (topOpenView != null) {
                 AbstractFloatingView.closeAllOpenViews(mLauncher);
             }

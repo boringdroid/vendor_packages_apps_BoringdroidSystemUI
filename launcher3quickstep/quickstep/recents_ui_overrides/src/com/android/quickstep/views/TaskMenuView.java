@@ -47,8 +47,6 @@ import com.android.quickstep.views.IconView.OnScaleUpdateListener;
  */
 public class TaskMenuView extends AbstractFloatingView {
 
-    private static final Rect sTempRect = new Rect();
-
     private final OnScaleUpdateListener mTaskViewIconScaleListener = new OnScaleUpdateListener() {
         @Override
         public void onScaleUpdate(float scale) {
@@ -78,7 +76,6 @@ public class TaskMenuView extends AbstractFloatingView {
     private static final int REVEAL_CLOSE_DURATION = 100;
 
     private final float mThumbnailTopMargin;
-    private BaseDraggingActivity mActivity;
     private TextView mTaskName;
     private IconView mTaskIcon;
     private AnimatorSet mOpenCloseAnimator;
@@ -92,7 +89,6 @@ public class TaskMenuView extends AbstractFloatingView {
     public TaskMenuView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mActivity = BaseDraggingActivity.fromContext(context);
         mThumbnailTopMargin = getResources().getDimension(R.dimen.task_thumbnail_top_margin);
     }
 
@@ -105,14 +101,6 @@ public class TaskMenuView extends AbstractFloatingView {
 
     @Override
     public boolean onControllerInterceptTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            BaseDragLayer dl = mActivity.getDragLayer();
-            if (!dl.isEventOverView(this, ev)) {
-                // TODO: log this once we have a new container type for it?
-                close(true);
-                return true;
-            }
-        }
         return false;
     }
 
@@ -134,11 +122,6 @@ public class TaskMenuView extends AbstractFloatingView {
         mTaskIcon.removeUpdateScaleListener(mMenuIconScaleListener);
     }
 
-    @Override
-    protected boolean isOfType(int type) {
-        return (type & TYPE_TASK_MENU) != 0;
-    }
-
     public void setPosition(float x, float y) {
         setX(x);
         setY(y + mThumbnailTopMargin);
@@ -147,7 +130,7 @@ public class TaskMenuView extends AbstractFloatingView {
     public static TaskMenuView showForTask(TaskView taskView) {
         BaseDraggingActivity activity = BaseDraggingActivity.fromContext(taskView.getContext());
         final TaskMenuView taskMenuView = (TaskMenuView) activity.getLayoutInflater().inflate(
-                        R.layout.task_menu, activity.getDragLayer(), false);
+                        R.layout.task_menu, null, false);
         return taskMenuView.populateAndShowForTask(taskView) ? taskMenuView : null;
     }
 
@@ -155,7 +138,6 @@ public class TaskMenuView extends AbstractFloatingView {
         if (isAttachedToWindow()) {
             return false;
         }
-        mActivity.getDragLayer().addView(this);
         mTaskView = taskView;
         addMenuOptions(mTaskView);
         orientAroundTaskView(mTaskView);
@@ -184,15 +166,12 @@ public class TaskMenuView extends AbstractFloatingView {
 
     private void orientAroundTaskView(TaskView taskView) {
         measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-        mActivity.getDragLayer().getDescendantRectRelativeToSelf(taskView, sTempRect);
-        Rect insets = mActivity.getDragLayer().getInsets();
         BaseDragLayer.LayoutParams params = (BaseDragLayer.LayoutParams) getLayoutParams();
         params.width = taskView.getMeasuredWidth();
         params.gravity = Gravity.START;
         setLayoutParams(params);
         setScaleX(taskView.getScaleX());
         setScaleY(taskView.getScaleY());
-        setPosition(sTempRect.left - insets.left, sTempRect.top - insets.top);
     }
 
     private void animateOpen() {
@@ -236,7 +215,6 @@ public class TaskMenuView extends AbstractFloatingView {
 
     private void closeComplete() {
         mIsOpen = false;
-        mActivity.getDragLayer().removeView(this);
     }
 
     private RoundedRectRevealOutlineProvider createOpenCloseOutlineProvider() {

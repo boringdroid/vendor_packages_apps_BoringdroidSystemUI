@@ -35,7 +35,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Property;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
@@ -51,7 +50,6 @@ import com.android.launcher3.InsettableFrameLayout;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.util.MultiValueAlpha;
-import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
 import com.android.launcher3.util.TouchController;
 
 import java.io.PrintWriter;
@@ -63,32 +61,6 @@ import java.util.ArrayList;
 public abstract class BaseDragLayer<T extends Context & ActivityContext>
         extends InsettableFrameLayout {
 
-    public static final Property<LayoutParams, Integer> LAYOUT_X =
-            new Property<LayoutParams, Integer>(Integer.TYPE, "x") {
-                @Override
-                public Integer get(LayoutParams lp) {
-                    return lp.x;
-                }
-
-                @Override
-                public void set(LayoutParams lp, Integer x) {
-                    lp.x = x;
-                }
-            };
-
-    public static final Property<LayoutParams, Integer> LAYOUT_Y =
-            new Property<LayoutParams, Integer>(Integer.TYPE, "y") {
-                @Override
-                public Integer get(LayoutParams lp) {
-                    return lp.y;
-                }
-
-                @Override
-                public void set(LayoutParams lp, Integer y) {
-                    lp.y = y;
-                }
-            };
-
     // Touch is being dispatched through the normal view dispatch system
     private static final int TOUCH_DISPATCHING_VIEW = 1 << 0;
     // Touch is being dispatched through the normal view dispatch system, and started at the
@@ -96,10 +68,6 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     private static final int TOUCH_DISPATCHING_GESTURE = 1 << 1;
     // Touch is being dispatched through a proxy from InputMonitor
     private static final int TOUCH_DISPATCHING_PROXY = 1 << 2;
-
-    protected final float[] mTmpXY = new float[2];
-    protected final float[] mTmpRectPoints = new float[4];
-    protected final Rect mHitRect = new Rect();
 
     @ViewDebug.ExportedProperty(category = "launcher")
     private final RectF mSystemGestureRegion = new RectF();
@@ -120,8 +88,6 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     protected TouchController[] mControllers;
     // Touch controller which is currently active for the normal view dispatch
     protected TouchController mActiveController;
-    // Touch controller which is being used for the proxy events
-    protected TouchController mProxyTouchController;
 
     private TouchCompleteListener mTouchCompleteListener;
 
@@ -134,11 +100,6 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
         mWallpaperManager = context.getSystemService(WallpaperManager.class);
         mWallpapersWithoutSysuiScrims = getResources().getStringArray(
                 R.array.live_wallpapers_remove_sysui_scrims);
-    }
-
-    public boolean isEventOverView(View view, MotionEvent ev) {
-        getDescendantRectRelativeToSelf(view, mHitRect);
-        return mHitRect.contains((int) ev.getX(), (int) ev.getY());
     }
 
     @Override
@@ -157,7 +118,7 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     }
 
     private TouchController findControllerToHandleTouch(MotionEvent ev) {
-        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(mActivity);
+        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView();
         if (topView != null && topView.onControllerInterceptTouchEvent(ev)) {
             return topView;
         }
@@ -183,8 +144,8 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     @Override
     public boolean onRequestSendAccessibilityEvent(View child, AccessibilityEvent event) {
         // Shortcuts can appear above folder
-        View topView = AbstractFloatingView.getTopOpenViewWithType(mActivity,
-                AbstractFloatingView.TYPE_ACCESSIBLE);
+        View topView = AbstractFloatingView.getTopOpenViewWithType(
+        );
         if (topView != null) {
             if (child == topView) {
                 return super.onRequestSendAccessibilityEvent(child, event);
@@ -198,8 +159,8 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
 
     @Override
     public void addChildrenForAccessibility(ArrayList<View> childrenForAccessibility) {
-        View topView = AbstractFloatingView.getTopOpenViewWithType(mActivity,
-                AbstractFloatingView.TYPE_ACCESSIBLE);
+        View topView = AbstractFloatingView.getTopOpenViewWithType(
+        );
         if (topView != null) {
             // Only add the top view as a child for accessibility when it is open
             addAccessibleChildToList(topView, childrenForAccessibility);
@@ -277,136 +238,15 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
         return true;
     }
 
-    /**
-     * Called before we are about to receive proxy events.
-     *
-     * @return false if we can't handle proxy at this time
-     */
-    public boolean prepareProxyEventStarting() {
-        mProxyTouchController = null;
-        if ((mTouchDispatchState & TOUCH_DISPATCHING_VIEW) != 0 && mActiveController != null) {
-            // We are already dispatching using view system and have an active controller, we can't
-            // handle another controller.
-
-            // This flag was already cleared in proxy ACTION_UP or ACTION_CANCEL. Added here just
-            // to be safe
-            mTouchDispatchState &= ~TOUCH_DISPATCHING_PROXY;
-            return false;
-        }
-
-        mTouchDispatchState |= TOUCH_DISPATCHING_PROXY;
-        return true;
-    }
-
-    /**
-     * Proxies the touch events to the gesture handlers
-     */
-    public boolean proxyTouchEvent(MotionEvent ev) {
-        boolean handled;
-        if (mProxyTouchController != null) {
-            handled = mProxyTouchController.onControllerTouchEvent(ev);
-        } else {
-            mProxyTouchController = findControllerToHandleTouch(ev);
-            handled = mProxyTouchController != null;
-        }
-        int action = ev.getAction();
-        if (action == ACTION_UP || action == ACTION_CANCEL) {
-            mProxyTouchController = null;
-            mTouchDispatchState &= ~TOUCH_DISPATCHING_PROXY;
-        }
-        return handled;
-    }
-
-    /**
-     * Determine the rect of the descendant in this DragLayer's coordinates
-     *
-     * @param descendant The descendant whose coordinates we want to find.
-     * @param r The rect into which to place the results.
-     * @return The factor by which this descendant is scaled relative to this DragLayer.
-     */
-    public float getDescendantRectRelativeToSelf(View descendant, Rect r) {
-        mTmpRectPoints[0] = 0;
-        mTmpRectPoints[1] = 0;
-        mTmpRectPoints[2] = descendant.getWidth();
-        mTmpRectPoints[3] = descendant.getHeight();
-        float s = getDescendantCoordRelativeToSelf(descendant, mTmpRectPoints);
-        r.left = Math.round(Math.min(mTmpRectPoints[0], mTmpRectPoints[2]));
-        r.top = Math.round(Math.min(mTmpRectPoints[1], mTmpRectPoints[3]));
-        r.right = Math.round(Math.max(mTmpRectPoints[0], mTmpRectPoints[2]));
-        r.bottom = Math.round(Math.max(mTmpRectPoints[1], mTmpRectPoints[3]));
-        return s;
-    }
-
-    public float getLocationInDragLayer(View child, int[] loc) {
-        loc[0] = 0;
-        loc[1] = 0;
-        return getDescendantCoordRelativeToSelf(child, loc);
-    }
-
-    public float getDescendantCoordRelativeToSelf(View descendant, int[] coord) {
-        mTmpXY[0] = coord[0];
-        mTmpXY[1] = coord[1];
-        float scale = getDescendantCoordRelativeToSelf(descendant, mTmpXY);
-        Utilities.roundArray(mTmpXY, coord);
-        return scale;
-    }
-
-    public float getDescendantCoordRelativeToSelf(View descendant, float[] coord) {
-        return getDescendantCoordRelativeToSelf(descendant, coord, false);
-    }
-
-    /**
-     * Given a coordinate relative to the descendant, find the coordinate in this DragLayer's
-     * coordinates.
-     *
-     * @param descendant The descendant to which the passed coordinate is relative.
-     * @param coord The coordinate that we want mapped.
-     * @param includeRootScroll Whether or not to account for the scroll of the root descendant:
-     *          sometimes this is relevant as in a child's coordinates within the root descendant.
-     * @return The factor by which this descendant is scaled relative to this DragLayer. Caution
-     *         this scale factor is assumed to be equal in X and Y, and so if at any point this
-     *         assumption fails, we will need to return a pair of scale factors.
-     */
-    public float getDescendantCoordRelativeToSelf(View descendant, float[] coord,
-            boolean includeRootScroll) {
-        return Utilities.getDescendantCoordRelativeToAncestor(descendant, this,
-                coord, includeRootScroll);
-    }
-
-    /**
-     * Inverse of {@link #getDescendantCoordRelativeToSelf(View, int[])}.
-     */
-    public void mapCoordInSelfToDescendant(View descendant, int[] coord) {
-        mTmpXY[0] = coord[0];
-        mTmpXY[1] = coord[1];
-        Utilities.mapCoordInSelfToDescendant(descendant, this, mTmpXY);
-        Utilities.roundArray(mTmpXY, coord);
-    }
-
-    public void getViewRectRelativeToSelf(View v, Rect r) {
-        int[] loc = new int[2];
-        getLocationInWindow(loc);
-        int x = loc[0];
-        int y = loc[1];
-
-        v.getLocationInWindow(loc);
-        int vX = loc[0];
-        int vY = loc[1];
-
-        int left = vX - x;
-        int top = vY - y;
-        r.set(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
-    }
-
     @Override
     public boolean dispatchUnhandledMove(View focused, int direction) {
         // Consume the unhandled move if a container is open, to avoid switching pages underneath.
-        return AbstractFloatingView.getTopOpenView(mActivity) != null;
+        return AbstractFloatingView.getTopOpenView() != null;
     }
 
     @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
-        View topView = AbstractFloatingView.getTopOpenView(mActivity);
+        View topView = AbstractFloatingView.getTopOpenView();
         if (topView != null) {
             return topView.requestFocus(direction, previouslyFocusedRect);
         } else {
@@ -416,16 +256,12 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
 
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
-        View topView = AbstractFloatingView.getTopOpenView(mActivity);
+        View topView = AbstractFloatingView.getTopOpenView();
         if (topView != null) {
             topView.addFocusables(views, direction);
         } else {
             super.addFocusables(views, direction, focusableMode);
         }
-    }
-
-    public void setTouchCompleteListener(TouchCompleteListener listener) {
-        mTouchCompleteListener = listener;
     }
 
     public interface TouchCompleteListener {
@@ -451,10 +287,6 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         return new LayoutParams(p);
-    }
-
-    public AlphaProperty getAlphaProperty(int index) {
-        return mMultiValueAlpha.getProperty(index);
     }
 
     public void dump(String prefix, PrintWriter writer) {

@@ -19,8 +19,6 @@ package com.android.launcher3;
 import static android.content.pm.ActivityInfo.CONFIG_ORIENTATION;
 import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
 
-import static com.android.launcher3.AbstractFloatingView.TYPE_ALL;
-import static com.android.launcher3.AbstractFloatingView.TYPE_REBIND_SAFE;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
@@ -66,7 +64,6 @@ import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.TraceHelper;
 import com.android.launcher3.util.UiThreadHelper;
 import com.android.launcher3.util.ViewOnDrawExecutor;
-import com.android.launcher3.views.BaseDragLayer;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -281,11 +278,6 @@ public class Launcher extends BaseDraggingActivity implements
         onDeviceProfileInitiated();
     }
 
-    @Override
-    public BaseDragLayer getDragLayer() {
-        return null;
-    }
-
     /**
      * Device profile to be used by UI elements which are shown directly on top of the wallpaper
      * and whose presentation is tied to the wallpaper (and physical device) and not the activity
@@ -467,7 +459,6 @@ public class Launcher extends BaseDraggingActivity implements
         if (isActionMain) {
             if (!internalStateHandled) {
                 // In all these cases, only animate if we're already on home
-                AbstractFloatingView.closeAllOpenViews(this, isStarted());
                 UiFactory.closeSystemWindows();
 
                 if (!isInState(NORMAL)) {
@@ -497,7 +488,7 @@ public class Launcher extends BaseDraggingActivity implements
 
 
         AbstractFloatingView widgets = AbstractFloatingView
-                .getOpenView(this, AbstractFloatingView.TYPE_WIDGETS_FULL_SHEET);
+                .getOpenView();
         if (widgets != null) {
             SparseArray<Parcelable> widgetsState = new SparseArray<>();
             widgets.saveHierarchyState(widgetsState);
@@ -506,9 +497,6 @@ public class Launcher extends BaseDraggingActivity implements
             outState.remove(RUNTIME_STATE_WIDGET_PANEL);
         }
 
-        // We close any open folders and shortcut containers that are not safe for rebind,
-        // and we need to make sure this state is reflected.
-        AbstractFloatingView.closeOpenViews(this, false, TYPE_ALL & ~TYPE_REBIND_SAFE);
         finishAutoCancelActionMode();
 
         outState.putInt(RUNTIME_STATE_PENDING_REQUEST_CODE, mPendingActivityRequestCode);
@@ -600,7 +588,7 @@ public class Launcher extends BaseDraggingActivity implements
 
         // Note: There should be at most one log per method call. This is enforced implicitly
         // by using if-else statements.
-        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(this);
+        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView();
         if (topView != null && topView.onBackPressed()) {
             // Handled by the floating view.
         } else {

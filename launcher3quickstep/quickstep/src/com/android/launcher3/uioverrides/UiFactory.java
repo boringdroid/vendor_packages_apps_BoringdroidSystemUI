@@ -18,8 +18,6 @@ package com.android.launcher3.uioverrides;
 
 import static android.app.Activity.RESULT_CANCELED;
 
-import static com.android.launcher3.AbstractFloatingView.TYPE_ALL;
-import static com.android.launcher3.AbstractFloatingView.TYPE_HIDE_BACK_BUTTON;
 import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
 
 import android.app.Activity;
@@ -74,8 +72,8 @@ public class UiFactory extends RecentsUiFactory {
                 && launcher.hasWindowFocus();
         if (shouldBackButtonBeHidden) {
             // Show the back button if there is a floating view visible.
-            shouldBackButtonBeHidden = AbstractFloatingView.getTopOpenViewWithType(launcher,
-                    TYPE_ALL & ~TYPE_HIDE_BACK_BUTTON) == null;
+            shouldBackButtonBeHidden = AbstractFloatingView.getTopOpenViewWithType(
+            ) == null;
         }
         OverviewInteractionState.INSTANCE.get(launcher)
                 .setBackButtonAlpha(shouldBackButtonBeHidden ? 0 : 1, true /* animate */);

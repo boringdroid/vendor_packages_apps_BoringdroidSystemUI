@@ -222,7 +222,7 @@ public class DeviceLockedInputConsumer implements InputConsumer,
         Rect displaySize = new Rect(0, 0, mDisplaySize.x, mDisplaySize.y);
         RemoteAnimationTargetCompat targetCompat = targetSet.findTask(mRunningTaskId);
         if (targetCompat != null) {
-            mClipAnimationHelper.updateSource(displaySize, targetCompat);
+            mClipAnimationHelper.updateSource(targetCompat);
         }
 
         Utilities.scaleRectAboutCenter(displaySize, SCALE_DOWN);

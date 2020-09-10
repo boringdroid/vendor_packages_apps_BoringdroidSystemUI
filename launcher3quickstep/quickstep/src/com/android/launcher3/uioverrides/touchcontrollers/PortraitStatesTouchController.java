@@ -15,7 +15,6 @@
  */
 package com.android.launcher3.uioverrides.touchcontrollers;
 
-import static com.android.launcher3.AbstractFloatingView.TYPE_ACCESSIBLE;
 import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.anim.AnimatorSetBuilder.ANIM_VERTICAL_PROGRESS;
@@ -86,7 +85,7 @@ public class PortraitStatesTouchController extends AbstractStateChangeTouchContr
             }
         }  // If we are swiping to all apps instead of overview, allow it from anywhere.
 
-        if (AbstractFloatingView.getTopOpenViewWithType(mLauncher, TYPE_ACCESSIBLE) != null) {
+        if (AbstractFloatingView.getTopOpenViewWithType() != null) {
             return false;
         }
         return true;

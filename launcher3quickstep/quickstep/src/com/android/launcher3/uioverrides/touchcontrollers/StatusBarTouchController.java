@@ -30,7 +30,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.android.launcher3.AbstractFloatingView;
-import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.util.TouchController;
@@ -99,7 +98,7 @@ public class StatusBarTouchController implements TouchController {
         int idx = ev.getActionIndex();
         int pid = ev.getPointerId(idx);
         if (action == ACTION_DOWN) {
-            mCanIntercept = canInterceptTouch(ev);
+            mCanIntercept = canInterceptTouch();
             if (!mCanIntercept) {
                 return false;
             }
@@ -152,17 +151,11 @@ public class StatusBarTouchController implements TouchController {
         w.setAttributes(wlp);
     }
 
-    private boolean canInterceptTouch(MotionEvent ev) {
+    private boolean canInterceptTouch() {
         if (!mLauncher.isInState(LauncherState.NORMAL) ||
-                AbstractFloatingView.getTopOpenViewWithType(mLauncher,
-                        AbstractFloatingView.TYPE_STATUS_BAR_SWIPE_DOWN_DISALLOW) != null) {
+                AbstractFloatingView.getTopOpenViewWithType(
+                ) != null) {
             return false;
-        } else {
-            // For NORMAL state, only listen if the event originated above the navbar height
-            DeviceProfile dp = mLauncher.getDeviceProfile();
-            if (ev.getY() > (mLauncher.getDragLayer().getHeight() - dp.getInsets().bottom)) {
-                return false;
-            }
         }
         mSysUiProxy = RecentsModel.INSTANCE.get(mLauncher).getSystemUiProxy();
         return mSysUiProxy != null;

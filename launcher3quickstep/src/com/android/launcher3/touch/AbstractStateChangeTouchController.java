@@ -28,7 +28,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.os.SystemClock;
-import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 
 import com.android.launcher3.Launcher;
@@ -339,7 +338,6 @@ public abstract class AbstractStateChangeTouchController
                 }
             });
             mAtomicAnim.start();
-            mLauncher.getDragLayer().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }
     }
 
