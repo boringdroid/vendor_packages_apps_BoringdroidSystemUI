@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"මුල් තිරය වෙත එක් කරන්න"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"පුද්ගලික"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"කාර්යාලය"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"මෙහි කාර්යාල යෙදුම් සොයා ගන්න"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"සෑම කාර්යාල යෙදුමකම ලාංඡනයක් ඇත ඇති අතර එය ඔබේ සංවිධානය මගින් සුරක්ෂිතව තබා ගනී. වඩාත් පහසු ප්‍රවේශයකට යෙදුම් ඔබේ මුල් පිටු තිරය වෙත ගෙන යන්න."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"වසන්න"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"වසා ඇත"</string>
 </resources>

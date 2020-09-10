@@ -104,7 +104,6 @@
     <!-- (touch_size - icon_size) / 2 -->
 
     <!-- Notifications -->
-    <dimen name="bg_round_rect_radius">8dp</dimen>
     <!-- notification_padding_end + (icon_size - footer_icon_size) / 2 -->
     <!-- How much space to keep as padding for the last notification when the footer collapses -->
     <!-- notification_icon_size + notification_padding_end + 16dp padding between icon and text -->
@@ -113,12 +112,8 @@
     <!-- Overview -->
 
     <!-- Snackbar -->
-    <dimen name="snackbar_content_height">32dp</dimen>
-    <dimen name="snackbar_padding">8dp</dimen>
-    <dimen name="snackbar_elevation">3dp</dimen>
-    <dimen name="snackbar_max_text_size">14sp</dimen>
 
-<!-- Theming related -->
+    <!-- Theming related -->
     <dimen name="default_dialog_corner_radius">8dp</dimen>
 
 </resources>

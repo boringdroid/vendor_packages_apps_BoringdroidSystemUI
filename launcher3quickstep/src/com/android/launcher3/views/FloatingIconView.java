@@ -526,12 +526,7 @@ public class FloatingIconView extends View implements
     }
 
     private void hideOriginalView(View originalView) {
-        if (originalView instanceof IconLabelDotView) {
-            ((IconLabelDotView) originalView).setIconVisible(false);
-            ((IconLabelDotView) originalView).setForceHideDot(true);
-        } else {
-            originalView.setVisibility(INVISIBLE);
-        }
+        originalView.setVisibility(INVISIBLE);
     }
 
     private void setBackgroundDrawableBounds(float scale) {

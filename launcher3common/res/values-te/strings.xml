@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"హోమ్ స్క్రీన్‌కు జోడించు"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"వ్యక్తిగతం"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"కార్యాలయం"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"కార్యాలయ యాప్‌లను ఇక్కడ కనుగొనండి"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"ప్రతి కార్యాలయ యాప్‌కు బ్యాడ్జ్‌ ఉంది మరియు మీ సంస్థ ద్వారా సురక్షితంగా ఉంచబడుతుంది. సులభ యాక్సెస్ కోసం యాప్‌లను మీ హోమ్ స్క్రీన్‌కి తరలించండి."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"మూసివేయి"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"మూసివేయబడింది"</string>
 </resources>

@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Føj til startskærm"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personlige"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Arbejde"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Find arbejdsapps her"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Alle arbejdsapps har et badge og beskyttes af din organisation. Flyt apps til din startskærm, så du nemmere kan få adgang til dem."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Luk"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Lukket"</string>
 </resources>

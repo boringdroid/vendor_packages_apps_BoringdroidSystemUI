@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Додај на Почетен екран"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Лично"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"За работа"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Најдете апликации за работа тука"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Секоја апликација за работа има значка, а организацијата се грижи за нејзината безбедност. За полесен пристап, преместете ги апликациите на почетниот екран."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Затвори"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Затворено"</string>
 </resources>

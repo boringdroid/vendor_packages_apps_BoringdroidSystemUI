@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"গৃহ স্ক্ৰীণত যোগ কৰক"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ব্যক্তিগত"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"কৰ্মস্থান"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"ইয়াত কৰ্মস্থানৰ এপ্ বিচাৰি পাওক"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"কৰ্মস্থানৰ প্ৰতিটো এপৰে একোটা প্ৰতীক আছে আৰু তাক আপোনাৰ প্ৰতিষ্ঠানে সুৰক্ষিত কৰি ৰাখে। ব্যৱহাৰ কৰাত সুবিধা হ\'বলৈ এপসমূহ আপোনাৰ গৃহ স্ক্ৰীণলৈ স্থানান্তৰ কৰক।"</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"বন্ধ কৰক"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"বন্ধ"</string>
 </resources>

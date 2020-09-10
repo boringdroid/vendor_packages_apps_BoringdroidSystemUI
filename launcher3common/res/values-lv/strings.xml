@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Pievienot sākuma ekrānam"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personīgās lietotnes"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Darba lietotnes"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Meklējiet darba lietotnes šeit"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Katrai darba lietotnei ir emblēma, un jūsu organizācija aizsargā šīs lietotnes. Lai varētu ērtāk piekļūt lietotnēm, pārvietojiet tās uz sākuma ekrānu."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Aizvērt"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Aizvērta"</string>
 </resources>

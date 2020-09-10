@@ -24,7 +24,6 @@ import android.view.View;
 public class LauncherAnimUtils {
     public static final int OVERVIEW_TRANSITION_MS = 250;
     public static final int SPRING_LOADED_TRANSITION_MS = 150;
-    public static final int SPRING_LOADED_EXIT_DELAY = 500;
 
     public static final Property<Drawable, Integer> DRAWABLE_ALPHA =
             new Property<Drawable, Integer>(Integer.TYPE, "drawableAlpha") {

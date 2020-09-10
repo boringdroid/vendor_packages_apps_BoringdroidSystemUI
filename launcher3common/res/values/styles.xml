@@ -190,6 +190,4 @@
 
     <style name="TextHeadline" parent="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
 
-    <style name="TextTitle" parent="@android:style/TextAppearance.DeviceDefault" />
-
 </resources>

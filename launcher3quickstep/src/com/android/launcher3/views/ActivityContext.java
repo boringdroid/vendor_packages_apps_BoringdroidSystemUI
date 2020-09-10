@@ -18,7 +18,6 @@ package com.android.launcher3.views;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.view.ContextThemeWrapper;
-import android.view.View.AccessibilityDelegate;
 
 import com.android.launcher3.DeviceProfile;
 
@@ -30,10 +29,6 @@ public interface ActivityContext {
 
     default boolean finishAutoCancelActionMode() {
         return false;
-    }
-
-    default AccessibilityDelegate getAccessibilityDelegate() {
-        return null;
     }
 
     /**

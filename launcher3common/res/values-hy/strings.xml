@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Ավելացնել Հիմնական էկրանին"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Անձնական"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Աշխատանքային"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Գտեք աշխատանքային հավելվածներ այստեղ"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Աշխատանքային հավելվածները նշված են հատուկ նշանով: Նման հավելվածների անվտանգությունը ապահովում է ձեր կազմակերպությունը։ Հարմարության համար աշխատանքային հավելվածները կարող եք տեղափոխել հիմնական էկրան։"</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Փակել"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Փակվեց"</string>
 </resources>

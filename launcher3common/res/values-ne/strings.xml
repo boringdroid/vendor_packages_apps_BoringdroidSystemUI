@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"गृह स्क्रिनमा थप्नुहोस्"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"व्यक्तिगत"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"कार्यसम्बन्धी"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"कार्यसम्बन्धी अनुप्रयोगहरू यहाँ प्राप्त गर्नुहोस्"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"कार्यसम्बन्धी प्रत्येक अनुप्रयोगमा एउटा ब्याज छ र तपाईंको संगठनले यसलाई सुरक्षित राखेको छ । अझ सजिलो गरी पहुँच राख्नका लागि अनुप्रयोगहरूलाई आफ्नो गृहस्क्रिनमा सार्नुहोस्‌।"</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"बन्द गर्नुहोस्"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"बन्द गरियो"</string>
 </resources>

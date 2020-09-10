@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"ເພີ່ມໃສ່ໜ້າຈໍຫຼັກ"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"ສ່ວນຕົວ"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"ວຽກ"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"ຊອກຫາແອັບວຽກຢູ່ບ່ອນນີ້"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"ແຕ່ລະແອັບວຽກຈະມີປ້າຍ ແລະ ຖືກຈັດເກັບໄວ້ຢ່າງປອດໄພໂດຍອົງກອນຂອງທ່ານ. ທ່ານສາມາດຍ້າຍແອັບໄປໃສ່ໜ້າຈໍຫຼັກເພື່ອໃຫ້ເຂົ້າໃຊ້ງ່າຍຂຶ້ນໄດ້."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"ປິດ"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"ປິດແລ້ວ"</string>
 </resources>

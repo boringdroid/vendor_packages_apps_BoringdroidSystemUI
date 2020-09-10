@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Додати на головний екран"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Особисті додатки"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"Робочі додатки"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Робочі додатки містяться тут"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Кожний робочий додаток має значок і перебуває під захистом організації. Перенесіть додатки на головний екран, щоб швидко запускати їх."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Закрити"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Закрито"</string>
 </resources>

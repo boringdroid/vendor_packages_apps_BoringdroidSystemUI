@@ -41,8 +41,4 @@
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Əsas ekrana əlavə edin"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Şəxsi"</string>
     <string name="all_apps_work_tab" msgid="4884822796154055118">"İş"</string>
-    <string name="bottom_work_tab_user_education_title" msgid="5785851780786322825">"Burada iş tətbiqləri axtarın"</string>
-    <string name="bottom_work_tab_user_education_body" msgid="2818107472360579152">"Hər bir iş tətbiqində təşkilat tərəfindən qorunduğunu göstərən narıncı nişan var. Tətbiqləri daha asan giriş üçün Əsas Səhifə Ekranına köçürün."</string>
-    <string name="bottom_work_tab_user_education_close_button" msgid="4224492243977802135">"Bağlayın"</string>
-    <string name="bottom_work_tab_user_education_closed" msgid="1098340939861869465">"Bağlıdır"</string>
 </resources>
