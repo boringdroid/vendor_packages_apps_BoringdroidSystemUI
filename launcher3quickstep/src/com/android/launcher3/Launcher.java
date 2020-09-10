@@ -118,9 +118,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     // UI and state for the overview panel
     private View mOverviewPanel;
 
-    @Thunk
-    boolean mWorkspaceLoading = true;
-
     private ArrayList<OnResumeCallback> mOnResumeCallbacks = new ArrayList<>();
 
     private ViewOnDrawExecutor mPendingExecutor;
@@ -208,9 +205,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         getSystemUiController().updateUiState(SystemUiController.UI_STATE_BASE_WINDOW,
                 Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText));
 
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onCreate(savedInstanceState);
-        }
         mRotationHelper.initialize();
 
         TraceHelper.endSection("Launcher-onCreate");
@@ -294,8 +288,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     public void onAssistantVisibilityChanged(float visibility) {
         float alpha = 1f - visibility;
         LauncherState state = mStateManager.getState();
-        if (state == NORMAL) {
-        } else if (state == OVERVIEW || state == OVERVIEW_PEEK) {
+        if (state == OVERVIEW || state == OVERVIEW_PEEK) {
             mScrimView.getAlphaProperty(SCRIM_VIEW_ALPHA_CHANNEL_INDEX).setValue(alpha);
         }
     }
@@ -361,8 +354,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         return mLauncherView.findViewById(id);
     }
 
-    private LauncherCallbacks mLauncherCallbacks;
-
     private void handleActivityResult() {
         mPendingActivityResult = null;
     }
@@ -372,27 +363,16 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             final int requestCode, final int resultCode, final Intent data) {
         mPendingActivityRequestCode = -1;
         handleActivityResult();
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onRequestPermissionsResult(requestCode, permissions,
-                    grantResults);
-        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onStop();
-        }
 
         getStateManager().moveToRestState();
 
@@ -406,9 +386,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     protected void onStart() {
         RaceConditionTracker.onEvent(ON_START_EVT, ENTER);
         super.onStart();
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onStart();
-        }
         RaceConditionTracker.onEvent(ON_START_EVT, EXIT);
     }
 
@@ -429,9 +406,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     public void onStateSetStart() {
         if (mDeferredResumePending) {
             handleDeferredResume();
-        }
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onStateChanged();
         }
     }
 
@@ -458,20 +432,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             resumeCallbacks.clear();
         }
 
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onResume();
-        }
-
         TraceHelper.endSection("ON_RESUME");
         RaceConditionTracker.onEvent(ON_RESUME_EVT, EXIT);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onPause();
-        }
     }
 
     @Override
@@ -530,24 +492,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     }
 
     @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onAttachedToWindow();
-        }
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onDetachedFromWindow();
-        }
-    }
-
-    @Override
     public LauncherRootView getRootView() {
         return (LauncherRootView) mLauncherView;
     }
@@ -595,10 +539,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             if (v != null && v.getWindowToken() != null) {
                 UiThreadHelper.hideKeyboardAsync(this, v.getWindowToken());
             }
-
-            if (mLauncherCallbacks != null) {
-                mLauncherCallbacks.onHomeIntent(internalStateHandled);
-            }
         }
 
         TraceHelper.endSection("NEW_INTENT");
@@ -636,10 +576,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
 
         super.onSaveInstanceState(outState);
-
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onSaveInstanceState(outState);
-        }
     }
 
     @Override
@@ -662,9 +598,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         TextKeyListener.getInstance().release();
         LauncherAppState.getIDP(this).removeOnChangeListener(this);
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onDestroy();
-        }
     }
 
     @Override
@@ -706,12 +639,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             appSearchData = new Bundle();
             appSearchData.putString("source", "launcher-search");
         }
-
-        if (mLauncherCallbacks == null ||
-                !mLauncherCallbacks.startSearch(initialQuery, selectInitialQuery, appSearchData)) {
-            // Starting search from the callbacks failed. Start the default global search.
-            super.startSearch(initialQuery, selectInitialQuery, appSearchData, true);
-        }
+        super.startSearch(initialQuery, selectInitialQuery, appSearchData, true);
 
         // We need to show the workspace after starting the search
         mStateManager.goToState(NORMAL);
@@ -725,9 +653,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     @Override
     public void onBackPressed() {
         if (finishAutoCancelActionMode()) {
-            return;
-        }
-        if (mLauncherCallbacks != null && mLauncherCallbacks.handleBackPressed()) {
             return;
         }
 
@@ -776,9 +701,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             // This clears all widget bitmaps from the widget tray
             // TODO(hyunyoungs)
         }
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.onTrimMemory(level);
-        }
         UiFactory.onTrimMemory(this, level);
     }
 
@@ -809,17 +731,12 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         writer.println(prefix + "Misc:");
         dumpMisc(prefix + "\t", writer);
-        writer.println(prefix + "\tmWorkspaceLoading=" + mWorkspaceLoading);
         writer.println(prefix + "\tmRotationHelper: " + mRotationHelper);
 
         // Extra logging for b/116853349
         mStateManager.dump(prefix, writer);
 
         mModel.dumpState(prefix, fd, writer, args);
-
-        if (mLauncherCallbacks != null) {
-            mLauncherCallbacks.dump(prefix, fd, writer, args);
-        }
     }
 
     @Override
