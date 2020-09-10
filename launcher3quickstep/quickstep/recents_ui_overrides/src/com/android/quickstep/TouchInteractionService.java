@@ -154,7 +154,6 @@ public class TouchInteractionService extends Service implements
             MAIN_EXECUTOR.execute(TouchInteractionService.this::initInputMonitor);
             MAIN_EXECUTOR.execute(TouchInteractionService.this::onSystemUiProxySet);
             MAIN_EXECUTOR.execute(() -> preloadOverview(true /* fromInit */));
-            sIsInitialized = true;
         }
 
         @Override
@@ -227,13 +226,8 @@ public class TouchInteractionService extends Service implements
     };
 
     private static boolean sConnected = false;
-    private static boolean sIsInitialized = false;
     private static final SwipeSharedState sSwipeSharedState = new SwipeSharedState();
     private int mLogId;
-
-    public static boolean isConnected() {
-        return sConnected;
-    }
 
     public static SwipeSharedState getSwipeSharedState() {
         return sSwipeSharedState;
@@ -478,7 +472,6 @@ public class TouchInteractionService extends Service implements
 
     @Override
     public void onDestroy() {
-        sIsInitialized = false;
         if (mIsUserUnlocked) {
             mInputConsumer.unregisterInputConsumer();
             mOverviewComponentObserver.onDestroy();
@@ -526,7 +519,6 @@ public class TouchInteractionService extends Service implements
                         new AssistantTouchConsumer(
                                 this,
                                 mISystemUiProxy,
-                                mOverviewComponentObserver.getActivityControlHelper(),
                                 InputConsumer.NO_OP,
                                 mInputMonitorCompat,
                                 mOverviewComponentObserver.assistantGestureIsConstrained());
@@ -572,13 +564,10 @@ public class TouchInteractionService extends Service implements
         InputConsumer base = isInValidSystemUiState || useSharedState
                 ? newBaseConsumer(useSharedState, event) : mResetGestureInputConsumer;
         if (mMode == Mode.NO_BUTTON) {
-            final ActivityControlHelper activityControl =
-                    mOverviewComponentObserver.getActivityControlHelper();
             if (canTriggerAssistantAction(event)) {
                 base = new AssistantTouchConsumer(
                         this,
                         mISystemUiProxy,
-                        activityControl,
                         base,
                         mInputMonitorCompat,
                         mOverviewComponentObserver.assistantGestureIsConstrained());
@@ -587,7 +576,7 @@ public class TouchInteractionService extends Service implements
             if ((mSystemUiStateFlags & SYSUI_STATE_SCREEN_PINNING) != 0) {
                 // Note: we only allow accessibility to wrap this, and it replaces the previous
                 // base input consumer (which should be NO_OP anyway since topTaskLocked == true).
-                base = new ScreenPinnedInputConsumer(this, mISystemUiProxy, activityControl);
+                base = new ScreenPinnedInputConsumer(this, mISystemUiProxy);
             }
 
             if ((mSystemUiStateFlags & SYSUI_STATE_A11Y_BUTTON_CLICKABLE) != 0) {
@@ -695,8 +684,7 @@ public class TouchInteractionService extends Service implements
             return mResetGestureInputConsumer;
         }
 
-        if (activity.getRootView().hasWindowFocus()
-                || sSwipeSharedState.goingToLauncher
+        if (sSwipeSharedState.goingToLauncher
                 || (BaseFlags.ASSISTANT_GIVES_LAUNCHER_FOCUS.get()
                     && forceOverviewInputConsumer)) {
             return new OverviewInputConsumer(activity, mInputMonitorCompat,

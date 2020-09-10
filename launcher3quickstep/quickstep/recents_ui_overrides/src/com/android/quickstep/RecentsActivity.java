@@ -126,19 +126,8 @@ public final class RecentsActivity extends BaseRecentsActivity {
     }
 
     @Override
-    public View getRootView() {
-        return mRecentsRootView;
-    }
-
-    @Override
     public <T extends View> T getOverviewPanel() {
         return (T) mFallbackRecentsView;
-    }
-
-    @Override
-    public void returnToHomescreen() {
-        super.returnToHomescreen();
-        // TODO(b/137318995) This should go home, but doing so removes freeform windows
     }
 
     @Override

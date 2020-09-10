@@ -158,11 +158,6 @@ public class FallbackNoButtonInputConsumer extends
     }
 
     @Override
-    protected boolean moveWindowWithRecentsScroll() {
-        return mInQuickSwitchMode;
-    }
-
-    @Override
     public void initWhenReady() {
         if (mInQuickSwitchMode) {
             // Only init if we are in quickswitch mode

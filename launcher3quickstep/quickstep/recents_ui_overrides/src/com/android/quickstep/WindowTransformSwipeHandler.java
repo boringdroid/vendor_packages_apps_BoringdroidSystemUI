@@ -279,11 +279,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         }
     }
 
-    @Override
-    protected boolean moveWindowWithRecentsScroll() {
-        return mGestureEndTarget != HOME;
-    }
-
     private void onLauncherPresentAndGestureStarted() {
         // Re-setup the recents UI when gesture starts, as the state could have been changed during
         // that time by a previous window transition.
@@ -528,10 +523,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         boolean isFling = mGestureStarted && Math.abs(endVelocity) > flingThreshold;
         setStateOnUiThread(STATE_GESTURE_COMPLETED);
 
-        boolean isVelocityVertical = Math.abs(velocity.y) > Math.abs(velocity.x);
-        if (isVelocityVertical) {
-        } else {
-        }
         handleNormalGestureEnd(endVelocity, isFling, velocity, false /* isCancel */);
     }
 
@@ -916,7 +907,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
         mRecentsView.onGestureAnimationEnd();
 
-        mActivity.getRootView().setOnApplyWindowInsetsListener(null);
         removeLiveTileOverlay();
     }
 
@@ -1045,7 +1035,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
     private synchronized void removeLiveTileOverlay() {
         if (mLiveTileOverlayAttached) {
-            mActivity.getRootView().getOverlay().remove(mLiveTileOverlay);
             mRecentsView.setLiveTileOverlay(null);
             mLiveTileOverlayAttached = false;
         }

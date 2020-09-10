@@ -64,7 +64,6 @@ import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
 import com.android.systemui.shared.system.InputConsumerController;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
-import com.android.systemui.shared.system.SyncRtSurfaceTransactionApplierCompat;
 
 import java.util.function.Consumer;
 
@@ -183,22 +182,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
 
     public abstract Intent getLaunchIntent();
 
-    protected void linkRecentsViewScroll() {
-        SyncRtSurfaceTransactionApplierCompat.create(mRecentsView, applier -> {
-            mTransformParams.setSyncTransactionApplier(applier);
-            mRecentsAnimationWrapper.runOnInit(() ->
-                    mRecentsAnimationWrapper.targetSet.addDependentTransactionApplier(applier));
-        });
-
-        mRecentsView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            if (moveWindowWithRecentsScroll()) {
-                updateFinalShift();
-            }
-        });
-        mRecentsView.setRecentsAnimationWrapper(mRecentsAnimationWrapper);
-        mRecentsView.setClipAnimationHelper(mClipAnimationHelper);
-    }
-
     protected void startNewTask(int successStateFlag, Consumer<Boolean> resultCallback) {
         // Launch the task user scrolled to (mRecentsView.getNextPage()).
         if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
@@ -260,15 +243,7 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
     }
 
     private Rect getStackBounds(DeviceProfile dp) {
-        if (mActivity != null) {
-            int loc[] = new int[2];
-            View rootView = mActivity.getRootView();
-            rootView.getLocationOnScreen(loc);
-            return new Rect(loc[0], loc[1], loc[0] + rootView.getWidth(),
-                    loc[1] + rootView.getHeight());
-        } else {
-            return new Rect(0, 0, dp.widthPx, dp.heightPx);
-        }
+        return new Rect(0, 0, dp.widthPx, dp.heightPx);
     }
 
     protected void initTransitionEndpoints(DeviceProfile dp) {
@@ -289,11 +264,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
             mDragLengthFactor = (float) dp.heightPx / mTransitionDragLength;
         }
     }
-
-    /**
-     * Return true if the window should be translated horizontally if the recents view scrolls
-     */
-    protected abstract boolean moveWindowWithRecentsScroll();
 
     /**
      * Called to create a input proxy for the running task

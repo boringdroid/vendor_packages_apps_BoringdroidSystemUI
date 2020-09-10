@@ -36,14 +36,11 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
-import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.Interpolators;
-import com.android.quickstep.ActivityControlHelper;
 import com.android.systemui.shared.recents.ISystemUiProxy;
 import com.android.systemui.shared.system.InputMonitorCompat;
 
@@ -73,7 +70,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
     private float mTimeFraction;
     private long mDragTime;
     private float mLastProgress;
-    private ActivityControlHelper mActivityControlHelper;
 
     private final float mDragDistThreshold;
     private final float mFlingDistThreshold;
@@ -85,8 +81,8 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
     private final boolean mIsAssistGestureConstrained;
 
     public AssistantTouchConsumer(Context context, ISystemUiProxy systemUiProxy,
-            ActivityControlHelper activityControlHelper, InputConsumer delegate,
-        InputMonitorCompat inputMonitor, boolean isAssistGestureConstrained) {
+                                  InputConsumer delegate,
+                                  InputMonitorCompat inputMonitor, boolean isAssistGestureConstrained) {
         super(delegate, inputMonitor);
         final Resources res = context.getResources();
         mSysUiProxy = systemUiProxy;
@@ -99,7 +95,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
         float slop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         mSquaredSlop = slop * slop;
-        mActivityControlHelper = activityControlHelper;
 
         mGestureDetector = new GestureDetector(context, new AssistantGestureListener());
     }
@@ -217,7 +212,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
             try {
                 if (mDistance >= mDragDistThreshold && mTimeFraction >= 1) {
                     mSysUiProxy.onAssistantGestureCompletion(0);
-                    startAssistantInternal();
 
                     Bundle args = new Bundle();
                     args.putInt(OPA_BUNDLE_TRIGGER, OPA_BUNDLE_TRIGGER_DIAG_SWIPE_GESTURE);
@@ -231,16 +225,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
                 Log.w(TAG, "Failed to send SysUI start/send assistant progress: " + mLastProgress,
                     e);
             }
-        }
-    }
-
-    private void startAssistantInternal() {
-        BaseDraggingActivity launcherActivity = mActivityControlHelper
-            .getCreatedActivity();
-        if (launcherActivity != null) {
-            launcherActivity.getRootView().performHapticFeedback(
-                13, // HapticFeedbackConstants.GESTURE_END
-                HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
         }
     }
 
@@ -268,7 +252,6 @@ public class AssistantTouchConsumer extends DelegateInputConsumer {
                 try {
                     mSysUiProxy.onAssistantGestureCompletion(
                         (float) Math.sqrt(velocityX * velocityX + velocityY * velocityY));
-                    startAssistantInternal();
 
                     Bundle args = new Bundle();
                     args.putInt(INVOCATION_TYPE_KEY, INVOCATION_TYPE_GESTURE);

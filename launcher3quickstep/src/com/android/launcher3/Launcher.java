@@ -33,11 +33,9 @@ import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,7 +55,6 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.states.InternalStateHandler;
 import com.android.launcher3.states.RotationHelper;
@@ -113,10 +110,6 @@ public class Launcher extends BaseDraggingActivity implements
 
     private LauncherModel mModel;
 
-    // We only want to get the SharedPreferences once since it does an FS stat each time we get
-    // it from the context.
-    private SharedPreferences mSharedPrefs;
-
     // Activity result which needs to be processed after workspace has loaded.
     private ActivityResultInfo mPendingActivityResult;
     // Request id for any pending activity result
@@ -130,7 +123,6 @@ public class Launcher extends BaseDraggingActivity implements
     private boolean mDeferredResumePending;
 
     private DeviceProfile mStableDeviceProfile;
-    private RotationMode mRotationMode = RotationMode.NORMAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +153,6 @@ public class Launcher extends BaseDraggingActivity implements
         InvariantDeviceProfile idp = app.getInvariantDeviceProfile();
         initDeviceProfile(idp);
         idp.addOnChangeListener(this);
-        mSharedPrefs = Utilities.getPrefs(this);
 
         mStateManager = new LauncherStateManager(this);
         UiFactory.onCreate();
@@ -189,7 +180,6 @@ public class Launcher extends BaseDraggingActivity implements
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
         setContentView(mLauncherView);
-        getRootView().dispatchInsets();
 
         getSystemUiController().updateUiState(SystemUiController.UI_STATE_BASE_WINDOW,
                 Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText));
@@ -243,11 +233,6 @@ public class Launcher extends BaseDraggingActivity implements
     }
 
     public void reapplyUi(boolean cancelCurrentAnimation) {
-        if (supportsFakeLandscapeUI()) {
-            mRotationMode = mStableDeviceProfile == null
-                    ? RotationMode.NORMAL : UiFactory.getRotationMode(mDeviceProfile);
-        }
-        getRootView().dispatchInsets();
         getStateManager().reapplyState(cancelCurrentAnimation);
     }
 
@@ -288,23 +273,12 @@ public class Launcher extends BaseDraggingActivity implements
 
         if (supportsFakeLandscapeUI() && mDeviceProfile.isVerticalBarLayout()) {
             mStableDeviceProfile = mDeviceProfile.inv.portraitProfile;
-            mRotationMode = UiFactory.getRotationMode(mDeviceProfile);
         } else {
             mStableDeviceProfile = null;
-            mRotationMode = RotationMode.NORMAL;
         }
 
         mRotationHelper.updateRotationAnimation();
         onDeviceProfileInitiated();
-    }
-
-    public void updateInsets(Rect insets) {
-        mDeviceProfile.updateInsets(insets);
-        if (mStableDeviceProfile != null) {
-            Rect r = mStableDeviceProfile.getInsets();
-            mRotationMode.mapInsets(this, insets, r);
-            mStableDeviceProfile.updateInsets(r);
-        }
     }
 
     @Override
@@ -466,11 +440,6 @@ public class Launcher extends BaseDraggingActivity implements
 
         // Setup the drag layer
         mCancelTouchController = UiFactory.enableLiveUIChanges(this);
-    }
-
-    @Override
-    public LauncherRootView getRootView() {
-        return (LauncherRootView) mLauncherView;
     }
 
     public <T extends View> T getOverviewPanel() {
@@ -767,12 +736,6 @@ public class Launcher extends BaseDraggingActivity implements
 
     public static Launcher getLauncher(Context context) {
         return (Launcher) fromContext(context);
-    }
-
-    @Override
-    public void returnToHomescreen() {
-        super.returnToHomescreen();
-        getStateManager().goToState(LauncherState.NORMAL);
     }
 
     /**

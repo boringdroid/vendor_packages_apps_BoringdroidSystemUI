@@ -675,7 +675,7 @@ public class FloatingIconView extends View implements
             boolean hideOriginal, RectF positionOut, boolean isOpening) {
         // TODO recheck launcher.getRootView()
         FloatingIconView view = launcher.getViewCache().getView(R.layout.floating_icon_view,
-                launcher, launcher.getRootView());
+                launcher, null);
         view.recycle();
 
         // Get the drawable on the background thread

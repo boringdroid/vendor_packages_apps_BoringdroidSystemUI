@@ -196,11 +196,7 @@ public class LauncherState {
         return 1f;
     }
 
-    public float getOverviewScrimAlpha(Launcher launcher) {
-        return 0;
-    }
-
-    public LauncherState getHistoryForState(LauncherState previousState) {
+    public LauncherState getHistoryForState() {
         // No history is supported
         return NORMAL;
     }

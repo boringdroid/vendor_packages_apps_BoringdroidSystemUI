@@ -393,7 +393,7 @@ public class LauncherStateManager {
     private void onStateTransitionEnd(LauncherState state) {
         // Only change the stable states after the transitions have finished
         if (state != mCurrentStableState) {
-            mLastStableState = state.getHistoryForState(mCurrentStableState);
+            mLastStableState = state.getHistoryForState();
             mCurrentStableState = state;
         }
 

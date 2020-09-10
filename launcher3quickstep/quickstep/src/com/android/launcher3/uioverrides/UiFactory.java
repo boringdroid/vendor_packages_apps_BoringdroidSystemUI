@@ -79,9 +79,6 @@ public class UiFactory extends RecentsUiFactory {
         }
         OverviewInteractionState.INSTANCE.get(launcher)
                 .setBackButtonAlpha(shouldBackButtonBeHidden ? 0 : 1, true /* animate */);
-        if (launcher != null && launcher.getDragLayer() != null) {
-            launcher.getRootView().setDisallowBackGesture(shouldBackButtonBeHidden);
-        }
     }
 
     public static void onCreate() {
