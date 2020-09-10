@@ -40,7 +40,6 @@ import com.android.quickstep.util.RemoteAnimationTargetSet;
 import com.android.quickstep.views.RecentsView;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
 
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -170,12 +169,6 @@ public final class FallbackActivityControllerHelper implements
                 callback.accept(controller);
             }
         };
-    }
-
-    @Override
-    public ActivityInitListener createActivityInitListener(
-            BiPredicate<RecentsActivity, Boolean> onInitListener) {
-        return new RecentsActivityTracker(onInitListener);
     }
 
     @Nullable

@@ -103,11 +103,8 @@ public class FallbackNoButtonInputConsumer extends
     private GestureEndTarget mEndTarget;
 
     private final boolean mInQuickSwitchMode;
-    private final boolean mContinuingLastGesture;
     private final boolean mRunningOverHome;
     private final boolean mSwipeUpOverHome;
-
-    private final RunningTaskInfo mRunningTaskInfo;
 
     private final PointF mEndVelocityPxPerMs = new PointF(0, 0.5f);
     private RunningWindowAnim mFinishAnimation;
@@ -120,9 +117,7 @@ public class FallbackNoButtonInputConsumer extends
         super(context, overviewComponentObserver, recentsModel, inputConsumer, runningTaskInfo.id);
         mLauncherAlpha.value = 1;
 
-        mRunningTaskInfo = runningTaskInfo;
         mInQuickSwitchMode = isLikelyToStartNewTask || continuingLastGesture;
-        mContinuingLastGesture = continuingLastGesture;
         mRunningOverHome = ActivityManagerWrapper.isHomeTask(runningTaskInfo);
         mSwipeUpOverHome = mRunningOverHome && !mInQuickSwitchMode;
 
@@ -160,27 +155,6 @@ public class FallbackNoButtonInputConsumer extends
         if (mRecentsAnimationWrapper.targetSet != null && mEndTarget == null) {
             applyTransformUnchecked();
         }
-    }
-
-    @Override
-    protected boolean onActivityInit(final RecentsActivity activity, Boolean alreadyOnHome) {
-        mActivity = activity;
-        mRecentsView = activity.getOverviewPanel();
-        linkRecentsViewScroll();
-        mRecentsView.setDisallowScrollToClearAll(true);
-        mRecentsView.getClearAllButton().setVisibilityAlpha(0);
-
-        mRecentsView.setZoomProgress(1);
-
-        if (!mContinuingLastGesture) {
-            if (mRunningOverHome) {
-                mRecentsView.onGestureAnimationStart(mRunningTaskInfo);
-            } else {
-                mRecentsView.onGestureAnimationStart(mRunningTaskId);
-            }
-        }
-        setStateOnUiThread(STATE_RECENTS_PRESENT);
-        return true;
     }
 
     @Override
@@ -297,7 +271,6 @@ public class FallbackNoButtonInputConsumer extends
     }
 
     private void onHandlerInvalidated() {
-        mActivityInitListener.unregister();
         if (mGestureEndCallback != null) {
             mGestureEndCallback.run();
         }

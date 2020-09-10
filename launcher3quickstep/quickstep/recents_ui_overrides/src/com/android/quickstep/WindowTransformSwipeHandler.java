@@ -51,14 +51,12 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.view.View;
 import android.view.View.OnApplyWindowInsetsListener;
-import android.view.ViewTreeObserver.OnDrawListener;
 import android.view.WindowInsets;
 import android.view.animation.Interpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 
-import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
@@ -67,7 +65,6 @@ import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.util.RaceConditionTracker;
-import com.android.launcher3.util.TraceHelper;
 import com.android.quickstep.ActivityControlHelper.AnimationFactory;
 import com.android.quickstep.ActivityControlHelper.HomeAnimationFactory;
 import com.android.quickstep.SysUINavigationMode.Mode;
@@ -139,9 +136,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
             getFlagForIndex(14, "STATE_START_NEW_TASK");
     private static final int STATE_CURRENT_TASK_FINISHED =
             getFlagForIndex(15, "STATE_CURRENT_TASK_FINISHED");
-
-    private static final int LAUNCHER_UI_STATES =
-            STATE_LAUNCHER_PRESENT | STATE_LAUNCHER_DRAWN | STATE_LAUNCHER_STARTED;
 
     public enum GestureEndTarget {
         HOME(1, STATE_SCALED_CONTROLLER_HOME | STATE_CAPTURE_SCREENSHOT, true, false,
@@ -286,98 +280,8 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     @Override
-    protected boolean onActivityInit(final T activity, Boolean alreadyOnHome) {
-        if (mActivity == activity) {
-            return true;
-        }
-        if (mActivity != null) {
-            // The launcher may have been recreated as a result of device rotation.
-            int oldState = mStateCallback.getState() & ~LAUNCHER_UI_STATES;
-            initStateCallbacks();
-            mStateCallback.setState(oldState);
-        }
-        mWasLauncherAlreadyVisible = alreadyOnHome;
-        mActivity = activity;
-        // Override the visibility of the activity until the gesture actually starts and we swipe
-        // up, or until we transition home and the home animation is composed
-        if (alreadyOnHome) {
-            mActivity.clearForceInvisibleFlag(STATE_HANDLER_INVISIBILITY_FLAGS);
-        } else {
-            mActivity.addForceInvisibleFlag(STATE_HANDLER_INVISIBILITY_FLAGS);
-        }
-
-        mRecentsView = activity.getOverviewPanel();
-        linkRecentsViewScroll();
-        addLiveTileOverlay();
-
-        mStateCallback.setState(STATE_LAUNCHER_PRESENT);
-        if (alreadyOnHome) {
-            onLauncherStart(activity);
-        } else {
-            activity.setOnStartCallback(this::onLauncherStart);
-        }
-
-        setupRecentsViewUi();
-        return true;
-    }
-
-    @Override
     protected boolean moveWindowWithRecentsScroll() {
         return mGestureEndTarget != HOME;
-    }
-
-    private void onLauncherStart(final T activity) {
-        if (mActivity != activity) {
-            return;
-        }
-        if (mStateCallback.hasStates(STATE_HANDLER_INVALIDATED)) {
-            return;
-        }
-
-        // If we've already ended the gesture and are going home, don't prepare recents UI,
-        // as that will set the state as BACKGROUND_APP, overriding the animation to NORMAL.
-        if (mGestureEndTarget != HOME) {
-            Runnable initAnimFactory = () -> {
-                mAnimationFactory = mActivityControlHelper.prepareRecentsUI(mActivity,
-                        mWasLauncherAlreadyVisible, true,
-                        this::onAnimatorPlaybackControllerCreated);
-                maybeUpdateRecentsAttachedState(false /* animate */);
-            };
-            if (mWasLauncherAlreadyVisible) {
-                // Launcher is visible, but might be about to stop. Thus, if we prepare recents
-                // now, it might get overridden by moveToRestState() in onStop(). To avoid this,
-                // wait until the next gesture (and possibly launcher) starts.
-                mStateCallback.addCallback(STATE_GESTURE_STARTED, initAnimFactory);
-            } else {
-                initAnimFactory.run();
-            }
-        }
-        AbstractFloatingView.closeAllOpenViewsExcept(activity, mWasLauncherAlreadyVisible,
-                AbstractFloatingView.TYPE_LISTENER);
-
-        if (mWasLauncherAlreadyVisible) {
-            mStateCallback.setState(STATE_LAUNCHER_DRAWN);
-        } else {
-            TraceHelper.beginSection("WTS-init");
-            View dragLayer = activity.getDragLayer();
-            dragLayer.getViewTreeObserver().addOnDrawListener(new OnDrawListener() {
-
-                @Override
-                public void onDraw() {
-                    TraceHelper.endSection("WTS-init", "Launcher frame is drawn");
-                    dragLayer.post(() ->
-                            dragLayer.getViewTreeObserver().removeOnDrawListener(this));
-                    if (activity != mActivity) {
-                        return;
-                    }
-
-                    mStateCallback.setState(STATE_LAUNCHER_DRAWN);
-                }
-            });
-        }
-
-        activity.getRootView().setOnApplyWindowInsetsListener(this);
-        mStateCallback.setState(STATE_LAUNCHER_STARTED);
     }
 
     private void onLauncherPresentAndGestureStarted() {
@@ -505,14 +409,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         return result;
     }
 
-    private void onAnimatorPlaybackControllerCreated(AnimatorPlaybackController anim) {
-        mLauncherTransitionController = anim;
-        mLauncherTransitionController.dispatchSetInterpolator(t -> t * mDragLengthFactor);
-        mAnimationFactory.adjustActivityControllerInterpolators();
-        mLauncherTransitionController.dispatchOnStart();
-        updateLauncherTransitionProgress();
-    }
-
     @Override
     public Intent getLaunchIntent() {
         return mOverviewComponentObserver.getOverviewIntent();
@@ -587,7 +483,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     @Override
     public void onRecentsAnimationCanceled() {
         mRecentsAnimationWrapper.setController(null);
-        mActivityInitListener.unregister();
         setStateOnUiThread(STATE_GESTURE_CANCELLED | STATE_HANDLER_INVALIDATED);
     }
 
@@ -1013,7 +908,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
             mGestureEndCallback.run();
         }
 
-        mActivityInitListener.unregister();
         mTaskSnapshot = null;
     }
 
@@ -1147,14 +1041,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     private void setTargetAlphaProvider(TargetAlphaProvider provider) {
         mClipAnimationHelper.setTaskAlphaCallback(provider);
         updateFinalShift();
-    }
-
-    private synchronized void addLiveTileOverlay() {
-        if (!mLiveTileOverlayAttached) {
-            mActivity.getRootView().getOverlay().add(mLiveTileOverlay);
-            mRecentsView.setLiveTileOverlay(mLiveTileOverlay);
-            mLiveTileOverlayAttached = true;
-        }
     }
 
     private synchronized void removeLiveTileOverlay() {

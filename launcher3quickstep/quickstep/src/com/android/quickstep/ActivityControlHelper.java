@@ -62,8 +62,6 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
     AnimationFactory prepareRecentsUI(T activity, boolean activityVisible,
             boolean animateActivity, Consumer<AnimatorPlaybackController> callback);
 
-    ActivityInitListener createActivityInitListener(BiPredicate<T, Boolean> onInitListener);
-
     @Nullable
     T getCreatedActivity();
 

@@ -51,7 +51,6 @@ import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.VibratorWrapper;
 import com.android.launcher3.views.FloatingIconView;
-import com.android.quickstep.ActivityControlHelper.ActivityInitListener;
 import com.android.quickstep.ActivityControlHelper.HomeAnimationFactory;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.inputconsumers.InputConsumer;
@@ -107,7 +106,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
     // visible.
     protected final AnimatedFloat mCurrentShift = new AnimatedFloat(this::updateFinalShift);
 
-    protected final ActivityInitListener mActivityInitListener;
     protected final RecentsAnimationWrapper mRecentsAnimationWrapper;
 
     protected T mActivity;
@@ -130,8 +128,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         mOverviewComponentObserver = overviewComponentObserver;
         mActivityControlHelper = overviewComponentObserver.getActivityControlHelper();
         mRecentsModel = recentsModel;
-        mActivityInitListener =
-                mActivityControlHelper.createActivityInitListener(this::onActivityInit);
         mRunningTaskId = runningTaskId;
         mRecentsAnimationWrapper = new RecentsAnimationWrapper(inputConsumer,
                 this::createNewInputProxyHandler);
@@ -299,8 +295,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
      */
     protected abstract boolean moveWindowWithRecentsScroll();
 
-    protected abstract boolean onActivityInit(final T activity, Boolean alreadyOnHome);
-
     /**
      * Called to create a input proxy for the running task
      */
@@ -334,8 +328,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
     public void initWhenReady() {
         // Preload the plan
         mRecentsModel.getTasks(null);
-
-        mActivityInitListener.register();
     }
 
     /**

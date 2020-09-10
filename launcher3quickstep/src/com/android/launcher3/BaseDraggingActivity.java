@@ -32,7 +32,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.uioverrides.DisplayRotationListener;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
 import com.android.launcher3.util.PackageManagerHelper;
@@ -153,13 +152,9 @@ public abstract class BaseDraggingActivity extends BaseActivity
             if (user == null || user.equals(Process.myUserHandle())) {
                 // Could be launching some bookkeeping activity
                 startActivity(intent, optsBundle);
-                AppLaunchTracker.INSTANCE.get(this).onStartApp(intent.getComponent(),
-                        Process.myUserHandle(), sourceContainer);
             } else {
                 LauncherAppsCompat.getInstance(this).startActivityForProfile(
                         intent.getComponent(), user, intent.getSourceBounds(), optsBundle);
-                AppLaunchTracker.INSTANCE.get(this).onStartApp(intent.getComponent(), user,
-                        sourceContainer);
             }
             return true;
         } catch (NullPointerException|ActivityNotFoundException|SecurityException e) {
@@ -184,10 +179,6 @@ public abstract class BaseDraggingActivity extends BaseActivity
         super.onDestroy();
         WallpaperColorInfo.getInstance(this).removeOnChangeListener(this);
         mRotationListener.disable();
-    }
-
-    public <T extends BaseDraggingActivity> void setOnStartCallback(OnStartCallback<T> callback) {
-        mOnStartCallback = callback;
     }
 
     protected void onDeviceProfileInitiated() {

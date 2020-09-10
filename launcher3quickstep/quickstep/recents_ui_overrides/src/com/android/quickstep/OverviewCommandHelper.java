@@ -18,9 +18,6 @@ package com.android.quickstep;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -28,12 +25,9 @@ import android.os.SystemClock;
 import android.view.ViewConfiguration;
 
 import com.android.launcher3.BaseDraggingActivity;
-import com.android.quickstep.ActivityControlHelper.ActivityInitListener;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
-import com.android.systemui.shared.system.LatencyTrackerCompat;
-import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
 
 /**
  * Helper class to handle various atomic commands for switching between Overview.
@@ -134,17 +128,10 @@ public class OverviewCommandHelper {
 
         protected final ActivityControlHelper<T> mHelper;
         private final long mCreateTime;
-        private final AppToOverviewAnimationProvider<T> mAnimationProvider;
-
-        private final long mToggleClickedTime = SystemClock.uptimeMillis();
-        private boolean mUserEventLogged;
-        private ActivityInitListener mListener;
 
         public RecentsActivityCommand() {
             mHelper = mOverviewComponentObserver.getActivityControlHelper();
             mCreateTime = SystemClock.elapsedRealtime();
-            mAnimationProvider =
-                    new AppToOverviewAnimationProvider<>(mHelper, RecentsModel.getRunningTaskId());
 
             // Preload the plan
             mRecentsModel.getTasks(null);
@@ -164,12 +151,6 @@ public class OverviewCommandHelper {
                 // If successfully switched, then return
                 return;
             }
-
-            // Otherwise, start overview.
-            mListener = mHelper.createActivityInitListener(this::onActivityReady);
-            mListener.registerAndStartActivity(mOverviewComponentObserver.getOverviewIntent(),
-                    this::createWindowAnimation, mContext, MAIN_EXECUTOR.getHandler(),
-                    mAnimationProvider.getRecentsLaunchDuration());
         }
 
         protected boolean handleCommand(long elapsedTime) {
@@ -187,31 +168,6 @@ public class OverviewCommandHelper {
                 return true;
             }
             return false;
-        }
-
-        private boolean onActivityReady(T activity, Boolean wasVisible) {
-            if (!mUserEventLogged) {
-                mUserEventLogged = true;
-            }
-            return mAnimationProvider.onActivityReady(activity, wasVisible);
-        }
-
-        private AnimatorSet createWindowAnimation(RemoteAnimationTargetCompat[] targetCompats) {
-            if (LatencyTrackerCompat.isEnabled(mContext)) {
-                LatencyTrackerCompat.logToggleRecents(
-                        (int) (SystemClock.uptimeMillis() - mToggleClickedTime));
-            }
-
-            mListener.unregister();
-
-            AnimatorSet animatorSet = mAnimationProvider.createWindowAnimation(targetCompats);
-            animatorSet.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    onTransitionComplete();
-                }
-            });
-            return animatorSet;
         }
 
         protected void onTransitionComplete() { }

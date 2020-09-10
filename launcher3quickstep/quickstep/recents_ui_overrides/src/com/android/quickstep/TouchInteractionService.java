@@ -74,7 +74,6 @@ import com.android.launcher3.ResourceUtils;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.BaseFlags;
-import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.util.DefaultDisplay;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.SysUINavigationMode.NavigationModeChangeListener;
@@ -727,15 +726,7 @@ public class TouchInteractionService extends Service implements
             return;
         }
 
-        final ActivityControlHelper<BaseDraggingActivity> activityControl =
-                mOverviewComponentObserver.getActivityControlHelper();
-        if (activityControl.getCreatedActivity() == null) {
-            // Make sure that UI states will be initialized.
-            activityControl.createActivityInitListener((activity, wasVisible) -> {
-                AppLaunchTracker.INSTANCE.get(activity);
-                return false;
-            }).register();
-        } else if (fromInit) {
+        if (fromInit) {
             // The activity has been created before the initialization of overview service. It is
             // usually happens when booting or launcher is the top activity, so we should already
             // have the latest state.

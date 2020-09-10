@@ -60,7 +60,6 @@ import androidx.annotation.Nullable;
 
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.model.AppLaunchTracker;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.states.InternalStateHandler;
 import com.android.launcher3.states.RotationHelper;
@@ -392,7 +391,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private void handleDeferredResume() {
         if (hasBeenResumed() && !mStateManager.getState().disableInteraction) {
             UiFactory.onLauncherStateOrResumeChanged(this);
-            AppLaunchTracker.INSTANCE.get(this).onReturnedToHome();
 
             if (mPendingActivityRequestCode != -1 && isInState(NORMAL)) {
                 UiFactory.resetPendingActivityResults(this, mPendingActivityRequestCode);
