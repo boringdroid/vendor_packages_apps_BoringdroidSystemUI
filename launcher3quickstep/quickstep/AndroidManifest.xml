@@ -19,7 +19,6 @@
 -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.android.launcher3" >
 
     <uses-permission android:name="android.permission.CONTROL_REMOTE_APP_TRANSITION_ANIMATIONS" />
@@ -59,10 +58,6 @@
             android:resizeableActivity="true"
             android:resumeWhilePausing="true"
             android:taskAffinity="" />
-
-        <service
-            android:name="com.android.launcher3.uioverrides.dynamicui.WallpaperManagerCompatVL$ColorExtractionService"
-            tools:node="remove" />
 
         <activity
             android:name="com.android.launcher3.proxy.ProxyActivityStarter"
