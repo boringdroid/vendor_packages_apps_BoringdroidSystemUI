@@ -35,7 +35,6 @@ public class PendingRequestArgs extends ItemInfo implements Parcelable {
     private final Parcelable mObject;
 
     public PendingRequestArgs(Parcel parcel) {
-        readFromValues(ContentValues.CREATOR.createFromParcel(parcel));
         user = parcel.readParcelable(null);
 
         mArg1 = parcel.readInt();
@@ -51,7 +50,6 @@ public class PendingRequestArgs extends ItemInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         ContentValues itemValues = new ContentValues();
-        writeToValues(new ContentWriter(itemValues, null));
         itemValues.writeToParcel(dest, flags);
         dest.writeParcelable(user, flags);
 

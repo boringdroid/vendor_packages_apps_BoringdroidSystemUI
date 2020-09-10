@@ -96,12 +96,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     static final boolean DEBUG_STRICT_MODE = false;
 
-    private static final int REQUEST_CREATE_SHORTCUT = 1;
-
     private static final int REQUEST_PERMISSION_CALL_PHONE = 14;
 
-    // Type: int
-    private static final String RUNTIME_STATE_CURRENT_SCREEN = "launcher.current_screen";
     // Type: int
     private static final String RUNTIME_STATE = "launcher.state";
     // Type: PendingRequestArgs
@@ -385,23 +381,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private LauncherCallbacks mLauncherCallbacks;
 
-    /**
-     * Returns whether we should delay spring loaded mode -- for shortcuts and widgets that have
-     * a configuration step, this allows the proper animations to run after other transitions.
-     */
-    private int completeAdd(PendingRequestArgs info) {
-        int screenId = info.screenId;
-        if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-            // When the screen id represents an actual screen (as opposed to a rank) we make sure
-            // that the drop page actually exists.
-            screenId = ensurePendingDropLayoutExists(info.screenId);
-        }
-
-        return screenId;
-    }
-
-    private void handleActivityResult(
-            final int requestCode, final int resultCode) {
+    private void handleActivityResult() {
         mPendingActivityResult = null;
 
         // Reset the startActivity waiting flag
@@ -410,22 +390,13 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (requestArgs == null) {
             return;
         }
-
-        if (requestCode == REQUEST_CREATE_SHORTCUT) {
-            // Handle custom shortcuts created using ACTION_CREATE_SHORTCUT.
-            if (resultCode == RESULT_OK && requestArgs.container != ItemInfo.NO_ID) {
-                completeAdd(requestArgs);
-
-            } else if (resultCode == RESULT_CANCELED) {
-            }
-        }
     }
 
     @Override
     public void onActivityResult(
             final int requestCode, final int resultCode, final Intent data) {
         mPendingActivityRequestCode = -1;
-        handleActivityResult(requestCode, resultCode);
+        handleActivityResult();
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onActivityResult(requestCode, resultCode, data);
         }
@@ -455,16 +426,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             mLauncherCallbacks.onRequestPermissionsResult(requestCode, permissions,
                     grantResults);
         }
-    }
-
-    /**
-     * Check to see if a given screen id exists. If not, create it at the end, return the new id.
-     *
-     * @param screenId the screen id to check
-     * @return the new screen, or screenId if it exists
-     */
-    private int ensurePendingDropLayoutExists(int screenId) {
-        return screenId;
     }
 
     @Override

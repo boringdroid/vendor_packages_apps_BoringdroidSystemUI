@@ -360,18 +360,14 @@ public final class Utilities {
      * @param outObj this is set to the internal data associated with {@param info},
      *               eg {@link LauncherActivityInfo} or {@link ShortcutInfo}.
      */
-    public static Drawable getFullDrawable(Launcher launcher, ItemInfo info, int width, int height,
-            boolean flattenDrawable, Object[] outObj) {
+    public static Drawable getFullDrawable(Launcher launcher, ItemInfo info,
+                                           boolean flattenDrawable, Object[] outObj) {
         LauncherAppState appState = LauncherAppState.getInstance(launcher);
-        if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
-            LauncherActivityInfo activityInfo = LauncherAppsCompat.getInstance(launcher)
-                    .resolveActivity(info.getIntent(), info.user);
-            outObj[0] = activityInfo;
-            return (activityInfo != null) ? appState.getIconCache()
-                    .getFullResIcon(activityInfo, flattenDrawable) : null;
-        } else {
-            return null;
-        }
+        LauncherActivityInfo activityInfo = LauncherAppsCompat.getInstance(launcher)
+                .resolveActivity(info.getIntent(), info.user);
+        outObj[0] = activityInfo;
+        return (activityInfo != null) ? appState.getIconCache()
+                .getFullResIcon(activityInfo, flattenDrawable) : null;
     }
 
     /**
@@ -381,7 +377,7 @@ public final class Utilities {
      * badge. When dragged from workspace or folder, it may contain app AND/OR work profile badge
      **/
     @TargetApi(Build.VERSION_CODES.O)
-    public static Drawable getBadge(Launcher launcher, ItemInfo info, Object obj) {
+    public static Drawable getBadge(Launcher launcher, ItemInfo info) {
         LauncherAppState appState = LauncherAppState.getInstance(launcher);
         int iconSize = appState.getInvariantDeviceProfile().iconBitmapSize;
         return launcher.getPackageManager()

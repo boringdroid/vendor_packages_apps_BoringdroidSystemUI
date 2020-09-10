@@ -70,7 +70,7 @@ public class ModelWriter {
         ModelVerifier verifier = new ModelVerifier();
         enqueueDeleteRunnable(() -> {
             for (ItemInfo item : items) {
-                mBgDataModel.removeItem(mContext, item);
+                mBgDataModel.removeItem(item);
                 verifier.verifyModel();
             }
         });

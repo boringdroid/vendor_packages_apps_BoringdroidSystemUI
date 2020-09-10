@@ -287,7 +287,7 @@ public class LauncherModel extends BroadcastReceiver
     public void startLoaderForResults(LoaderResults results) {
         synchronized (mLock) {
             stopLoader();
-            mLoaderTask = new LoaderTask(mApp, mBgAllAppsList, sBgDataModel, results);
+            mLoaderTask = new LoaderTask(mApp, mBgAllAppsList, results);
 
             // Always post the loader task, instead of running directly (even on same thread) so
             // that we exit any nested synchronized blocks

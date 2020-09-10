@@ -15,15 +15,11 @@
  */
 package com.android.launcher3.model;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.model.nano.LauncherDumpProto;
 import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
-import com.android.launcher3.util.IntArray;
-import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.IntSparseArrayMap;
 
 import com.google.protobuf.nano.MessageNano;
@@ -67,19 +63,6 @@ public class BgDataModel {
         itemsIdMap.clear();
     }
 
-    /**
-     * Creates an array of valid workspace screens based on current items in the model.
-     */
-    public synchronized IntArray collectWorkspaceScreens() {
-        IntSet screenSet = new IntSet();
-        for (ItemInfo item: itemsIdMap) {
-            if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                screenSet.add(item.screenId);
-            }
-        }
-        return screenSet.getArray();
-    }
-
     public synchronized void dump(String prefix, FileDescriptor fd, PrintWriter writer,
             String[] args) {
         if (Arrays.asList(args).contains("--proto")) {
@@ -119,17 +102,12 @@ public class BgDataModel {
         }
     }
 
-    public synchronized void removeItem(Context context, ItemInfo... items) {
-        removeItem(context, Arrays.asList(items));
+    public synchronized void removeItem(ItemInfo... items) {
+        removeItem(Arrays.asList(items));
     }
 
-    public synchronized void removeItem(Context context, Iterable<? extends ItemInfo> items) {
+    public synchronized void removeItem(Iterable<? extends ItemInfo> items) {
         for (ItemInfo item : items) {
-            switch (item.itemType) {
-                case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                    workspaceItems.remove(item);
-                    break;
-            }
             itemsIdMap.remove(item.id);
         }
     }

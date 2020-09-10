@@ -16,15 +16,12 @@
 
 package com.android.launcher3.model;
 
-import static com.android.launcher3.model.LoaderResults.filterCurrentWorkspaceItems;
-
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInstaller;
 import android.os.Process;
 import android.os.UserHandle;
 
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.compat.LauncherAppsCompat;
@@ -54,7 +51,6 @@ public class LoaderTask implements Runnable {
 
     private final LauncherAppState mApp;
     private final AllAppsList mBgAllAppsList;
-    private final BgDataModel mBgDataModel;
 
     private final LoaderResults mResults;
 
@@ -65,11 +61,10 @@ public class LoaderTask implements Runnable {
 
     private boolean mStopped;
 
-    public LoaderTask(LauncherAppState app, AllAppsList bgAllAppsList, BgDataModel dataModel,
-            LoaderResults results) {
+    public LoaderTask(LauncherAppState app, AllAppsList bgAllAppsList,
+                      LoaderResults results) {
         mApp = app;
         mBgAllAppsList = bgAllAppsList;
-        mBgDataModel = dataModel;
         mResults = results;
 
         mLauncherApps = LauncherAppsCompat.getInstance(mApp.getContext());
@@ -94,20 +89,6 @@ public class LoaderTask implements Runnable {
         }
     }
 
-    private void sendFirstScreenActiveInstallsBroadcast() {
-        ArrayList<ItemInfo> firstScreenItems = new ArrayList<>();
-
-        ArrayList<ItemInfo> allItems = new ArrayList<>();
-        synchronized (mBgDataModel) {
-            allItems.addAll(mBgDataModel.workspaceItems);
-        }
-        // Screen set is never empty
-        final int firstScreen = mBgDataModel.collectWorkspaceScreens().get(0);
-
-        filterCurrentWorkspaceItems(firstScreen, allItems, firstScreenItems,
-                new ArrayList<>() /* otherScreenItems are ignored */);
-    }
-
     public void run() {
         synchronized (this) {
             // Skip fast if we are already stopped.
@@ -122,10 +103,6 @@ public class LoaderTask implements Runnable {
 
             verifyNotStopped();
             TraceHelper.partitionSection(TAG, "step 1.2: bind workspace workspace");
-
-            // Notify the installer packages of packages with active installs on the first screen.
-            TraceHelper.partitionSection(TAG, "step 1.3: send first screen broadcast");
-            sendFirstScreenActiveInstallsBroadcast();
 
             // Take a break
             TraceHelper.partitionSection(TAG, "step 1 completed, wait for idle");

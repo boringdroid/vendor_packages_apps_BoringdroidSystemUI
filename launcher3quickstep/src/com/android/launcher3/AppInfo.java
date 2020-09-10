@@ -44,7 +44,6 @@ public class AppInfo extends ItemInfoWithIcon {
     public String sectionName = "";
 
     public AppInfo() {
-        itemType = LauncherSettings.Favorites.ITEM_TYPE_APPLICATION;
     }
 
     @Override
@@ -61,7 +60,6 @@ public class AppInfo extends ItemInfoWithIcon {
 
     public AppInfo(LauncherActivityInfo info, UserHandle user, boolean quietModeEnabled) {
         this.componentName = info.getComponentName();
-        this.container = ItemInfo.NO_ID;
         this.user = user;
         intent = makeLaunchIntent(info);
 

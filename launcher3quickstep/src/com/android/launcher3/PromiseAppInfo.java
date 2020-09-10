@@ -16,11 +16,9 @@
 
 package com.android.launcher3;
 
-import android.content.Context;
 import android.content.Intent;
 
 import com.android.launcher3.compat.PackageInstallerCompat;
-import com.android.launcher3.util.PackageManagerHelper;
 
 import androidx.annotation.NonNull;
 

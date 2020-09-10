@@ -20,17 +20,11 @@ import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 
 import android.os.Looper;
 
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.model.BgDataModel.Callbacks;
-import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.LooperIdleLock;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.concurrent.Executor;
 
 /**
@@ -53,47 +47,6 @@ public abstract class BaseLoaderResults {
         mBgDataModel = dataModel;
         mPageToBindFirst = pageToBindFirst;
         mCallbacks = callbacks == null ? new WeakReference<>(null) : callbacks;
-    }
-
-    /** Filters the set of items who are directly or indirectly (via another container) on the
-     * specified screen. */
-    public static <T extends ItemInfo> void filterCurrentWorkspaceItems(int currentScreenId,
-            ArrayList<T> allWorkspaceItems,
-            ArrayList<T> currentScreenItems,
-            ArrayList<T> otherScreenItems) {
-        // Purge any null ItemInfos
-        Iterator<T> iter = allWorkspaceItems.iterator();
-        while (iter.hasNext()) {
-            ItemInfo i = iter.next();
-            if (i == null) {
-                iter.remove();
-            }
-        }
-
-        // Order the set of items by their containers first, this allows use to walk through the
-        // list sequentially, build up a list of containers that are in the specified screen,
-        // as well as all items in those containers.
-        IntSet itemsOnScreen = new IntSet();
-        Collections.sort(allWorkspaceItems,
-                (lhs, rhs) -> Integer.compare(lhs.container, rhs.container));
-
-        for (T info : allWorkspaceItems) {
-            if (info.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                if (info.screenId == currentScreenId) {
-                    currentScreenItems.add(info);
-                    itemsOnScreen.add(info.id);
-                } else {
-                    otherScreenItems.add(info);
-                }
-            } else {
-                if (itemsOnScreen.contains(info.container)) {
-                    currentScreenItems.add(info);
-                    itemsOnScreen.add(info.id);
-                } else {
-                    otherScreenItems.add(info);
-                }
-            }
-        }
     }
 
     public LooperIdleLock newIdleLock(Object lock) {

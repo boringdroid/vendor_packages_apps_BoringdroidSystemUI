@@ -386,9 +386,9 @@ public class FloatingIconView extends View implements
         int width = (int) pos.width();
         int height = (int) pos.height();
         if (supportsAdaptiveIcons) {
-            drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
+            drawable = getFullDrawable(l, info, false, sTmpObjArray);
             if (drawable instanceof AdaptiveIconDrawable) {
-                badge = getBadge(l, info, sTmpObjArray[0]);
+                badge = getBadge(l, info);
             } else {
                 // The drawable we get back is not an adaptive icon, so we need to use the
                 // BubbleTextView icon that is already legacy treated.
@@ -399,7 +399,7 @@ public class FloatingIconView extends View implements
                 // Similar to DragView, we simply use the BubbleTextView icon here.
                 drawable = btvIcon;
             } else {
-                drawable = getFullDrawable(l, info, width, height, false, sTmpObjArray);
+                drawable = getFullDrawable(l, info, false, sTmpObjArray);
             }
         }
 

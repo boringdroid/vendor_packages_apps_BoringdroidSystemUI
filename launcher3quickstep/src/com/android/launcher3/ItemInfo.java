@@ -17,14 +17,11 @@
 package com.android.launcher3;
 
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Process;
 import android.os.UserHandle;
 
 import androidx.annotation.Nullable;
-
-import com.android.launcher3.util.ContentWriter;
 
 /**
  * Represents an item in the launcher.
@@ -37,25 +34,6 @@ public class ItemInfo {
      * The id in the settings database for this item
      */
     public int id = NO_ID;
-
-    /**
-     * One of {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
-     */
-    public int itemType;
-
-    /**
-     * The id of the container that holds this item. For the desktop, this will be
-     * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. For the all applications folder it
-     * will be {@link #NO_ID} (since it is not stored in the settings DB). For user folders
-     * it will be the id of the folder.
-     */
-    public int container = NO_ID;
-
-    /**
-     * Indicates the screen in which the shortcut appears if the container types is
-     * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. (i.e., ignore if the container type is
-     */
-    public int screenId = -1;
 
     /**
      * Indicates the X position of the associated cell.
@@ -119,9 +97,6 @@ public class ItemInfo {
         spanX = info.spanX;
         spanY = info.spanY;
         rank = info.rank;
-        screenId = info.screenId;
-        itemType = info.itemType;
-        container = info.container;
         user = info.user;
         contentDescription = info.contentDescription;
     }
@@ -140,28 +115,6 @@ public class ItemInfo {
         }
     }
 
-    public void writeToValues(ContentWriter writer) {
-        writer.put(LauncherSettings.Favorites.ITEM_TYPE, itemType)
-                .put(LauncherSettings.Favorites.CONTAINER, container)
-                .put(LauncherSettings.Favorites.SCREEN, screenId)
-                .put(LauncherSettings.Favorites.CELLX, cellX)
-                .put(LauncherSettings.Favorites.CELLY, cellY)
-                .put(LauncherSettings.Favorites.SPANX, spanX)
-                .put(LauncherSettings.Favorites.SPANY, spanY)
-                .put(LauncherSettings.Favorites.RANK, rank);
-    }
-
-    public void readFromValues(ContentValues values) {
-        itemType = values.getAsInteger(LauncherSettings.Favorites.ITEM_TYPE);
-        container = values.getAsInteger(LauncherSettings.Favorites.CONTAINER);
-        screenId = values.getAsInteger(LauncherSettings.Favorites.SCREEN);
-        cellX = values.getAsInteger(LauncherSettings.Favorites.CELLX);
-        cellY = values.getAsInteger(LauncherSettings.Favorites.CELLY);
-        spanX = values.getAsInteger(LauncherSettings.Favorites.SPANX);
-        spanY = values.getAsInteger(LauncherSettings.Favorites.SPANY);
-        rank = values.getAsInteger(LauncherSettings.Favorites.RANK);
-    }
-
     @Override
     public final String toString() {
         return getClass().getSimpleName() + "(" + dumpProperties() + ")";
@@ -169,9 +122,6 @@ public class ItemInfo {
 
     protected String dumpProperties() {
         return "id=" + id
-                + " type=" + LauncherSettings.Favorites.itemTypeToString(itemType)
-                + " container=" + LauncherSettings.Favorites.containerToString((int)container)
-                + " screen=" + screenId
                 + " cell(" + cellX + "," + cellY + ")"
                 + " span(" + spanX + "," + spanY + ")"
                 + " minSpan(" + minSpanX + "," + minSpanY + ")"
