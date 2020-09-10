@@ -34,7 +34,6 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"به برنامه اجازه می‌دهد تنظیمات و میان‌برها را در صفحه اصلی بخواند."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"نوشتن تنظیمات و میان‌برهای صفحه اصلی"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"به برنامه اجازه می‌دهد تنظیمات و میان‌برها را در صفحه اصلی تغییر دهد."</string>
-    <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> مجاز نیست تماس تلفنی برقرار کند"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> غیرفعال شد"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"‏صفحه %1$d از %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"ابزارک‌ها"</string>

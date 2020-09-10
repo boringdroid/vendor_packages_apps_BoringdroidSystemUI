@@ -34,7 +34,6 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Aplikaciji dovoli branje nastavitev in bližnjic na začetnem zaslonu."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"zapis nastavitev in bližnjic na začetnem zaslonu"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Aplikaciji dovoli spreminjanje nastavitev in bližnjic na začetnem zaslonu."</string>
-    <string name="msg_no_phone_permission" msgid="9208659281529857371">"Aplikaciji <xliff:g id="APP_NAME">%1$s</xliff:g> ni dovoljeno opravljanje klicev"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"Aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> je onemogočena"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Stran %1$d od %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Pripomočki"</string>

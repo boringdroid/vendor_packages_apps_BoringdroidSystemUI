@@ -31,14 +31,11 @@ import static com.android.launcher3.util.RaceConditionTracker.EXIT;
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
@@ -58,7 +55,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -71,7 +67,6 @@ import com.android.launcher3.states.InternalStateHandler;
 import com.android.launcher3.states.RotationHelper;
 import com.android.launcher3.uioverrides.UiFactory;
 import com.android.launcher3.util.ActivityResultInfo;
-import com.android.launcher3.util.PendingRequestArgs;
 import com.android.launcher3.util.RaceConditionTracker;
 import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
@@ -96,12 +91,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     static final boolean DEBUG_STRICT_MODE = false;
 
-    private static final int REQUEST_PERMISSION_CALL_PHONE = 14;
-
     // Type: int
     private static final String RUNTIME_STATE = "launcher.state";
-    // Type: PendingRequestArgs
-    private static final String RUNTIME_STATE_PENDING_REQUEST_ARGS = "launcher.request_args";
     // Type: int
     private static final String RUNTIME_STATE_PENDING_REQUEST_CODE = "launcher.request_code";
     // Type: ActivityResultInfo
@@ -143,11 +134,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     // Activity result which needs to be processed after workspace has loaded.
     private ActivityResultInfo mPendingActivityResult;
-    /**
-     * Holds extra information required to handle a result from an external call, like
-     * {@link #startActivityForResult(Intent, int)} or {@link #requestPermissions(String[], int)}
-     */
-    private PendingRequestArgs mPendingRequestArgs;
     // Request id for any pending activity result
     private int mPendingActivityRequestCode = -1;
 
@@ -219,9 +205,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         setContentView(mLauncherView);
         getRootView().dispatchInsets();
-
-        // Listen for broadcasts
-        registerReceiver(mScreenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
         getSystemUiController().updateUiState(SystemUiController.UI_STATE_BASE_WINDOW,
                 Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText));
@@ -383,13 +366,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private void handleActivityResult() {
         mPendingActivityResult = null;
-
-        // Reset the startActivity waiting flag
-        final PendingRequestArgs requestArgs = mPendingRequestArgs;
-        setWaitingForResult(null);
-        if (requestArgs == null) {
-            return;
-        }
     }
 
     @Override
@@ -405,23 +381,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
-        PendingRequestArgs pendingArgs = mPendingRequestArgs;
-        if (requestCode == REQUEST_PERMISSION_CALL_PHONE && pendingArgs != null
-                && pendingArgs.getRequestCode() == REQUEST_PERMISSION_CALL_PHONE) {
-            setWaitingForResult(null);
-
-            View v = null;
-            Intent intent = pendingArgs.getPendingIntent();
-
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startActivitySafely(v, intent, null, null);
-            } else {
-                // TODO: Show a snack bar with link to settings
-                Toast.makeText(this, getString(R.string.msg_no_phone_permission,
-                        getString(R.string.derived_app_name)), Toast.LENGTH_SHORT).show();
-            }
-        }
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onRequestPermissionsResult(requestCode, permissions,
                     grantResults);
@@ -549,11 +508,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             mStateManager.goToState(state, false /* animated */);
         }
 
-        PendingRequestArgs requestArgs = savedState.getParcelable(
-                RUNTIME_STATE_PENDING_REQUEST_ARGS);
-        if (requestArgs != null) {
-            setWaitingForResult(requestArgs);
-        }
         mPendingActivityRequestCode = savedState.getInt(RUNTIME_STATE_PENDING_REQUEST_CODE);
 
         mPendingActivityResult = savedState.getParcelable(RUNTIME_STATE_PENDING_ACTIVITY_RESULT);
@@ -575,17 +529,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         // Setup Scrim
         mScrimView = findViewById(R.id.scrim_view);
     }
-
-    private final BroadcastReceiver mScreenOffReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Reset AllApps to its initial state only if we are not in the middle of
-            // processing a multi-step drop
-            if (mPendingRequestArgs == null) {
-                mStateManager.goToState(NORMAL);
-            }
-        }
-    };
 
     @Override
     public void onAttachedToWindow() {
@@ -687,9 +630,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         AbstractFloatingView.closeOpenViews(this, false, TYPE_ALL & ~TYPE_REBIND_SAFE);
         finishAutoCancelActionMode();
 
-        if (mPendingRequestArgs != null) {
-            outState.putParcelable(RUNTIME_STATE_PENDING_REQUEST_ARGS, mPendingRequestArgs);
-        }
         outState.putInt(RUNTIME_STATE_PENDING_REQUEST_CODE, mPendingActivityRequestCode);
 
         if (mPendingActivityResult != null) {
@@ -706,8 +646,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        unregisterReceiver(mScreenOffReceiver);
 
         if (mCancelTouchController != null) {
             mCancelTouchController.run();
@@ -778,10 +716,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         // We need to show the workspace after starting the search
         mStateManager.goToState(NORMAL);
-    }
-
-    public void setWaitingForResult(PendingRequestArgs args) {
-        mPendingRequestArgs = args;
     }
 
     @Override
@@ -887,8 +821,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         writer.println(prefix + "Misc:");
         dumpMisc(prefix + "\t", writer);
         writer.println(prefix + "\tmWorkspaceLoading=" + mWorkspaceLoading);
-        writer.println(prefix + "\tmPendingRequestArgs=" + mPendingRequestArgs
-                + " mPendingActivityResult=" + mPendingActivityResult);
         writer.println(prefix + "\tmRotationHelper: " + mRotationHelper);
 
         // Extra logging for b/116853349

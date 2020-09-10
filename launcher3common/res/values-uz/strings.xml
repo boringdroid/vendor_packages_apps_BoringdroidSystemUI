@@ -34,7 +34,6 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Ilovaga \"Uy\" ekranidagi yorliqlar va sozlamalarni o‘qish uchun ruxsat beradi."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"Uy sozlamalari va yorliqlarini yozish"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ilovaga \"Uy\" ekranidagi yorliqlar va sozlamalrni o‘zgartirish uchun ruxsat beradi."</string>
-    <string name="msg_no_phone_permission" msgid="9208659281529857371">"<xliff:g id="APP_NAME">%1$s</xliff:g> ilovasiga qo‘ng‘iroqlarni amalga oshirishga ruxsat berilmagan"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> ilovasi o‘chirib qo‘yildi"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$ddan %1$d ta sahifa"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Vidjetlar"</string>

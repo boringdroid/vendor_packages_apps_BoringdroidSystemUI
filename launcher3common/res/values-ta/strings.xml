@@ -34,7 +34,6 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"முகப்பில் உள்ள அமைப்பு மற்றும் குறுக்குவழிகளைப் படிக்க ஆப்ஸை அனுமதிக்கிறது."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"முகப்பின் அமைப்பு மற்றும் குறுக்குவழிகளை எழுதுதல்"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"முகப்பில் உள்ள அமைப்பு மற்றும் குறுக்குவழிகளை மாற்ற ஆப்ஸை அனுமதிக்கிறது."</string>
-    <string name="msg_no_phone_permission" msgid="9208659281529857371">"ஃபோன் அழைப்புகள் செய்ய, <xliff:g id="APP_NAME">%1$s</xliff:g> அனுமதிக்கப்படவில்லை"</string>
     <string name="disabled_app_label" msgid="6673129024321402780">"<xliff:g id="APP_NAME">%1$s</xliff:g> முடக்கப்பட்டது"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"பக்கம் %1$d / %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"விட்ஜெட்கள்"</string>
