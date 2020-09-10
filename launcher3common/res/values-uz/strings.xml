@@ -35,8 +35,6 @@
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ilovaga \"Uy\" ekranidagi yorliqlar va sozlamalrni o‘zgartirish uchun ruxsat beradi."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$ddan %1$d ta sahifa"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Vidjetlar"</string>
-    <string name="wallpaper_button_text" msgid="8404103075899945851">"Fon rasmlari"</string>
-    <string name="settings_button_text" msgid="8873672322605444408">"Bosh ekran sozlamalari"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Bildirishnoma belgilarini chiqarish"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Bosh ekranga chiqarish"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Shaxsiy"</string>

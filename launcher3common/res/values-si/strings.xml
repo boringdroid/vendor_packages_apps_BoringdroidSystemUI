@@ -35,8 +35,6 @@
     <string name="permdesc_write_settings" msgid="5440712911516509985">"මුල් පිටුවේ සැකසීම් සහ කෙටිමං ඉවත් කිරීමට යෙදුමට අවසර දෙයි."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d හි %1$d පිටුව"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"විජට්"</string>
-    <string name="wallpaper_button_text" msgid="8404103075899945851">"වෝල්පේපර"</string>
-    <string name="settings_button_text" msgid="8873672322605444408">"නිවසේ සැකසීම්"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"දැනුම්දීම් තිත් පෙන්වන්න"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"මුල් තිරය වෙත එක් කරන්න"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"පුද්ගලික"</string>

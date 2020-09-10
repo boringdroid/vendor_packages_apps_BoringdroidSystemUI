@@ -103,18 +103,12 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
 
     @Override
     public void onAssistantVisibilityChanged(float visibility) {
-        Launcher launcher = getCreatedActivity();
-        if (launcher != null) {
-            launcher.onAssistantVisibilityChanged(visibility);
-        }
     }
 
     @NonNull
     @Override
     public HomeAnimationFactory prepareHomeUI(Launcher activity) {
         final DeviceProfile dp = activity.getDeviceProfile();
-        final RectF iconLocation = new RectF();
-        boolean canUseWorkspaceView = false;
         FloatingIconView floatingIconView = null;
 
         return new HomeAnimationFactory() {
@@ -127,11 +121,7 @@ public final class LauncherActivityControllerHelper implements ActivityControlHe
             @NonNull
             @Override
             public RectF getWindowTargetRect() {
-                if (canUseWorkspaceView) {
-                    return iconLocation;
-                } else {
-                    return HomeAnimationFactory.getDefaultWindowTargetRect(dp);
-                }
+                return HomeAnimationFactory.getDefaultWindowTargetRect(dp);
             }
 
             @NonNull

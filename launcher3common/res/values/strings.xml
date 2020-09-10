@@ -133,10 +133,8 @@
     <!-- Text for widget add button -->
     <string name="widget_button_text">Widgets</string>
     <!-- Text for wallpaper change button -->
-    <string name="wallpaper_button_text">Wallpapers</string>
     <!-- Text for wallpaper change button -->
     <!-- Text for settings button -->
-    <string name="settings_button_text">Home settings</string>
     <!-- Message shown when a feature is disabled by the administrator -->
 
     <!-- Strings for settings -->

@@ -22,8 +22,6 @@ import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
 import static com.android.launcher3.AbstractFloatingView.TYPE_ALL;
 import static com.android.launcher3.AbstractFloatingView.TYPE_REBIND_SAFE;
 import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.LauncherState.OVERVIEW;
-import static com.android.launcher3.LauncherState.OVERVIEW_PEEK;
 import static com.android.launcher3.states.RotationHelper.REQUEST_NONE;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
@@ -68,12 +66,10 @@ import com.android.launcher3.util.ActivityResultInfo;
 import com.android.launcher3.util.RaceConditionTracker;
 import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
-import com.android.launcher3.util.Thunk;
 import com.android.launcher3.util.TraceHelper;
 import com.android.launcher3.util.UiThreadHelper;
 import com.android.launcher3.util.ViewOnDrawExecutor;
 import com.android.launcher3.views.BaseDragLayer;
-import com.android.launcher3.views.ScrimView;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -103,16 +99,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     private LauncherStateManager mStateManager;
 
-    private static final int SCRIM_VIEW_ALPHA_CHANNEL_INDEX = 0;
-
     private LauncherAppTransitionManager mAppTransitionManager;
     private Configuration mOldConfig;
 
     private View mLauncherView;
-
-    // Scrim view for the all apps and overview state.
-    @Thunk
-    ScrimView mScrimView;
 
     // UI and state for the overview panel
     private View mOverviewPanel;
@@ -281,14 +271,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         onSaveInstanceState(new Bundle());
         if (oldWallpaperProfile != getWallpaperDeviceProfile()) {
             rebindModel();
-        }
-    }
-
-    public void onAssistantVisibilityChanged(float visibility) {
-        float alpha = 1f - visibility;
-        LauncherState state = mStateManager.getState();
-        if (state == OVERVIEW || state == OVERVIEW_PEEK) {
-            mScrimView.getAlphaProperty(SCRIM_VIEW_ALPHA_CHANNEL_INDEX).setValue(alpha);
         }
     }
 
@@ -484,9 +466,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
         // Setup the drag layer
         mCancelTouchController = UiFactory.enableLiveUIChanges(this);
-
-        // Setup Scrim
-        mScrimView = findViewById(R.id.scrim_view);
     }
 
     @Override

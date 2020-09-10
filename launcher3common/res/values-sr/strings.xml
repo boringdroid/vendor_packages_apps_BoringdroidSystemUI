@@ -35,8 +35,6 @@
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Дозвољава апликацији да мења подешавања и пречице на почетном екрану."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%1$d. страница од %2$d"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"Виџети"</string>
-    <string name="wallpaper_button_text" msgid="8404103075899945851">"Позадине"</string>
-    <string name="settings_button_text" msgid="8873672322605444408">"Подешавања почетног екрана"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Приказуј тачке за обавештења"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Додајте на почетни екран"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Личне"</string>

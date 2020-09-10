@@ -35,8 +35,6 @@
     <string name="permdesc_write_settings" msgid="5440712911516509985">"允許應用程式更改主畫面中的設定和捷徑。"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"第 %1$d 頁，共 %2$d 頁"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"小工具"</string>
-    <string name="wallpaper_button_text" msgid="8404103075899945851">"桌布"</string>
-    <string name="settings_button_text" msgid="8873672322605444408">"主畫面設定"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"顯示通知圓點"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"新增至主畫面"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"個人"</string>

@@ -35,8 +35,6 @@
     <string name="permdesc_write_settings" msgid="5440712911516509985">"એપ્લિકેશનને હોમમાં સેટિંગ્સ અને શોર્ટકટ્સ બદલવાની મંજૂરી આપે છે."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d માંથી %1$d પૃષ્ઠ"</string>
     <string name="widget_button_text" msgid="2880537293434387943">"વિજેટ્સ"</string>
-    <string name="wallpaper_button_text" msgid="8404103075899945851">"વૉલપેપર્સ"</string>
-    <string name="settings_button_text" msgid="8873672322605444408">"હોમ સેટિંગ"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"નોટિફિકેશન માટેના ચિહ્ન બતાવો"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"હોમ સ્ક્રીન પર ઉમેરો"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"મનગમતી ઍપ"</string>

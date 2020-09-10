@@ -38,8 +38,6 @@
     <!-- no translation found for workspace_scroll_format (8458889198184077399) -->
     <skip />
     <string name="widget_button_text" msgid="2880537293434387943">"Wijeti"</string>
-    <string name="wallpaper_button_text" msgid="8404103075899945851">"Mandhari"</string>
-    <string name="settings_button_text" msgid="8873672322605444408">"Mipangilio ya mwanzo"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Onyesha vitone vya arifa"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Ongeza kwenye Skrini ya Kwanza"</string>
     <string name="all_apps_personal_tab" msgid="4190252696685155002">"Binafsi"</string>

@@ -22,7 +22,6 @@ import static com.android.launcher3.LauncherState.SPRING_LOADED;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -37,10 +36,7 @@ import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager.StateListener;
-import com.android.launcher3.R;
-import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
-import com.android.launcher3.views.ScrimView;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.util.ClipAnimationHelper;
 import com.android.quickstep.util.ClipAnimationHelper.TransformParams;
@@ -133,11 +129,6 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
         if (!SysUINavigationMode.getMode(mActivity).hasGestures) {
             return anim;
         }
-
-        ObjectAnimator dragHandleAnim = ObjectAnimator.ofInt(
-                mActivity.findViewById(R.id.scrim_view), ScrimView.DRAG_HANDLE_ALPHA, 0);
-        dragHandleAnim.setInterpolator(Interpolators.ACCEL_2);
-        anim.play(dragHandleAnim);
 
         return anim;
     }
