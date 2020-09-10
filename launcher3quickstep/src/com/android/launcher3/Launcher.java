@@ -79,7 +79,7 @@ import java.util.List;
 /**
  * Default launcher application.
  */
-public class Launcher extends BaseDraggingActivity implements LauncherExterns,
+public class Launcher extends BaseDraggingActivity implements
         Callbacks, InvariantDeviceProfile.OnIDPChangeListener {
     public static final String TAG = "Launcher";
 
@@ -479,10 +479,6 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     public LauncherModel getModel() {
         return mModel;
-    }
-
-    public SharedPreferences getSharedPrefs() {
-        return mSharedPrefs;
     }
 
     public int getOrientation() {
