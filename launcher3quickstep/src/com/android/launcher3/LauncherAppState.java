@@ -79,7 +79,6 @@ public class LauncherAppState {
         if (BaseFlags.IS_DOGFOOD_BUILD) {
             filter.addAction(ACTION_FORCE_ROLOAD);
         }
-        BaseFlags.APP_SEARCH_IMPROVEMENTS.addChangeListener(context, mModel::forceReload);
 
         mContext.registerReceiver(mModel, filter);
         UserManagerCompat.getInstance(mContext).enableAndResetCache();

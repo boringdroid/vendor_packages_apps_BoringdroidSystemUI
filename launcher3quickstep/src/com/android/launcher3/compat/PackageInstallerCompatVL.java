@@ -23,16 +23,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInstaller.SessionCallback;
 import android.content.pm.PackageInstaller.SessionInfo;
-import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
-import com.android.launcher3.SessionCommitReceiver;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.PackageUserKey;
@@ -117,44 +114,10 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
         }
     }
 
-    /**
-     * Add a promise app icon to the workspace iff:
-     * - The settings for it are enabled
-     * - The user installed the app
-     * - There is an app icon and label (For apps with no launching activity, no icon is provided).
-     * - The app is not already installed
-     * - A promise icon for the session has not already been created
-     */
-    private void tryQueuePromiseAppIcon(SessionInfo sessionInfo) {
-        if (Utilities.ATLEAST_OREO && BaseFlags.PROMISE_APPS_NEW_INSTALLS.get()
-                && SessionCommitReceiver.isEnabled(mAppContext)
-                && verify(sessionInfo) != null
-                && sessionInfo.getInstallReason() == PackageManager.INSTALL_REASON_USER
-                && sessionInfo.getAppIcon() != null
-                && !TextUtils.isEmpty(sessionInfo.getAppLabel())
-                && !mPromiseIconIds.contains(sessionInfo.getSessionId())
-                && mLauncherApps.getApplicationInfo(sessionInfo.getAppPackageName(), 0,
-                        getUserHandle(sessionInfo)) == null) {
-            SessionCommitReceiver.queuePromiseAppIconAddition(mAppContext, sessionInfo);
-            mPromiseIconIds.add(sessionInfo.getSessionId());
-            updatePromiseIconPrefs();
-        }
-    }
-
     private final SessionCallback mCallback = new SessionCallback() {
 
         @Override
         public void onCreated(int sessionId) {
-            SessionInfo sessionInfo = pushSessionDisplayToLauncher(sessionId);
-            if (BaseFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS && sessionInfo != null) {
-                LauncherAppState app = LauncherAppState.getInstanceNoCreate();
-                if (app != null) {
-                    app.getModel().onInstallSessionCreated(
-                            PackageInstallInfo.fromInstallingState(sessionInfo));
-                }
-            }
-
-            tryQueuePromiseAppIcon(sessionInfo);
         }
 
         @Override
@@ -168,16 +131,6 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
                 String packageName = key.mPackageName;
                 sendUpdate(PackageInstallInfo.fromState(success ? STATUS_INSTALLED : STATUS_FAILED,
                         packageName, key.mUser));
-
-                if (!success && BaseFlags.PROMISE_APPS_NEW_INSTALLS.get()
-                        && mPromiseIconIds.contains(sessionId)) {
-                    LauncherAppState appState = LauncherAppState.getInstanceNoCreate();
-                    if (appState != null) {
-                        appState.getModel().onSessionFailure();
-                    }
-                    // If it is successful, the id is removed in the the package added flow.
-                    removePromiseIconId(sessionId);
-                }
             }
         }
 
@@ -194,27 +147,6 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
 
         @Override
         public void onBadgingChanged(int sessionId) {
-            SessionInfo sessionInfo = pushSessionDisplayToLauncher(sessionId);
-            if (sessionInfo != null) {
-                tryQueuePromiseAppIcon(sessionInfo);
-            }
-        }
-
-        private SessionInfo pushSessionDisplayToLauncher(int sessionId) {
-            SessionInfo session = verify(mInstaller.getSessionInfo(sessionId));
-            if (session != null && session.getAppPackageName() != null) {
-                UserHandle user = getUserHandle(session);
-                mActiveSessions.put(session.getSessionId(),
-                        new PackageUserKey(session.getAppPackageName(), user));
-                addSessionInfoToCache(session, user);
-                LauncherAppState app = LauncherAppState.getInstanceNoCreate();
-                if (app != null) {
-                    app.getModel().updateSessionDisplayInfo(session.getAppPackageName()
-                    );
-                }
-                return session;
-            }
-            return null;
         }
     };
 

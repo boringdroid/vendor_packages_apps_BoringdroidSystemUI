@@ -18,7 +18,6 @@ package com.android.launcher3;
 
 import static com.android.launcher3.compat.AccessibilityManagerCompat.isAccessibilityEnabled;
 import static com.android.launcher3.compat.AccessibilityManagerCompat.isObservedEventType;
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.touch.OverScroll.OVERSCROLL_DAMP_FACTOR;
 
 import android.animation.LayoutTransition;
@@ -1365,12 +1364,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
         // interpolator at zero, ie. 5. We use 4 to make it a little slower.
         duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
 
-        if (QUICKSTEP_SPRINGS.get()) {
-            return snapToPage(whichPage, delta, duration, false, null,
-                    velocity * Math.signum(newX - getUnboundedScrollX()), true);
-        } else {
-            return snapToPage(whichPage, delta, duration);
-        }
+        return snapToPage(whichPage, delta, duration);
     }
 
     public boolean snapToPage(int whichPage) {
@@ -1435,11 +1429,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
             mScroller.setInterpolator(mDefaultInterpolator);
         }
 
-        if (spring && QUICKSTEP_SPRINGS.get()) {
-            mScroller.startScrollSpring(getUnboundedScrollX(), delta, duration, velocity);
-        } else {
-            mScroller.startScroll(getUnboundedScrollX(), delta, duration);
-        }
+        mScroller.startScroll(getUnboundedScrollX(), delta, duration);
 
         updatePageIndicator();
 

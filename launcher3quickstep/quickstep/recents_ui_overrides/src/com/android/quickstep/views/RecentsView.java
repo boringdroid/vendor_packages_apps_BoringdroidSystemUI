@@ -16,12 +16,9 @@
 
 package com.android.quickstep.views;
 
-import static androidx.dynamicanimation.animation.DynamicAnimation.MIN_VISIBLE_CHANGE_PIXELS;
 import static com.android.launcher3.BaseActivity.STATE_HANDLER_INVISIBILITY_FLAGS;
 import static com.android.launcher3.InvariantDeviceProfile.CHANGE_FLAG_ICON_PARAMS;
 import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
-import static com.android.launcher3.LauncherAnimUtils.VIEW_TRANSLATE_X;
-import static com.android.launcher3.LauncherAnimUtils.VIEW_TRANSLATE_Y;
 import static com.android.launcher3.Utilities.EDGE_NAV_BAR;
 import static com.android.launcher3.Utilities.squaredHypot;
 import static com.android.launcher3.Utilities.squaredTouchSlop;
@@ -29,8 +26,6 @@ import static com.android.launcher3.anim.Interpolators.ACCEL;
 import static com.android.launcher3.anim.Interpolators.ACCEL_2;
 import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.uioverrides.touchcontrollers.TaskViewTouchController.SUCCESS_TRANSITION_PROGRESS;
 import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
 import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
@@ -52,7 +47,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -75,7 +69,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ListView;
 
 import androidx.annotation.Nullable;
-import androidx.dynamicanimation.animation.SpringForce;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
@@ -87,7 +80,6 @@ import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.PropertyListBuilder;
-import com.android.launcher3.anim.SpringObjectAnimator;
 import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.OverScroller;
@@ -152,7 +144,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     protected int mTaskHeight;
     protected boolean mEnableDrawingLiveTile = false;
     protected final Rect mTempRect = new Rect();
-    protected final RectF mTempRectF = new RectF();
 
     private static final int DISMISS_TASK_DURATION = 300;
     private static final int ADDITION_TASK_DURATION = 200;
@@ -268,7 +259,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     private boolean mOverviewStateEnabled;
     private boolean mHandleTaskStackChanges;
-    private boolean mSwipeDownShouldLaunchApp;
     private boolean mTouchDownToStartHome;
     private final float mSquaredTouchSlop;
     private int mDownX;
@@ -293,7 +283,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     private final int mEmptyMessagePadding;
     private boolean mShowEmptyMessage;
     private Layout mEmptyTextLayout;
-    private LiveTileOverlay mLiveTileOverlay;
 
     // Keeps track of the index where the first TaskView should be
     private int mTaskViewStartIndex = 0;
@@ -817,9 +806,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
      */
     public void onSwipeUpAnimationSuccess() {
         if (getRunningTaskView() != null) {
-            float startProgress = ENABLE_QUICKSTEP_LIVE_TILE.get() && mLiveTileOverlay != null
-                    ? mLiveTileOverlay.cancelIconAnimation()
-                    : 0f;
+            float startProgress = 0f;
             animateUpRunningTaskIconScale(startProgress);
         }
         setSwipeDownShouldLaunchApp(true);
@@ -832,7 +819,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         setEnableFreeScroll(true);
         setEnableDrawingLiveTile(true);
         setOnScrollChangeListener(null);
-        setRunningTaskViewShowScreenshot(true);
         setRunningTaskHidden(false);
         animateUpRunningTaskIconScale();
     }
@@ -864,7 +850,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         boolean runningTaskTileHidden = mRunningTaskTileHidden;
         setCurrentTask(runningTaskId);
         setCurrentPage(getRunningTaskIndex());
-        setRunningTaskViewShowScreenshot(false);
         setRunningTaskHidden(runningTaskTileHidden);
 
         // Reload the task list
@@ -883,7 +868,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         if (mRunningTaskId != -1) {
             // Reset the state on the old running task view
             setRunningTaskIconScaledDown(false);
-            setRunningTaskViewShowScreenshot(true);
             setRunningTaskHidden(false);
         }
         mRunningTaskId = runningTaskId;
@@ -897,15 +881,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         TaskView runningTask = getRunningTaskView();
         if (runningTask != null) {
             runningTask.setStableAlpha(isHidden ? 0 : mContentAlpha);
-        }
-    }
-
-    private void setRunningTaskViewShowScreenshot(boolean showScreenshot) {
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            TaskView runningTaskView = getRunningTaskView();
-            if (runningTaskView != null) {
-                runningTaskView.setShowScreenshot(showScreenshot);
-            }
         }
     }
 
@@ -989,7 +964,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public void setSwipeDownShouldLaunchApp(boolean swipeDownShouldLaunchApp) {
-        mSwipeDownShouldLaunchApp = swipeDownShouldLaunchApp;
     }
 
     public interface PageCallbacks {
@@ -1016,16 +990,8 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     private void addDismissedTaskAnimations(View taskView, AnimatorSet anim, long duration) {
         addAnim(ObjectAnimator.ofFloat(taskView, ALPHA, 0), duration, ACCEL_2, anim);
-        if (QUICKSTEP_SPRINGS.get() && taskView instanceof TaskView)
-            addAnim(new SpringObjectAnimator<>(taskView, VIEW_TRANSLATE_Y,
-                            MIN_VISIBLE_CHANGE_PIXELS, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY,
-                            SpringForce.STIFFNESS_MEDIUM,
-                            0, -taskView.getHeight()),
-                    duration, LINEAR, anim);
-        else {
-            addAnim(ObjectAnimator.ofFloat(taskView, TRANSLATION_Y, -taskView.getHeight()),
-                    duration, LINEAR, anim);
-        }
+        addAnim(ObjectAnimator.ofFloat(taskView, TRANSLATION_Y, -taskView.getHeight()),
+                duration, LINEAR, anim);
     }
 
     private void removeTask(Task task) {
@@ -1089,15 +1055,8 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
                 }
                 int scrollDiff = newScroll[i] - oldScroll[i] + offset;
                 if (scrollDiff != 0) {
-                    if (QUICKSTEP_SPRINGS.get() && child instanceof TaskView) {
-                        addAnim(new SpringObjectAnimator<>(child, VIEW_TRANSLATE_X,
-                                MIN_VISIBLE_CHANGE_PIXELS, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY,
-                                SpringForce.STIFFNESS_MEDIUM,
-                                0, scrollDiff), duration, ACCEL, anim);
-                    } else {
-                        addAnim(ObjectAnimator.ofFloat(child, TRANSLATION_X, scrollDiff), duration,
-                                ACCEL, anim);
-                    }
+                    addAnim(ObjectAnimator.ofFloat(child, TRANSLATION_X, scrollDiff), duration,
+                            ACCEL, anim);
 
                     needsCurveUpdates = true;
                 }
@@ -1119,12 +1078,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mPendingAnimation.addEndListener(new Consumer<PendingAnimation.OnEndListener>() {
             @Override
             public void accept(PendingAnimation.OnEndListener onEndListener) {
-                if (ENABLE_QUICKSTEP_LIVE_TILE.get() &&
-                        taskView.isRunningTask() && onEndListener.isSuccess) {
-                    finishRecentsAnimation(true /* toHome */, () -> onEnd(onEndListener));
-                } else {
-                    onEnd(onEndListener);
-                }
+                onEnd(onEndListener);
             }
 
             private void onEnd(PendingAnimation.OnEndListener onEndListener) {
@@ -1595,18 +1549,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     public void setEnableDrawingLiveTile(boolean enableDrawingLiveTile) {
         mEnableDrawingLiveTile = enableDrawingLiveTile;
-    }
-
-    public void redrawLiveTile(boolean mightNeedToRefill) { }
-
-    public void setLiveTileOverlay(LiveTileOverlay liveTileOverlay) {
-        mLiveTileOverlay = liveTileOverlay;
-    }
-
-    public void updateLiveTileIcon(Drawable icon) {
-        if (mLiveTileOverlay != null) {
-            mLiveTileOverlay.setIcon(icon);
-        }
     }
 
     public void finishRecentsAnimation(boolean toRecents, Runnable onFinishComplete) {

@@ -19,7 +19,6 @@ package com.android.launcher3.config;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Keep;
@@ -46,50 +45,6 @@ public abstract class BaseFlags {
     }
 
     public static final boolean IS_DOGFOOD_BUILD = false;
-
-    // When enabled the promise icon is visible in all apps while installation an app.
-    public static final boolean LAUNCHER3_PROMISE_APPS_IN_ALL_APPS = false;
-
-    // When enabled a promise icon is added to the home screen when install session is active.
-    public static final TogglableFlag PROMISE_APPS_NEW_INSTALLS =
-            new TogglableFlag("PROMISE_APPS_NEW_INSTALLS", true,
-                    "Adds a promise icon to the home screen for new install sessions.");
-
-    // When true, overview shows screenshots in the orientation they were taken rather than
-    // trying to make them fit the orientation the device is in.
-    public static final boolean OVERVIEW_USE_SCREENSHOT_ORIENTATION = true;
-
-    /**
-     * Feature flag to handle define config changes dynamically instead of killing the process.
-     */
-    public static final TogglableFlag APPLY_CONFIG_AT_RUNTIME = new TogglableFlag(
-            "APPLY_CONFIG_AT_RUNTIME", true, "Apply display changes dynamically");
-
-    public static final TogglableFlag QUICKSTEP_SPRINGS = new TogglableFlag("QUICKSTEP_SPRINGS",
-            false, "Enable springs for quickstep animations");
-
-    public static final TogglableFlag ADAPTIVE_ICON_WINDOW_ANIM = new TogglableFlag(
-            "ADAPTIVE_ICON_WINDOW_ANIM", true,
-            "Use adaptive icons for window animations.");
-
-    public static final TogglableFlag ENABLE_QUICKSTEP_LIVE_TILE = new TogglableFlag(
-            "ENABLE_QUICKSTEP_LIVE_TILE", false, "Enable live tile in Quickstep overview");
-
-    public static final TogglableFlag ENABLE_HINTS_IN_OVERVIEW = new TogglableFlag(
-            "ENABLE_HINTS_IN_OVERVIEW", true,
-            "Show chip hints and gleams on the overview screen");
-
-    public static final TogglableFlag FAKE_LANDSCAPE_UI = new TogglableFlag(
-            "FAKE_LANDSCAPE_UI", false,
-            "Rotate launcher UI instead of using transposed layout");
-
-    public static final TogglableFlag APP_SEARCH_IMPROVEMENTS = new TogglableFlag(
-            "APP_SEARCH_IMPROVEMENTS", true,
-            "Adds localized title and keyword search and ranking");
-
-    public static final TogglableFlag ASSISTANT_GIVES_LAUNCHER_FOCUS = new TogglableFlag(
-            "ASSISTANT_GIVES_LAUNCHER_FOCUS", false,
-            "Allow Launcher to handle nav bar gestures while Assistant is running over it");
 
     public static abstract class BaseTogglableFlag {
         private final String key;
@@ -118,8 +73,6 @@ public abstract class BaseFlags {
         }
 
         protected abstract boolean getOverridenDefaultValue(boolean value);
-
-        protected abstract void addChangeListener(Context context, Runnable r);
 
         boolean getDefaultValue() {
             return getOverridenDefaultValue(defaultValue);

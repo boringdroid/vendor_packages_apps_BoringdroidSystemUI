@@ -15,7 +15,6 @@
  */
 package com.android.quickstep.util;
 
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.systemui.shared.system.QuickStepContract.getWindowCornerRadius;
 import static com.android.systemui.shared.system.QuickStepContract.supportsRoundedCornersOnWindows;
 import static com.android.systemui.shared.system.RemoteAnimationTargetCompat.MODE_CLOSING;
@@ -78,7 +77,6 @@ public class ClipAnimationHelper {
     private final Matrix mTmpMatrix = new Matrix();
     private final Rect mTmpRect = new Rect();
     private final RectF mTmpRectF = new RectF();
-    private final RectF mCurrentRectWithInsets = new RectF();
     // Corner radius of windows, in pixels
     private final float mWindowCornerRadius;
     // Corner radius of windows when they're in overview mode.
@@ -87,9 +85,6 @@ public class ClipAnimationHelper {
     private final boolean mSupportsRoundedCornersOnWindows;
     // Whether or not to actually use the rounded cornders on windows
     private boolean mUseRoundedCornersOnWindows;
-
-    // Corner radius currently applied to transformed window.
-    private float mCurrentCornerRadius;
 
     // Whether to boost the opening animation target layers, or the closing
     private int mBoostModeTargetLayers = -1;
@@ -199,7 +194,6 @@ public class ClipAnimationHelper {
                             cornerRadius = Utilities.mapRange(progress, windowCornerRadius,
                                     mTaskCornerRadius);
                         }
-                        mCurrentCornerRadius = cornerRadius;
                     }
                     // Fade out Assistant overlay.
                     if (app.activityType == RemoteAnimationTargetCompat.ACTIVITY_TYPE_ASSISTANT
@@ -213,10 +207,6 @@ public class ClipAnimationHelper {
                 }
             } else {
                 alpha = mBaseAlphaCallback.getAlpha(app, progress);
-                if (ENABLE_QUICKSTEP_LIVE_TILE.get() && launcherOnTop) {
-                    crop = null;
-                    layer = Integer.MAX_VALUE;
-                }
             }
 
             // Since radius is in Surface space, but we draw the rounded corners in screen space, we
@@ -226,11 +216,6 @@ public class ClipAnimationHelper {
         }
         applySurfaceParams(params.syncTransactionApplier, surfaceParams);
         return params.currentRect;
-    }
-
-    public RectF getCurrentRectWithInsets() {
-        mTmpMatrix.mapRect(mCurrentRectWithInsets, mClipRectF);
-        return mCurrentRectWithInsets;
     }
 
     private void applySurfaceParams(@Nullable SyncRtSurfaceTransactionApplierCompat
@@ -342,10 +327,6 @@ public class ClipAnimationHelper {
 
     public RectF getTargetRect() {
         return mTargetRect;
-    }
-
-    public float getCurrentCornerRadius() {
-        return mCurrentCornerRadius;
     }
 
     public interface TargetAlphaProvider {

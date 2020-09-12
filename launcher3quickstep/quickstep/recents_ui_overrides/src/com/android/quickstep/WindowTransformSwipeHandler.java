@@ -19,8 +19,6 @@ import static com.android.launcher3.BaseActivity.INVISIBLE_BY_STATE_HANDLER;
 import static com.android.launcher3.BaseActivity.STATE_HANDLER_INVISIBILITY_FLAGS;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.util.DefaultDisplay.getSingleFrameMs;
 import static com.android.launcher3.util.RaceConditionTracker.ENTER;
 import static com.android.launcher3.util.RaceConditionTracker.EXIT;
@@ -72,7 +70,6 @@ import com.android.quickstep.util.ClipAnimationHelper.TargetAlphaProvider;
 import com.android.quickstep.util.RectFSpringAnim;
 import com.android.quickstep.util.ShelfPeekAnim.ShelfAnimState;
 import com.android.quickstep.util.SwipeAnimationTargetSet;
-import com.android.quickstep.views.LiveTileOverlay;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
 import com.android.systemui.shared.recents.model.ThumbnailData;
@@ -187,7 +184,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     private boolean mHasLauncherTransitionControllerStarted;
 
     private AnimationFactory mAnimationFactory = (t) -> { };
-    private LiveTileOverlay mLiveTileOverlay = new LiveTileOverlay();
     private boolean mLiveTileOverlayAttached = false;
 
     private boolean mPassedOverviewThreshold;
@@ -260,11 +256,9 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         mStateCallback.addCallback(STATE_APP_CONTROLLER_RECEIVED | STATE_GESTURE_STARTED,
                 mRecentsAnimationWrapper::enableInputConsumer);
 
-        if (!ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            mStateCallback.addChangeHandler(STATE_APP_CONTROLLER_RECEIVED | STATE_LAUNCHER_PRESENT
-                            | STATE_SCREENSHOT_VIEW_SHOWN | STATE_CAPTURE_SCREENSHOT,
-                    (b) -> mRecentsView.setRunningTaskHidden(!b));
-        }
+        mStateCallback.addChangeHandler(STATE_APP_CONTROLLER_RECEIVED | STATE_LAUNCHER_PRESENT
+                        | STATE_SCREENSHOT_VIEW_SHOWN | STATE_CAPTURE_SCREENSHOT,
+                (b) -> mRecentsView.setRunningTaskHidden(!b));
     }
 
     private void onLauncherPresentAndGestureStarted() {
@@ -395,13 +389,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
             updateSysUiFlags(mCurrentShift.value);
         }
 
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            if (mRecentsAnimationWrapper.getController() != null) {
-                mLiveTileOverlay.update(mClipAnimationHelper.getCurrentRectWithInsets(),
-                        mClipAnimationHelper.getCurrentCornerRadius());
-            }
-        }
-
         final boolean passed = mCurrentShift.value >= MIN_PROGRESS_FOR_OVERVIEW;
         if (passed != mPassedOverviewThreshold) {
             mPassedOverviewThreshold = passed;
@@ -507,14 +494,12 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     protected InputConsumer createNewInputProxyHandler() {
         endRunningWindowAnim(mGestureEndTarget == HOME /* cancel */);
         endLauncherTransitionController();
-        if (!ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            // Hide the task view, if not already hidden
-            setTargetAlphaProvider(WindowTransformSwipeHandler::getHiddenTargetAlpha);
-        }
+        // Hide the task view, if not already hidden
+        setTargetAlphaProvider(WindowTransformSwipeHandler::getHiddenTargetAlpha);
 
         BaseDraggingActivity activity = mActivityControlHelper.getCreatedActivity();
         return activity == null
-                ? InputConsumer.NO_OP : new OverviewInputConsumer(activity, true);
+                ? InputConsumer.NO_OP : new OverviewInputConsumer(true);
     }
 
     private void endRunningWindowAnim(boolean cancel) {
@@ -645,7 +630,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
             setShelfState(ShelfAnimState.CANCEL);
             duration = Math.max(MIN_OVERSHOOT_DURATION, duration);
         } else if (endTarget == RECENTS) {
-            mLiveTileOverlay.startIconAnimation();
             if (mRecentsView != null) {
                 int nearestPage = mRecentsView.getPageNearestToCenterOfScreen();
                 if (mRecentsView.getNextPage() != nearestPage) {
@@ -768,9 +752,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         }
         mLauncherTransitionController.getAnimationPlayer().setDuration(Math.max(0, duration));
 
-        if (QUICKSTEP_SPRINGS.get()) {
-            mLauncherTransitionController.dispatchOnStartWithVelocity(end, velocityPxPerMs.y);
-        }
         mLauncherTransitionController.getAnimationPlayer().start();
         mHasLauncherTransitionControllerStarted = true;
     }
@@ -908,9 +889,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     private void switchToScreenshot() {
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            setStateOnUiThread(STATE_SCREENSHOT_CAPTURED);
-        } else if (!mRecentsAnimationWrapper.hasTargets()) {
+        if (!mRecentsAnimationWrapper.hasTargets()) {
             // If there are no targets, then we don't need to capture anything
             setStateOnUiThread(STATE_SCREENSHOT_CAPTURED);
         } else {
@@ -972,9 +951,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     private void finishCurrentTransitionToRecents() {
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            setStateOnUiThread(STATE_CURRENT_TASK_FINISHED);
-        } else if (!mRecentsAnimationWrapper.hasTargets()) {
+        if (!mRecentsAnimationWrapper.hasTargets()) {
             // If there are no targets, then there is nothing to finish
             setStateOnUiThread(STATE_CURRENT_TASK_FINISHED);
         } else {
@@ -1012,7 +989,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
     private synchronized void removeLiveTileOverlay() {
         if (mLiveTileOverlayAttached) {
-            mRecentsView.setLiveTileOverlay(null);
             mLiveTileOverlayAttached = false;
         }
     }

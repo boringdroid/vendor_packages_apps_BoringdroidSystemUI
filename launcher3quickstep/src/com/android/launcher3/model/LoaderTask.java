@@ -17,7 +17,6 @@
 package com.android.launcher3.model;
 
 import android.content.pm.LauncherActivityInfo;
-import android.content.pm.PackageInstaller;
 import android.os.Process;
 import android.os.UserHandle;
 
@@ -25,9 +24,7 @@ import com.android.launcher3.AppInfo;
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.LauncherModel;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
@@ -56,7 +53,6 @@ public class LoaderTask implements Runnable {
 
     private final LauncherAppsCompat mLauncherApps;
     private final UserManagerCompat mUserManager;
-    private final PackageInstallerCompat mPackageInstaller;
     private final IconCache mIconCache;
 
     private boolean mStopped;
@@ -69,7 +65,6 @@ public class LoaderTask implements Runnable {
 
         mLauncherApps = LauncherAppsCompat.getInstance(mApp.getContext());
         mUserManager = UserManagerCompat.getInstance(mApp.getContext());
-        mPackageInstaller = PackageInstallerCompat.getInstance(mApp.getContext());
         mIconCache = mApp.getIconCache();
     }
 
@@ -183,15 +178,6 @@ public class LoaderTask implements Runnable {
                 mBgAllAppsList.add(new AppInfo(app, user, quietMode), app);
             }
             allActivityList.addAll(apps);
-        }
-
-        if (BaseFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS) {
-            // get all active sessions and add them to the all apps list
-            for (PackageInstaller.SessionInfo info :
-                    mPackageInstaller.getAllVerifiedSessions()) {
-                mBgAllAppsList.addPromiseApp(mApp.getContext(),
-                        PackageInstallerCompat.PackageInstallInfo.fromInstallingState(info));
-            }
         }
 
         mBgAllAppsList.getAndResetChangeFlag();

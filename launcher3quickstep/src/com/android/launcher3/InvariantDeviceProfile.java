@@ -17,7 +17,6 @@
 package com.android.launcher3;
 
 import static com.android.launcher3.Utilities.getDevicePrefs;
-import static com.android.launcher3.config.BaseFlags.APPLY_CONFIG_AT_RUNTIME;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.PackageManagerHelper.getPackageFilter;
 
@@ -153,8 +152,7 @@ public class InvariantDeviceProfile {
                 ? Utilities.getPrefs(context).getString(KEY_IDP_GRID_NAME, null)
                 : null;
         initGrid(context, gridName);
-        mConfigMonitor = new ConfigMonitor(context,
-                APPLY_CONFIG_AT_RUNTIME.get() ? this::onConfigChanged : this::killProcess);
+        mConfigMonitor = new ConfigMonitor(context, this::onConfigChanged);
         mOverlayMonitor = new OverlayMonitor(context);
     }
 

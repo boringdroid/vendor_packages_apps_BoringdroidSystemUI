@@ -15,8 +15,6 @@
  */
 package com.android.quickstep.views;
 
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-
 import android.animation.AnimatorSet;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -126,17 +124,6 @@ public class LauncherRecentsView extends RecentsView<BaseActivity> implements St
 
     @Override
     protected void onTaskLaunchAnimationUpdate(float progress, TaskView tv) {
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            if (mRecentsAnimationWrapper.targetSet != null && tv.isRunningTask()) {
-                mTransformParams.setProgress(1 - progress)
-                        .setSyncTransactionApplier(mSyncTransactionApplier)
-                        .setForLiveTile(true);
-                mClipAnimationHelper.applyTransform(mRecentsAnimationWrapper.targetSet,
-                        mTransformParams);
-            } else {
-                redrawLiveTile(true);
-            }
-        }
     }
 
     @Override
@@ -152,43 +139,6 @@ public class LauncherRecentsView extends RecentsView<BaseActivity> implements St
     @Override
     public void scrollTo(int x, int y) {
         super.scrollTo(x, y);
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get() && mEnableDrawingLiveTile) {
-            redrawLiveTile(true);
-        }
-    }
-
-    @Override
-    public void redrawLiveTile(boolean mightNeedToRefill) {
-        if (!mEnableDrawingLiveTile || mRecentsAnimationWrapper == null
-                || mClipAnimationHelper == null) {
-            return;
-        }
-        TaskView taskView = getRunningTaskView();
-        if (taskView != null) {
-            taskView.getThumbnail().getGlobalVisibleRect(mTempRect);
-            int offsetX = (int) (mTaskWidth * taskView.getScaleX() * getScaleX()
-                    - mTempRect.width());
-            int offsetY = (int) (mTaskHeight * taskView.getScaleY() * getScaleY()
-                    - mTempRect.height());
-            if (((mCurrentPage != 0) || mightNeedToRefill) && offsetX > 0) {
-                if (mTempRect.left - offsetX < 0) {
-                    mTempRect.left -= offsetX;
-                } else {
-                    mTempRect.right += offsetX;
-                }
-            }
-            if (mightNeedToRefill && offsetY > 0) {
-                mTempRect.top -= offsetY;
-            }
-            mTempRectF.set(mTempRect);
-            mTransformParams.setProgress(1f)
-                    .setCurrentRectAndTargetAlpha(mTempRectF, taskView.getAlpha())
-                    .setSyncTransactionApplier(mSyncTransactionApplier);
-            if (mRecentsAnimationWrapper.targetSet != null) {
-                mClipAnimationHelper.applyTransform(mRecentsAnimationWrapper.targetSet,
-                        mTransformParams);
-            }
-        }
     }
 
     @Override

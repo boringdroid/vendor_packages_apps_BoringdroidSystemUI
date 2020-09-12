@@ -18,10 +18,8 @@ package com.android.quickstep.views;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-import static com.android.launcher3.QuickstepAppTransitionManagerImpl.RECENTS_LAUNCH_DURATION;
 import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -50,9 +48,7 @@ import android.widget.Toast;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.ViewPool.Reusable;
 import com.android.quickstep.RecentsModel;
 import com.android.quickstep.TaskIconCache;
@@ -144,8 +140,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
     private float mFocusTransitionProgress = 1;
     private float mStableAlpha = 1;
 
-    private boolean mShowScreenshot;
-
     // The current background requests to load the task thumbnail and icon
     private TaskThumbnailCache.ThumbnailLoadRequest mThumbnailLoadRequest;
     private TaskIconCache.IconLoadRequest mIconLoadRequest;
@@ -172,15 +166,7 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
             if (getTask() == null) {
                 return;
             }
-            if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-                if (isRunningTask()) {
-                    createLaunchAnimationForRunningTask().start();
-                } else {
-                    launchTask(true /* animate */);
-                }
-            } else {
-                launchTask(true /* animate */);
-            }
+            launchTask(true /* animate */);
         });
         mCornerRadius = TaskCornerRadius.get(context);
         mWindowCornerRadius = QuickStepContract.getWindowCornerRadius(context.getResources());
@@ -219,19 +205,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         return mIconView;
     }
 
-    public AnimatorPlaybackController createLaunchAnimationForRunningTask() {
-        final PendingAnimation pendingAnimation =
-                getRecentsView().createTaskLauncherAnimation(this, RECENTS_LAUNCH_DURATION);
-        pendingAnimation.anim.setInterpolator(Interpolators.TOUCH_RESPONSE_INTERPOLATOR);
-        AnimatorPlaybackController currentAnimation = AnimatorPlaybackController
-                .wrap(pendingAnimation.anim, RECENTS_LAUNCH_DURATION, null);
-        currentAnimation.setEndAction(() -> {
-            pendingAnimation.finish(true);
-            launchTask(false);
-        });
-        return currentAnimation;
-    }
-
     public void launchTask(boolean animate) {
         launchTask(animate, false /* freezeTaskList */);
     }
@@ -251,16 +224,7 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
 
     public void launchTask(boolean animate, boolean freezeTaskList, Consumer<Boolean> resultCallback,
             Handler resultCallbackHandler) {
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            if (isRunningTask()) {
-                getRecentsView().finishRecentsAnimation(false /* toRecents */,
-                        () -> resultCallbackHandler.post(() -> resultCallback.accept(true)));
-            } else {
-                launchTaskInternal(animate, freezeTaskList, resultCallback, resultCallbackHandler);
-            }
-        } else {
-            launchTaskInternal(animate, freezeTaskList, resultCallback, resultCallbackHandler);
-        }
+        launchTaskInternal(animate, freezeTaskList, resultCallback, resultCallbackHandler);
     }
 
     private void launchTaskInternal(boolean animate, boolean freezeTaskList,
@@ -314,9 +278,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
             mIconLoadRequest = iconCache.updateIconInBackground(mTask,
                     (task) -> {
                         setIcon(task.icon);
-                        if (ENABLE_QUICKSTEP_LIVE_TILE.get() && isRunningTask()) {
-                            getRecentsView().updateLiveTileIcon(task.icon);
-                        }
                         mDigitalWellBeingToast.initialize(mTask);
                     });
         } else {
@@ -762,24 +723,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         thumbnail.setFullscreenParams(mCurrentFullscreenParams);
         mOutlineProvider.setFullscreenParams(mCurrentFullscreenParams);
         invalidateOutline();
-    }
-
-    public boolean isRunningTask() {
-        if (getRecentsView() == null) {
-            return false;
-        }
-        return this == getRecentsView().getRunningTaskView();
-    }
-
-    public void setShowScreenshot(boolean showScreenshot) {
-        mShowScreenshot = showScreenshot;
-    }
-
-    public boolean showScreenshot() {
-        if (!isRunningTask()) {
-            return true;
-        }
-        return mShowScreenshot;
     }
 
     public void setOverlayEnabled(boolean overlayEnabled) {

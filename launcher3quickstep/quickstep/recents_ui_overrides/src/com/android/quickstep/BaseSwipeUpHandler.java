@@ -18,7 +18,6 @@ package com.android.quickstep;
 import static com.android.launcher3.Utilities.postAsyncCallback;
 import static com.android.launcher3.anim.Interpolators.ACCEL_1_5;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.VibratorWrapper.OVERVIEW_HAPTIC;
 
@@ -180,35 +179,28 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
     public abstract Intent getLaunchIntent();
 
     protected void startNewTask(int successStateFlag, Consumer<Boolean> resultCallback) {
-        // Launch the task user scrolled to (mRecentsView.getNextPage()).
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            // We finish recents animation inside launchTask() when live tile is enabled.
-            mRecentsView.getNextPageTaskView().launchTask(false /* animate */,
-                    true /* freezeTaskList */);
-        } else {
-            int taskId = mRecentsView.getNextPageTaskView().getTask().key.id;
-            mFinishingRecentsAnimationForNewTaskId = taskId;
-            mRecentsAnimationWrapper.finish(true /* toRecents */, () -> {
-                if (!mCanceled) {
-                    TaskView nextTask = mRecentsView.getTaskView(taskId);
-                    if (nextTask != null) {
-                        nextTask.launchTask(false /* animate */, true /* freezeTaskList */,
-                                success -> {
-                                    resultCallback.accept(success);
-                                    if (!success) {
-                                        mActivityControlHelper.onLaunchTaskFailed(mActivity);
-                                        nextTask.notifyTaskLaunchFailed(TAG);
-                                    } else {
-                                        mActivityControlHelper.onLaunchTaskSuccess(mActivity);
-                                    }
-                                }, mMainThreadHandler);
-                    }
-                    setStateOnUiThread(successStateFlag);
+        int taskId = mRecentsView.getNextPageTaskView().getTask().key.id;
+        mFinishingRecentsAnimationForNewTaskId = taskId;
+        mRecentsAnimationWrapper.finish(true /* toRecents */, () -> {
+            if (!mCanceled) {
+                TaskView nextTask = mRecentsView.getTaskView(taskId);
+                if (nextTask != null) {
+                    nextTask.launchTask(false /* animate */, true /* freezeTaskList */,
+                            success -> {
+                                resultCallback.accept(success);
+                                if (!success) {
+                                    mActivityControlHelper.onLaunchTaskFailed(mActivity);
+                                    nextTask.notifyTaskLaunchFailed(TAG);
+                                } else {
+                                    mActivityControlHelper.onLaunchTaskSuccess(mActivity);
+                                }
+                            }, mMainThreadHandler);
                 }
-                mCanceled = false;
-                mFinishingRecentsAnimationForNewTaskId = -1;
-            });
-        }
+                setStateOnUiThread(successStateFlag);
+            }
+            mCanceled = false;
+            mFinishingRecentsAnimationForNewTaskId = -1;
+        });
     }
 
     @Override

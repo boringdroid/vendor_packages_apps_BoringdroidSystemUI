@@ -17,21 +17,16 @@ package com.android.launcher3.anim;
 
 import static androidx.dynamicanimation.animation.FloatPropertyCompat.createFloatPropertyCompat;
 
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.FloatProperty;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 
@@ -45,7 +40,6 @@ public class SpringObjectAnimator<T> extends ValueAnimator {
     private static boolean DEBUG = false;
 
     private ObjectAnimator mObjectAnimator;
-    private float[] mValues;
 
     private SpringAnimation mSpring;
     private SpringProperty<T> mProperty;
@@ -65,7 +59,6 @@ public class SpringObjectAnimator<T> extends ValueAnimator {
         mSpring.setStartVelocity(0.01f);
         mProperty = new SpringProperty<>(property, mSpring);
         mObjectAnimator = ObjectAnimator.ofFloat(object, mProperty, values);
-        mValues = values;
         mListeners = new ArrayList<>();
         setFloatValues(values);
 
@@ -113,38 +106,12 @@ public class SpringObjectAnimator<T> extends ValueAnimator {
         }
 
         // If springs are disabled, ignore value of mSpringEnded
-        if (mAnimatorEnded && (mSpringEnded || !QUICKSTEP_SPRINGS.get()) && !mEnded) {
+        if (mAnimatorEnded && mSpringEnded && !mEnded) {
             for (AnimatorListener l : mListeners) {
                 l.onAnimationEnd(this);
             }
             mEnded = true;
         }
-    }
-
-    public SpringAnimation getSpring() {
-        return mSpring;
-    }
-
-    /**
-     * Initializes and sets up the spring to take over controlling the object.
-     */
-    public void startSpring(float end, float velocity, OnAnimationEndListener endListener) {
-        // Cancel the spring so we can set new start velocity and final position. We need to remove
-        // the listener since the spring is not actually ending.
-        mSpring.removeEndListener(endListener);
-        mSpring.cancel();
-        mSpring.addEndListener(endListener);
-
-        mProperty.switchToSpring();
-
-        mSpring.setStartVelocity(velocity);
-
-        float startValue = end == 0 ? mValues[1] : mValues[0];
-        float endValue = end == 0 ? mValues[0] : mValues[1];
-        mSpring.setStartValue(startValue);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            mSpring.animateToFinalPosition(endValue);
-        }, getStartDelay());
     }
 
     @Override
@@ -282,10 +249,6 @@ public class SpringObjectAnimator<T> extends ValueAnimator {
             super(property.getName());
             mProperty = property;
             mSpring = spring;
-        }
-
-        public void switchToSpring() {
-            useSpring = true;
         }
 
         @Override

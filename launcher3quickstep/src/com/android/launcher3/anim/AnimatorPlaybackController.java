@@ -16,7 +16,6 @@
 package com.android.launcher3.anim;
 
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -24,9 +23,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.util.Log;
 
-import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.SpringAnimation;
 
 import java.util.ArrayList;
@@ -43,9 +40,6 @@ import java.util.Set;
  * sequential playbacks.
  */
 public abstract class AnimatorPlaybackController implements ValueAnimator.AnimatorUpdateListener {
-
-    private static final String TAG = "AnimatorPlaybackCtrler";
-    private static boolean DEBUG = false;
 
     public static AnimatorPlaybackController wrap(AnimatorSet anim, long duration) {
         return wrap(anim, duration, null);
@@ -79,7 +73,6 @@ public abstract class AnimatorPlaybackController implements ValueAnimator.Animat
     protected Runnable mOnCancelRunnable;
 
     private OnAnimationEndDispatcher mEndListener;
-    private DynamicAnimation.OnAnimationEndListener mSpringEndListener;
     // We need this variable to ensure the end listener is called immediately, otherwise we run into
     // issues where the callback interferes with the states of the swipe detector.
     private boolean mSkipToEnd = false;
@@ -119,13 +112,6 @@ public abstract class AnimatorPlaybackController implements ValueAnimator.Animat
         });
 
         mSprings = new HashSet<>();
-        mSpringEndListener = (animation, canceled, value, velocity1) -> {
-            if (canceled) {
-                mEndListener.onAnimationCancel(mAnimationPlayer);
-            } else {
-                mEndListener.onAnimationEnd(mAnimationPlayer);
-            }
-        };
     }
 
     public AnimatorSet getTarget() {
@@ -196,29 +182,6 @@ public abstract class AnimatorPlaybackController implements ValueAnimator.Animat
         } else {
             return Math.min((long) playPos, mDuration);
         }
-    }
-
-    /**
-     * Starts playback and sets the spring.
-     */
-    public void dispatchOnStartWithVelocity(float end, float velocity) {
-        if (!QUICKSTEP_SPRINGS.get()) {
-            dispatchOnStart();
-            return;
-        }
-
-        if (DEBUG) Log.d(TAG, "dispatchOnStartWithVelocity#end=" + end + ", velocity=" + velocity);
-
-        for (Animator a : mAnim.getChildAnimations()) {
-            if (a instanceof SpringObjectAnimator) {
-                if (DEBUG) Log.d(TAG, "Found springAnimator=" + a);
-                SpringObjectAnimator springAnimator = (SpringObjectAnimator) a;
-                mSprings.add(springAnimator.getSpring());
-                springAnimator.startSpring(end, velocity, mSpringEndListener);
-            }
-        }
-
-        dispatchOnStart();
     }
 
     public void dispatchOnStart() {

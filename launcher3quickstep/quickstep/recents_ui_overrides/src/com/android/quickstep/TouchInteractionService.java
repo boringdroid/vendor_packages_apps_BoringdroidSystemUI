@@ -17,12 +17,6 @@ package com.android.quickstep;
 
 import static android.view.MotionEvent.ACTION_DOWN;
 
-import static com.android.launcher3.config.BaseFlags.ADAPTIVE_ICON_WINDOW_ANIM;
-import static com.android.launcher3.config.BaseFlags.APPLY_CONFIG_AT_RUNTIME;
-import static com.android.launcher3.config.BaseFlags.ENABLE_HINTS_IN_OVERVIEW;
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.BaseFlags.FAKE_LANDSCAPE_UI;
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
 import static com.android.systemui.shared.system.QuickStepContract.KEY_EXTRA_INPUT_MONITOR;
@@ -73,7 +67,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.ResourceUtils;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.util.DefaultDisplay;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.SysUINavigationMode.NavigationModeChangeListener;
@@ -620,9 +613,7 @@ public class TouchInteractionService extends Service implements
             return createOtherActivityInputConsumer(event, info);
         } else if (sSwipeSharedState.goingToLauncher || activityControl.isResumed()
                 || forceOverviewInputConsumer) {
-            return createOverviewInputConsumer(event, forceOverviewInputConsumer);
-        } else if (ENABLE_QUICKSTEP_LIVE_TILE.get() && activityControl.isInLiveTileMode()) {
-            return createOverviewInputConsumer(event, forceOverviewInputConsumer);
+            return createOverviewInputConsumer(event);
         } else if (mGestureBlockingActivity != null && runningTaskInfo != null
                 && mGestureBlockingActivity.equals(runningTaskInfo.topActivity)) {
             return mResetGestureInputConsumer;
@@ -668,8 +659,7 @@ public class TouchInteractionService extends Service implements
         }
     }
 
-    public InputConsumer createOverviewInputConsumer(MotionEvent event,
-            boolean forceOverviewInputConsumer) {
+    public InputConsumer createOverviewInputConsumer(MotionEvent event) {
         final ActivityControlHelper activityControl =
                 mOverviewComponentObserver.getActivityControlHelper();
         BaseDraggingActivity activity = activityControl.getCreatedActivity();
@@ -677,10 +667,8 @@ public class TouchInteractionService extends Service implements
             return mResetGestureInputConsumer;
         }
 
-        if (sSwipeSharedState.goingToLauncher
-                || (BaseFlags.ASSISTANT_GIVES_LAUNCHER_FOCUS.get()
-                    && forceOverviewInputConsumer)) {
-            return new OverviewInputConsumer(activity,
+        if (sSwipeSharedState.goingToLauncher) {
+            return new OverviewInputConsumer(
                     false /* startingInActivityBounds */);
         } else {
             return new OverviewWithoutFocusInputConsumer(activity, mInputMonitorCompat,
@@ -769,13 +757,6 @@ public class TouchInteractionService extends Service implements
                 sSwipeSharedState.dump("    ", pw);
             }
             pw.println("  mConsumer=" + mConsumer.getName());
-            pw.println("FeatureFlags:");
-            pw.println("  APPLY_CONFIG_AT_RUNTIME=" + APPLY_CONFIG_AT_RUNTIME.get());
-            pw.println("  QUICKSTEP_SPRINGS=" + QUICKSTEP_SPRINGS.get());
-            pw.println("  ADAPTIVE_ICON_WINDOW_ANIM=" + ADAPTIVE_ICON_WINDOW_ANIM.get());
-            pw.println("  ENABLE_QUICKSTEP_LIVE_TILE=" + ENABLE_QUICKSTEP_LIVE_TILE.get());
-            pw.println("  ENABLE_HINTS_IN_OVERVIEW=" + ENABLE_HINTS_IN_OVERVIEW.get());
-            pw.println("  FAKE_LANDSCAPE_UI=" + FAKE_LANDSCAPE_UI.get());
         }
     }
 

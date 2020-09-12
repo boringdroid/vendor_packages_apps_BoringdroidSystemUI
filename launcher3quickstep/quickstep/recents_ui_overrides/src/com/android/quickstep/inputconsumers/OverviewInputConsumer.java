@@ -15,30 +15,22 @@
  */
 package com.android.quickstep.inputconsumers;
 
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-
-import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.Utilities;
 
 /**
  * Input consumer for handling touch on the recents/Launcher activity.
  */
-public class OverviewInputConsumer<T extends BaseDraggingActivity>
+public class OverviewInputConsumer
         implements InputConsumer {
-
-    private final T mActivity;
 
     private final int[] mLocationOnScreen = new int[2];
 
     private final boolean mStartingInActivityBounds;
 
-    public OverviewInputConsumer(T activity,
-                                 boolean startingInActivityBounds) {
-        mActivity = activity;
+    public OverviewInputConsumer(boolean startingInActivityBounds) {
         mStartingInActivityBounds = startingInActivityBounds;
     }
 
@@ -65,9 +57,6 @@ public class OverviewInputConsumer<T extends BaseDraggingActivity>
 
     @Override
     public void onKeyEvent(KeyEvent ev) {
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            mActivity.dispatchKeyEvent(ev);
-        }
     }
 }
 

@@ -16,8 +16,6 @@
 package com.android.launcher3.uioverrides.touchcontrollers;
 
 import static com.android.launcher3.anim.Interpolators.scrollInterpolatorForVelocity;
-import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.touch.SingleAxisSwipeDetector.DIRECTION_BOTH;
 import static com.android.launcher3.touch.SingleAxisSwipeDetector.DIRECTION_NEGATIVE;
 import static com.android.launcher3.touch.SingleAxisSwipeDetector.DIRECTION_POSITIVE;
@@ -38,7 +36,6 @@ import com.android.launcher3.touch.SingleAxisSwipeDetector;
 import com.android.launcher3.util.FlingBlockCheck;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.TouchController;
-import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
 
 /**
@@ -53,7 +50,6 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
 
     protected final T mActivity;
     private final SingleAxisSwipeDetector mDetector;
-    private final RecentsView mRecentsView;
     private final int[] mTempCords = new int[2];
 
     private PendingAnimation mPendingAnimation;
@@ -71,7 +67,6 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
 
     public TaskViewTouchController(T activity) {
         mActivity = activity;
-        mRecentsView = activity.getOverviewPanel();
         mDetector = new SingleAxisSwipeDetector(activity, this, SingleAxisSwipeDetector.VERTICAL);
     }
 
@@ -198,11 +193,6 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         mCurrentAnimation.setPlayFraction(Utilities.boundToRange(
                 totalDisplacement * mProgressMultiplier, 0, 1));
 
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            if (mRecentsView.getCurrentPage() != 0 || isGoingUp) {
-                mRecentsView.redrawLiveTile(true);
-            }
-        }
         return true;
     }
 
@@ -237,16 +227,6 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         anim.setFloatValues(nextFrameProgress, goingToEnd ? 1f : 0f);
         anim.setDuration(animationDuration);
         anim.setInterpolator(scrollInterpolatorForVelocity(velocity));
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            anim.addUpdateListener(valueAnimator -> {
-                if (mRecentsView.getCurrentPage() != 0 || mCurrentAnimationIsGoingUp) {
-                    mRecentsView.redrawLiveTile(true);
-                }
-            });
-        }
-        if (QUICKSTEP_SPRINGS.get()) {
-            mCurrentAnimation.dispatchOnStartWithVelocity(goingToEnd ? 1f : 0f, velocity);
-        }
         anim.start();
     }
 
