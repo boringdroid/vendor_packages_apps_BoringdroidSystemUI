@@ -22,7 +22,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.FloatProperty;
 import android.view.View;
 
 import com.android.launcher3.DeviceProfile;
@@ -38,23 +37,7 @@ import com.android.systemui.shared.recents.model.Task.TaskKey;
 import java.util.ArrayList;
 
 public class FallbackRecentsView extends RecentsView<RecentsActivity> {
-
-    public static final FloatProperty<FallbackRecentsView> ZOOM_PROGRESS =
-            new FloatProperty<FallbackRecentsView> ("zoomInProgress") {
-
-                @Override
-                public void setValue(FallbackRecentsView view, float value) {
-                    view.setZoomProgress(value);
-                }
-
-                @Override
-                public Float get(FallbackRecentsView view) {
-                    return view.mZoomInProgress;
-                }
-            };
-
     private float mZoomInProgress = 0;
-    private boolean mInOverviewState = true;
 
     private float mZoomScale = 1f;
     private float mZoomTranslationY = 0f;
@@ -116,17 +99,6 @@ public class FallbackRecentsView extends RecentsView<RecentsActivity> {
         resetTaskVisuals();
     }
 
-    public void setInOverviewState(boolean inOverviewState) {
-        if (mInOverviewState != inOverviewState) {
-            mInOverviewState = inOverviewState;
-            if (mInOverviewState) {
-                resetTaskVisuals();
-            } else {
-                setZoomProgress(1);
-            }
-        }
-    }
-
     @Override
     public void resetTaskVisuals() {
         super.resetTaskVisuals();
@@ -157,11 +129,6 @@ public class FallbackRecentsView extends RecentsView<RecentsActivity> {
         SCALE_PROPERTY.set(this, Utilities.mapRange(mZoomInProgress, 1, mZoomScale));
         TRANSLATION_Y.set(this, Utilities.mapRange(mZoomInProgress, 0, mZoomTranslationY));
         FULLSCREEN_PROGRESS.set(this, mZoomInProgress);
-    }
-
-    public void onGestureAnimationStart(RunningTaskInfo runningTaskInfo) {
-        mRunningTaskInfo = runningTaskInfo;
-        onGestureAnimationStart(runningTaskInfo == null ? -1 : runningTaskInfo.taskId);
     }
 
     @Override

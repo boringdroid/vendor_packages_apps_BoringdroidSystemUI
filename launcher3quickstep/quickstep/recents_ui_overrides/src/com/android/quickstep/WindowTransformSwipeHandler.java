@@ -190,8 +190,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     private LiveTileOverlay mLiveTileOverlay = new LiveTileOverlay();
     private boolean mLiveTileOverlayAttached = false;
 
-    private boolean mWasLauncherAlreadyVisible;
-
     private boolean mPassedOverviewThreshold;
     private boolean mGestureStarted;
     private boolean mIsLikelyToStartNewTask;
@@ -902,7 +900,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     private void resetStateForAnimationCancel() {
-        boolean wasVisible = mWasLauncherAlreadyVisible || mGestureStarted;
+        boolean wasVisible = mGestureStarted;
         mActivityControlHelper.onTransitionCancelled(mActivity, wasVisible);
 
         // Leave the pending invisible flag, as it may be used by wallpaper open animation.

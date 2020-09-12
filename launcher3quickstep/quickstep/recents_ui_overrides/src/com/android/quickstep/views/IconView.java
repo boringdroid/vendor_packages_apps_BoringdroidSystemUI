@@ -34,7 +34,7 @@ import androidx.annotation.NonNull;
 public class IconView extends View {
 
     public interface OnScaleUpdateListener {
-        public void onScaleUpdate(float scale);
+        void onScaleUpdate(float scale);
     }
 
     private Drawable mDrawable;

@@ -15,18 +15,11 @@
  */
 package com.android.quickstep.util;
 
-import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
-
-import android.view.animation.Interpolator;
-
 /**
  * Animates the shelf between states HIDE, PEEK, and OVERVIEW.
  */
 
 public class ShelfPeekAnim {
-
-    public static final Interpolator INTERPOLATOR = OVERSHOOT_1_2;
-    public static final long DURATION = 240;
 
     public ShelfPeekAnim() {
     }

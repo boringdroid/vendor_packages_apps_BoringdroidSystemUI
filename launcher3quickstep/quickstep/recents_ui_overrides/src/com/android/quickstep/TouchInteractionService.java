@@ -225,13 +225,8 @@ public class TouchInteractionService extends Service implements
         public void onBind(ISystemUiProxy iSystemUiProxy) { }
     };
 
-    private static boolean sConnected = false;
     private static final SwipeSharedState sSwipeSharedState = new SwipeSharedState();
     private int mLogId;
-
-    public static SwipeSharedState getSwipeSharedState() {
-        return sSwipeSharedState;
-    }
 
     private final InputConsumer mResetGestureInputConsumer =
             new ResetGestureInputConsumer(sSwipeSharedState);
@@ -313,7 +308,6 @@ public class TouchInteractionService extends Service implements
         };
 
         onNavigationModeChanged(SysUINavigationMode.INSTANCE.get(this).addModeChangeListener(this));
-        sConnected = true;
     }
 
     private void disposeEventHandlers() {
@@ -481,7 +475,6 @@ public class TouchInteractionService extends Service implements
             DefaultDisplay.INSTANCE.get(this).removeChangeListener(this);
         }
 
-        sConnected = false;
         Utilities.unregisterReceiverSafely(this, mUserUnlockedReceiver);
         SysUINavigationMode.INSTANCE.get(this).removeModeChangeListener(this);
         mExclusionListener.unregister();

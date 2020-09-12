@@ -70,21 +70,6 @@ public class MultiStateCallback {
         notifyStateChangeHandlers(oldState);
     }
 
-    /**
-     * Adds the provided state flags to the global state and executes any change handlers
-     * as a result.
-     */
-    public void clearState(int stateFlag) {
-        if (DEBUG_STATES) {
-            Log.d(TAG, "[" + System.identityHashCode(this) + "] Removing "
-                    + convertToFlagNames(stateFlag) + " from " + convertToFlagNames(mState));
-        }
-
-        int oldState = mState;
-        mState = mState & ~stateFlag;
-        notifyStateChangeHandlers(oldState);
-    }
-
     private void notifyStateChangeHandlers(int oldState) {
         int count = mStateChangeHandlers.size();
         for (int i = 0; i < count; i++) {
@@ -118,10 +103,6 @@ public class MultiStateCallback {
 
     public int getState() {
         return mState;
-    }
-
-    public boolean hasStates(int stateMask) {
-        return (mState & stateMask) == stateMask;
     }
 
     private String convertToFlagNames(int flags) {

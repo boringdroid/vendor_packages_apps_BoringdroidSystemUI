@@ -26,20 +26,6 @@ import com.android.quickstep.views.RecentsView.PageCallbacks;
 import com.android.quickstep.views.RecentsView.ScrollState;
 
 public class ClearAllButton extends Button implements PageCallbacks {
-
-    public static final Property<ClearAllButton, Float> VISIBILITY_ALPHA =
-            new Property<ClearAllButton, Float>(Float.class, "visibilityAlpha") {
-                @Override
-                public Float get(ClearAllButton view) {
-                    return view.mVisibilityAlpha;
-                }
-
-                @Override
-                public void set(ClearAllButton view, Float visibilityAlpha) {
-                    view.setVisibilityAlpha(visibilityAlpha);
-                }
-            };
-
     private float mScrollAlpha = 1;
     private float mContentAlpha = 1;
     private float mVisibilityAlpha = 1;

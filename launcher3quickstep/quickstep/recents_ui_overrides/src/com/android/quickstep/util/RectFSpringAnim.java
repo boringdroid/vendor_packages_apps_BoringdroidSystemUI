@@ -115,20 +115,6 @@ public class RectFSpringAnim {
         mYOvershoot = resources.getDimensionPixelSize(R.dimen.swipe_up_y_overshoot);
     }
 
-    public void onTargetPositionChanged() {
-        if (mRectXAnim != null && mRectXAnim.getTargetPosition() != mTargetRect.centerX()) {
-            mRectXAnim.updatePosition(mCurrentCenterX, mTargetRect.centerX());
-        }
-
-        if (mRectYAnim != null) {
-            if (mTrackingBottomY && mRectYAnim.getTargetPosition() != mTargetRect.bottom) {
-                mRectYAnim.updatePosition(mCurrentY, mTargetRect.bottom);
-            } else if (!mTrackingBottomY && mRectYAnim.getTargetPosition() != mTargetRect.top) {
-                mRectYAnim.updatePosition(mCurrentY, mTargetRect.top);
-            }
-        }
-    }
-
     public void addOnUpdateListener(OnUpdateListener onUpdateListener) {
         mOnUpdateListeners.add(onUpdateListener);
     }

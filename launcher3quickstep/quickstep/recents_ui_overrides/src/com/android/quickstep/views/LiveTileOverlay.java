@@ -89,13 +89,6 @@ public class LiveTileOverlay extends Drawable {
         return mIconAnimationProgress;
     }
 
-    public void setDrawEnabled(boolean drawEnabled) {
-        if (mDrawEnabled != drawEnabled) {
-            mDrawEnabled = drawEnabled;
-            invalidateSelf();
-        }
-    }
-
     @Override
     public void draw(Canvas canvas) {
         if (mCurrentRect != null && mDrawEnabled) {

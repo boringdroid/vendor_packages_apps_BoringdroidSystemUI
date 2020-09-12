@@ -1322,20 +1322,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         }
     }
 
-    /**
-     * Freezes the view visibility change. When frozen, the view will not change its visibility
-     * to gone due to alpha changes.
-     */
-    public void setFreezeViewVisibility(boolean freezeViewVisibility) {
-        if (mFreezeViewVisibility != freezeViewVisibility) {
-            mFreezeViewVisibility = freezeViewVisibility;
-
-            if (!mFreezeViewVisibility) {
-                setVisibility(mContentAlpha > 0 ? VISIBLE : GONE);
-            }
-        }
-    }
-
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
@@ -1345,16 +1331,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     @Nullable
     public TaskView getNextTaskView() {
         return getTaskViewAtByAbsoluteIndex(getRunningTaskIndex() + 1);
-    }
-
-    @Nullable
-    public TaskView getPreviousTaskView() {
-        return getTaskViewAtByAbsoluteIndex(getRunningTaskIndex() - 1);
-    }
-
-    @Nullable
-    public TaskView getCurrentPageTaskView() {
-        return getTaskViewAtByAbsoluteIndex(getCurrentPage());
     }
 
     @Nullable

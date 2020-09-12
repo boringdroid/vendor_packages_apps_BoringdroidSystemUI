@@ -70,14 +70,6 @@ public interface InputConsumer {
 
     default void onKeyEvent(KeyEvent ev) { }
 
-    default void onInputEvent(InputEvent ev) {
-        if (ev instanceof MotionEvent) {
-            onMotionEvent((MotionEvent) ev);
-        } else {
-            onKeyEvent((KeyEvent) ev);
-        }
-    }
-
     default String getName() {
         String name = "";
         for (int i = 0; i < NAMES.length; i++) {

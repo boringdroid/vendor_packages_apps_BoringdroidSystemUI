@@ -45,8 +45,6 @@ import com.android.systemui.plugins.RecentsExtraCard;
 @TargetApi(Build.VERSION_CODES.O)
 public class LauncherRecentsView extends RecentsView<BaseActivity> implements StateListener {
 
-    private static final Rect sTempRect = new Rect();
-
     private final TransformParams mTransformParams = new TransformParams();
 
     private RecentsExtraCard mRecentsExtraCardPlugin;
@@ -124,15 +122,6 @@ public class LauncherRecentsView extends RecentsView<BaseActivity> implements St
     @Override
     protected void getTaskSize(DeviceProfile dp, Rect outRect) {
         LayoutUtils.calculateLauncherTaskSize(getContext(), dp, outRect);
-    }
-
-    /**
-     * @return The translationX to apply to this view so that the first task is just offscreen.
-     */
-    public float getOffscreenTranslationX() {
-        // Offset since scale pushes tasks outwards.
-        getTaskSize(sTempRect);
-        return 0;
     }
 
     @Override

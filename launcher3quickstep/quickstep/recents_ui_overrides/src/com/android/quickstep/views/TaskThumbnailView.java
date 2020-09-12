@@ -155,7 +155,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
 
         if (mOverviewScreenshotActionsPlugin != null) {
             mOverviewScreenshotActionsPlugin
-                .setupActions((ViewGroup) getTaskView(), getThumbnail(), mActivity);
+                .setupActions(getTaskView(), getThumbnail(), mActivity);
         }
         updateThumbnailPaintFilter();
     }
@@ -173,22 +173,6 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     public void setDimAlpha(float dimAlpha) {
         mDimAlpha = dimAlpha;
         updateThumbnailPaintFilter();
-    }
-
-    public void setSaturation(float saturation) {
-        mSaturation = saturation;
-        updateThumbnailPaintFilter();
-    }
-
-    public float getDimAlpha() {
-        return mDimAlpha;
-    }
-
-    public Rect getInsets(Rect fallback) {
-        if (mThumbnailData != null) {
-            return mThumbnailData.insets;
-        }
-        return fallback;
     }
 
     public int getSysUiStatusNavFlags() {

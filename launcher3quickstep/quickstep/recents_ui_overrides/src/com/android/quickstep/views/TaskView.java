@@ -37,7 +37,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.method.Touch;
 import android.util.AttributeSet;
 import android.util.FloatProperty;
 import android.util.Log;

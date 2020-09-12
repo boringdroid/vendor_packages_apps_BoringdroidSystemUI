@@ -35,7 +35,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.animation.Interpolator;
 
 import androidx.annotation.UiThread;
@@ -226,7 +225,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         } else {
             // If we are not in multi-window mode, home insets should be same as system insets.
             dp = dp.copy(mContext);
-            overviewStackBounds = getStackBounds(dp);
         }
         dp.updateInsets(targetSet.homeContentInsets);
         dp.updateIsSeascape(mContext);
@@ -238,10 +236,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         initTransitionEndpoints(dp);
 
         mRecentsAnimationWrapper.setController(targetSet);
-    }
-
-    private Rect getStackBounds(DeviceProfile dp) {
-        return new Rect(0, 0, dp.widthPx, dp.heightPx);
     }
 
     protected void initTransitionEndpoints(DeviceProfile dp) {
@@ -322,22 +316,14 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
                 mTransformParams.setProgress(startProgress), false /* launcherOnTop */));
         final RectF targetRect = homeAnimationFactory.getWindowTargetRect();
 
-        final View floatingView = homeAnimationFactory.getFloatingView();
-        final boolean isFloatingIconView = false;
         RectFSpringAnim anim = new RectFSpringAnim(startRect, targetRect, mContext.getResources());
         AnimatorPlaybackController homeAnim = homeAnimationFactory.createActivityAnimationToHome();
-
-        // End on a "round-enough" radius so that the shape reveal doesn't have to do too much
-        // rounding at the end of the animation.
-        float startRadius = mClipAnimationHelper.getCurrentCornerRadius();
-        float endRadius = startRect.width() / 6f;
 
         float startTransformProgress = mTransformParams.getProgress();
         float endTransformProgress = 1;
 
         // We want the window alpha to be 0 once this threshold is met, so that the
         // FolderIconView can be seen morphing into the icon shape.
-        final float windowAlphaThreshold = 1f;
         anim.addOnUpdateListener(new RectFSpringAnim.OnUpdateListener() {
 
             // Alpha interpolates between [1, 0] between progress values [start, end]

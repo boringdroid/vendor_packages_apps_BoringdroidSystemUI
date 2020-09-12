@@ -22,20 +22,15 @@ import static com.android.systemui.shared.system.RemoteAnimationTargetCompat.MOD
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.content.ComponentName;
 import android.graphics.RectF;
-import android.view.View;
 
 import com.android.launcher3.BaseActivity;
-import com.android.launcher3.BaseDraggingActivity;
-import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Utilities;
 import com.android.quickstep.util.ClipAnimationHelper;
 import com.android.quickstep.util.MultiValueUpdateListener;
 import com.android.quickstep.util.RemoteAnimationTargetSet;
 import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskView;
-import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
 import com.android.systemui.shared.system.SyncRtSurfaceTransactionApplierCompat;
 
@@ -45,66 +40,6 @@ import com.android.systemui.shared.system.SyncRtSurfaceTransactionApplierCompat;
 public final class TaskViewUtils {
 
     private TaskViewUtils() {}
-
-    /**
-     * Try to find a TaskView that corresponds with the component of the launched view.
-     *
-     * If this method returns a non-null TaskView, it will be used in composeRecentsLaunchAnimation.
-     * Otherwise, we will assume we are using a normal app transition, but it's possible that the
-     * opening remote target (which we don't get until onAnimationStart) will resolve to a TaskView.
-     */
-    public static TaskView findTaskViewToLaunch(
-            BaseDraggingActivity activity, View v, RemoteAnimationTargetCompat[] targets) {
-        RecentsView recentsView = activity.getOverviewPanel();
-        if (v instanceof TaskView) {
-            TaskView taskView = (TaskView) v;
-            return recentsView.isTaskViewVisible(taskView) ? taskView : null;
-        }
-
-        // It's possible that the launched view can still be resolved to a visible task view, check
-        // the task id of the opening task and see if we can find a match.
-        if (v.getTag() instanceof ItemInfo) {
-            ItemInfo itemInfo = (ItemInfo) v.getTag();
-            ComponentName componentName = itemInfo.getTargetComponent();
-            int userId = UserHandleHelper.getIdentifier(itemInfo.user);
-            if (componentName != null) {
-                for (int i = 0; i < recentsView.getTaskViewCount(); i++) {
-                    TaskView taskView = recentsView.getTaskViewAt(i);
-                    if (recentsView.isTaskViewVisible(taskView)) {
-                        Task.TaskKey key = taskView.getTask().key;
-                        if (componentName.equals(key.getComponent()) && userId == key.userId) {
-                            return taskView;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (targets == null) {
-            return null;
-        }
-        // Resolve the opening task id
-        int openingTaskId = -1;
-        for (RemoteAnimationTargetCompat target : targets) {
-            if (target.mode == MODE_OPENING) {
-                openingTaskId = target.taskId;
-                break;
-            }
-        }
-
-        // If there is no opening task id, fall back to the normal app icon launch animation
-        if (openingTaskId == -1) {
-            return null;
-        }
-
-        // If the opening task id is not currently visible in overview, then fall back to normal app
-        // icon launch animation
-        TaskView taskView = recentsView.getTaskView(openingTaskId);
-        if (taskView == null || !recentsView.isTaskViewVisible(taskView)) {
-            return null;
-        }
-        return taskView;
-    }
 
     /**
      * @return Animator that controls the window of the opening targets for the recents launch

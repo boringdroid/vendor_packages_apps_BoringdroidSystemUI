@@ -17,7 +17,6 @@
 package com.android.launcher3.uioverrides;
 
 import com.android.launcher3.graphics.RotationMode;
-import com.android.quickstep.TouchInteractionService;
 
 /**
  * Provides recents-related {@link UiFactory} logic and classes.
@@ -33,11 +32,4 @@ public abstract class RecentsUiFactory {
     public static RotationMode ROTATION_SEASCAPE = new RotationMode(90) {
 
     };
-
-    /**
-     * Clears the swipe shared state for the current swipe gesture.
-     */
-    public static void clearSwipeSharedState(boolean finishAnimation) {
-        TouchInteractionService.getSwipeSharedState().clearAllState(finishAnimation);
-    }
 }
