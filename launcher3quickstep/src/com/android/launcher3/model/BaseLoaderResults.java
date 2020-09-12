@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
 /**
  * Base Helper class to handle results of {@link com.android.launcher3.model.LoaderTask}.
  */
-public abstract class BaseLoaderResults {
+public class BaseLoaderResults {
 
     protected final Executor mUiExecutor;
 

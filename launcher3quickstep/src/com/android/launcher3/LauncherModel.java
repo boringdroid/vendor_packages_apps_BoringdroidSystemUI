@@ -30,11 +30,11 @@ import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.model.AllAppsList;
+import com.android.launcher3.model.BaseLoaderResults;
 import com.android.launcher3.model.BaseModelUpdateTask;
 import com.android.launcher3.model.BgDataModel;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.model.CacheDataUpdatedTask;
-import com.android.launcher3.model.LoaderResults;
 import com.android.launcher3.model.LoaderTask;
 import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.model.PackageInstallStateChangedTask;
@@ -236,7 +236,7 @@ public class LauncherModel extends BroadcastReceiver
             if (mCallbacks != null && mCallbacks.get() != null) {
                 // If there is already one running, tell it to stop.
                 stopLoader();
-                LoaderResults loaderResults = new LoaderResults(mApp, sBgDataModel,
+                BaseLoaderResults loaderResults = new BaseLoaderResults(mApp, sBgDataModel,
                         synchronousBindPage, mCallbacks);
                 if (mModelLoaded && !mIsLoaderTaskRunning) {
                     return true;
@@ -261,7 +261,7 @@ public class LauncherModel extends BroadcastReceiver
         }
     }
 
-    public void startLoaderForResults(LoaderResults results) {
+    public void startLoaderForResults(BaseLoaderResults results) {
         synchronized (mLock) {
             stopLoader();
             mLoaderTask = new LoaderTask(mApp, mBgAllAppsList, results);

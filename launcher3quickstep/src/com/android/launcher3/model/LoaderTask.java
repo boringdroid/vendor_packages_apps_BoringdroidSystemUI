@@ -52,7 +52,7 @@ public class LoaderTask implements Runnable {
     private final LauncherAppState mApp;
     private final AllAppsList mBgAllAppsList;
 
-    private final LoaderResults mResults;
+    private final BaseLoaderResults mResults;
 
     private final LauncherAppsCompat mLauncherApps;
     private final UserManagerCompat mUserManager;
@@ -62,7 +62,7 @@ public class LoaderTask implements Runnable {
     private boolean mStopped;
 
     public LoaderTask(LauncherAppState app, AllAppsList bgAllAppsList,
-                      LoaderResults results) {
+                      BaseLoaderResults results) {
         mApp = app;
         mBgAllAppsList = bgAllAppsList;
         mResults = results;
