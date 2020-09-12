@@ -15,19 +15,9 @@
  */
 package com.android.launcher3.model;
 
-import android.util.Log;
-
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.model.nano.LauncherDumpProto;
-import com.android.launcher3.model.nano.LauncherDumpProto.DumpTarget;
 import com.android.launcher3.util.IntSparseArrayMap;
 
-import com.google.protobuf.nano.MessageNano;
-
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -35,8 +25,6 @@ import java.util.Arrays;
  * All the data stored in-memory and managed by the LauncherModel
  */
 public class BgDataModel {
-
-    private static final String TAG = "BgDataModel";
 
     /**
      * Map of all the ItemInfos (shortcuts, folders, and widgets) created by
@@ -61,45 +49,6 @@ public class BgDataModel {
     public synchronized void clear() {
         workspaceItems.clear();
         itemsIdMap.clear();
-    }
-
-    public synchronized void dump(String prefix, FileDescriptor fd, PrintWriter writer,
-            String[] args) {
-        if (Arrays.asList(args).contains("--proto")) {
-            dumpProto(fd, args);
-            return;
-        }
-        writer.println(prefix + "Data Model:");
-        writer.println(prefix + " ---- workspace items ");
-        for (int i = 0; i < workspaceItems.size(); i++) {
-            writer.println(prefix + '\t' + workspaceItems.get(i).toString());
-        }
-        writer.println(prefix + " ---- items id map ");
-        for (int i = 0; i< itemsIdMap.size(); i++) {
-            writer.println(prefix + '\t' + itemsIdMap.valueAt(i).toString());
-        }
-    }
-
-    private synchronized void dumpProto(FileDescriptor fd, String[] args) {
-        // Traverse target wrapper
-        ArrayList<DumpTarget> targetList = new ArrayList<>();
-        if (Arrays.asList(args).contains("--debug")) {
-            return;
-        } else {
-            LauncherDumpProto.LauncherImpression proto = new LauncherDumpProto.LauncherImpression();
-            proto.targets = new DumpTarget[targetList.size()];
-            for (int i = 0; i < targetList.size(); i++) {
-                proto.targets[i] = targetList.get(i);
-            }
-            FileOutputStream fos = new FileOutputStream(fd);
-            try {
-
-                fos.write(MessageNano.toByteArray(proto));
-                Log.d(TAG, MessageNano.toByteArray(proto).length + "Bytes");
-            } catch (IOException e) {
-                Log.e(TAG, "Exception writing dumpsys --proto", e);
-            }
-        }
     }
 
     public synchronized void removeItem(ItemInfo... items) {

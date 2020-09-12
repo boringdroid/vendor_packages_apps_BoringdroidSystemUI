@@ -94,8 +94,7 @@ public class SessionCommitReceiver extends BroadcastReceiver {
                 .getActivityList(packageName, getUserHandle(sessionInfo));
         if (activities == null || activities.isEmpty()) {
             // Ensure application isn't already installed.
-            queueAppIconAddition(packageName, sessionInfo.getAppLabel(),
-                    sessionInfo.getAppIcon(), getUserHandle(sessionInfo));
+            queueAppIconAddition(packageName, sessionInfo.getAppLabel(), sessionInfo.getAppIcon());
         }
     }
 
@@ -106,11 +105,11 @@ public class SessionCommitReceiver extends BroadcastReceiver {
             // no activity found
             return;
         }
-        queueAppIconAddition(packageName, activities.get(0).getLabel(), null, user);
+        queueAppIconAddition(packageName, activities.get(0).getLabel(), null);
     }
 
     private static void queueAppIconAddition(String packageName,
-                                             CharSequence label, Bitmap icon, UserHandle user) {
+                                             CharSequence label, Bitmap icon) {
         Intent data = new Intent();
         data.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent().setComponent(
                 new ComponentName(packageName, "")).setPackage(packageName));

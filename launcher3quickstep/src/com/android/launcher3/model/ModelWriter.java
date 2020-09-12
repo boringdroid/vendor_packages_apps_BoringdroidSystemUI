@@ -18,7 +18,6 @@ package com.android.launcher3.model;
 
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -36,7 +35,6 @@ import java.util.concurrent.Executor;
  * Class for handling model updates.
  */
 public class ModelWriter {
-    private final Context mContext;
     private final LauncherModel mModel;
     private final BgDataModel mBgDataModel;
     private final Handler mUiHandler;
@@ -47,9 +45,8 @@ public class ModelWriter {
     private final List<Runnable> mDeleteRunnables = new ArrayList<>();
     private boolean mPreparingToUndo;
 
-    public ModelWriter(Context context, LauncherModel model, BgDataModel dataModel,
+    public ModelWriter(LauncherModel model, BgDataModel dataModel,
                        boolean verifyChanges) {
-        mContext = context;
         mModel = model;
         mBgDataModel = dataModel;
         mVerifyChanges = verifyChanges;
@@ -60,7 +57,7 @@ public class ModelWriter {
      * Removes all the items from the database matching {@param matcher}.
      */
     public void deleteItemsFromDatabase(ItemInfoMatcher matcher) {
-        deleteItemsFromDatabase(matcher.filterItemInfos(mBgDataModel.itemsIdMap));
+        deleteItemsFromDatabase(matcher.filterItemInfos());
     }
 
     /**

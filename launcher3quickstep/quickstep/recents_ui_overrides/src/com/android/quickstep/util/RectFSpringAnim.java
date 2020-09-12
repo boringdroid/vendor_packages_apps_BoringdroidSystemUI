@@ -152,7 +152,7 @@ public class RectFSpringAnim {
         float endX = mTargetRect.centerX();
         float minXValue = Math.min(startX, endX);
         float maxXValue = Math.max(startX, endX);
-        mRectXAnim = new FlingSpringAnim(this, RECT_CENTER_X, startX, endX,
+        mRectXAnim = new FlingSpringAnim(this, RECT_CENTER_X, endX,
                 velocityPxPerMs.x * 1000, mMinVisChange, minXValue, maxXValue, 1f, onXEndListener);
 
         float startVelocityY = velocityPxPerMs.y * 1000;
@@ -162,7 +162,7 @@ public class RectFSpringAnim {
         float endY = mTrackingBottomY ? mTargetRect.bottom : mTargetRect.top;
         float minYValue = Math.min(startY, endY - mYOvershoot);
         float maxYValue = Math.max(startY, endY);
-        mRectYAnim = new FlingSpringAnim(this, RECT_Y, startY, endY, startVelocityY,
+        mRectYAnim = new FlingSpringAnim(this, RECT_Y, endY, startVelocityY,
                 mMinVisChange, minYValue, maxYValue, springVelocityFactor, onYEndListener);
 
         float minVisibleChange = 1f / mStartRect.height();

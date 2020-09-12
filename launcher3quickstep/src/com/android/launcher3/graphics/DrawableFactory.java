@@ -20,10 +20,8 @@ import static com.android.launcher3.graphics.IconShape.getShapePath;
 import static com.android.launcher3.util.MainThreadInitializedObject.forOverride;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 
 import com.android.launcher3.FastBitmapDrawable;
-import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.R;
 import com.android.launcher3.icons.BitmapInfo;
 import com.android.launcher3.util.MainThreadInitializedObject;
@@ -37,27 +35,10 @@ public class DrawableFactory implements ResourceBasedOverride {
     public static final MainThreadInitializedObject<DrawableFactory> INSTANCE =
             forOverride(DrawableFactory.class, R.string.drawable_factory_class);
 
-    /**
-     * Returns a FastBitmapDrawable with the icon.
-     */
-    public FastBitmapDrawable newIcon(Context context, ItemInfoWithIcon info) {
-        FastBitmapDrawable drawable = info.usingLowResIcon()
-                ? new PlaceHolderIconDrawable(info, getShapePath(), context)
-                : new FastBitmapDrawable(info);
-        drawable.setIsDisabled(info.isDisabled());
-        return drawable;
-    }
-
-    public FastBitmapDrawable newIcon(Context context, BitmapInfo info, ActivityInfo target) {
+    public FastBitmapDrawable newIcon(Context context, BitmapInfo info) {
         return info.isLowRes()
                 ? new PlaceHolderIconDrawable(info, getShapePath(), context)
                 : new FastBitmapDrawable(info);
     }
 
-    /**
-     * Returns a FastBitmapDrawable with the icon.
-     */
-    public PreloadIconDrawable newPendingIcon(Context context, ItemInfoWithIcon info) {
-        return new PreloadIconDrawable(info, getShapePath(), context);
-    }
 }

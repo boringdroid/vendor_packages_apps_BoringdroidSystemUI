@@ -104,11 +104,6 @@ public abstract class ItemInfoWithIcon extends ItemInfo {
         runtimeStatusFlags = info.runtimeStatusFlags;
     }
 
-    @Override
-    public boolean isDisabled() {
-        return (runtimeStatusFlags & FLAG_DISABLED_MASK) != 0;
-    }
-
     /**
      * Indicates whether we're using a low res icon
      */

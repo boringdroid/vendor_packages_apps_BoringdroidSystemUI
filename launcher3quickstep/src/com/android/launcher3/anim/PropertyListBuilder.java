@@ -18,11 +18,6 @@ public class PropertyListBuilder {
         return this;
     }
 
-    public PropertyListBuilder translationY(float value) {
-        mProperties.add(PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, value));
-        return this;
-    }
-
     public PropertyListBuilder scaleX(float value) {
         mProperties.add(PropertyValuesHolder.ofFloat(View.SCALE_X, value));
         return this;

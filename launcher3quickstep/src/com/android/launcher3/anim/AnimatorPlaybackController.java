@@ -241,33 +241,6 @@ public abstract class AnimatorPlaybackController implements ValueAnimator.Animat
         }
     }
 
-    /**
-     * Sets mOnCancelRunnable = null before dispatching the cancel and restoring the runnable. This
-     * is intended to be used only if you need to cancel but want to defer cleaning up yourself.
-     */
-    public void dispatchOnCancelWithoutCancelRunnable() {
-        Runnable onCancel = mOnCancelRunnable;
-        setOnCancelRunnable(null);
-        dispatchOnCancel();
-        setOnCancelRunnable(onCancel);
-    }
-
-    public void dispatchOnCancel() {
-        dispatchOnCancelRecursively(mAnim);
-    }
-
-    private void dispatchOnCancelRecursively(Animator animator) {
-        for (AnimatorListener l : nonNullList(animator.getListeners())) {
-            l.onAnimationCancel(animator);
-        }
-
-        if (animator instanceof AnimatorSet) {
-            for (Animator anim : nonNullList(((AnimatorSet) animator).getChildAnimations())) {
-                dispatchOnCancelRecursively(anim);
-            }
-        }
-    }
-
     public void dispatchSetInterpolator(TimeInterpolator interpolator) {
         dispatchSetInterpolatorRecursively(mAnim, interpolator);
     }
@@ -283,17 +256,6 @@ public abstract class AnimatorPlaybackController implements ValueAnimator.Animat
 
     public void setOnCancelRunnable(Runnable runnable) {
         mOnCancelRunnable = runnable;
-    }
-
-    public void skipToEnd() {
-        mSkipToEnd = true;
-        for (SpringAnimation spring : mSprings) {
-            if (spring.canSkipToEnd()) {
-                spring.skipToEnd();
-            }
-        }
-        mAnimationPlayer.end();
-        mSkipToEnd = false;
     }
 
     public static class AnimatorPlaybackControllerVL extends AnimatorPlaybackController {

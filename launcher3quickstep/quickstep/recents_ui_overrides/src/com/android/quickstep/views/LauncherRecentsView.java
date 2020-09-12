@@ -15,9 +15,6 @@
  */
 package com.android.quickstep.views;
 
-import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.LauncherState.OVERVIEW;
-import static com.android.launcher3.LauncherState.SPRING_LOADED;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
 import android.animation.AnimatorSet;
@@ -33,7 +30,6 @@ import android.widget.FrameLayout;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager.StateListener;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
 import com.android.quickstep.SysUINavigationMode;
@@ -209,22 +205,6 @@ public class LauncherRecentsView extends RecentsView<BaseActivity> implements St
     @Override
     public void reset() {
         super.reset();
-    }
-
-    @Override
-    public void onStateTransitionStart(LauncherState toState) {
-        setOverviewStateEnabled(toState.overviewUi);
-        setFreezeViewVisibility(true);
-    }
-
-    @Override
-    public void onStateTransitionComplete(LauncherState finalState) {
-        if (finalState == NORMAL || finalState == SPRING_LOADED) {
-            // Clean-up logic that occurs when recents is no longer in use/visible.
-            reset();
-        }
-        setOverlayEnabled(finalState == OVERVIEW);
-        setFreezeViewVisibility(false);
     }
 
     @Override

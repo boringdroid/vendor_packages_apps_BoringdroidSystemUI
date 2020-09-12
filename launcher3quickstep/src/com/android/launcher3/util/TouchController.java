@@ -18,8 +18,6 @@ package com.android.launcher3.util;
 
 import android.view.MotionEvent;
 
-import java.io.PrintWriter;
-
 public interface TouchController {
 
     /**
@@ -32,5 +30,5 @@ public interface TouchController {
      */
     boolean onControllerInterceptTouchEvent(MotionEvent ev);
 
-    default void dump(String prefix, PrintWriter writer) { }
+    default void dump() { }
 }

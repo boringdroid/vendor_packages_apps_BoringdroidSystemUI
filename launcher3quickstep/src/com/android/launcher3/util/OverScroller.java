@@ -270,10 +270,6 @@ public class OverScroller {
         return mScroller.springback(start, min, max);
     }
 
-    public void fling(int start, int velocity, int min, int max) {
-        fling(start, velocity, min, max, 0);
-    }
-
     /**
      * Start scrolling based on a fling gesture. The distance traveled will
      * depend on the initial velocity of the fling.
@@ -543,15 +539,15 @@ public class OverScroller {
             mDuration = 0;
 
             if (start < min) {
-                startSpringback(start, min, 0);
+                startSpringback(start, min);
             } else if (start > max) {
-                startSpringback(start, max, 0);
+                startSpringback(start, max);
             }
 
             return !mFinished;
         }
 
-        private void startSpringback(int start, int end, int velocity) {
+        private void startSpringback(int start, int end) {
             // mStartTime has been set
             mFinished = false;
             mState = CUBIC;
@@ -656,7 +652,7 @@ public class OverScroller {
                 if (totalDistance > Math.abs(overDistance)) {
                     fling(start, velocity, positive ? min : start, positive ? start : max, mOver);
                 } else {
-                    startSpringback(start, edge, velocity);
+                    startSpringback(start, edge);
                 }
             }
         }
@@ -699,7 +695,7 @@ public class OverScroller {
                     break;
                 case BALLISTIC:
                     mStartTime += mDuration;
-                    startSpringback(mFinal, mStart, 0);
+                    startSpringback(mFinal, mStart);
                     break;
                 case CUBIC:
                     return false;

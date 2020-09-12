@@ -41,8 +41,4 @@ public class LauncherAppsCompatVQ extends LauncherAppsCompatVO {
         mLauncherApps.registerPackageInstallerSessionCallback(executor, sessionCallback);
     }
 
-    @Override
-    public void unregisterSessionCallback(SessionCallback sessionCallback) {
-        mLauncherApps.unregisterPackageInstallerSessionCallback(sessionCallback);
-    }
 }

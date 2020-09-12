@@ -16,7 +16,6 @@
 
 package com.android.launcher3.util;
 
-import android.util.Property;
 import android.view.View;
 
 import java.util.Arrays;
@@ -25,20 +24,6 @@ import java.util.Arrays;
  * Utility class to handle separating a single value as a factor of multiple values
  */
 public class MultiValueAlpha {
-
-    public static final Property<AlphaProperty, Float> VALUE =
-            new Property<AlphaProperty, Float>(Float.TYPE, "value") {
-
-                @Override
-                public Float get(AlphaProperty alphaProperty) {
-                    return alphaProperty.mValue;
-                }
-
-                @Override
-                public void set(AlphaProperty object, Float value) {
-                    object.setValue(value);
-                }
-            };
 
     private final View mView;
     private final AlphaProperty[] mMyProperties;
@@ -60,10 +45,6 @@ public class MultiValueAlpha {
     @Override
     public String toString() {
         return Arrays.toString(mMyProperties);
-    }
-
-    public AlphaProperty getProperty(int index) {
-        return mMyProperties[index];
     }
 
     public class AlphaProperty {

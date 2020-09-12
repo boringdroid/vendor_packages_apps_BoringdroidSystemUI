@@ -24,8 +24,6 @@ import androidx.annotation.NonNull;
 
 public class PromiseAppInfo extends AppInfo {
 
-    public int level = 0;
-
     public PromiseAppInfo(@NonNull PackageInstallerCompat.PackageInstallInfo installInfo) {
         componentName = installInfo.componentName;
         intent = new Intent(Intent.ACTION_MAIN)

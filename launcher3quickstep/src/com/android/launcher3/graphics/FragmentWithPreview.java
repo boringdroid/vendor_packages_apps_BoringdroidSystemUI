@@ -28,10 +28,10 @@ public class FragmentWithPreview extends Fragment {
 
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        onInit(savedInstanceState);
+        onInit();
     }
 
-    public void onInit(Bundle savedInstanceState) { }
+    public void onInit() { }
 
 
     public Context getContext() {

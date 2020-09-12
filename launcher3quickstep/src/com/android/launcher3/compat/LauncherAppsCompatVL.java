@@ -159,10 +159,5 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
                 executor.getHandler());
     }
 
-    @Override
-    public void unregisterSessionCallback(SessionCallback sessionCallback) {
-        mContext.getPackageManager().getPackageInstaller()
-                .unregisterSessionCallback(sessionCallback);
-    }
 }
 

@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.UserHandle;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
@@ -42,11 +41,8 @@ import com.android.launcher3.model.PackageInstallStateChangedTask;
 import com.android.launcher3.model.PackageUpdatedTask;
 import com.android.launcher3.util.IntSparseArrayMap;
 import com.android.launcher3.util.ItemInfoMatcher;
-import com.android.launcher3.util.Preconditions;
 import com.android.launcher3.util.Thunk;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.concurrent.CancellationException;
@@ -111,17 +107,7 @@ public class LauncherModel extends BroadcastReceiver
     }
 
     public ModelWriter getWriter(boolean verifyChanges) {
-        return new ModelWriter(mApp.getContext(), this, sBgDataModel, verifyChanges);
-    }
-
-    /**
-     * Set this as the current Launcher activity object for the loader.
-     */
-    public void initialize(Callbacks callbacks) {
-        synchronized (mLock) {
-            Preconditions.assertUIThread();
-            mCallbacks = new WeakReference<>(callbacks);
-        }
+        return new ModelWriter(this, sBgDataModel, verifyChanges);
     }
 
     @Override
@@ -237,10 +223,6 @@ public class LauncherModel extends BroadcastReceiver
         if (callbacks != null) {
             startLoader(synchronousBindPage);
         }
-    }
-
-    public boolean isCurrentCallbacks(Callbacks callbacks) {
-        return (mCallbacks != null && mCallbacks.get() == callbacks);
     }
 
     /**
@@ -364,17 +346,6 @@ public class LauncherModel extends BroadcastReceiver
         void init(LauncherAppState app, LauncherModel model,
                 BgDataModel dataModel, AllAppsList allAppsList, Executor uiExecutor);
 
-    }
-
-    public void dumpState(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (args.length > 0 && TextUtils.equals(args[0], "--all")) {
-            writer.println(prefix + "All apps list: size=" + mBgAllAppsList.data.size());
-            for (AppInfo info : mBgAllAppsList.data) {
-                writer.println(prefix + "   title=\"" + info.title + "\" iconBitmap=" + info.iconBitmap
-                        + " componentName=" + info.componentName.getPackageName());
-            }
-        }
-        sBgDataModel.dump(prefix, fd, writer, args);
     }
 
     public Callbacks getCallback() {

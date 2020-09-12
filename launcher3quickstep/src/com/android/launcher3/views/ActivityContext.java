@@ -19,8 +19,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.view.ContextThemeWrapper;
 
-import com.android.launcher3.DeviceProfile;
-
 /**
  * An interface to be used along with a context for various activities in Launcher. This allows a
  * generic class to depend on Context subclass instead of an Activity.
@@ -29,17 +27,6 @@ public interface ActivityContext {
 
     default boolean finishAutoCancelActionMode() {
         return false;
-    }
-
-    DeviceProfile getDeviceProfile();
-
-    /**
-     * Device profile to be used by UI elements which are shown directly on top of the wallpaper
-     * and whose presentation is tied to the wallpaper (and physical device) and not the activity
-     * configuration.
-     */
-    default DeviceProfile getWallpaperDeviceProfile() {
-        return getDeviceProfile();
     }
 
     static ActivityContext lookupContext(Context context) {

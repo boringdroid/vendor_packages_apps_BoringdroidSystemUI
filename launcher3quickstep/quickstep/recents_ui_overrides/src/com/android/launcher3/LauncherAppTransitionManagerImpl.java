@@ -60,11 +60,6 @@ public final class LauncherAppTransitionManagerImpl extends QuickstepAppTransiti
     }
 
     @Override
-    public int getStateElementAnimationsCount() {
-        return 4;
-    }
-
-    @Override
     public Animator createStateElementAnimation(int index, float... values) {
         return super.createStateElementAnimation(index, values);
     }

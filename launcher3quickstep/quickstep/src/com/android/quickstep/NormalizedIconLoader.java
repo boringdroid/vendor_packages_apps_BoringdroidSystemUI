@@ -23,7 +23,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.UserHandle;
 import android.util.LruCache;
 import android.util.SparseArray;
 
@@ -94,6 +93,6 @@ public class NormalizedIconLoader extends IconLoader {
                 userId,
                 desc.getPrimaryColor(),
                 false);
-        return mDrawableFactory.newIcon(mContext, bitmapInfo, activityInfo);
+        return mDrawableFactory.newIcon(mContext, bitmapInfo);
     }
 }

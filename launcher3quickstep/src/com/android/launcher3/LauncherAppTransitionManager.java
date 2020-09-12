@@ -19,7 +19,6 @@ package com.android.launcher3;
 
 import android.animation.Animator;
 import android.app.ActivityOptions;
-import android.content.Context;
 import android.view.View;
 
 import com.android.launcher3.util.ResourceBasedOverride;
@@ -29,22 +28,10 @@ import com.android.launcher3.util.ResourceBasedOverride;
  */
 public class LauncherAppTransitionManager implements ResourceBasedOverride {
 
-    public static LauncherAppTransitionManager newInstance(Context context) {
-        return Overrides.getObject(LauncherAppTransitionManager.class,
-                context, R.string.app_transition_manager_class);
-    }
-
     public ActivityOptions getActivityLaunchOptions(View v) {
         int left = 0, top = 0;
         int width = v.getMeasuredWidth(), height = v.getMeasuredHeight();
         return ActivityOptions.makeClipRevealAnimation(v, left, top, width, height);
-    }
-
-    /**
-     * Number of animations which run on state properties.
-     */
-    public int getStateElementAnimationsCount() {
-        return 0;
     }
 
     public Animator createStateElementAnimation(int index, float... values) {

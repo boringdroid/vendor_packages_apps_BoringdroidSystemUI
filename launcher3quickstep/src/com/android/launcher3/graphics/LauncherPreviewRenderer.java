@@ -138,7 +138,7 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
             FragmentWithPreview f = (FragmentWithPreview) Fragment.instantiate(
                     context, ta.getString(R.styleable.PreviewFragment_android_name));
             f.enterPreviewMode(context);
-            f.onInit(null);
+            f.onInit();
 
             View view = f.onCreateView(LayoutInflater.from(context), (ViewGroup) parent, null);
             view.setId(ta.getInt(R.styleable.PreviewFragment_android_id, View.NO_ID));
@@ -150,7 +150,6 @@ public class LauncherPreviewRenderer implements Callable<Bitmap> {
             return onCreateView(null, name, context, attrs);
         }
 
-        @Override
         public DeviceProfile getDeviceProfile() {
             return mDp;
         }

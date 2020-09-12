@@ -127,8 +127,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
 
     public abstract ActivityOptions getActivityLaunchOptions(View v);
 
-    public boolean startActivitySafely(View v, Intent intent, @Nullable ItemInfo item,
-            @Nullable String sourceContainer) {
+    public boolean startActivitySafely(View v, Intent intent, @Nullable ItemInfo item) {
         if (mIsSafeModeEnabled && !PackageManagerHelper.isSystemApp(this, intent)) {
             Toast.makeText(this, R.string.safemode_shortcut_error, Toast.LENGTH_SHORT).show();
             return false;

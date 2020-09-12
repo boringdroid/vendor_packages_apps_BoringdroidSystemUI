@@ -94,10 +94,6 @@ public class FastBitmapDrawable extends Drawable {
         this(info.icon, info.color);
     }
 
-    public FastBitmapDrawable(ItemInfoWithIcon info) {
-        this(info.iconBitmap, info.iconColor);
-    }
-
     protected FastBitmapDrawable(Bitmap b, int iconColor) {
         this(b, iconColor, false);
     }
@@ -162,10 +158,6 @@ public class FastBitmapDrawable extends Drawable {
         }
         mScale = scale;
         invalidateSelf();
-    }
-
-    public float getAnimatedScale() {
-        return mScaleAnimation == null ? 1 : mScale;
     }
 
     public float getScale() {

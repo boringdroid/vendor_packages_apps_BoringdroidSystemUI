@@ -25,19 +25,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.PatternMatcher;
-
-import com.android.launcher3.R;
 
 /**
  * Utility methods using package manager
  */
 public class PackageManagerHelper {
-    private final Context mContext;
 
-    public PackageManagerHelper(Context context) {
-        mContext = context;
+    public PackageManagerHelper() {
     }
 
     /**
@@ -46,23 +41,6 @@ public class PackageManagerHelper {
      */
     public static boolean isAppSuspended(ApplicationInfo info) {
         return (info.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
-    }
-
-    public Intent getMarketIntent(String packageName) {
-        return new Intent(Intent.ACTION_VIEW)
-                .setData(new Uri.Builder()
-                        .scheme("market")
-                        .authority("details")
-                        .appendQueryParameter("id", packageName)
-                        .build())
-                .putExtra(Intent.EXTRA_REFERRER, new Uri.Builder().scheme("android-app")
-                        .authority(mContext.getPackageName()).build());
-    }
-
-    public static Intent getStyleWallpapersIntent(Context context) {
-        return new Intent(Intent.ACTION_SET_WALLPAPER).setComponent(
-                new ComponentName(context.getString(R.string.wallpaper_picker_package),
-                "com.android.customization.picker.CustomizationPickerActivity"));
     }
 
     /**

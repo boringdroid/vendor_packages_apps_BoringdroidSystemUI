@@ -37,7 +37,5 @@ public class OverviewCallbacks implements ResourceBasedOverride {
         return sInstance;
     }
 
-    public void onInitOverviewTransition() { }
-
     public void closeAllWindows() { }
 }

@@ -33,7 +33,7 @@ public interface ItemInfoMatcher {
     /**
      * Filters {@param infos} to those satisfying the {@link #matches(ItemInfo, ComponentName)}.
      */
-    default HashSet<ItemInfo> filterItemInfos(Iterable<ItemInfo> infos) {
+    default HashSet<ItemInfo> filterItemInfos() {
         return new HashSet<>();
     }
 

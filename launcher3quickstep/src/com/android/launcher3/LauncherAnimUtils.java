@@ -25,19 +25,6 @@ public class LauncherAnimUtils {
     public static final int OVERVIEW_TRANSITION_MS = 250;
     public static final int SPRING_LOADED_TRANSITION_MS = 150;
 
-    public static final Property<Drawable, Integer> DRAWABLE_ALPHA =
-            new Property<Drawable, Integer>(Integer.TYPE, "drawableAlpha") {
-                @Override
-                public Integer get(Drawable drawable) {
-                    return drawable.getAlpha();
-                }
-
-                @Override
-                public void set(Drawable drawable, Integer alpha) {
-                    drawable.setAlpha(alpha);
-                }
-            };
-
     public static final FloatProperty<View> SCALE_PROPERTY =
             new FloatProperty<View>("scale") {
                 @Override

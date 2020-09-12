@@ -28,7 +28,6 @@ import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
-import com.android.launcher3.model.BgDataModel;
 import com.android.launcher3.util.MainThreadInitializedObject;
 import com.android.launcher3.util.Preconditions;
 
@@ -101,11 +100,6 @@ public class LauncherAppState {
         mModel.forceReload();
     }
 
-    LauncherModel setLauncher(BgDataModel.Callbacks callbacks) {
-        mModel.initialize(callbacks);
-        return mModel;
-    }
-
     public IconCache getIconCache() {
         return mIconCache;
     }
@@ -114,13 +108,6 @@ public class LauncherAppState {
         return mModel;
     }
 
-    public InvariantDeviceProfile getInvariantDeviceProfile() {
-        return mInvariantDeviceProfile;
-    }
-
-    /**
-     * Shorthand for {@link #getInvariantDeviceProfile()}
-     */
     public static InvariantDeviceProfile getIDP(Context context) {
         return InvariantDeviceProfile.INSTANCE.get(context);
     }

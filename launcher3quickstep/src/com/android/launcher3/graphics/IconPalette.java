@@ -16,14 +16,10 @@
 
 package com.android.launcher3.graphics;
 
-import static com.android.launcher3.icons.GraphicsUtils.setColorAlphaBound;
-
 import android.content.Context;
 import android.graphics.Color;
 
 import com.android.launcher3.util.Themes;
-
-import androidx.core.graphics.ColorUtils;
 
 /**
  * Contains colors based on the dominant color of an icon.
@@ -49,10 +45,5 @@ public class IconPalette {
             result = Color.HSVToColor(hsv);
         }
         return result;
-    }
-
-    public static int getMutedColor(int color, float whiteScrimAlpha) {
-        int whiteScrim = setColorAlphaBound(Color.WHITE, (int) (255 * whiteScrimAlpha));
-        return ColorUtils.compositeColors(whiteScrim, color);
     }
 }

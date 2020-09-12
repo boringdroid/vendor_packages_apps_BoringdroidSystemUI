@@ -36,7 +36,7 @@ public class RecentsRootView extends BaseDragLayer<RecentsActivity> {
     private final Point mLastKnownSize = new Point(MIN_SIZE, MIN_SIZE);
 
     public RecentsRootView(Context context, AttributeSet attrs) {
-        super(context, attrs, 1 /* alphaChannelCount */);
+        super(context, attrs  /* alphaChannelCount */);
         mActivity = BaseActivity.fromContext(context);
         setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

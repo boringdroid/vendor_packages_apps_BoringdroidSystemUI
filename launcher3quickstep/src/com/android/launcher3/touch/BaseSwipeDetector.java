@@ -83,13 +83,6 @@ public abstract class BaseSwipeDetector {
         return duration;
     }
 
-    /**
-     * There's no touch and there's no animation.
-     */
-    public boolean isIdleState() {
-        return mState == ScrollState.IDLE;
-    }
-
     public boolean isDraggingOrSettling() {
         return mState == ScrollState.DRAGGING || mState == ScrollState.SETTLING;
     }

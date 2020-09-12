@@ -15,9 +15,6 @@
  */
 package com.android.launcher3.graphics;
 
-import android.content.Context;
-import android.graphics.Rect;
-
 public abstract class RotationMode {
 
     public static RotationMode NORMAL = new RotationMode(0) { };
@@ -28,17 +25,5 @@ public abstract class RotationMode {
     public RotationMode(float surfaceRotation) {
         this.surfaceRotation = surfaceRotation;
         isTransposed = surfaceRotation != 0;
-    }
-
-    public void mapRect(int left, int top, int right, int bottom, Rect out) {
-        out.set(left, top, right, bottom);
-    }
-
-    public void mapInsets(Context context, Rect insets, Rect out) {
-        out.set(insets);
-    }
-
-    public int toNaturalGravity(int absoluteGravity) {
-        return absoluteGravity;
     }
 }

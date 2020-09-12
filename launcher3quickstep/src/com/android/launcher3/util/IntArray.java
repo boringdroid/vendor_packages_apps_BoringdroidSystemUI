@@ -101,14 +101,6 @@ public class IntArray implements Cloneable {
     }
 
     /**
-     * Sets the array to be same as {@param other}
-     */
-    public void copyFrom(IntArray other) {
-        clear();
-        addAll(other);
-    }
-
-    /**
      * Ensures capacity to append at least <code>count</code> values.
      */
     private void ensureCapacity(int count) {

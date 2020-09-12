@@ -129,12 +129,4 @@ public class ItemInfo {
                 + " user=" + user
                 + " title=" + title;
     }
-
-    /**
-     * Whether this item is disabled.
-     */
-    public boolean isDisabled() {
-        return false;
-    }
-
 }

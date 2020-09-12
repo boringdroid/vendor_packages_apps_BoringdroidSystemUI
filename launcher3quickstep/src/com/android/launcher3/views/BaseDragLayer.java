@@ -49,10 +49,8 @@ import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.InsettableFrameLayout;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.util.MultiValueAlpha;
 import com.android.launcher3.util.TouchController;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -74,7 +72,6 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     private int mTouchDispatchState = 0;
 
     protected final T mActivity;
-    private final MultiValueAlpha mMultiValueAlpha;
     private final WallpaperManager mWallpaperManager;
     private final BroadcastReceiver mWallpaperChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -93,10 +90,9 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
 
     protected boolean mAllowSysuiScrims = true;
 
-    public BaseDragLayer(Context context, AttributeSet attrs, int alphaChannelCount) {
+    public BaseDragLayer(Context context, AttributeSet attrs) {
         super(context, attrs);
         mActivity = (T) ActivityContext.lookupContext(context);
-        mMultiValueAlpha = new MultiValueAlpha(this, alphaChannelCount);
         mWallpaperManager = context.getSystemService(WallpaperManager.class);
         mWallpapersWithoutSysuiScrims = getResources().getStringArray(
                 R.array.live_wallpapers_remove_sysui_scrims);
@@ -287,15 +283,6 @@ public abstract class BaseDragLayer<T extends Context & ActivityContext>
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         return new LayoutParams(p);
-    }
-
-    public void dump(String prefix, PrintWriter writer) {
-        writer.println(prefix + "DragLayer:");
-        if (mActiveController != null) {
-            writer.println(prefix + "\tactiveController: " + mActiveController);
-            mActiveController.dump(prefix + "\t", writer);
-        }
-        writer.println(prefix + "\tdragLayerAlpha : " + mMultiValueAlpha );
     }
 
     public static class LayoutParams extends InsettableFrameLayout.LayoutParams {

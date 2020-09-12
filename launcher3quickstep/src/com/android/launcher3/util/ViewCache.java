@@ -15,11 +15,8 @@
  */
 package com.android.launcher3.util;
 
-import android.content.Context;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Utility class to cache views at an activity level
@@ -30,23 +27,6 @@ public class ViewCache {
 
     public void setCacheSize(int layoutId, int size) {
         mCache.put(layoutId, new CacheEntry(size));
-    }
-
-    public <T extends View> T getView(int layoutId, Context context, ViewGroup parent) {
-        CacheEntry entry = mCache.get(layoutId);
-        if (entry == null) {
-            entry = new CacheEntry(1);
-            mCache.put(layoutId, entry);
-        }
-
-        if (entry.mCurrentSize > 0) {
-            entry.mCurrentSize --;
-            T result = (T) entry.mViews[entry.mCurrentSize];
-            entry.mViews[entry.mCurrentSize] = null;
-            return result;
-        }
-
-        return (T) LayoutInflater.from(context).inflate(layoutId, parent, false);
     }
 
     public void recycleView(int layoutId, View view) {

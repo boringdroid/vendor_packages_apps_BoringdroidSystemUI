@@ -60,31 +60,6 @@ public class SingleAxisSwipeDetector extends BaseSwipeDetector {
 
     };
 
-    public static final Direction HORIZONTAL = new Direction() {
-
-        @Override
-        boolean isPositive(float displacement) {
-            // Right
-            return displacement > 0;
-        }
-
-        @Override
-        boolean isNegative(float displacement) {
-            // Left
-            return displacement < 0;
-        }
-
-        @Override
-        float extractDirection(PointF direction) {
-            return direction.x;
-        }
-
-        @Override
-        boolean canScrollStart(PointF displacement, float touchSlop) {
-            return Math.abs(displacement.x) >= Math.max(Math.abs(displacement.y), touchSlop);
-        }
-    };
-
     private final Direction mDir;
     /* Client of this gesture detector can register a callback. */
     private final Listener mListener;

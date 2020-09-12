@@ -51,12 +51,8 @@ public abstract class BaseActivity extends Activity implements ActivityContext {
     // flag, INVISIBLE_BY_PENDING_FLAGS only for the duration of that animation.
     public static final int PENDING_INVISIBLE_BY_WALLPAPER_ANIMATION = 1 << 3;
 
-    private static final int INVISIBLE_FLAGS =
-            INVISIBLE_BY_STATE_HANDLER | INVISIBLE_BY_APP_TRANSITIONS | INVISIBLE_BY_PENDING_FLAGS;
     public static final int STATE_HANDLER_INVISIBILITY_FLAGS =
             INVISIBLE_BY_STATE_HANDLER | PENDING_INVISIBLE_BY_WALLPAPER_ANIMATION;
-    public static final int INVISIBLE_ALL =
-            INVISIBLE_FLAGS | PENDING_INVISIBLE_BY_WALLPAPER_ANIMATION;
 
     @Retention(SOURCE)
     @IntDef(
@@ -77,7 +73,6 @@ public abstract class BaseActivity extends Activity implements ActivityContext {
     /**
      * State flag indicating if the user is active or the actitvity when to background as a result
      * of user action.
-     * @see #isUserActive()
      */
     private static final int ACTIVITY_STATE_USER_ACTIVE = 1 << 2;
 
@@ -100,7 +95,6 @@ public abstract class BaseActivity extends Activity implements ActivityContext {
         return mViewCache;
     }
 
-    @Override
     public DeviceProfile getDeviceProfile() {
         return mDeviceProfile;
     }
@@ -177,14 +171,6 @@ public abstract class BaseActivity extends Activity implements ActivityContext {
         return (mActivityFlags & ACTIVITY_STATE_RESUMED) != 0;
     }
 
-    public boolean isUserActive() {
-        return (mActivityFlags & ACTIVITY_STATE_USER_ACTIVE) != 0;
-    }
-
-    public void addOnDeviceProfileChangeListener(OnDeviceProfileChangeListener listener) {
-        mDPChangeListeners.add(listener);
-    }
-
     protected void dispatchDeviceProfileChanged() {
         for (int i = mDPChangeListeners.size() - 1; i >= 0; i--) {
             mDPChangeListeners.get(i).onDeviceProfileChanged(mDeviceProfile);
@@ -199,27 +185,8 @@ public abstract class BaseActivity extends Activity implements ActivityContext {
         mMultiWindowModeChangedListeners.remove(listener);
     }
 
-    /**
-     * Used to set the override visibility state, used only to handle the transition home with the
-     * recents animation.
-     */
-    public void addForceInvisibleFlag(@InvisibilityFlags int flag) {
-        mForceInvisible |= flag;
-    }
-
     public void clearForceInvisibleFlag(@InvisibilityFlags int flag) {
         mForceInvisible &= ~flag;
-    }
-
-    /**
-     * @return Wether this activity should be considered invisible regardless of actual visibility.
-     */
-    public boolean isForceInvisible() {
-        return hasSomeInvisibleFlag(INVISIBLE_FLAGS);
-    }
-
-    public boolean hasSomeInvisibleFlag(int mask) {
-        return (mForceInvisible & mask) != 0;
     }
 
     public interface MultiWindowModeChangedListener {

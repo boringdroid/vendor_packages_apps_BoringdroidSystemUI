@@ -16,7 +16,6 @@
 
 package com.android.quickstep;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -25,7 +24,6 @@ import android.util.Log;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.util.ComponentKey;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
 
@@ -55,13 +53,6 @@ public final class TaskUtils {
         }
         return packageManager.getUserBadgedLabel(
             applicationInfo.loadLabel(packageManager), user);
-    }
-
-    public static ComponentKey getLaunchComponentKeyForTask(Task.TaskKey taskKey) {
-        final ComponentName cn = taskKey.sourceComponent != null
-                ? taskKey.sourceComponent
-                : taskKey.getComponent();
-        return new ComponentKey(cn, UserHandleHelper.of(taskKey.userId));
     }
 
 

@@ -30,7 +30,6 @@ public class SystemUiController {
 
     // Various UI states in increasing order of priority
     public static final int UI_STATE_BASE_WINDOW = 0;
-    public static final int UI_STATE_ROOT_VIEW = 3;
     public static final int UI_STATE_OVERVIEW = 4;
 
     public static final int FLAG_LIGHT_NAV = 1 << 0;

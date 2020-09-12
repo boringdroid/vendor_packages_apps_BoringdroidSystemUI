@@ -18,12 +18,8 @@ package com.android.launcher3.compat;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.LauncherApps;
-import android.content.pm.LauncherApps.PinItemRequest;
 import android.content.pm.PackageManager;
-import android.os.Parcelable;
 import android.os.UserHandle;
 
 @TargetApi(26)
@@ -44,8 +40,4 @@ public class LauncherAppsCompatVO extends LauncherAppsCompatVL {
         }
     }
 
-    public static PinItemRequest getPinItemRequest(Intent intent) {
-        Parcelable extra = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
-        return extra instanceof PinItemRequest ? (PinItemRequest) extra : null;
-    }
 }

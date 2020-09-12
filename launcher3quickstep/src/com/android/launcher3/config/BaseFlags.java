@@ -24,7 +24,6 @@ import android.content.Context;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Keep;
 
-import com.android.launcher3.Utilities;
 import com.android.launcher3.uioverrides.TogglableFlag;
 
 import java.util.ArrayList;
@@ -42,8 +41,6 @@ public abstract class BaseFlags {
     @GuardedBy("sLock")
     private static final List<TogglableFlag> sFlags = new ArrayList<>();
 
-    static final String FLAGS_PREF_NAME = "featureFlags";
-
     BaseFlags() {
         throw new UnsupportedOperationException("Don't instantiate BaseFlags");
     }
@@ -57,9 +54,6 @@ public abstract class BaseFlags {
     public static final TogglableFlag PROMISE_APPS_NEW_INSTALLS =
             new TogglableFlag("PROMISE_APPS_NEW_INSTALLS", true,
                     "Adds a promise icon to the home screen for new install sessions.");
-
-    //Feature flag to enable pulling down navigation shade from workspace.
-    public static final boolean PULL_DOWN_STATUS_BAR = true;
 
     // When true, overview shows screenshots in the orientation they were taken rather than
     // trying to make them fit the orientation the device is in.
@@ -97,18 +91,6 @@ public abstract class BaseFlags {
             "ASSISTANT_GIVES_LAUNCHER_FOCUS", false,
             "Allow Launcher to handle nav bar gestures while Assistant is running over it");
 
-    public static void initialize(Context context) {
-        // Avoid the disk read for user builds
-        if (Utilities.IS_DEBUG_DEVICE) {
-            synchronized (sLock) {
-                for (BaseTogglableFlag flag : sFlags) {
-                    flag.initialize(context);
-                }
-            }
-        }
-        APP_SEARCH_IMPROVEMENTS.initialize(context);
-    }
-
     public static abstract class BaseTogglableFlag {
         private final String key;
         // should be value that is hardcoded in client side.
@@ -135,18 +117,9 @@ public abstract class BaseFlags {
             return key;
         }
 
-        protected void initialize(Context context) {
-            currentValue = getFromStorage(context, getDefaultValue());
-        }
-
         protected abstract boolean getOverridenDefaultValue(boolean value);
 
         protected abstract void addChangeListener(Context context, Runnable r);
-
-        boolean getFromStorage(Context context, boolean defaultValue) {
-            return context.getSharedPreferences(FLAGS_PREF_NAME, Context.MODE_PRIVATE)
-                    .getBoolean(key, getDefaultValue());
-        }
 
         boolean getDefaultValue() {
             return getOverridenDefaultValue(defaultValue);

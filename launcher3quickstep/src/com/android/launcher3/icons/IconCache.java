@@ -16,7 +16,6 @@
 
 package com.android.launcher3.icons;
 
-import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
 import android.content.Context;
@@ -25,15 +24,11 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Process;
 import android.os.UserHandle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.android.launcher3.AppInfo;
 import com.android.launcher3.IconProvider;
 import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.ItemInfoWithIcon;
@@ -44,9 +39,6 @@ import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.cache.BaseIconCache;
 import com.android.launcher3.icons.cache.CachingLogic;
-import com.android.launcher3.icons.cache.HandlerRunnable;
-import com.android.launcher3.model.PackageItemInfo;
-import com.android.launcher3.util.Preconditions;
 
 import java.util.function.Supplier;
 
@@ -62,8 +54,6 @@ public class IconCache extends BaseIconCache {
     private final LauncherAppsCompat mLauncherApps;
     private final UserManagerCompat mUserManager;
     private final IconProvider mIconProvider;
-
-    private int mPendingIconRequestCount = 0;
 
     public IconCache(Context context, InvariantDeviceProfile inv) {
         super(context, LauncherFiles.APP_ICONS_DB, MODEL_EXECUTOR.getLooper(),
@@ -99,43 +89,6 @@ public class IconCache extends BaseIconCache {
             }
         } catch (NameNotFoundException e) {
             Log.d(TAG, "Package not found", e);
-        }
-    }
-
-    /**
-     * Fetches high-res icon for the provided ItemInfo and updates the caller when done.
-     * @return a request ID that can be used to cancel the request.
-     */
-    public IconLoadRequest updateIconInBackground(final ItemInfoUpdateReceiver caller,
-            final ItemInfoWithIcon info) {
-        Preconditions.assertUIThread();
-        if (mPendingIconRequestCount <= 0) {
-            MODEL_EXECUTOR.setThreadPriority(Process.THREAD_PRIORITY_FOREGROUND);
-        }
-        mPendingIconRequestCount ++;
-
-        IconLoadRequest request = new IconLoadRequest(mWorkerHandler, this::onIconRequestEnd) {
-            @Override
-            public void run() {
-                if (info instanceof AppInfo) {
-                    getTitleAndIcon(info, false);
-                } else if (info instanceof PackageItemInfo) {
-                    getTitleAndIconForApp((PackageItemInfo) info, false);
-                }
-                MAIN_EXECUTOR.execute(() -> {
-                    caller.reapplyItemInfo(info);
-                    onEnd();
-                });
-            }
-        };
-        Utilities.postAsyncCallback(mWorkerHandler, request);
-        return request;
-    }
-
-    private void onIconRequestEnd() {
-        mPendingIconRequestCount --;
-        if (mPendingIconRequestCount <= 0) {
-            MODEL_EXECUTOR.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         }
     }
 
@@ -179,43 +132,15 @@ public class IconCache extends BaseIconCache {
     }
 
 
-    /**
-     * Fill in {@param infoInOut} with the corresponding icon and label.
-     */
-    public synchronized void getTitleAndIconForApp(
-            PackageItemInfo infoInOut, boolean useLowResIcon) {
-        CacheEntry entry = getEntryForPackageLocked(
-                infoInOut.packageName, infoInOut.user, useLowResIcon);
-        applyCacheEntry(entry, infoInOut);
-    }
-
     protected void applyCacheEntry(CacheEntry entry, ItemInfoWithIcon info) {
         info.title = Utilities.trim(entry.title);
         info.contentDescription = entry.contentDescription;
         info.applyFrom((entry.icon == null) ? getDefaultIcon(info.user) : entry);
     }
 
-    public Drawable getFullResIcon(LauncherActivityInfo info, boolean flattenDrawable) {
-        return mIconProvider.getIcon(info, mIconDpi, flattenDrawable);
-    }
-
     @Override
     protected String getIconSystemState(String packageName) {
         return mIconProvider.getSystemStateForPackage(mSystemState, packageName)
                 + ",flags_asi:" + FeatureFlags.APP_SEARCH_IMPROVEMENTS.get();
-    }
-
-    public static abstract class IconLoadRequest extends HandlerRunnable {
-        IconLoadRequest(Handler handler, Runnable endRunnable) {
-            super(handler, endRunnable);
-        }
-    }
-
-    /**
-     * Interface for receiving itemInfo with high-res icon.
-     */
-    public interface ItemInfoUpdateReceiver {
-
-        void reapplyItemInfo(ItemInfoWithIcon info);
     }
 }

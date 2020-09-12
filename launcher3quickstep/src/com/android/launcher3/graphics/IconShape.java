@@ -15,20 +15,12 @@
  */
 package com.android.launcher3.graphics;
 
-import static com.android.launcher3.icons.IconNormalizer.ICON_VISIBLE_AREA_FACTOR;
-
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.FloatArrayEvaluator;
-import android.animation.ValueAnimator;
-import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.Region.Op;
 import android.graphics.drawable.AdaptiveIconDrawable;
@@ -36,15 +28,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Xml;
-import android.view.View;
-import android.view.ViewOutlineProvider;
 
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.anim.RoundedRectRevealOutlineProvider;
 import com.android.launcher3.icons.GraphicsUtils;
-import com.android.launcher3.icons.IconNormalizer;
-import com.android.launcher3.views.ClipPathView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -60,7 +47,6 @@ public abstract class IconShape {
 
     private static IconShape sInstance = new Circle();
     private static Path sShapePath;
-    private static float sNormalizationScale = ICON_VISIBLE_AREA_FACTOR;
 
     public static final int DEFAULT_PATH_SIZE = 100;
 
@@ -77,37 +63,17 @@ public abstract class IconShape {
         return sShapePath;
     }
 
-    public static float getNormalizationScale() {
-        return sNormalizationScale;
-    }
-
     public boolean enableShapeDetection(){
         return false;
     };
 
     public abstract void addToPath(Path path, float offsetX, float offsetY, float radius);
 
-    public abstract <T extends View & ClipPathView> Animator createRevealAnimator(T target,
-            Rect startRect, Rect endRect, float endRadius, boolean isReversed);
-
     /**
      * Abstract shape where the reveal animation is a derivative of a round rect animation
      */
     private static abstract class SimpleRectShape extends IconShape {
 
-        @Override
-        public final <T extends View & ClipPathView> Animator createRevealAnimator(T target,
-                Rect startRect, Rect endRect, float endRadius, boolean isReversed) {
-            return new RoundedRectRevealOutlineProvider(
-                    getStartRadius(startRect), endRadius, startRect, endRect) {
-                @Override
-                public boolean shouldRemoveElevationDuringAnimation() {
-                    return true;
-                }
-            }.createRevealAnimator(target, isReversed);
-        }
-
-        protected abstract float getStartRadius(Rect startRect);
     }
 
     /**
@@ -115,43 +81,6 @@ public abstract class IconShape {
      */
     private static abstract class PathShape extends IconShape {
 
-        protected abstract AnimatorUpdateListener newUpdateListener(
-                Rect startRect, Rect endRect, float endRadius, Path outPath);
-
-        @Override
-        public final <T extends View & ClipPathView> Animator createRevealAnimator(T target,
-                Rect startRect, Rect endRect, float endRadius, boolean isReversed) {
-            Path path = new Path();
-            AnimatorUpdateListener listener =
-                    newUpdateListener(startRect, endRect, endRadius, path);
-
-            ValueAnimator va =
-                    isReversed ? ValueAnimator.ofFloat(1f, 0f) : ValueAnimator.ofFloat(0f, 1f);
-            va.addListener(new AnimatorListenerAdapter() {
-                private ViewOutlineProvider mOldOutlineProvider;
-
-                public void onAnimationStart(Animator animation) {
-                    mOldOutlineProvider = target.getOutlineProvider();
-                    target.setOutlineProvider(null);
-
-                    target.setTranslationZ(-target.getElevation());
-                }
-
-                public void onAnimationEnd(Animator animation) {
-                    target.setTranslationZ(0);
-                    target.setClipPath(null);
-                    target.setOutlineProvider(mOldOutlineProvider);
-                }
-            });
-
-            va.addUpdateListener((anim) -> {
-                path.reset();
-                listener.onAnimationUpdate(anim);
-                target.setClipPath(path);
-            });
-
-            return va;
-        }
     }
 
     public static final class Circle extends SimpleRectShape {
@@ -159,11 +88,6 @@ public abstract class IconShape {
         @Override
         public void addToPath(Path path, float offsetX, float offsetY, float radius) {
             path.addCircle(radius + offsetX, radius + offsetY, radius, Path.Direction.CW);
-        }
-
-        @Override
-        protected float getStartRadius(Rect startRect) {
-            return startRect.width() / 2f;
         }
 
         @Override
@@ -192,10 +116,6 @@ public abstract class IconShape {
                     Path.Direction.CW);
         }
 
-        @Override
-        protected float getStartRadius(Rect startRect) {
-            return (startRect.width() / 2f) * mRadiusRatio;
-        }
     }
 
     public static class TearDrop extends PathShape {
@@ -227,27 +147,6 @@ public abstract class IconShape {
             return mTempRadii;
         }
 
-        @Override
-        protected AnimatorUpdateListener newUpdateListener(Rect startRect, Rect endRect,
-                float endRadius, Path outPath) {
-            float r1 = startRect.width() / 2f;
-            float r2 = r1 * mRadiusRatio;
-
-            float[] startValues = new float[] {
-                    startRect.left, startRect.top, startRect.right, startRect.bottom, r1, r2};
-            float[] endValues = new float[] {
-                    endRect.left, endRect.top, endRect.right, endRect.bottom, endRadius, endRadius};
-
-            FloatArrayEvaluator evaluator = new FloatArrayEvaluator(new float[6]);
-
-            return (anim) -> {
-                float progress = (Float) anim.getAnimatedValue();
-                float[] values = evaluator.evaluate(progress, startValues, endValues);
-                outPath.addRoundRect(
-                        values[0], values[1], values[2], values[3],
-                        getRadiiArray(values[4], values[5]), Path.Direction.CW);
-            };
-        }
     }
 
     public static class Squircle extends PathShape {
@@ -289,51 +188,6 @@ public abstract class IconShape {
                     cx, cy + r);
         }
 
-        @Override
-        protected AnimatorUpdateListener newUpdateListener(Rect startRect, Rect endRect,
-                float endR, Path outPath) {
-
-            float startCX = startRect.exactCenterX();
-            float startCY = startRect.exactCenterY();
-            float startR = startRect.width() / 2f;
-            float startControl = startR - startR * mRadiusRatio;
-            float startHShift = 0;
-            float startVShift = 0;
-
-            float endCX = endRect.exactCenterX();
-            float endCY = endRect.exactCenterY();
-            // Approximate corner circle using bezier curves
-            // http://spencermortensen.com/articles/bezier-circle/
-            float endControl = endR * 0.551915024494f;
-            float endHShift = endRect.width() / 2f - endR;
-            float endVShift = endRect.height() / 2f - endR;
-
-            return (anim) -> {
-                float progress = (Float) anim.getAnimatedValue();
-
-                float cx = (1 - progress) * startCX + progress * endCX;
-                float cy = (1 - progress) * startCY + progress * endCY;
-                float r = (1 - progress) * startR + progress * endR;
-                float control = (1 - progress) * startControl + progress * endControl;
-                float hShift = (1 - progress) * startHShift + progress * endHShift;
-                float vShift = (1 - progress) * startVShift + progress * endVShift;
-
-                outPath.moveTo(cx, cy - vShift - r);
-                outPath.rLineTo(-hShift, 0);
-
-                addLeftCurve(cx - hShift, cy - vShift, r, control, outPath);
-                outPath.rLineTo(0, vShift + vShift);
-
-                addRightCurve(cx - hShift, cy + vShift, r, control, outPath);
-                outPath.rLineTo(hShift + hShift, 0);
-
-                addLeftCurve(cx + hShift, cy + vShift, -r, -control, outPath);
-                outPath.rLineTo(0, -vShift - vShift);
-
-                addRightCurve(cx + hShift, cy - vShift, -r, -control, outPath);
-                outPath.close();
-            };
-        }
     }
 
     /**
@@ -430,6 +284,5 @@ public abstract class IconShape {
         // Initialize shape properties
         drawable.setBounds(0, 0, DEFAULT_PATH_SIZE, DEFAULT_PATH_SIZE);
         sShapePath = new Path(drawable.getIconMask());
-        sNormalizationScale = IconNormalizer.normalizeAdaptiveIcon(drawable, size, null);
     }
 }
