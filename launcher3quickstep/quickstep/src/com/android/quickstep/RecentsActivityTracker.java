@@ -18,14 +18,9 @@ package com.android.quickstep;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
 
 import com.android.quickstep.ActivityControlHelper.ActivityInitListener;
-import com.android.quickstep.util.RemoteAnimationProvider;
 
 import java.lang.ref.WeakReference;
 import java.util.function.BiPredicate;
@@ -46,31 +41,12 @@ public class RecentsActivityTracker<T extends BaseRecentsActivity> implements Ac
         mOnInitListener = onInitListener;
     }
 
-    @Override
-    public void register() {
-        sScheduler.schedule(this);
-    }
-
-    @Override
-    public void unregister() {
-        sScheduler.clearReference(this);
-    }
-
     private boolean init(T activity, boolean visible) {
         return mOnInitListener.test(activity, visible);
     }
 
     public static <T extends BaseRecentsActivity> T getCurrentActivity() {
         return (T) sCurrentActivity.get();
-    }
-
-    @Override
-    public void registerAndStartActivity(Intent intent, RemoteAnimationProvider animProvider,
-            Context context, Handler handler, long duration) {
-        register();
-
-        Bundle options = animProvider.toActivityOptions(handler, duration, context).toBundle();
-        context.startActivity(intent, options);
     }
 
     public static void onRecentsActivityCreate(BaseRecentsActivity activity) {

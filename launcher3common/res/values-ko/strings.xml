@@ -23,10 +23,6 @@
     <string name="activity_not_found" msgid="8071924732094499514">"앱이 설치되지 않았습니다."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"앱을 사용할 수 없음"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"다운로드한 앱은 안전 모드에서 사용할 수 없습니다."</string>
-    <string name="home_screen" msgid="806512411299847073">"홈 화면"</string>
-    <string name="all_apps_button_label" msgid="8130441508702294465">"앱 목록"</string>
-    <string name="remove_drop_target_label" msgid="7812859488053230776">"삭제"</string>
-    <string name="uninstall_drop_target_label" msgid="4722034217958379417">"제거"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"바로가기 설치"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"앱이 사용자의 작업 없이 바로가기를 추가할 수 있도록 합니다."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"홈 설정 및 바로가기 읽기"</string>
@@ -34,9 +30,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"홈 설정 및 바로가기 쓰기"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"앱이 홈에 있는 설정 및 바로가기를 변경할 수 있도록 합니다."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"페이지 %1$d/%2$d"</string>
-    <string name="widget_button_text" msgid="2880537293434387943">"위젯"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"알림 표시 점 보기"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"홈 화면에 추가"</string>
-    <string name="all_apps_personal_tab" msgid="4190252696685155002">"개인"</string>
-    <string name="all_apps_work_tab" msgid="4884822796154055118">"직장"</string>
 </resources>

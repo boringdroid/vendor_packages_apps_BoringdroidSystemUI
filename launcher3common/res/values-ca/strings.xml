@@ -23,10 +23,6 @@
     <string name="activity_not_found" msgid="8071924732094499514">"L\'aplicació no s\'ha instal·lat."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"L\'aplicació no està disponible."</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"L\'aplicació que has baixat està desactivada al mode segur."</string>
-    <string name="home_screen" msgid="806512411299847073">"Pantalla d\'inici"</string>
-    <string name="all_apps_button_label" msgid="8130441508702294465">"Llista d\'aplicacions"</string>
-    <string name="remove_drop_target_label" msgid="7812859488053230776">"Suprimeix"</string>
-    <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Desinstal·la"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"instal·la dreceres"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"Permet que una aplicació afegeixi dreceres sense la intervenció de l\'usuari."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"llegeix la configuració i les dreceres de la pantalla d\'inici"</string>
@@ -34,9 +30,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"escriu la configuració i les dreceres de la pantalla d\'inici"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Permet que l\'aplicació canviï la configuració i les dreceres de la pantalla d\'inici."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Pàgina %1$d de %2$d"</string>
-    <string name="widget_button_text" msgid="2880537293434387943">"Widgets"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Mostra els punts de notificació"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Afegeix a la pantalla d\'inici"</string>
-    <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personal"</string>
-    <string name="all_apps_work_tab" msgid="4884822796154055118">"Feina"</string>
 </resources>

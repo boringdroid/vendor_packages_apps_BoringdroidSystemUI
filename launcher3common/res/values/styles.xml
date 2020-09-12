@@ -150,21 +150,6 @@
 
     <style name="WidgetContainerTheme.Dark" />
 
-    <style name="FastScrollerPopup" parent="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:minWidth">@dimen/fastscroll_popup_width</item>
-        <item name="android:layout_height">@dimen/fastscroll_popup_height</item>
-        <item name="android:textSize">@dimen/fastscroll_popup_text_size</item>
-        <item name="android:paddingEnd">@dimen/fastscroll_popup_padding</item>
-        <item name="android:gravity">center</item>
-        <item name="android:alpha">0</item>
-        <item name="android:elevation">3dp</item>
-        <item name="android:saveEnabled">false</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:importantForAccessibility">no</item>
-    </style>
-
     <!-- Base theme for BubbleTextView and sub classes -->
 
     <!-- Icon displayed on the workspace -->
@@ -172,22 +157,5 @@
     <!-- Theme for the popup container -->
 
     <!-- Drop targets -->
-    <style name="DropTargetButtonBase" parent="@android:style/TextAppearance.DeviceDefault">
-        <item name="android:drawablePadding">7.5dp</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:textColor">?attr/workspaceTextColor</item>
-        <item name="android:textSize">@dimen/drop_target_text_size</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:shadowColor">?attr/workspaceShadowColor</item>
-        <item name="android:shadowDx">0.0</item>
-        <item name="android:shadowDy">1.0</item>
-        <item name="android:shadowRadius">4.0</item>
-    </style>
-
-    <style name="DropTargetButton" parent="DropTargetButtonBase" />
-
-    <style name="TextHeadline" parent="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
 
 </resources>

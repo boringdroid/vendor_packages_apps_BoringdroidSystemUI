@@ -23,10 +23,6 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Program is nie geïnstalleer nie."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Program is nie beskikbaar nie"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Afgelaaide program in veiligmodus gedeaktiveer"</string>
-    <string name="home_screen" msgid="806512411299847073">"Tuisskerm"</string>
-    <string name="all_apps_button_label" msgid="8130441508702294465">"Programmelys"</string>
-    <string name="remove_drop_target_label" msgid="7812859488053230776">"Verwyder"</string>
-    <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Deïnstalleer"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"installeer kortpaaie"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"Laat \'n program toe om kortpaaie by te voeg sonder gebruikerinmenging."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"lees Tuis-instellings en -kortpaaie"</string>
@@ -34,9 +30,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"skryf Tuis-instellings en -kortpaaie"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Laat die program toe om die instellings en kortpaaie in Tuis te verander."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Bladsy %1$d van %2$d"</string>
-    <string name="widget_button_text" msgid="2880537293434387943">"Legstukke"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Wys kennisgewingkolle"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Voeg by tuisskerm"</string>
-    <string name="all_apps_personal_tab" msgid="4190252696685155002">"Persoonlik"</string>
-    <string name="all_apps_work_tab" msgid="4884822796154055118">"Werk"</string>
 </resources>

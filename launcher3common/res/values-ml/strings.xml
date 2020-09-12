@@ -23,10 +23,6 @@
     <string name="activity_not_found" msgid="8071924732094499514">"അപ്ലിക്കേഷൻ ഇൻസ്‌റ്റാളുചെ‌യ്‌തിട്ടില്ല."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"അപ്ലിക്കേഷൻ ലഭ്യമല്ല"</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"ഡൗൺലോഡുചെയ്‌ത അപ്ലിക്കേഷൻ സുരക്ഷാ മോഡിൽ പ്രവർത്തനരഹിതമാക്കി"</string>
-    <string name="home_screen" msgid="806512411299847073">"ഹോം സ്‌ക്രീൻ"</string>
-    <string name="all_apps_button_label" msgid="8130441508702294465">"അപ്ലിക്കേഷനുകളുടെ ലിസ്‌റ്റ്"</string>
-    <string name="remove_drop_target_label" msgid="7812859488053230776">"നീക്കംചെയ്യുക"</string>
-    <string name="uninstall_drop_target_label" msgid="4722034217958379417">"അൺഇൻസ്റ്റാളുചെയ്യുക"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"കുറുക്കുവഴികൾ ഇൻസ്റ്റാളുചെയ്യുക"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"ഉപയോക്തൃ ഇടപെടൽ ഇല്ലാതെ കുറുക്കുവഴികൾ ചേർക്കാൻ അപ്ലിക്കേഷനെ അനുവദിക്കുന്നു."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"ഹോം ക്രമീകരണങ്ങളും കുറുക്കുവഴികളും റീഡുചെയ്യുക"</string>
@@ -34,9 +30,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"ഹോം ക്രമീകരണങ്ങളും കുറുക്കുവഴികളും റൈറ്റുചെയ്യുക"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ഹോമിലെ ക്രമീകരണങ്ങളും കുറുക്കുവഴികളും മാറ്റാൻ അപ്ലിക്കേഷനെ അനുവദിക്കുന്നു."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"പേജ് %1$d / %2$d"</string>
-    <string name="widget_button_text" msgid="2880537293434387943">"വിഡ്ജെറ്റുകൾ"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"അറിയിപ്പ് ഡോട്ടുകൾ കാണിക്കുക"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"ഹോം സ്ക്രീനിൽ ചേർക്കുക"</string>
-    <string name="all_apps_personal_tab" msgid="4190252696685155002">"വ്യക്തിപരം"</string>
-    <string name="all_apps_work_tab" msgid="4884822796154055118">"ജോലി"</string>
 </resources>

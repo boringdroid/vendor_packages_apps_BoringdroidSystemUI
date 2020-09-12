@@ -21,6 +21,7 @@ import static com.android.launcher3.LauncherState.NORMAL;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -102,7 +103,6 @@ public class LauncherStateManager {
 
     private final AnimationConfig mConfig = new AnimationConfig();
     private final Handler mUiHandler;
-    private final Launcher mLauncher;
     private final ArrayList<StateListener> mListeners = new ArrayList<>();
 
     // Animators which are run on properties also controlled by state animations.
@@ -116,9 +116,11 @@ public class LauncherStateManager {
 
     private LauncherState mRestState;
 
-    public LauncherStateManager(Launcher l) {
+    private Context mContext;
+
+    public LauncherStateManager(Context context) {
         mUiHandler = new Handler(Looper.getMainLooper());
-        mLauncher = l;
+        mContext = context;
     }
 
     public LauncherState getState() {
@@ -149,7 +151,7 @@ public class LauncherStateManager {
      * Returns true if the state changes should be animated.
      */
     public boolean shouldAnimateStateChange() {
-        return !mLauncher.isForceInvisible() && mLauncher.isStarted();
+        return true;
     }
 
     /**
@@ -199,28 +201,7 @@ public class LauncherStateManager {
 
     private void goToState(LauncherState state, boolean animated, long delay,
             final Runnable onCompleteRunnable) {
-        animated &= Utilities.areAnimationsEnabled(mLauncher);
-        if (mLauncher.isInState(state)) {
-            if (mConfig.mCurrentAnimation == null) {
-                // Run any queued runnable
-                if (onCompleteRunnable != null) {
-                    onCompleteRunnable.run();
-                }
-                return;
-            } else if (!mConfig.userControlled && animated && mConfig.mTargetState == state) {
-                // We are running the same animation as requested
-                if (onCompleteRunnable != null) {
-                    mConfig.mCurrentAnimation.addListener(new AnimationSuccessListener() {
-                        @Override
-                        public void onAnimationSuccess(Animator animator) {
-                            onCompleteRunnable.run();
-                        }
-                    });
-                }
-                return;
-            }
-        }
-
+        // TODO recheck it
         // Cancel the current animation. This will reset mState to mCurrentStableState, so store it.
         LauncherState fromState = mState;
         mConfig.reset();
@@ -267,29 +248,6 @@ public class LauncherStateManager {
         mUiHandler.post(new StartAnimRunnable(animation));
     }
 
-    public AnimatorSet createAtomicAnimation(LauncherState toState,
-                                             AnimatorSetBuilder builder, @AnimationComponents int atomicComponent, long duration) {
-        AnimationConfig config = new AnimationConfig();
-        config.animComponents = atomicComponent;
-        config.duration = duration;
-        for (StateHandler handler : mLauncher.getStateManager().getStateHandlers()) {
-            handler.setStateWithAnimation(toState, builder, config);
-        }
-        return builder.build();
-    }
-
-    /**
-     * Creates a {@link AnimatorPlaybackController} that can be used for a controlled
-     * state transition.
-     * @param state the final state for the transition.
-     * @param duration intended duration for normal playback. Use higher duration for better
-     *                accuracy.
-     */
-    public AnimatorPlaybackController createAnimationToNewWorkspace(
-            LauncherState state, long duration) {
-        return createAnimationToNewWorkspace(state, duration, LauncherStateManager.ANIM_ALL);
-    }
-
     public AnimatorPlaybackController createAnimationToNewWorkspace(
             LauncherState state, long duration, @AnimationComponents int animComponents) {
         return createAnimationToNewWorkspace(state, new AnimatorSetBuilder(), duration, null,
@@ -334,13 +292,12 @@ public class LauncherStateManager {
                 onStateTransitionEnd(state);
             }
         });
-        mConfig.setAnimation(animation, state);
+        mConfig.setAnimation(animation);
         return mConfig.mCurrentAnimation;
     }
 
     private void onStateTransitionStart(LauncherState state) {
         mState = state;
-        mLauncher.onStateSetStart();
 
         for (int i = mListeners.size() - 1; i >= 0; i--) {
             mListeners.get(i).onStateTransitionStart(state);
@@ -353,8 +310,6 @@ public class LauncherStateManager {
             mLastStableState = state.getHistoryForState();
             mCurrentStableState = state;
         }
-
-        mLauncher.onStateSetEnd();
 
         if (state == NORMAL) {
             setRestState(null);
@@ -429,7 +384,7 @@ public class LauncherStateManager {
             // Dispatch on transition end, so that any transient property is cleared.
             onStateTransitionEnd(mState);
         }
-        mConfig.setAnimation(anim, null);
+        mConfig.setAnimation(anim);
     }
 
     private void cancelAllStateElementAnimation() {
@@ -458,7 +413,7 @@ public class LauncherStateManager {
 
     public Animator createStateElementAnimation(int index, float... values) {
         cancelStateElementAnimation(index);
-        LauncherAppTransitionManager latm = mLauncher.getAppTransitionManager();
+        LauncherAppTransitionManager latm = LauncherAppTransitionManager.newInstance(mContext);
         if (mStateElementAnimators == null) {
             mStateElementAnimators = new Animator[latm.getStateElementAnimationsCount()];
         }
@@ -505,7 +460,6 @@ public class LauncherStateManager {
         public @AnimationComponents int animComponents = ANIM_ALL;
 
         private AnimatorSet mCurrentAnimation;
-        private LauncherState mTargetState;
         // Id to keep track of config changes, to tie an animation with the corresponding request
         private int mChangeId = 0;
 
@@ -516,7 +470,6 @@ public class LauncherStateManager {
             duration = 0;
             userControlled = false;
             animComponents = ANIM_ALL;
-            mTargetState = null;
 
             if (playbackController != null) {
                 playbackController.getAnimationPlayer().cancel();
@@ -541,9 +494,8 @@ public class LauncherStateManager {
             }
         }
 
-        public void setAnimation(AnimatorSet animation, LauncherState targetState) {
+        public void setAnimation(AnimatorSet animation) {
             mCurrentAnimation = animation;
-            mTargetState = targetState;
             mCurrentAnimation.addListener(this);
         }
 

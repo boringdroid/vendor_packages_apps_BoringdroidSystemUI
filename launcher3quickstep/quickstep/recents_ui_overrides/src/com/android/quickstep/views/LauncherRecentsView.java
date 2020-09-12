@@ -31,8 +31,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.LauncherStateManager.StateListener;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
@@ -47,7 +47,7 @@ import com.android.systemui.plugins.RecentsExtraCard;
  * {@link RecentsView} used in Launcher activity
  */
 @TargetApi(Build.VERSION_CODES.O)
-public class LauncherRecentsView extends RecentsView<Launcher> implements StateListener {
+public class LauncherRecentsView extends RecentsView<BaseActivity> implements StateListener {
 
     private static final Rect sTempRect = new Rect();
 
@@ -83,23 +83,16 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
     public LauncherRecentsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setContentAlpha(0);
-        mActivity.getStateManager().addStateListener(this);
     }
 
     @Override
     public void startHome() {
-        mActivity.getStateManager().goToState(NORMAL);
+        // TODO recheck it
     }
 
     @Override
     public void setTranslationY(float translationY) {
         super.setTranslationY(translationY);
-        if (ENABLE_QUICKSTEP_LIVE_TILE.get()) {
-            LauncherState state = mActivity.getStateManager().getState();
-            if (state == OVERVIEW) {
-                redrawLiveTile(false);
-            }
-        }
     }
 
     @Override
@@ -163,9 +156,6 @@ public class LauncherRecentsView extends RecentsView<Launcher> implements StateL
 
     @Override
     protected void onTaskLaunched(boolean success) {
-        if (success) {
-            mActivity.getStateManager().goToState(NORMAL, false /* animate */);
-        }
         super.onTaskLaunched(success);
     }
 

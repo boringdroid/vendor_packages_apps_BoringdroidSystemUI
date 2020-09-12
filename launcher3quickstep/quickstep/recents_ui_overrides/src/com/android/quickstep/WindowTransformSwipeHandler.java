@@ -18,7 +18,6 @@ package com.android.quickstep;
 import static com.android.launcher3.BaseActivity.INVISIBLE_BY_STATE_HANDLER;
 import static com.android.launcher3.BaseActivity.STATE_HANDLER_INVISIBILITY_FLAGS;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
 import static com.android.launcher3.anim.Interpolators.OVERSHOOT_1_2;
 import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.launcher3.config.FeatureFlags.QUICKSTEP_SPRINGS;
@@ -72,7 +71,6 @@ import com.android.quickstep.inputconsumers.InputConsumer;
 import com.android.quickstep.inputconsumers.OverviewInputConsumer;
 import com.android.quickstep.util.ClipAnimationHelper.TargetAlphaProvider;
 import com.android.quickstep.util.RectFSpringAnim;
-import com.android.quickstep.util.ShelfPeekAnim;
 import com.android.quickstep.util.ShelfPeekAnim.ShelfAnimState;
 import com.android.quickstep.util.SwipeAnimationTargetSet;
 import com.android.quickstep.views.LiveTileOverlay;
@@ -300,7 +298,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     private void sendRemoteAnimationsToAnimationFactory() {
-        mAnimationFactory.onRemoteAnimationReceived(mRecentsAnimationWrapper.targetSet);
+        mAnimationFactory.onRemoteAnimationReceived();
     }
 
     private void initializeLauncherAnimationController() {
@@ -318,7 +316,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
 
     @Override
     public void onMotionPauseChanged(boolean isPaused) {
-        setShelfState(isPaused ? PEEK : HIDE, ShelfPeekAnim.INTERPOLATOR, ShelfPeekAnim.DURATION);
+        setShelfState(isPaused ? PEEK : HIDE);
     }
 
     public void maybeUpdateRecentsAttachedState() {
@@ -363,7 +361,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 mRecentsView.setTranslationX(prevTranslationX);
             }
         }
-        mAnimationFactory.setRecentsAttachedToAppWindow(recentsAttachedToAppWindow, animate);
+        mAnimationFactory.setRecentsAttachedToAppWindow();
     }
 
     @Override
@@ -375,8 +373,8 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     @UiThread
-    public void setShelfState(ShelfAnimState shelfState, Interpolator interpolator, long duration) {
-        mAnimationFactory.setShelfState(shelfState, interpolator, duration);
+    public void setShelfState(ShelfAnimState shelfState) {
+        mAnimationFactory.setShelfState();
         boolean wasShelfPeeking = mIsShelfPeeking;
         mIsShelfPeeking = shelfState == PEEK;
         if (mIsShelfPeeking != wasShelfPeeking) {
@@ -665,7 +663,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         }
 
         if (endTarget == HOME) {
-            setShelfState(ShelfAnimState.CANCEL, LINEAR, 0);
+            setShelfState(ShelfAnimState.CANCEL);
             duration = Math.max(MIN_OVERSHOOT_DURATION, duration);
         } else if (endTarget == RECENTS) {
             mLiveTileOverlay.startIconAnimation();
@@ -682,7 +680,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 duration = Math.max(duration, mRecentsView.getScroller().getDuration());
             }
             if (mMode == Mode.NO_BUTTON) {
-                setShelfState(ShelfAnimState.OVERVIEW, interpolator, duration);
+                setShelfState(ShelfAnimState.OVERVIEW);
             }
         } else if (endTarget == NEW_TASK || endTarget == LAST_TASK) {
             // Let RecentsView handle the scrolling to the task, which we launch in startNewTask()
@@ -740,7 +738,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 }
             });
             windowAnim.start(velocityPxPerMs);
-            homeAnimFactory.playAtomicAnimation(velocityPxPerMs.y);
+            homeAnimFactory.playAtomicAnimation();
             mRunningWindowAnim = RunningWindowAnim.wrap(windowAnim);
             mLauncherTransitionController = null;
         } else {
@@ -824,7 +822,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 }
                 // Make sure recents is in its final state
                 maybeUpdateRecentsAttachedState(false);
-                mActivityControlHelper.onSwipeUpToHomeComplete(mActivity);
+                mActivityControlHelper.onSwipeUpToHomeComplete();
             }
         });
         return anim;
@@ -911,7 +909,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     }
 
     private void endLauncherTransitionController() {
-        setShelfState(ShelfAnimState.CANCEL, LINEAR, 0);
+        setShelfState(ShelfAnimState.CANCEL);
         if (mLauncherTransitionController != null) {
             mLauncherTransitionController.getAnimationPlayer().end();
             mLauncherTransitionController = null;

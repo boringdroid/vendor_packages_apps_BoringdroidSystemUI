@@ -17,10 +17,8 @@ package com.android.launcher3.uioverrides.states;
 
 import static com.android.launcher3.LauncherAnimUtils.OVERVIEW_TRANSITION_MS;
 
-import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
-import com.android.quickstep.util.LayoutUtils;
 
 /**
  * Definition for overview state
@@ -39,14 +37,6 @@ public class OverviewState extends LauncherState {
 
     protected OverviewState(int id, int logContainer, int transitionDuration, int stateFlags) {
         super(id, logContainer, transitionDuration, stateFlags);
-    }
-
-    public static float getDefaultVerticalProgress(Launcher launcher) {
-        return 1 - (getDefaultSwipeHeight(launcher));
-    }
-
-    public static float getDefaultSwipeHeight(Launcher launcher) {
-        return LayoutUtils.getDefaultSwipeHeight(launcher, launcher.getDeviceProfile());
     }
 
     public static OverviewState newBackgroundState(int id) {

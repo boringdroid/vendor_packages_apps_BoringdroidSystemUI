@@ -41,7 +41,6 @@
     <string name="recents_clear_all">Clear all</string>
 
     <!-- Accessibility title for the list of recent apps [CHAR_LIMIT=none] -->
-    <string name="accessibility_recent_apps">Recent apps</string>
 
     <!-- Accessibility title for an app card in Recents for apps that have time limit set
      [CHAR_LIMIT=none] -->
@@ -53,7 +52,6 @@
     the user, and a given time is left for it today [CHAR LIMIT=22] -->
 
     <!-- Accessibility title for the row of all-apps containing app predictions. [CHAR LIMIT=50] -->
-    <string name="title_app_suggestions">App suggestions</string>
     <!-- Label for the header text of the All Apps section in All Apps view, used to separate Predicted Apps and Actions section from All Apps section. [CHAR_LIMIT=50] -->
     <!-- Text of the tip when user lands in all apps view for the first time, indicating where the tip toast points to is the predicted apps section. [CHAR_LIMIT=50] -->
 

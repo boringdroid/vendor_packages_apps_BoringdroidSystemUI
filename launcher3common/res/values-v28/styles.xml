@@ -16,8 +16,4 @@
 * limitations under the License.
 */
 -->
-<resources>
-    <style name="TextHeadline" parent="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" >
-        <item name="android:textFontWeight">400</item>
-    </style>
-</resources>
+<resources></resources>

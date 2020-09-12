@@ -23,10 +23,6 @@
     <string name="activity_not_found" msgid="8071924732094499514">"Lietotne nav instalēta."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Lietotne nav pieejama."</string>
     <string name="safemode_shortcut_error" msgid="9160126848219158407">"Lejupielādētā lietotne ir atspējota drošajā režīmā."</string>
-    <string name="home_screen" msgid="806512411299847073">"Sākuma ekrāns"</string>
-    <string name="all_apps_button_label" msgid="8130441508702294465">"Lietotņu saraksts"</string>
-    <string name="remove_drop_target_label" msgid="7812859488053230776">"Noņemt"</string>
-    <string name="uninstall_drop_target_label" msgid="4722034217958379417">"Atinstalēt"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"instalēt saīsnes"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"Ļauj lietotnei pievienot saīsnes, nejautājot lietotājam."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"lasīt sākuma ekrāna iestatījumus un saīsnes"</string>
@@ -34,9 +30,6 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"rakstīt sākuma ekrāna iestatījumus un saīsnes"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ļauj lietotnei mainīt iestatījumus un saīsnes sākuma ekrānā."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%1$d. lapa no %2$d"</string>
-    <string name="widget_button_text" msgid="2880537293434387943">"Logrīki"</string>
     <string name="notification_dots_service_title" msgid="4284221181793592871">"Rādīt paziņojumu punktus"</string>
     <string name="action_add_to_workspace" msgid="8902165848117513641">"Pievienot sākuma ekrānam"</string>
-    <string name="all_apps_personal_tab" msgid="4190252696685155002">"Personīgās lietotnes"</string>
-    <string name="all_apps_work_tab" msgid="4884822796154055118">"Darba lietotnes"</string>
 </resources>

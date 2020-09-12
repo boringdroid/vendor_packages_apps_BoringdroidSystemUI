@@ -17,15 +17,12 @@ package com.android.quickstep;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
-import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Interpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,13 +31,7 @@ import androidx.annotation.UiThread;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.anim.AnimatorPlaybackController;
-import com.android.quickstep.util.RemoteAnimationProvider;
-import com.android.quickstep.util.RemoteAnimationTargetSet;
-import com.android.quickstep.util.ShelfPeekAnim;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
-
-import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 
 /**
  * Utility class which abstracts out the logical differences between Launcher and RecentsActivity.
@@ -54,13 +45,10 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
 
     void onSwipeUpToRecentsComplete(T activity);
 
-    default void onSwipeUpToHomeComplete(T activity) { }
+    default void onSwipeUpToHomeComplete() { }
     void onAssistantVisibilityChanged(float visibility);
 
     @NonNull HomeAnimationFactory prepareHomeUI(T activity);
-
-    AnimationFactory prepareRecentsUI(T activity, boolean activityVisible,
-            boolean animateActivity, Consumer<AnimatorPlaybackController> callback);
 
     @Nullable
     T getCreatedActivity();
@@ -85,11 +73,6 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
         return true;
     }
 
-    /**
-     * Used for containerType in {@link com.android.launcher3.logging.UserEventDispatcher}
-     */
-    int getContainerType();
-
     boolean isInLiveTileMode();
 
     void onLaunchTaskFailed(T activity);
@@ -97,18 +80,11 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
     void onLaunchTaskSuccess(T activity);
 
     interface ActivityInitListener {
-
-        void register();
-
-        void unregister();
-
-        void registerAndStartActivity(Intent intent, RemoteAnimationProvider animProvider,
-                Context context, Handler handler, long duration);
     }
 
     interface AnimationFactory {
 
-        default void onRemoteAnimationReceived(RemoteAnimationTargetSet targets) { }
+        default void onRemoteAnimationReceived() { }
 
         void createActivityController(long transitionLength);
 
@@ -116,15 +92,11 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
 
         default void onTransitionCancelled() { }
 
-        default void setShelfState(ShelfPeekAnim.ShelfAnimState animState,
-                Interpolator interpolator, long duration) { }
+        default void setShelfState() { }
 
         /**
-         * @param attached Whether to show RecentsView alongside the app window. If false, recents
-         *                 will be hidden by some property we can animate, e.g. alpha.
-         * @param animate Whether to animate recents to/from its new attached state.
          */
-        default void setRecentsAttachedToAppWindow(boolean attached, boolean animate) { }
+        default void setRecentsAttachedToAppWindow() { }
     }
 
     interface HomeAnimationFactory {
@@ -138,7 +110,7 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
 
         @NonNull AnimatorPlaybackController createActivityAnimationToHome();
 
-        default void playAtomicAnimation(float velocity) {
+        default void playAtomicAnimation() {
             // No-op
         }
 

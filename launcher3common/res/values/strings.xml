@@ -33,7 +33,6 @@
     <!-- SafeMode widget error string -->
     <!-- Message shown when a shortcut is not available. It could have been temporarily disabled and may start working again after some time. -->
     <!-- User visible name for the launcher/home screen. [CHAR_LIMIT=30] -->
-    <string name="home_screen">Home screen</string>
     <!-- Label for showing custom action list of a shortcut or widget. [CHAR_LIMIT=30] -->
 
     <!-- Widgets -->
@@ -64,17 +63,14 @@
     <!-- Error message when user has filled the hotseat -->
 
     <!-- All applications label -->
-    <string name="all_apps_button_label">Apps list</string>
 
     <!-- Label for button in all applications label to go back home (to the workspace / desktop)
          for accessibilty (spoken when the button gets focus). -->
 
     <!-- Label for remove drop target (from the homescreen only).
          May appear next to uninstall_drop_target_label [CHAR_LIMIT=20] -->
-    <string name="remove_drop_target_label">Remove</string>
     <!-- Label for uninstall drop target (from the device).
          May appear next to remove_drop_target_label [CHAR_LIMIT=20]-->
-    <string name="uninstall_drop_target_label">Uninstall</string>
     <!-- Label for app info drop target. [CHAR_LIMIT=20] -->
     <!-- Label for install drop target. [CHAR_LIMIT=20] -->
 
@@ -131,7 +127,6 @@
 
     <!-- Strings for the customization mode -->
     <!-- Text for widget add button -->
-    <string name="widget_button_text">Widgets</string>
     <!-- Text for wallpaper change button -->
     <!-- Text for wallpaper change button -->
     <!-- Text for settings button -->
@@ -222,10 +217,8 @@
     <!-- Accessibility confirmation for notification being dismissed. -->
 
     <!-- Label of tab to indicate personal apps -->
-    <string name="all_apps_personal_tab">Personal</string>
 
     <!-- Label of tab to indicate work apps -->
-    <string name="all_apps_work_tab">Work</string>
 
     <!-- This string is in the work profile tab when a user has All Apps open on their phone. This is a label for a toggle to turn the work profile on and off. "Work profile" means a separate profile on a user's phone that's specifically for their work apps and managed by their company. "Work" is used as an adjective.-->
     <!-- Title of an overlay in All Apps. This overlay is letting a user know about their work profile, which is managed by their employer. "Work apps" are apps in a user's work profile.-->

@@ -18,6 +18,5 @@
 <resources>
 
     <!-- Drag padding to add to the bottom of drop targets -->
-    <dimen name="drop_target_text_size">16sp</dimen>
 
 </resources>

@@ -28,6 +28,7 @@ import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
+import com.android.launcher3.model.BgDataModel;
 import com.android.launcher3.util.MainThreadInitializedObject;
 import com.android.launcher3.util.Preconditions;
 
@@ -100,8 +101,8 @@ public class LauncherAppState {
         mModel.forceReload();
     }
 
-    LauncherModel setLauncher(Launcher launcher) {
-        mModel.initialize(launcher);
+    LauncherModel setLauncher(BgDataModel.Callbacks callbacks) {
+        mModel.initialize(callbacks);
         return mModel;
     }
 

@@ -18,9 +18,5 @@
     <!-- All Apps -->
 
     <!-- Fast scroll -->
-    <dimen name="fastscroll_popup_width">75dp</dimen>
-    <dimen name="fastscroll_popup_height">62dp</dimen>
-    <dimen name="fastscroll_popup_padding">13dp</dimen>
-    <dimen name="fastscroll_popup_text_size">32dp</dimen>
 
 </resources>
