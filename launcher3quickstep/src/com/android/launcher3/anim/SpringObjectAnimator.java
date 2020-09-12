@@ -17,7 +17,7 @@ package com.android.launcher3.anim;
 
 import static androidx.dynamicanimation.animation.FloatPropertyCompat.createFloatPropertyCompat;
 
-import static com.android.launcher3.config.FeatureFlags.QUICKSTEP_SPRINGS;
+import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

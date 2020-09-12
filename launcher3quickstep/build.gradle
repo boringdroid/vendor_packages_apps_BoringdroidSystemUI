@@ -13,8 +13,7 @@ android {
 
     sourceSets {
         main {
-            java.srcDirs = ['src', 'quickstep/src', 'quickstep/recents_ui_overrides/src',
-                            'src_flags']
+            java.srcDirs = ['src', 'quickstep/src', 'quickstep/recents_ui_overrides/src']
             res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
             manifest.srcFile 'quickstep/AndroidManifest.xml'
         }

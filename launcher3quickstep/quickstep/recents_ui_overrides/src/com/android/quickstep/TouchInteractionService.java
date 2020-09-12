@@ -17,12 +17,12 @@ package com.android.quickstep;
 
 import static android.view.MotionEvent.ACTION_DOWN;
 
-import static com.android.launcher3.config.FeatureFlags.ADAPTIVE_ICON_WINDOW_ANIM;
-import static com.android.launcher3.config.FeatureFlags.APPLY_CONFIG_AT_RUNTIME;
-import static com.android.launcher3.config.FeatureFlags.ENABLE_HINTS_IN_OVERVIEW;
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.FeatureFlags.FAKE_LANDSCAPE_UI;
-import static com.android.launcher3.config.FeatureFlags.QUICKSTEP_SPRINGS;
+import static com.android.launcher3.config.BaseFlags.ADAPTIVE_ICON_WINDOW_ANIM;
+import static com.android.launcher3.config.BaseFlags.APPLY_CONFIG_AT_RUNTIME;
+import static com.android.launcher3.config.BaseFlags.ENABLE_HINTS_IN_OVERVIEW;
+import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
+import static com.android.launcher3.config.BaseFlags.FAKE_LANDSCAPE_UI;
+import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
 import static com.android.systemui.shared.system.QuickStepContract.KEY_EXTRA_INPUT_MONITOR;

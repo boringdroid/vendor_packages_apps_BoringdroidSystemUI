@@ -16,7 +16,7 @@
 
 package com.android.quickstep.views;
 
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
+import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 import static com.android.systemui.shared.system.WindowManagerWrapper.WINDOWING_MODE_FULLSCREEN;
 
 import android.content.Context;
@@ -39,13 +39,12 @@ import android.util.AttributeSet;
 import android.util.FloatProperty;
 import android.util.Property;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
 import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
@@ -329,7 +328,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
                 final Configuration configuration =
                         getContext().getResources().getConfiguration();
                 // Rotate the screenshot if not in multi-window mode
-                isRotated = FeatureFlags.OVERVIEW_USE_SCREENSHOT_ORIENTATION &&
+                isRotated = BaseFlags.OVERVIEW_USE_SCREENSHOT_ORIENTATION &&
                         configuration.orientation != mThumbnailData.orientation &&
                         !mActivity.isInMultiWindowMode() &&
                         mThumbnailData.windowingMode == WINDOWING_MODE_FULLSCREEN;

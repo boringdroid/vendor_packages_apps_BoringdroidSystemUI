@@ -32,7 +32,7 @@ import com.android.launcher3.SessionCommitReceiver;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.util.IntArray;
 import com.android.launcher3.util.IntSet;
 import com.android.launcher3.util.PackageUserKey;
@@ -126,7 +126,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
      * - A promise icon for the session has not already been created
      */
     private void tryQueuePromiseAppIcon(SessionInfo sessionInfo) {
-        if (Utilities.ATLEAST_OREO && FeatureFlags.PROMISE_APPS_NEW_INSTALLS.get()
+        if (Utilities.ATLEAST_OREO && BaseFlags.PROMISE_APPS_NEW_INSTALLS.get()
                 && SessionCommitReceiver.isEnabled(mAppContext)
                 && verify(sessionInfo) != null
                 && sessionInfo.getInstallReason() == PackageManager.INSTALL_REASON_USER
@@ -146,7 +146,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
         @Override
         public void onCreated(int sessionId) {
             SessionInfo sessionInfo = pushSessionDisplayToLauncher(sessionId);
-            if (FeatureFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS && sessionInfo != null) {
+            if (BaseFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS && sessionInfo != null) {
                 LauncherAppState app = LauncherAppState.getInstanceNoCreate();
                 if (app != null) {
                     app.getModel().onInstallSessionCreated(
@@ -169,7 +169,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
                 sendUpdate(PackageInstallInfo.fromState(success ? STATUS_INSTALLED : STATUS_FAILED,
                         packageName, key.mUser));
 
-                if (!success && FeatureFlags.PROMISE_APPS_NEW_INSTALLS.get()
+                if (!success && BaseFlags.PROMISE_APPS_NEW_INSTALLS.get()
                         && mPromiseIconIds.contains(sessionId)) {
                     LauncherAppState appState = LauncherAppState.getInstanceNoCreate();
                     if (appState != null) {

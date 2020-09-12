@@ -27,7 +27,7 @@ import com.android.launcher3.LauncherModel;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
@@ -185,7 +185,7 @@ public class LoaderTask implements Runnable {
             allActivityList.addAll(apps);
         }
 
-        if (FeatureFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS) {
+        if (BaseFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS) {
             // get all active sessions and add them to the all apps list
             for (PackageInstaller.SessionInfo info :
                     mPackageInstaller.getAllVerifiedSessions()) {

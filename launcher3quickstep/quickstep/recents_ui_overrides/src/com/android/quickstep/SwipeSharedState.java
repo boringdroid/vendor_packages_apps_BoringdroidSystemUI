@@ -20,7 +20,7 @@ import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import android.util.Log;
 
 import com.android.launcher3.Utilities;
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.util.Preconditions;
 import com.android.quickstep.util.RecentsAnimationListenerSet;
 import com.android.quickstep.util.SwipeAnimationTargetSet;
@@ -103,7 +103,7 @@ public class SwipeSharedState implements SwipeAnimationListener {
 
         if (mLastAnimationRunning) {
             String msg = "New animation started before completing old animation";
-            if (FeatureFlags.IS_DOGFOOD_BUILD) {
+            if (BaseFlags.IS_DOGFOOD_BUILD) {
                 throw new IllegalArgumentException(msg);
             } else {
                 Log.e("SwipeSharedState", msg, new Exception());

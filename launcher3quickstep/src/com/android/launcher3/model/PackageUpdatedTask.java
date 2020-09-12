@@ -25,7 +25,7 @@ import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.SessionCommitReceiver;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.IntSparseArrayMap;
@@ -80,7 +80,7 @@ public class PackageUpdatedTask extends BaseModelUpdateTask {
                 for (int i = 0; i < N; i++) {
                     if (DEBUG) Log.d(TAG, "mAllAppsList.addPackage " + packages[i]);
                     iconCache.updateIconsForPkg(packages[i], mUser);
-                    if (FeatureFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS) {
+                    if (BaseFlags.LAUNCHER3_PROMISE_APPS_IN_ALL_APPS) {
                         appsList.removePackage(packages[i], mUser);
                     }
                     appsList.addPackage(context, packages[i], mUser);

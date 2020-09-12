@@ -18,7 +18,7 @@ package com.android.launcher3.util;
 
 import android.os.Looper;
 
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 
 /**
  * A set of utility methods for thread verification.
@@ -26,7 +26,7 @@ import com.android.launcher3.config.FeatureFlags;
 public class Preconditions {
 
     public static void assertUIThread() {
-        if (FeatureFlags.IS_DOGFOOD_BUILD && !isSameLooper(Looper.getMainLooper())) {
+        if (BaseFlags.IS_DOGFOOD_BUILD && !isSameLooper(Looper.getMainLooper())) {
             throw new IllegalStateException();
         }
     }

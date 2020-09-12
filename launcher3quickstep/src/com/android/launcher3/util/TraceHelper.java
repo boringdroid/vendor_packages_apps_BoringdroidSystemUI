@@ -24,8 +24,6 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.MutableLong;
 
-import com.android.launcher3.config.FeatureFlags;
-
 /**
  * A wrapper around {@link Trace} with some utility information.
  *

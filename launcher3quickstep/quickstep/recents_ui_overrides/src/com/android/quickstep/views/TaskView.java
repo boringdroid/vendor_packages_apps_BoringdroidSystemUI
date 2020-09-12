@@ -21,7 +21,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static com.android.launcher3.QuickstepAppTransitionManagerImpl.RECENTS_LAUNCH_DURATION;
 import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
+import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

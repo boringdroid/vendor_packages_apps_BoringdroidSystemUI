@@ -17,7 +17,7 @@
 package com.android.launcher3;
 
 import static com.android.launcher3.Utilities.getDevicePrefs;
-import static com.android.launcher3.config.FeatureFlags.APPLY_CONFIG_AT_RUNTIME;
+import static com.android.launcher3.config.BaseFlags.APPLY_CONFIG_AT_RUNTIME;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 import static com.android.launcher3.util.PackageManagerHelper.getPackageFilter;
 

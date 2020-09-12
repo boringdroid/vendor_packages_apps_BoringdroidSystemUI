@@ -15,7 +15,7 @@
  */
 package com.android.quickstep.views;
 
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
+import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
 
 import android.animation.AnimatorSet;
 import android.annotation.TargetApi;

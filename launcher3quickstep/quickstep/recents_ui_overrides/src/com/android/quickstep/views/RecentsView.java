@@ -29,8 +29,8 @@ import static com.android.launcher3.anim.Interpolators.ACCEL;
 import static com.android.launcher3.anim.Interpolators.ACCEL_2;
 import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.FeatureFlags.QUICKSTEP_SPRINGS;
+import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
+import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.uioverrides.touchcontrollers.TaskViewTouchController.SUCCESS_TRANSITION_PROGRESS;
 import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
 import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
@@ -88,7 +88,7 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.anim.SpringObjectAnimator;
-import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.PendingAnimation;
@@ -176,7 +176,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     private final ViewPool<TaskView> mTaskViewPool;
 
-    private boolean mDwbToastShown;
     protected boolean mDisallowScrollToClearAll;
     private boolean mOverlayEnabled;
     private boolean mFreezeViewVisibility;
@@ -353,10 +352,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         return mScroller;
     }
 
-    public boolean isRtl() {
-        return mIsRtl;
-    }
-
     @Override
     public Task onTaskThumbnailChanged(int taskId, ThumbnailData thumbnailData) {
         if (mHandleTaskStackChanges) {
@@ -427,11 +422,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
             mHasVisibleTaskData.delete(taskView.getTask().key.id);
             mTaskViewPool.recycle(taskView);
         }
-    }
-
-    public boolean isTaskViewVisible(TaskView tv) {
-        // For now, just check if it's the active task or an adjacent task
-        return Math.abs(indexOfChild(tv) - getNextPage()) <= 1;
     }
 
     public TaskView getTaskView(int taskId) {
@@ -784,7 +774,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
         unloadVisibleTaskData();
         setCurrentPage(0);
-        mDwbToastShown = false;
         mActivity.getSystemUiController().updateUiState(UI_STATE_OVERVIEW, 0);
     }
 
@@ -1003,10 +992,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mSwipeDownShouldLaunchApp = swipeDownShouldLaunchApp;
     }
 
-    public boolean shouldSwipeDownLaunchApp() {
-        return mSwipeDownShouldLaunchApp;
-    }
-
     public interface PageCallbacks {
 
         /**
@@ -1027,16 +1012,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
          * The amount by which all the content is scrolled relative to the end of the list.
          */
         public float scrollFromEdge;
-    }
-
-    public void setIgnoreResetTask(int taskId) {
-        mIgnoreResetTaskId = taskId;
-    }
-
-    public void clearIgnoreResetTask(int taskId) {
-        if (mIgnoreResetTaskId == taskId) {
-            mIgnoreResetTaskId = -1;
-        }
     }
 
     private void addDismissedTaskAnimations(View taskView, AnimatorSet anim, long duration) {
@@ -1180,7 +1155,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public PendingAnimation createAllTasksDismissAnimation(long duration) {
-        if (FeatureFlags.IS_DOGFOOD_BUILD && mPendingAnimation != null) {
+        if (BaseFlags.IS_DOGFOOD_BUILD && mPendingAnimation != null) {
             throw new IllegalStateException("Another pending animation is still running");
         }
         AnimatorSet anim = new AnimatorSet();
@@ -1491,7 +1466,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public PendingAnimation createTaskLauncherAnimation(TaskView tv, long duration) {
-        if (FeatureFlags.IS_DOGFOOD_BUILD && mPendingAnimation != null) {
+        if (BaseFlags.IS_DOGFOOD_BUILD && mPendingAnimation != null) {
             throw new IllegalStateException("Another pending animation is still running");
         }
 
@@ -1623,14 +1598,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public void redrawLiveTile(boolean mightNeedToRefill) { }
-
-    public void setRecentsAnimationWrapper(RecentsAnimationWrapper recentsAnimationWrapper) {
-        mRecentsAnimationWrapper = recentsAnimationWrapper;
-    }
-
-    public void setClipAnimationHelper(ClipAnimationHelper clipAnimationHelper) {
-        mClipAnimationHelper = clipAnimationHelper;
-    }
 
     public void setLiveTileOverlay(LiveTileOverlay liveTileOverlay) {
         mLiveTileOverlay = liveTileOverlay;

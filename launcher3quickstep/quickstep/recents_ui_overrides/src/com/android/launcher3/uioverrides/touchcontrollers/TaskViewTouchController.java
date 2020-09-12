@@ -16,8 +16,8 @@
 package com.android.launcher3.uioverrides.touchcontrollers;
 
 import static com.android.launcher3.anim.Interpolators.scrollInterpolatorForVelocity;
-import static com.android.launcher3.config.FeatureFlags.ENABLE_QUICKSTEP_LIVE_TILE;
-import static com.android.launcher3.config.FeatureFlags.QUICKSTEP_SPRINGS;
+import static com.android.launcher3.config.BaseFlags.ENABLE_QUICKSTEP_LIVE_TILE;
+import static com.android.launcher3.config.BaseFlags.QUICKSTEP_SPRINGS;
 import static com.android.launcher3.touch.SingleAxisSwipeDetector.DIRECTION_BOTH;
 import static com.android.launcher3.touch.SingleAxisSwipeDetector.DIRECTION_NEGATIVE;
 import static com.android.launcher3.touch.SingleAxisSwipeDetector.DIRECTION_POSITIVE;
