@@ -34,8 +34,8 @@ import androidx.annotation.Nullable;
 
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.LauncherState;
 import com.android.launcher3.R;
+import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.Interpolators;
 import com.android.quickstep.RecentsModel;
@@ -299,10 +299,10 @@ public class ClipAnimationHelper {
     /**
      * @return The source rect's scale and translation relative to the target rect.
      */
-    public LauncherState.ScaleAndTranslation getScaleAndTranslation() {
+    public ScaleAndTranslation getScaleAndTranslation() {
         float scale = mSourceRect.width() / mTargetRect.width();
         float translationY = mSourceRect.centerY() - mSourceRect.top - mTargetRect.centerY();
-        return new LauncherState.ScaleAndTranslation(scale, 0, translationY);
+        return new ScaleAndTranslation(scale, 0, translationY);
     }
 
     private void updateStackBoundsToMultiWindowTaskSize(BaseDraggingActivity activity) {
@@ -381,11 +381,6 @@ public class ClipAnimationHelper {
 
         public float getProgress() {
             return progress;
-        }
-
-        public TransformParams setCornerRadius(float cornerRadius) {
-            this.cornerRadius = cornerRadius;
-            return this;
         }
 
         public TransformParams setCurrentRectAndTargetAlpha(RectF currentRect, float targetAlpha) {

@@ -81,9 +81,9 @@ import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Insettable;
 import com.android.launcher3.InvariantDeviceProfile;
-import com.android.launcher3.LauncherState;
 import com.android.launcher3.PagedView;
 import com.android.launcher3.R;
+import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.PropertyListBuilder;
@@ -1489,7 +1489,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         int centerTaskIndex = getCurrentPage();
         boolean launchingCenterTask = taskIndex == centerTaskIndex;
 
-        LauncherState.ScaleAndTranslation toScaleAndTranslation = clipAnimationHelper
+        ScaleAndTranslation toScaleAndTranslation = clipAnimationHelper
                 .getScaleAndTranslation();
         float toScale = toScaleAndTranslation.scale;
         float toTranslationY = toScaleAndTranslation.translationY;

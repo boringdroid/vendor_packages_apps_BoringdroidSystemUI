@@ -26,7 +26,7 @@ import android.util.FloatProperty;
 import android.view.View;
 
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.LauncherState.ScaleAndTranslation;
+import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
 import com.android.quickstep.RecentsActivity;
 import com.android.quickstep.util.LayoutUtils;

@@ -16,45 +16,19 @@
 
 package com.android.launcher3.uioverrides;
 
-import static com.android.systemui.shared.system.ActivityManagerWrapper.CLOSE_SYSTEM_WINDOWS_REASON_RECENTS;
-
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.os.Bundle;
 import android.util.Base64;
 
-import com.android.launcher3.LauncherStateManager.StateHandler;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.proxy.ProxyActivityStarter;
-import com.android.launcher3.proxy.StartActivityParams;
 import com.android.quickstep.RecentsModel;
 import com.android.systemui.shared.system.ActivityCompat;
-import com.android.systemui.shared.system.ActivityManagerWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.zip.Deflater;
 
 public class UiFactory extends RecentsUiFactory {
-
-    public static Runnable enableLiveUIChanges() {
-        return () -> {};
-    }
-
-    public static StateHandler[] getStateHandler() {
-        return new StateHandler[] {};
-    }
-
-    /**
-     * Sets the back button visibility based on the current state/window focus.
-     */
-    public static void onLauncherStateOrFocusChanged() {
-    }
-
-    public static void onCreate() {
-    }
 
     public static void onEnterAnimationComplete(Context context) {
         // After the transition to home, enable the high-res thumbnail loader if it wasn't enabled
@@ -95,43 +69,5 @@ public class UiFactory extends RecentsUiFactory {
         writer.println(Base64.encodeToString(
                 out.toByteArray(), Base64.NO_WRAP | Base64.NO_PADDING));
         return true;
-    }
-
-    public static boolean startIntentSenderForResult(Activity activity, IntentSender intent,
-            int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
-            Bundle options) {
-        StartActivityParams params = new StartActivityParams(activity, requestCode);
-        params.intentSender = intent;
-        params.fillInIntent = fillInIntent;
-        params.flagsMask = flagsMask;
-        params.flagsValues = flagsValues;
-        params.extraFlags = extraFlags;
-        params.options = options;
-        ((Context) activity).startActivity(ProxyActivityStarter.getLaunchIntent(activity, params));
-        return true;
-    }
-
-    public static boolean startActivityForResult(Activity activity, Intent intent, int requestCode,
-            Bundle options) {
-        StartActivityParams params = new StartActivityParams(activity, requestCode);
-        params.intent = intent;
-        params.options = options;
-        activity.startActivity(ProxyActivityStarter.getLaunchIntent(activity, params));
-        return true;
-    }
-
-    /**
-     * Removes any active ProxyActivityStarter task and sends RESULT_CANCELED to Launcher.
-     *
-     * ProxyActivityStarter is started with clear task to reset the task after which it removes the
-     * task itself.
-     */
-    public static void resetPendingActivityResults() {
-    }
-
-    /** Closes system windows. */
-    public static void closeSystemWindows() {
-        ActivityManagerWrapper.getInstance()
-            .closeSystemWindows(CLOSE_SYSTEM_WINDOWS_REASON_RECENTS);
     }
 }

@@ -16,8 +16,6 @@
 
 package com.android.launcher3;
 
-import static com.android.launcher3.LauncherState.NORMAL;
-
 /**
  * TODO: figure out what kind of tests we can write for this
  *
@@ -63,21 +61,7 @@ public class LauncherStateManager {
 
     public static final String TAG = "StateManager";
 
-    private LauncherState mState = NORMAL;
-
     public LauncherStateManager() {
-    }
-
-    public LauncherState getState() {
-        return mState;
-    }
-
-    public interface StateHandler {
-
-        /**
-         * Updates the UI to {@param state} without any animations
-         */
-        void setState(LauncherState state);
     }
 
     public interface StateListener {
