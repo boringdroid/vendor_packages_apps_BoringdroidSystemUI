@@ -31,7 +31,6 @@ import android.view.accessibility.AccessibilityManager;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.icons.cache.HandlerRunnable;
-import com.android.launcher3.util.Preconditions;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.recents.model.Task.TaskKey;
 import com.android.systemui.shared.recents.model.TaskKeyLruCache;
@@ -86,7 +85,6 @@ public class TaskIconCache {
      * @return A cancelable handle to the request
      */
     public IconLoadRequest updateIconInBackground(Task task, Consumer<Task> callback) {
-        Preconditions.assertUIThread();
         if (task.icon != null) {
             // Nothing to load, the icon is already loaded
             callback.accept(task);

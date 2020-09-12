@@ -55,7 +55,6 @@ public class ViewPool<T extends View & Reusable> {
 
     @UiThread
     private void initPool(int initialSize) {
-        Preconditions.assertUIThread();
         Handler handler = new Handler();
 
         // LayoutInflater is not thread save as it maintains a global variable 'mConstructorArgs'.
@@ -74,14 +73,12 @@ public class ViewPool<T extends View & Reusable> {
 
     @UiThread
     public void recycle(T view) {
-        Preconditions.assertUIThread();
         view.onRecycle();
         addToPool(view);
     }
 
     @UiThread
     private void addToPool(T view) {
-        Preconditions.assertUIThread();
         if (mCurrentSize >= mPool.length) {
             // pool is full
             return;
@@ -93,7 +90,6 @@ public class ViewPool<T extends View & Reusable> {
 
     @UiThread
     public T getView() {
-        Preconditions.assertUIThread();
         if (mCurrentSize > 0) {
             mCurrentSize--;
             return (T) mPool[mCurrentSize];

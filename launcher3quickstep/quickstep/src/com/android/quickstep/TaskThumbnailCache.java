@@ -26,7 +26,6 @@ import android.os.Looper;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.icons.cache.HandlerRunnable;
-import com.android.launcher3.util.Preconditions;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.recents.model.Task.TaskKey;
 import com.android.systemui.shared.recents.model.TaskKeyLruCache;
@@ -107,7 +106,6 @@ public class TaskThumbnailCache {
      * Synchronously fetches the thumbnail for the given {@param task} and puts it in the cache.
      */
     public void updateThumbnailInCache(Task task) {
-        Preconditions.assertUIThread();
         // Fetch the thumbnail for this task and put it in the cache
         if (task.thumbnail == null) {
             updateThumbnailInBackground(task.key, true /* reducedResolution */,
@@ -119,7 +117,6 @@ public class TaskThumbnailCache {
      * Synchronously updates the thumbnail in the cache if it is already there.
      */
     public void updateTaskSnapShot(int taskId, ThumbnailData thumbnail) {
-        Preconditions.assertUIThread();
         mCache.updateIfAlreadyInCache(taskId, thumbnail);
     }
 
@@ -131,8 +128,6 @@ public class TaskThumbnailCache {
      */
     public ThumbnailLoadRequest updateThumbnailInBackground(
             Task task, Consumer<ThumbnailData> callback) {
-        Preconditions.assertUIThread();
-
         boolean reducedResolution = !mHighResLoadingState.isEnabled();
         if (task.thumbnail != null && (!task.thumbnail.reducedResolution || reducedResolution)) {
             // Nothing to load, the thumbnail is already high-resolution or matches what the
@@ -150,8 +145,6 @@ public class TaskThumbnailCache {
 
     private ThumbnailLoadRequest updateThumbnailInBackground(TaskKey key, boolean reducedResolution,
             Consumer<ThumbnailData> callback) {
-        Preconditions.assertUIThread();
-
         ThumbnailData cachedThumbnail = mCache.getAndInvalidateIfModified(key);
         if (cachedThumbnail != null && (!cachedThumbnail.reducedResolution || reducedResolution)) {
             // Already cached, lets use that thumbnail

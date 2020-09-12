@@ -32,7 +32,6 @@ import com.android.launcher3.LauncherStateManager.StateListener;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.util.ClipAnimationHelper;
-import com.android.quickstep.util.ClipAnimationHelper.TransformParams;
 import com.android.quickstep.util.LayoutUtils;
 import com.android.systemui.plugins.PluginListener;
 import com.android.systemui.plugins.RecentsExtraCard;
@@ -42,8 +41,6 @@ import com.android.systemui.plugins.RecentsExtraCard;
  */
 @TargetApi(Build.VERSION_CODES.O)
 public class LauncherRecentsView extends RecentsView<BaseActivity> implements StateListener {
-
-    private final TransformParams mTransformParams = new TransformParams();
 
     private RecentsExtraCard mRecentsExtraCardPlugin;
     private RecentsExtraViewContainer mRecentsExtraViewContainer;
@@ -120,10 +117,6 @@ public class LauncherRecentsView extends RecentsView<BaseActivity> implements St
     @Override
     protected void getTaskSize(DeviceProfile dp, Rect outRect) {
         LayoutUtils.calculateLauncherTaskSize(getContext(), dp, outRect);
-    }
-
-    @Override
-    protected void onTaskLaunchAnimationUpdate(float progress, TaskView tv) {
     }
 
     @Override

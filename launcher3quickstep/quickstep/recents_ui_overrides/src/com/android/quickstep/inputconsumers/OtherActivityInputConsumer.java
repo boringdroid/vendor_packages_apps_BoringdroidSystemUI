@@ -45,7 +45,6 @@ import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 import androidx.annotation.UiThread;
 import com.android.launcher3.R;
-import com.android.launcher3.util.Preconditions;
 import com.android.launcher3.util.RaceConditionTracker;
 import com.android.launcher3.util.TraceHelper;
 import com.android.quickstep.BaseSwipeUpHandler;
@@ -389,7 +388,6 @@ public class OtherActivityInputConsumer extends ContextWrapper implements InputC
 
     @Override
     public void onConsumerAboutToBeSwitched() {
-        Preconditions.assertUIThread();
         mMainThreadHandler.removeCallbacks(mCancelRecentsAnimationRunnable);
         if (mInteractionHandler != null) {
             // The consumer is being switched while we are active. Set up the shared state to be
@@ -401,7 +399,6 @@ public class OtherActivityInputConsumer extends ContextWrapper implements InputC
 
     @UiThread
     private void onInteractionGestureFinished() {
-        Preconditions.assertUIThread();
         removeListener();
         mInteractionHandler = null;
         mOnCompleteCallback.accept(this);

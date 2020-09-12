@@ -23,7 +23,6 @@ import android.util.ArraySet;
 import androidx.annotation.UiThread;
 
 import com.android.launcher3.Utilities;
-import com.android.launcher3.util.Preconditions;
 import com.android.quickstep.util.SwipeAnimationTargetSet.SwipeAnimationListener;
 import com.android.systemui.shared.recents.model.ThumbnailData;
 import com.android.systemui.shared.system.RecentsAnimationControllerCompat;
@@ -60,13 +59,11 @@ public class RecentsAnimationListenerSet implements RecentsAnimationListener {
 
     @UiThread
     public void addListener(SwipeAnimationListener listener) {
-        Preconditions.assertUIThread();
         mListeners.add(listener);
     }
 
     @UiThread
     public void removeListener(SwipeAnimationListener listener) {
-        Preconditions.assertUIThread();
         mListeners.remove(listener);
     }
 

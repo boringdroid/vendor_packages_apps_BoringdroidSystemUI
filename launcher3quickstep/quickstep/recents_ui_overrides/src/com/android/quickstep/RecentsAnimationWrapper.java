@@ -27,7 +27,6 @@ import android.view.MotionEvent;
 
 import androidx.annotation.UiThread;
 
-import com.android.launcher3.util.Preconditions;
 import com.android.quickstep.inputconsumers.InputConsumer;
 import com.android.quickstep.util.SwipeAnimationTargetSet;
 import com.android.systemui.shared.system.InputConsumerController;
@@ -70,7 +69,6 @@ public class RecentsAnimationWrapper {
 
     @UiThread
     public synchronized void setController(SwipeAnimationTargetSet targetSet) {
-        Preconditions.assertUIThread();
         this.targetSet = targetSet;
 
         if (targetSet == null) {
@@ -109,7 +107,6 @@ public class RecentsAnimationWrapper {
      */
     @UiThread
     public void finish(boolean toRecents, Runnable onFinishComplete, boolean sendUserLeaveHint) {
-        Preconditions.assertUIThread();
         if (!toRecents) {
             finishAndClear(false, onFinishComplete, sendUserLeaveHint);
         } else {

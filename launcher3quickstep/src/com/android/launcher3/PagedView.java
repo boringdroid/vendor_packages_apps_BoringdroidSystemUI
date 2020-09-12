@@ -46,7 +46,6 @@ import android.view.animation.Interpolator;
 import android.widget.ScrollView;
 
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.pageindicators.PageIndicator;
 import com.android.launcher3.touch.OverScroll;
 import com.android.launcher3.util.OverScroller;
@@ -1397,11 +1396,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
         if (mFirstLayout) {
             setCurrentPage(whichPage);
             return false;
-        }
-
-        if (BaseFlags.IS_DOGFOOD_BUILD) {
-            duration *= Settings.Global.getFloat(getContext().getContentResolver(),
-                    Settings.Global.WINDOW_ANIMATION_SCALE, 1);
         }
 
         whichPage = validateNewPage(whichPage);

@@ -25,16 +25,11 @@ import android.os.Handler;
 
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserManagerCompat;
-import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherIcons;
 import com.android.launcher3.util.MainThreadInitializedObject;
-import com.android.launcher3.util.Preconditions;
 
 public class LauncherAppState {
-
-    public static final String ACTION_FORCE_ROLOAD = "force-reload-launcher";
-
     // We do not need any synchronization for this variable as its only written on UI thread.
     private static final MainThreadInitializedObject<LauncherAppState> INSTANCE =
             new MainThreadInitializedObject<>(LauncherAppState::new);
@@ -57,7 +52,6 @@ public class LauncherAppState {
     }
 
     private LauncherAppState(Context context) {
-        Preconditions.assertUIThread();
         mContext = context;
 
         mInvariantDeviceProfile = InvariantDeviceProfile.INSTANCE.get(mContext);
@@ -75,10 +69,6 @@ public class LauncherAppState {
         filter.addAction(Intent.ACTION_MANAGED_PROFILE_AVAILABLE);
         filter.addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE);
         filter.addAction(Intent.ACTION_MANAGED_PROFILE_UNLOCKED);
-
-        if (BaseFlags.IS_DOGFOOD_BUILD) {
-            filter.addAction(ACTION_FORCE_ROLOAD);
-        }
 
         mContext.registerReceiver(mModel, filter);
         UserManagerCompat.getInstance(mContext).enableAndResetCache();

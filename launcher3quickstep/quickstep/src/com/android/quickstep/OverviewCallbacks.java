@@ -18,7 +18,6 @@ package com.android.quickstep;
 import android.content.Context;
 
 import com.android.launcher3.R;
-import com.android.launcher3.util.Preconditions;
 import com.android.launcher3.util.ResourceBasedOverride;
 
 /**
@@ -29,7 +28,6 @@ public class OverviewCallbacks implements ResourceBasedOverride {
     private static OverviewCallbacks sInstance;
 
     public static OverviewCallbacks get(Context context) {
-        Preconditions.assertUIThread();
         if (sInstance == null) {
             sInstance = Overrides.getObject(OverviewCallbacks.class,
                     context.getApplicationContext(), R.string.overview_callbacks_class);

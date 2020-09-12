@@ -26,7 +26,6 @@ import static com.android.launcher3.anim.Interpolators.ACCEL;
 import static com.android.launcher3.anim.Interpolators.ACCEL_2;
 import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
 import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.uioverrides.touchcontrollers.TaskViewTouchController.SUCCESS_TRANSITION_PROGRESS;
 import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
 import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
 import static com.android.quickstep.TaskUtils.checkCurrentOrManagedUserId;
@@ -57,7 +56,6 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.FloatProperty;
 import android.util.SparseBooleanArray;
-import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -80,7 +78,6 @@ import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.PropertyListBuilder;
-import com.android.launcher3.config.BaseFlags;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.PendingAnimation;
@@ -108,8 +105,6 @@ import java.util.function.Consumer;
 public abstract class RecentsView<T extends BaseActivity> extends PagedView implements Insettable,
         TaskThumbnailCache.HighResLoadingState.HighResLoadingStateChangedCallback,
         InvariantDeviceProfile.OnIDPChangeListener, TaskThumbnailChangeListener {
-
-    private static final String TAG = RecentsView.class.getSimpleName();
 
     public static final FloatProperty<RecentsView> CONTENT_ALPHA =
             new FloatProperty<RecentsView>("contentAlpha") {
@@ -169,7 +164,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     protected boolean mDisallowScrollToClearAll;
     private boolean mOverlayEnabled;
-    private boolean mFreezeViewVisibility;
 
     /**
      * TODO: Call reloadIdNeeded in onTaskStackChanged.
@@ -1109,9 +1103,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public PendingAnimation createAllTasksDismissAnimation(long duration) {
-        if (BaseFlags.IS_DOGFOOD_BUILD && mPendingAnimation != null) {
-            throw new IllegalStateException("Another pending animation is still running");
-        }
         AnimatorSet anim = new AnimatorSet();
         PendingAnimation pendingAnimation = new PendingAnimation(anim);
 
@@ -1246,7 +1237,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
         if (alpha > 0) {
             setVisibility(VISIBLE);
-        } else if (!mFreezeViewVisibility) {
+        } else {
             setVisibility(GONE);
         }
     }
@@ -1419,70 +1410,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         return anim;
     }
 
-    public PendingAnimation createTaskLauncherAnimation(TaskView tv, long duration) {
-        if (BaseFlags.IS_DOGFOOD_BUILD && mPendingAnimation != null) {
-            throw new IllegalStateException("Another pending animation is still running");
-        }
-
-        int count = getTaskViewCount();
-        if (count == 0) {
-            return new PendingAnimation(new AnimatorSet());
-        }
-
-        int targetSysUiFlags = tv.getThumbnail().getSysUiStatusNavFlags();
-        final boolean[] passedOverviewThreshold = new boolean[] {false};
-        ValueAnimator progressAnim = ValueAnimator.ofFloat(0, 1);
-        progressAnim.setInterpolator(LINEAR);
-        progressAnim.addUpdateListener(animator -> {
-            // Once we pass a certain threshold, update the sysui flags to match the target
-            // tasks' flags
-            mActivity.getSystemUiController().updateUiState(UI_STATE_OVERVIEW,
-                    animator.getAnimatedFraction() > UPDATE_SYSUI_FLAGS_THRESHOLD
-                            ? targetSysUiFlags
-                            : 0);
-
-            onTaskLaunchAnimationUpdate(animator.getAnimatedFraction(), tv);
-
-            // Passing the threshold from taskview to fullscreen app will vibrate
-            final boolean passed = animator.getAnimatedFraction() >=
-                    SUCCESS_TRANSITION_PROGRESS;
-            if (passed != passedOverviewThreshold[0]) {
-                passedOverviewThreshold[0] = passed;
-                performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY,
-                        HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-            }
-        });
-
-        ClipAnimationHelper clipAnimationHelper = new ClipAnimationHelper(mActivity);
-        clipAnimationHelper.fromTaskThumbnailView(tv.getThumbnail(), this);
-        clipAnimationHelper.prepareAnimation(mActivity.getDeviceProfile(), true /* isOpening */);
-        AnimatorSet anim = createAdjacentPageAnimForTaskLaunch(tv, clipAnimationHelper);
-        anim.play(progressAnim);
-        anim.setDuration(duration);
-
-        Consumer<Boolean> onTaskLaunchFinish = this::onTaskLaunched;
-
-        mPendingAnimation = new PendingAnimation(anim);
-        mPendingAnimation.addEndListener((onEndListener) -> {
-            if (onEndListener.isSuccess) {
-                Consumer<Boolean> onLaunchResult = (result) -> {
-                    onTaskLaunchFinish.accept(result);
-                    if (!result) {
-                        tv.notifyTaskLaunchFailed(TAG);
-                    }
-                };
-                tv.launchTask(false, onLaunchResult, getHandler());
-            } else {
-                onTaskLaunchFinish.accept(false);
-            }
-            mPendingAnimation = null;
-        });
-        return mPendingAnimation;
-    }
-
-    protected void onTaskLaunchAnimationUpdate(float progress, TaskView tv) {
-    }
-
     public abstract boolean shouldUseMultiWindowTaskSizeStrategy();
 
     protected void onTaskLaunched(boolean success) {
@@ -1549,17 +1476,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     public void setEnableDrawingLiveTile(boolean enableDrawingLiveTile) {
         mEnableDrawingLiveTile = enableDrawingLiveTile;
-    }
-
-    public void finishRecentsAnimation(boolean toRecents, Runnable onFinishComplete) {
-        if (mRecentsAnimationWrapper == null) {
-            if (onFinishComplete != null) {
-                onFinishComplete.run();
-            }
-            return;
-        }
-
-        mRecentsAnimationWrapper.finish(toRecents, onFinishComplete);
     }
 
     public void setDisallowScrollToClearAll(boolean disallowScrollToClearAll) {
