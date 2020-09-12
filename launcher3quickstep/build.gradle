@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 30
@@ -18,11 +17,6 @@ android {
                             'src_flags', 'src_shortcuts_overrides']
             res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
             manifest.srcFile 'quickstep/AndroidManifest.xml'
-
-            proto {
-                srcDir 'protos/'
-                srcDir 'proto_overrides/'
-            }
         }
     }
 
@@ -49,25 +43,4 @@ dependencies {
     implementation project(':launcher3common')
     implementation project(':launcher3secondarydisplay')
     implementation 'androidx.appcompat:appcompat:1.0.0'
-}
-
-protobuf {
-    // Configure the protoc executable
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.0.0-alpha-3'
-
-        generateProtoTasks {
-            all().each { task ->
-                task.builtins {
-                    remove java
-                    javanano {
-                        option "java_package=launcher_log_extension.proto|com.android.launcher3.userevent.nano"
-                        option "java_package=launcher_log.proto|com.android.launcher3.userevent.nano"
-                        option "java_package=launcher_dump.proto|com.android.launcher3.model.nano"
-                        option "enum_style=java"
-                    }
-                }
-            }
-        }
-    }
 }

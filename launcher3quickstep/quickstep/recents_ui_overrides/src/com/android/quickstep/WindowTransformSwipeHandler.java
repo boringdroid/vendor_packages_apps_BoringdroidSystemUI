@@ -62,7 +62,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.util.RaceConditionTracker;
 import com.android.quickstep.ActivityControlHelper.AnimationFactory;
 import com.android.quickstep.ActivityControlHelper.HomeAnimationFactory;
@@ -136,24 +135,21 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
             getFlagForIndex(15, "STATE_CURRENT_TASK_FINISHED");
 
     public enum GestureEndTarget {
-        HOME(1, STATE_SCALED_CONTROLLER_HOME | STATE_CAPTURE_SCREENSHOT, true, false,
-                ContainerType.WORKSPACE, false),
+        HOME(1, STATE_SCALED_CONTROLLER_HOME | STATE_CAPTURE_SCREENSHOT, true, false, false),
 
         RECENTS(1, STATE_SCALED_CONTROLLER_RECENTS | STATE_CAPTURE_SCREENSHOT
-                | STATE_SCREENSHOT_VIEW_SHOWN, true, false, ContainerType.TASKSWITCHER, true),
+                | STATE_SCREENSHOT_VIEW_SHOWN, true, false, true),
 
-        NEW_TASK(0, STATE_START_NEW_TASK | STATE_CAPTURE_SCREENSHOT, false, true,
-                ContainerType.APP, true),
+        NEW_TASK(0, STATE_START_NEW_TASK | STATE_CAPTURE_SCREENSHOT, false, true, true),
 
-        LAST_TASK(0, STATE_RESUME_LAST_TASK, false, true, ContainerType.APP, false);
+        LAST_TASK(0, STATE_RESUME_LAST_TASK, false, true, false);
 
         GestureEndTarget(float endShift, int endState, boolean isLauncher, boolean canBeContinued,
-                int containerType, boolean recentsAttachedToAppWindow) {
+                boolean recentsAttachedToAppWindow) {
             this.endShift = endShift;
             this.endState = endState;
             this.isLauncher = isLauncher;
             this.canBeContinued = canBeContinued;
-            this.containerType = containerType;
             this.recentsAttachedToAppWindow = recentsAttachedToAppWindow;
         }
 
@@ -165,8 +161,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         public final boolean isLauncher;
         /** Whether the user can start a new gesture while this one is finishing */
         public final boolean canBeContinued;
-        /** Used to log where the user ended up after the gesture ends */
-        public final int containerType;
         /** Whether RecentsView should be attached to the window as we animate to this target */
         public final boolean recentsAttachedToAppWindow;
     }
@@ -178,8 +172,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
     private static final float SWIPE_DURATION_MULTIPLIER =
             Math.min(1 / MIN_PROGRESS_FOR_OVERVIEW, 1 / (1 - MIN_PROGRESS_FOR_OVERVIEW));
     private static final String SCREENSHOT_CAPTURED_EVT = "ScreenshotCaptured";
-
-    public static final long RECENTS_ATTACH_DURATION = 300;
 
     private GestureEndTarget mGestureEndTarget;
     // Either RectFSpringAnim (if animating home) or ObjectAnimator (from mCurrentShift) otherwise
@@ -337,27 +329,16 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         RemoteAnimationTargetCompat runningTaskTarget = mRecentsAnimationWrapper.targetSet == null
                 ? null
                 : mRecentsAnimationWrapper.targetSet.findTask(mRunningTaskId);
-        final boolean recentsAttachedToAppWindow;
         if (mGestureEndTarget != null) {
-            recentsAttachedToAppWindow = mGestureEndTarget.recentsAttachedToAppWindow;
         } else if (mContinuingLastGesture
                 && mRecentsView.getRunningTaskIndex() != mRecentsView.getNextPage()) {
-            recentsAttachedToAppWindow = true;
-            animate = false;
         } else if (runningTaskTarget != null && isNotInRecents(runningTaskTarget)) {
             // The window is going away so make sure recents is always visible in this case.
-            recentsAttachedToAppWindow = true;
-            animate = false;
         } else {
-            recentsAttachedToAppWindow = mIsShelfPeeking || mIsLikelyToStartNewTask;
             if (animate) {
                 // Only animate if an adjacent task view is visible on screen.
-                TaskView adjacentTask1 = mRecentsView.getNextTaskView();
-                TaskView adjacentTask2 = mRecentsView.getPreviousTaskView();
                 float prevTranslationX = mRecentsView.getTranslationX();
                 mRecentsView.setTranslationX(0);
-                animate = (adjacentTask1 != null && adjacentTask1.getGlobalVisibleRect(TEMP_RECT))
-                        || (adjacentTask2 != null && adjacentTask2.getGlobalVisibleRect(TEMP_RECT));
                 mRecentsView.setTranslationX(prevTranslationX);
             }
         }

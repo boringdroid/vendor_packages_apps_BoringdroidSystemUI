@@ -37,6 +37,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.method.Touch;
 import android.util.AttributeSet;
 import android.util.FloatProperty;
 import android.util.Log;
@@ -52,7 +53,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.ViewPool.Reusable;
 import com.android.quickstep.RecentsModel;
@@ -227,7 +227,7 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         AnimatorPlaybackController currentAnimation = AnimatorPlaybackController
                 .wrap(pendingAnimation.anim, RECENTS_LAUNCH_DURATION, null);
         currentAnimation.setEndAction(() -> {
-            pendingAnimation.finish(true, Touch.SWIPE);
+            pendingAnimation.finish(true);
             launchTask(false);
         });
         return currentAnimation;

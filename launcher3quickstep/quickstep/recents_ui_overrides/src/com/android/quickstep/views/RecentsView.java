@@ -90,7 +90,6 @@ import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.anim.SpringObjectAnimator;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.Themes;
@@ -1063,7 +1062,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     public PendingAnimation createTaskDismissAnimation(TaskView taskView, boolean animateTaskView,
             boolean shouldRemoveTask, long duration) {
         if (mPendingAnimation != null) {
-            mPendingAnimation.finish(false, Touch.SWIPE);
+            mPendingAnimation.finish(false);
         }
         AnimatorSet anim = new AnimatorSet();
         PendingAnimation pendingAnimation = new PendingAnimation(anim);
@@ -1228,7 +1227,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         AnimatorPlaybackController controller = AnimatorPlaybackController.wrap(
                 pendingAnim.anim, DISMISS_TASK_DURATION);
         controller.dispatchOnStart();
-        controller.setEndAction(() -> pendingAnim.finish(true, Touch.SWIPE));
+        controller.setEndAction(() -> pendingAnim.finish(true));
         controller.getAnimationPlayer().setInterpolator(FAST_OUT_SLOW_IN);
         controller.start();
     }

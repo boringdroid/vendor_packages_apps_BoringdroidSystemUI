@@ -35,7 +35,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.touch.BaseSwipeDetector;
 import com.android.launcher3.touch.SingleAxisSwipeDetector;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.util.FlingBlockCheck;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.TouchController;
@@ -89,7 +88,7 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
 
     protected abstract boolean isRecentsInteractive();
 
-    protected void onUserControlledAnimationCreated(AnimatorPlaybackController animController) {
+    protected void onUserControlledAnimationCreated() {
     }
 
     @Override
@@ -152,7 +151,7 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
             mCurrentAnimation.setPlayFraction(0);
         }
         if (mPendingAnimation != null) {
-            mPendingAnimation.finish(false, Touch.SWIPE);
+            mPendingAnimation.finish(false);
             mPendingAnimation = null;
         }
 
@@ -167,7 +166,7 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         if (mCurrentAnimation != null) {
             mCurrentAnimation.setOnCancelRunnable(null);
         }
-        onUserControlledAnimationCreated(mCurrentAnimation);
+        onUserControlledAnimationCreated();
         mCurrentAnimation.getTarget().addListener(this);
         mCurrentAnimation.dispatchOnStart();
         mProgressMultiplier = 1 / mEndDisplacement;
@@ -211,7 +210,6 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
     public void onDragEnd(float velocity) {
         boolean fling = mDetector.isFling(velocity);
         final boolean goingToEnd;
-        final int logAction;
         boolean blockedFling = fling && mFlingBlockCheck.isBlocked();
         if (blockedFling) {
             fling = false;
@@ -219,11 +217,9 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         float progress = mCurrentAnimation.getProgressFraction();
         float interpolatedProgress = mCurrentAnimation.getInterpolatedProgress();
         if (fling) {
-            logAction = Touch.FLING;
             boolean goingUp = velocity < 0;
             goingToEnd = goingUp == mCurrentAnimationIsGoingUp;
         } else {
-            logAction = Touch.SWIPE;
             goingToEnd = interpolatedProgress > SUCCESS_TRANSITION_PROGRESS;
         }
         long animationDuration = BaseSwipeDetector.calculateDuration(
@@ -235,7 +231,7 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         float nextFrameProgress = Utilities.boundToRange(progress
                 + velocity * getSingleFrameMs(mActivity) / Math.abs(mEndDisplacement), 0f, 1f);
 
-        mCurrentAnimation.setEndAction(() -> onCurrentAnimationEnd(goingToEnd, logAction));
+        mCurrentAnimation.setEndAction(() -> onCurrentAnimationEnd(goingToEnd));
 
         ValueAnimator anim = mCurrentAnimation.getAnimationPlayer();
         anim.setFloatValues(nextFrameProgress, goingToEnd ? 1f : 0f);
@@ -254,9 +250,9 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         anim.start();
     }
 
-    private void onCurrentAnimationEnd(boolean wasSuccess, int logAction) {
+    private void onCurrentAnimationEnd(boolean wasSuccess) {
         if (mPendingAnimation != null) {
-            mPendingAnimation.finish(wasSuccess, logAction);
+            mPendingAnimation.finish(wasSuccess);
             mPendingAnimation = null;
         }
         clearState();
@@ -268,7 +264,7 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         mTaskBeingDragged = null;
         mCurrentAnimation = null;
         if (mPendingAnimation != null) {
-            mPendingAnimation.finish(false, Touch.SWIPE);
+            mPendingAnimation.finish(false);
             mPendingAnimation = null;
         }
     }

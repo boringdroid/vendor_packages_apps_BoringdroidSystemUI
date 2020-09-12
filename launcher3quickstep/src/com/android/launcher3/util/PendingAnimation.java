@@ -40,9 +40,9 @@ public class PendingAnimation {
         this.anim = anim;
     }
 
-    public void finish(boolean isSuccess, int logAction) {
+    public void finish(boolean isSuccess) {
         for (Consumer<OnEndListener> listeners : mEndListeners) {
-            listeners.accept(new OnEndListener(isSuccess, logAction));
+            listeners.accept(new OnEndListener(isSuccess));
         }
         mEndListeners.clear();
     }
@@ -53,11 +53,9 @@ public class PendingAnimation {
 
     public static class OnEndListener {
         public boolean isSuccess;
-        public int logAction;
 
-        public OnEndListener(boolean isSuccess, int logAction) {
+        public OnEndListener(boolean isSuccess) {
             this.isSuccess = isSuccess;
-            this.logAction = logAction;
         }
     }
 }
