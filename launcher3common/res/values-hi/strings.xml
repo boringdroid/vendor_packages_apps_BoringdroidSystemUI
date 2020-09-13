@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"होम पेज की सेटिंग और शॉर्टकट लिखें"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ऐप्लिकेशन को होम पेज में सेटिंग और शॉर्टकट बदलने देती है."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"पेज %2$d में से %1$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"नई सूचनाएं बताने वाला गोल निशान दिखाएं"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"होम स्‍क्रीन में जोड़ें"</string>
 </resources>

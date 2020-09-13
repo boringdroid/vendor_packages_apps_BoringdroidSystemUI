@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"গৃহ ছেটিং আৰু শ্বৰ্টকাটবোৰ লিখিব পাৰে"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"এপটোক গৃহ পৃষ্ঠাত ছেটিং আৰু শ্বৰ্টকাটসমূহ সলনি কৰাৰ অনুমতি দিয়ে।"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$dৰ %1$d পৃষ্ঠা"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"জাননী বিন্দু দেখুৱাওক"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"গৃহ স্ক্ৰীণত যোগ কৰক"</string>
 </resources>

@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"홈 설정 및 바로가기 쓰기"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"앱이 홈에 있는 설정 및 바로가기를 변경할 수 있도록 합니다."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"페이지 %1$d/%2$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"알림 표시 점 보기"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"홈 화면에 추가"</string>
 </resources>

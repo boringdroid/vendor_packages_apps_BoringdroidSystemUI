@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"হোম সেটিংস এবং শর্টকাটগুলি লেখে"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"হোমে অ্যাপ্লিকেশানটিকে সেটিংস এবং শর্টকাটগুলি পরিবর্তন করতে দেয়৷"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$dটির মধ্যে %1$dটি পৃষ্ঠা"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"বিজ্ঞপ্তির ডট দেখুন"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"হোম স্ক্রিনে যোগ করুন"</string>
 </resources>

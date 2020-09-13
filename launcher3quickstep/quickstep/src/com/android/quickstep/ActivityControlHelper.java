@@ -19,9 +19,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Region;
 import android.os.Build;
-import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -69,11 +67,9 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
 
     boolean shouldMinimizeSplitScreen();
 
-    default boolean deferStartingActivity(Region activeNavBarRegion, MotionEvent ev) {
+    default boolean deferStartingActivity() {
         return true;
     }
-
-    boolean isInLiveTileMode();
 
     void onLaunchTaskFailed(T activity);
 
@@ -100,11 +96,6 @@ public interface ActivityControlHelper<T extends BaseDraggingActivity> {
     }
 
     interface HomeAnimationFactory {
-
-        /** Return the floating view that will animate in sync with the closing window. */
-        default @Nullable View getFloatingView() {
-            return null;
-        }
 
         @NonNull RectF getWindowTargetRect();
 

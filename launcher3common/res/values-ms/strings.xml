@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"tulis tetapan dan pintasan Laman Utama"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Membenarkan apl menukar tetapan dan pintasan di Laman Utama."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Halaman %1$d daripada %2$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Tunjukkan titik pemberitahuan"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Tambahkan pada Skrin Utama"</string>
 </resources>

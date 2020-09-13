@@ -19,8 +19,4 @@
 
 <resources>
 
-    <style name="AppItemActivityTheme" parent="@android:style/Theme.DeviceDefault.Dialog.Alert">
-        <item name="widgetsTheme">@style/WidgetContainerTheme.Dark</item>
-    </style>
-
 </resources>

@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"गृह सेटिङहरू र सर्टकटहरू लेख्नुहोस्"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"गृहमा एउटा अनुप्रयोगलाई सेटिङ र सर्टकट बदल्न अनुमति दिनुहोस्।"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"पृष्ठ %2$d को %1$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"सूचनाको प्रतीक जनाउने थोप्लाहरू देखाउनुहोस्"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"गृह स्क्रिनमा थप्नुहोस्"</string>
 </resources>

@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Idatzi hasierako ezarpenak eta lasterbideak"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Hasierako pantailako ezarpenak eta lasterbideak aldatzeko baimena ematen die aplikazioei."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%1$d/%2$d orria"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Erakutsi jakinarazpen-biribiltxoak"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Gehitu hasierako pantailan"</string>
 </resources>

@@ -19,8 +19,4 @@
 
 <resources>
 
-    <style name="AppItemActivityTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog.Alert">
-        <item name="widgetsTheme">@style/WidgetContainerTheme</item>
-    </style>
-
 </resources>

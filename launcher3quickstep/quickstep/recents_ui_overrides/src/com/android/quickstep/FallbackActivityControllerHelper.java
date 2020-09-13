@@ -141,11 +141,6 @@ public final class FallbackActivityControllerHelper implements
     }
 
     @Override
-    public boolean isInLiveTileMode() {
-        return false;
-    }
-
-    @Override
     public void onLaunchTaskFailed(RecentsActivity activity) {
         // TODO: probably go back to overview instead.
         activity.<RecentsView>getOverviewPanel().startHome();

@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"होम सेटिंग्ज आणि शॉर्टकट लिहा"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"मुख्यपृष्ठातील सेटिंग्ज आणि शॉर्टकट बदलण्यास अ‍ॅप ला अनुमती देते."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d पैकी %1$d पृष्ठ"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"सूचना बिंदू दाखवा"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"होम स्क्रीनवर जोडा"</string>
 </resources>

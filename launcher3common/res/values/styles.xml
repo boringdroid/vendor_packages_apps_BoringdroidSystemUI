@@ -126,10 +126,6 @@
     <style name="AppTheme.Dark.DarkMainColor" parent="@style/LauncherTheme.Dark.DarkMainColor" />
     <style name="AppTheme.Dark.DarkText" parent="@style/LauncherTheme.Dark.DarkText" />
 
-    <style name="AppItemActivityTheme" parent="@android:style/Theme.Material.Light.Dialog.Alert">
-        <item name="widgetsTheme">@style/WidgetContainerTheme</item>
-    </style>
-
     <!--
     Theme overrides to element on homescreen, i.e., which are drawn on top on wallpaper.
     Various foreground colors are overridden to be workspaceTextColor so that they are properly

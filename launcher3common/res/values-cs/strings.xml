@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"zápis nastavení a odkazů plochy"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Umožňuje aplikaci změnit nastavení a odkazy na ploše."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Strana %1$d z %2$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Zobrazovat puntíky s oznámením"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Přidat na plochu"</string>
 </resources>

@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Үйдүн тууралоолорун жана тез чакырмаларын жазуу"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Колдонмого Үйдүн тууралоолорун жана тез чакырмаларын өзгөртүүгө уруксат берет."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d ичинен %1$d барак"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Билдирмелер белгилерин көрсөтүү"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Башкы экранга кошуу"</string>
 </resources>

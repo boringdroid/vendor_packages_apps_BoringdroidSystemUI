@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"សរសេរ​ការ​កំណត់ ​និង​ផ្លូវកាត់​​លើ​អេក្រង់​ដើម"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"អនុញ្ញាត​ឲ្យ​កម្មវិធី​ប្ដូរ​ការ​កំណត់ និង​ផ្លូវ​កាត់​ក្នុង​អេក្រង់​ដើម។"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"ទំព័រ %1$d នៃ %2$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"បង្ហាញ​ស្លាក​ជូនដំណឹង"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"បញ្ចូលទៅអេក្រង់ដើម"</string>
 </resources>

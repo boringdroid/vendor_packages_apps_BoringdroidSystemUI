@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"ହୋମ୍‌ ସେଟିଙ୍ଗ ଏବଂ ଶର୍ଟକଟ୍‌ ଲେଖନ୍ତୁ"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"ହୋମରେ ସେଟିଙ୍ଗ ଏବଂ ଶର୍ଟକଟ୍‌ ପରିବର୍ତ୍ତନ କରିବାକୁ ଆପକୁ ଅନୁମତି ଦିଏ।"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"ମୋଟ %2$dରୁ %1$d ନମ୍ବର ପୃଷ୍ଠା"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ଗୁଡ଼ିକୁ ଦେଖାନ୍ତୁ"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"ହୋମ୍‌ ସ୍କ୍ରୀନରେ ଯୋଡ଼ନ୍ତୁ"</string>
 </resources>

@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"bhala izilungiselelo zokuthi Ikhaya nezinqamuleli"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ivumela uhlelo lokusebenza ukuthi lushintshe izilungiselelo nezinqamuleli Ekhaya."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"Ikhasi elingu-%1$d kwangu-%2$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Bonisa amacashazi esaziso"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Faka kusikrini sasekhaya"</string>
 </resources>

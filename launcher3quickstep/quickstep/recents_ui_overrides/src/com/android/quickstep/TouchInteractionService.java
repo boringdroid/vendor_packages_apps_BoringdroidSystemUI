@@ -94,26 +94,6 @@ import com.android.systemui.shared.system.SystemGestureExclusionListenerCompat;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * Wrapper around a list for processing arguments.
- */
-class ArgList extends LinkedList<String> {
-    public ArgList(List<String> l) {
-        super(l);
-    }
-
-    public String peekArg() {
-        return peekFirst();
-    }
-
-    public String nextArg() {
-        return pollFirst().toLowerCase();
-    }
-}
 
 /**
  * Service connected by system-UI for handling touch interaction.
@@ -142,6 +122,7 @@ public class TouchInteractionService extends Service implements
         }
 
         public void onInitialize(Bundle bundle) {
+            Log.d(TAG, "OverviewProxy onInitialize");
             mISystemUiProxy = ISystemUiProxy.Stub
                     .asInterface(bundle.getBinder(KEY_EXTRA_SYSUI_PROXY));
             MAIN_EXECUTOR.execute(TouchInteractionService.this::initInputMonitor);
@@ -151,16 +132,19 @@ public class TouchInteractionService extends Service implements
 
         @Override
         public void onOverviewToggle() {
+            Log.d(TAG, "OverviewProxy onOverviewToggle");
             mOverviewCommandHelper.onOverviewToggle();
         }
 
         @Override
         public void onOverviewShown(boolean triggeredFromAltTab) {
+            Log.d(TAG, "OverviewProxy onOverviewShown");
             mOverviewCommandHelper.onOverviewShown(triggeredFromAltTab);
         }
 
         @Override
         public void onOverviewHidden(boolean triggeredFromAltTab, boolean triggeredFromHomeKey) {
+            Log.d(TAG, "OverviewProxy onOverviewHidden");
             if (triggeredFromAltTab && !triggeredFromHomeKey) {
                 // onOverviewShownFromAltTab hides the overview and ends at the target app
                 mOverviewCommandHelper.onOverviewHidden();
@@ -169,18 +153,22 @@ public class TouchInteractionService extends Service implements
 
         @Override
         public void onAssistantAvailable(boolean available) {
+            Log.d(TAG, "OverviewProxy onAssistantAvailable");
             mAssistantAvailable = available;
         }
 
         @Override
         public void onAssistantVisibilityChanged(float visibility) {
+            Log.d(TAG, "OverviewProxy onAssistantVisibilityChanged");
             mLastAssistantVisibility = visibility;
             MAIN_EXECUTOR.execute(
                     TouchInteractionService.this::onAssistantVisibilityChanged);
         }
 
+        @Override
         public void onBackAction(boolean completed, int downX, int downY, boolean isButton,
                 boolean gestureSwipeLeft) {
+            Log.d(TAG, "OverviewProxy onBackAction");
             if (mOverviewComponentObserver == null) {
                 return;
             }
@@ -190,32 +178,54 @@ public class TouchInteractionService extends Service implements
             }
         }
 
+        @Override
         public void onSystemUiStateChanged(int stateFlags) {
+            Log.d(TAG, "OverviewProxy onSystemUiStateChanged");
             mSystemUiStateFlags = stateFlags;
             MAIN_EXECUTOR.execute(TouchInteractionService.this::onSystemUiFlagsChanged);
         }
 
         /** Deprecated methods **/
-        public void onQuickStep(MotionEvent motionEvent) { }
+        @Override
+        public void onQuickStep(MotionEvent motionEvent) {
+            Log.d(TAG, "OverviewProxy onQuickStep");
+        }
 
         @Override
         public void onTip(int i, int i1) throws RemoteException {
-
+            Log.d(TAG, "OverviewProxy onTip");
         }
 
-        public void onQuickScrubEnd() { }
+        @Override
+        public void onQuickScrubEnd() {
+            Log.d(TAG, "OverviewProxy onQuickScrubEnd");
+        }
 
-        public void onQuickScrubProgress(float progress) { }
+        @Override
+        public void onQuickScrubProgress(float progress) {
+            Log.d(TAG, "OverviewProxy onQuickScrubProgress");
+        }
 
-        public void onQuickScrubStart() { }
+        @Override
+        public void onQuickScrubStart() {
+            Log.d(TAG, "OverviewProxy onQuickScrubStart");
+        }
 
-        public void onPreMotionEvent(int downHitTarget) { }
+        @Override
+        public void onPreMotionEvent(int downHitTarget) {
+            Log.d(TAG, "OverviewProxy onPreMotionEvent");
+        }
 
+        @Override
         public void onMotionEvent(MotionEvent ev) {
+            Log.d(TAG, "OverviewProxy onMotionEvent");
             ev.recycle();
         }
 
-        public void onBind(ISystemUiProxy iSystemUiProxy) { }
+        @Override
+        public void onBind(ISystemUiProxy iSystemUiProxy) {
+            Log.d(TAG, "OverviewProxy onBind");
+        }
     };
 
     private static final SwipeSharedState sSwipeSharedState = new SwipeSharedState();
@@ -273,6 +283,7 @@ public class TouchInteractionService extends Service implements
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "Touch service onCreate");
 
         // Initialize anything here that is needed in direct boot mode.
         // Everything else should be initialized in initWhenUserUnlocked() below.
@@ -381,6 +392,7 @@ public class TouchInteractionService extends Service implements
 
     @Override
     public void onNavigationModeChanged(Mode newMode) {
+        Log.d(TAG, "Touch service onNavigationModeChanged");
         if (mMode.hasGestures != newMode.hasGestures) {
             if (newMode.hasGestures) {
                 DefaultDisplay.INSTANCE.get(this).addChangeListener(this);
@@ -402,6 +414,7 @@ public class TouchInteractionService extends Service implements
 
     @Override
     public void onDisplayInfoChanged(DefaultDisplay.Info info, int flags) {
+        Log.d(TAG, "Touch service onDisplayInfoChanged");
         if (info.id != mDefaultDisplayId) {
             return;
         }
@@ -435,6 +448,7 @@ public class TouchInteractionService extends Service implements
 
     @UiThread
     private void onSystemUiProxySet() {
+        Log.d(TAG, "Touch service onSystemUiProxySet");
         if (mIsUserUnlocked) {
             mRecentsModel.setSystemUiProxy(mISystemUiProxy);
             mOverviewInteractionState.setSystemUiProxy(mISystemUiProxy);
@@ -443,6 +457,7 @@ public class TouchInteractionService extends Service implements
 
     @UiThread
     private void onSystemUiFlagsChanged() {
+        Log.d(TAG, "Touch service onSystemUiFlagsChanged");
         if (mIsUserUnlocked) {
             mOverviewInteractionState.setSystemUiStateFlags(mSystemUiStateFlags);
             mOverviewComponentObserver.onSystemUiStateChanged(mSystemUiStateFlags);
@@ -451,6 +466,7 @@ public class TouchInteractionService extends Service implements
 
     @UiThread
     private void onAssistantVisibilityChanged() {
+        Log.d(TAG, "Touch service onAssistantVisibilityChanged");
         if (mIsUserUnlocked) {
             mOverviewComponentObserver.getActivityControlHelper().onAssistantVisibilityChanged(
                     mLastAssistantVisibility);
@@ -459,6 +475,7 @@ public class TouchInteractionService extends Service implements
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "Touch service onDestroy");
         if (mIsUserUnlocked) {
             mInputConsumer.unregisterInputConsumer();
             mOverviewComponentObserver.onDestroy();
@@ -635,12 +652,12 @@ public class TouchInteractionService extends Service implements
         final boolean shouldDefer;
         final BaseSwipeUpHandler.Factory factory;
 
-        if (mMode == Mode.NO_BUTTON && !mOverviewComponentObserver.isHomeAndOverviewSame()) {
+        if (mMode == Mode.NO_BUTTON) {
             shouldDefer = !sSwipeSharedState.recentsAnimationFinishInterrupted;
             factory = mFallbackNoButtonFactory;
         } else {
             shouldDefer = mOverviewComponentObserver.getActivityControlHelper()
-                    .deferStartingActivity(mActiveNavBarRegion, event);
+                    .deferStartingActivity();
             factory = mWindowTreansformFactory;
         }
 
@@ -690,7 +707,7 @@ public class TouchInteractionService extends Service implements
         if (!mIsUserUnlocked) {
             return;
         }
-        if (!mMode.hasGestures && !mOverviewComponentObserver.isHomeAndOverviewSame()) {
+        if (!mMode.hasGestures) {
             // Prevent the overview from being started before the real home on first boot.
             return;
         }
@@ -729,40 +746,24 @@ public class TouchInteractionService extends Service implements
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter pw, String[] rawArgs) {
-        if (rawArgs.length > 0 && Utilities.IS_DEBUG_DEVICE) {
-            ArgList args = new ArgList(Arrays.asList(rawArgs));
-            switch (args.nextArg()) {
-                case "cmd":
-                    if (args.peekArg() == null) {
-                        printAvailableCommands(pw);
-                    }
-                    break;
-            }
-        } else {
-            // Dump everything
-            pw.println("TouchState:");
-            pw.println("  navMode=" + mMode);
-            pw.println("  validSystemUiFlags=" + validSystemUiFlags());
-            pw.println("  systemUiFlags=" + mSystemUiStateFlags);
-            pw.println("  systemUiFlagsDesc="
-                    + QuickStepContract.getSystemUiStateString(mSystemUiStateFlags));
-            pw.println("  assistantAvailable=" + mAssistantAvailable);
-            pw.println("  assistantDisabled="
-                    + QuickStepContract.isAssistantGestureDisabled(mSystemUiStateFlags));
-            boolean resumed = mOverviewComponentObserver != null
-                    && mOverviewComponentObserver.getActivityControlHelper().isResumed();
-            pw.println("  resumed=" + resumed);
-            pw.println("  useSharedState=" + mConsumer.useSharedSwipeState());
-            if (mConsumer.useSharedSwipeState()) {
-                sSwipeSharedState.dump("    ", pw);
-            }
-            pw.println("  mConsumer=" + mConsumer.getName());
+        // Dump everything
+        pw.println("TouchState:");
+        pw.println("  navMode=" + mMode);
+        pw.println("  validSystemUiFlags=" + validSystemUiFlags());
+        pw.println("  systemUiFlags=" + mSystemUiStateFlags);
+        pw.println("  systemUiFlagsDesc="
+                + QuickStepContract.getSystemUiStateString(mSystemUiStateFlags));
+        pw.println("  assistantAvailable=" + mAssistantAvailable);
+        pw.println("  assistantDisabled="
+                + QuickStepContract.isAssistantGestureDisabled(mSystemUiStateFlags));
+        boolean resumed = mOverviewComponentObserver != null
+                && mOverviewComponentObserver.getActivityControlHelper().isResumed();
+        pw.println("  resumed=" + resumed);
+        pw.println("  useSharedState=" + mConsumer.useSharedSwipeState());
+        if (mConsumer.useSharedSwipeState()) {
+            sSwipeSharedState.dump("    ", pw);
         }
-    }
-
-    private void printAvailableCommands(PrintWriter pw) {
-        pw.println("Available commands:");
-        pw.println("  clear-touch-log: Clears the touch interaction log");
+        pw.println("  mConsumer=" + mConsumer.getName());
     }
 
     private BaseSwipeUpHandler createWindowTransformSwipeHandler(RunningTaskInfo runningTask,

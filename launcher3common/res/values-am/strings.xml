@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"የመነሻ ቅንብሮችን እና አቋራጮችን ይጽፋል"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"መተግብሪያው ቅንብሮችን እና አቋራጮችን በመነሻ ውስጥ እንዲቀይራቸው ያስችለዋል።"</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"ገጽ %1$d ከ%2$d"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"የማሳወቂያ ነጥቦችን አሳይ"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"ወደ መነሻ ማያ ገጽ ያክሉ"</string>
 </resources>

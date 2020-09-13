@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.ViewConfiguration;
 
 import com.android.launcher3.BaseDraggingActivity;
@@ -35,6 +36,7 @@ import com.android.systemui.shared.system.ActivityManagerWrapper;
 @TargetApi(Build.VERSION_CODES.P)
 public class OverviewCommandHelper {
 
+    private static final String TAG = "OverviewProxy";
     private final Context mContext;
     private final ActivityManagerWrapper mAM;
     private final RecentsModel mRecentsModel;
@@ -50,8 +52,10 @@ public class OverviewCommandHelper {
     }
 
     public void onOverviewToggle() {
+        Log.d(TAG, "onOverviewToggle");
         // If currently screen pinning, do not enter overview
         if (mAM.isScreenPinningActive()) {
+            Log.d(TAG, "onOverviewToggle isScreenPinningActive");
             return;
         }
 
@@ -139,18 +143,24 @@ public class OverviewCommandHelper {
 
         @Override
         public void run() {
+            Log.d(TAG, "RecentsActivityCommand starts to run");
             long elapsedTime = mCreateTime - mLastToggleTime;
             mLastToggleTime = mCreateTime;
 
             if (handleCommand(elapsedTime)) {
+                Log.d(TAG, "RecentsActivityCommand command handled");
                 // Command already handled.
                 return;
             }
 
             if (mHelper.switchToRecentsIfVisible(this::onTransitionComplete)) {
+                Log.d(TAG, "RecentsActivityCommand command switchToRecents succeed");
                 // If successfully switched, then return
                 return;
             }
+            // Otherwise, start overview.
+            Log.d(TAG, "RecentsActivityCommand command start overview " + mHelper);
+            mOverviewComponentObserver.startOverview();
         }
 
         protected boolean handleCommand(long elapsedTime) {

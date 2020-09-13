@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Нүүрний тохиргоо болон товчлолыг бичих"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Апп нь Нүүрэндэх товчлол болон тохиргоог өөрчилж чадна."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$d-н %1$d хуудас"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Мэдэгдлийн цэгийг харуулах"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Нүүр дэлгэцэд нэмэх"</string>
 </resources>

@@ -140,7 +140,6 @@
     <!-- Message explaining to the user that the notification access is required by the app for showing 'Notification dots' [CHAR LIMIT=NONE] -->
     <!-- Button text in the confirmation dialog which would take the user to the system settings [CHAR LIMIT=50] -->
     <!-- Summary for Notification dots setting. Tapping this will link enable/disable notification dots feature on the home screen. [CHAR LIMIT=50] -->
-    <string name="notification_dots_service_title">Show notification dots</string>
 
     <!-- Label for the setting that allows the automatic placement of launcher shortcuts for applications and games installed on the device [CHAR LIMIT=40] -->
     <!-- Text description of the setting that allows the automatic placement of launcher shortcuts for applications and games installed on the device [CHAR LIMIT=NONE] -->
@@ -163,7 +162,6 @@
 
     <!-- Strings for accessibility actions -->
     <!-- Accessibility action to add an app to workspace. [CHAR_LIMIT=30] -->
-    <string name="action_add_to_workspace">Add to Home screen</string>
 
     <!-- Accessibility action to move item to the current location. [CHAR_LIMIT=30] -->
 

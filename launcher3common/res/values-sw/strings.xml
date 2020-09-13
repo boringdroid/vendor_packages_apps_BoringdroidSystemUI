@@ -31,6 +31,4 @@
     <!-- String.format failed for translation -->
     <!-- no translation found for workspace_scroll_format (8458889198184077399) -->
     <skip />
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Onyesha vitone vya arifa"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Ongeza kwenye Skrini ya Kwanza"</string>
 </resources>

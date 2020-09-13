@@ -28,6 +28,4 @@
     <string name="permlab_write_settings" msgid="3574213698004620587">"Uy sozlamalari va yorliqlarini yozish"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Ilovaga \"Uy\" ekranidagi yorliqlar va sozlamalrni o‘zgartirish uchun ruxsat beradi."</string>
     <string name="default_scroll_format" msgid="7475544710230993317">"%2$ddan %1$d ta sahifa"</string>
-    <string name="notification_dots_service_title" msgid="4284221181793592871">"Bildirishnoma belgilarini chiqarish"</string>
-    <string name="action_add_to_workspace" msgid="8902165848117513641">"Bosh ekranga chiqarish"</string>
 </resources>
