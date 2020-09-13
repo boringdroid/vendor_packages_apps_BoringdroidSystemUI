@@ -16,8 +16,6 @@
 
 package com.android.launcher3;
 
-
-import android.animation.Animator;
 import android.app.ActivityOptions;
 import android.view.View;
 
@@ -32,9 +30,5 @@ public class LauncherAppTransitionManager implements ResourceBasedOverride {
         int left = 0, top = 0;
         int width = v.getMeasuredWidth(), height = v.getMeasuredHeight();
         return ActivityOptions.makeClipRevealAnimation(v, left, top, width, height);
-    }
-
-    public Animator createStateElementAnimation(int index, float... values) {
-        throw new RuntimeException("Unknown gesture animation " + index);
     }
 }

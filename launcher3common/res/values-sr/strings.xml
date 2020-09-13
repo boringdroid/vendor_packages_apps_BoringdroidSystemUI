@@ -20,9 +20,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="649227358658669779">"Launcher3"</string>
-    <string name="activity_not_found" msgid="8071924732094499514">"Апликација није инсталирана."</string>
     <string name="activity_not_available" msgid="7456344436509528827">"Апликација није доступна"</string>
-    <string name="safemode_shortcut_error" msgid="9160126848219158407">"Преузета апликација је онемогућена у Безбедном режиму"</string>
     <string name="permlab_install_shortcut" msgid="5632423390354674437">"инсталирање пречица"</string>
     <string name="permdesc_install_shortcut" msgid="923466509822011139">"Дозвољава апликацији да додаје пречице без интервенције корисника."</string>
     <string name="permlab_read_settings" msgid="1941457408239617576">"читање подешавања и пречица на почетном екрану"</string>

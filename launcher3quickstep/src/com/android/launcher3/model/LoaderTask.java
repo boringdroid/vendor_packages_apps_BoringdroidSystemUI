@@ -29,7 +29,6 @@ import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.icons.LauncherActivityCachingLogic;
 import com.android.launcher3.icons.cache.IconCacheUpdateHandler;
 import com.android.launcher3.util.LooperIdleLock;
-import com.android.launcher3.util.TraceHelper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,8 +43,6 @@ import java.util.concurrent.CancellationException;
  *   - deep shortcuts within apps
  */
 public class LoaderTask implements Runnable {
-    private static final String TAG = "LoaderTask";
-
     private final LauncherAppState mApp;
     private final AllAppsList mBgAllAppsList;
 
@@ -92,27 +89,18 @@ public class LoaderTask implements Runnable {
             }
         }
 
-        TraceHelper.beginSection(TAG);
         try (LauncherModel.LoaderTransaction transaction = mApp.getModel().beginLoader(this)) {
-            TraceHelper.partitionSection(TAG, "step 1.1: loading workspace");
-
             verifyNotStopped();
-            TraceHelper.partitionSection(TAG, "step 1.2: bind workspace workspace");
-
             // Take a break
-            TraceHelper.partitionSection(TAG, "step 1 completed, wait for idle");
             waitForIdle();
             verifyNotStopped();
 
             // second step
-            TraceHelper.partitionSection(TAG, "step 2.1: loading all apps");
             List<LauncherActivityInfo> allActivityList = loadAllApps();
 
-            TraceHelper.partitionSection(TAG, "step 2.2: Binding all apps");
             verifyNotStopped();
 
             verifyNotStopped();
-            TraceHelper.partitionSection(TAG, "step 2.3: Update icon cache");
             IconCacheUpdateHandler updateHandler = mIconCache.getUpdateHandler();
             setIgnorePackages(updateHandler);
             updateHandler.updateIcons(allActivityList,
@@ -120,30 +108,22 @@ public class LoaderTask implements Runnable {
                     (updatedPackages, updatedPackages2) -> mApp.getModel().onPackageIconsUpdated());
 
             // Take a break
-            TraceHelper.partitionSection(TAG, "step 2 completed, wait for idle");
             waitForIdle();
             verifyNotStopped();
 
             // third step
-            TraceHelper.partitionSection(TAG, "step 3.1: loading deep shortcuts");
-
             verifyNotStopped();
-            TraceHelper.partitionSection(TAG, "step 3.2: bind deep shortcuts");
 
             // Take a break
-            TraceHelper.partitionSection(TAG, "step 3 completed, wait for idle");
             waitForIdle();
             verifyNotStopped();
 
-            TraceHelper.partitionSection(TAG, "step 5: Finish icon cache update");
             updateHandler.finish();
 
             transaction.commit();
         } catch (CancellationException e) {
             // Loader stopped, ignore
-            TraceHelper.partitionSection(TAG, "Cancelled");
         }
-        TraceHelper.endSection(TAG);
     }
 
     public synchronized void stopLocked() {

@@ -18,7 +18,6 @@ package com.android.launcher3.model;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.os.LocaleList;
 import android.os.UserHandle;
@@ -26,10 +25,8 @@ import android.util.Log;
 
 import com.android.launcher3.AppFilter;
 import com.android.launcher3.AppInfo;
-import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.compat.AlphabeticIndexCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.util.FlagOp;
 import com.android.launcher3.util.ItemInfoMatcher;
@@ -101,21 +98,6 @@ public class AllAppsList {
 
         data.add(info);
         mDataChanged = true;
-    }
-
-    public void addPromiseApp(Context context,
-                              PackageInstallerCompat.PackageInstallInfo installInfo) {
-        ApplicationInfo applicationInfo = LauncherAppsCompat.getInstance(context)
-                .getApplicationInfo(installInfo.packageName, 0, installInfo.user);
-        // only if not yet installed
-        if (applicationInfo == null) {
-            PromiseAppInfo info = new PromiseAppInfo(installInfo);
-            mIconCache.getTitleAndIcon(info, info.usingLowResIcon());
-            info.sectionName = mIndex.computeSectionName(info.title);
-
-            data.add(info);
-            mDataChanged = true;
-        }
     }
 
     private void removeApp(int index) {

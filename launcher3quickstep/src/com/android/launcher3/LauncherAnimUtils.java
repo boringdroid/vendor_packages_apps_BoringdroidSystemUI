@@ -16,15 +16,10 @@
 
 package com.android.launcher3;
 
-import android.graphics.drawable.Drawable;
 import android.util.FloatProperty;
-import android.util.Property;
 import android.view.View;
 
 public class LauncherAnimUtils {
-    public static final int OVERVIEW_TRANSITION_MS = 250;
-    public static final int SPRING_LOADED_TRANSITION_MS = 150;
-
     public static final FloatProperty<View> SCALE_PROPERTY =
             new FloatProperty<View>("scale") {
                 @Override
@@ -43,32 +38,4 @@ public class LauncherAnimUtils {
     public static int blockedFlingDurationFactor(float velocity) {
         return (int) Utilities.boundToRange(Math.abs(velocity) / 2, 2f, 6f);
     }
-
-    public static final FloatProperty<View> VIEW_TRANSLATE_X =
-            View.TRANSLATION_X instanceof FloatProperty ? (FloatProperty) View.TRANSLATION_X
-                    : new FloatProperty<View>("translateX") {
-                        @Override
-                        public void setValue(View view, float v) {
-                            view.setTranslationX(v);
-                        }
-
-                        @Override
-                        public Float get(View view) {
-                            return view.getTranslationX();
-                        }
-                    };
-
-    public static final FloatProperty<View> VIEW_TRANSLATE_Y =
-            View.TRANSLATION_Y instanceof FloatProperty ? (FloatProperty) View.TRANSLATION_Y
-                    : new FloatProperty<View>("translateY") {
-                        @Override
-                        public void setValue(View view, float v) {
-                            view.setTranslationY(v);
-                        }
-
-                        @Override
-                        public Float get(View view) {
-                            return view.getTranslationY();
-                        }
-                    };
 }

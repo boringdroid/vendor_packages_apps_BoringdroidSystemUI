@@ -27,7 +27,6 @@ import java.util.Arrays;
  * Utility class to manage various window flags to control system UI.
  */
 public class SystemUiController {
-
     // Various UI states in increasing order of priority
     public static final int UI_STATE_BASE_WINDOW = 0;
     public static final int UI_STATE_OVERVIEW = 4;

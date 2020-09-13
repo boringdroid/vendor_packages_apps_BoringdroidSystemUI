@@ -241,22 +241,6 @@ public class OverScroller {
     }
 
     /**
-     * Start scrolling using a spring by providing a starting point and the distance to travel.
-     *
-     * @param start Starting scroll offset in pixels. Positive
-     *        numbers will scroll the content to the left.
-     * @param delta Distance to travel. Positive numbers will scroll the
-     *        content to the left.
-     * @param duration Duration of the scroll in milliseconds.
-     * @param velocity The starting velocity for the spring in px per ms.
-     */
-    public void startScrollSpring(int start, int delta, int duration, float velocity) {
-        mMode = SCROLL_MODE;
-        mScroller.mState = mScroller.SPRING;
-        mScroller.startScroll(start, delta, duration, velocity);
-    }
-
-    /**
      * Call this when you want to 'spring back' into a valid coordinate range.
      *
      * @param start Starting X coordinate

@@ -46,7 +46,6 @@ import android.view.ViewConfiguration;
 import androidx.annotation.UiThread;
 import com.android.launcher3.R;
 import com.android.launcher3.util.RaceConditionTracker;
-import com.android.launcher3.util.TraceHelper;
 import com.android.quickstep.BaseSwipeUpHandler;
 import com.android.quickstep.BaseSwipeUpHandler.Factory;
 import com.android.quickstep.OverviewCallbacks;
@@ -193,7 +192,6 @@ public class OtherActivityInputConsumer extends ContextWrapper implements InputC
         switch (ev.getActionMasked()) {
             case ACTION_DOWN: {
                 RaceConditionTracker.onEvent(DOWN_EVT, ENTER);
-                TraceHelper.beginSection("TouchInt");
                 mActivePointerId = ev.getPointerId(0);
                 mDownPos.set(ev.getX(), ev.getY());
                 mLastPos.set(mDownPos);
@@ -349,7 +347,6 @@ public class OtherActivityInputConsumer extends ContextWrapper implements InputC
      */
     private void finishTouchTracking(MotionEvent ev) {
         RaceConditionTracker.onEvent(UP_EVT, ENTER);
-        TraceHelper.endSection("TouchInt");
 
         if (mPassedWindowMoveSlop && mInteractionHandler != null) {
             if (ev.getActionMasked() == ACTION_CANCEL) {

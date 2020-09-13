@@ -28,7 +28,6 @@ import android.widget.FrameLayout;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.LauncherStateManager.StateListener;
 import com.android.launcher3.uioverrides.plugins.PluginManagerWrapper;
 import com.android.quickstep.SysUINavigationMode;
 import com.android.quickstep.util.ClipAnimationHelper;
@@ -40,7 +39,7 @@ import com.android.systemui.plugins.RecentsExtraCard;
  * {@link RecentsView} used in Launcher activity
  */
 @TargetApi(Build.VERSION_CODES.O)
-public class LauncherRecentsView extends RecentsView<BaseActivity> implements StateListener {
+public class LauncherRecentsView extends RecentsView<BaseActivity> {
 
     private RecentsExtraCard mRecentsExtraCardPlugin;
     private RecentsExtraViewContainer mRecentsExtraViewContainer;

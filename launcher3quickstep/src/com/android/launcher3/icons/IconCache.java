@@ -19,7 +19,6 @@ package com.android.launcher3.icons;
 import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -101,24 +100,6 @@ public class IconCache extends BaseIconCache {
     }
 
     /**
-     * Fill in {@param info} with the icon and label. If the
-     * corresponding activity is not found, it reverts to the package icon.
-     */
-    public synchronized void getTitleAndIcon(ItemInfoWithIcon info, boolean useLowResIcon) {
-        // null info means not installed, but if we have a component from the intent then
-        // we should still look in the cache for restored app icons.
-        if (info.getTargetComponent() == null) {
-            info.applyFrom(getDefaultIcon(info.user));
-            info.title = "";
-            info.contentDescription = "";
-        } else {
-            Intent intent = info.getIntent();
-            getTitleAndIcon(info, () -> mLauncherApps.resolveActivity(intent, info.user),
-                    true, useLowResIcon);
-        }
-    }
-
-    /**
      * Fill in {@param mWorkspaceItemInfo} with the icon and label for {@param info}
      */
     private synchronized void getTitleAndIcon(
@@ -139,7 +120,7 @@ public class IconCache extends BaseIconCache {
 
     @Override
     protected String getIconSystemState(String packageName) {
-        return mIconProvider.getSystemStateForPackage(mSystemState, packageName)
+        return mIconProvider.getSystemStateForPackage(mSystemState)
                 + ",flags_asi:" + true;
     }
 }

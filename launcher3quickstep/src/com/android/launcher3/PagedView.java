@@ -28,7 +28,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.InputDevice;
@@ -46,7 +45,6 @@ import android.view.animation.Interpolator;
 import android.widget.ScrollView;
 
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.pageindicators.PageIndicator;
 import com.android.launcher3.touch.OverScroll;
 import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.Thunk;
@@ -57,7 +55,7 @@ import java.util.ArrayList;
  * An abstraction of the original Workspace which supports browsing through a
  * sequential list of "pages"
  */
-public abstract class PagedView<T extends View & PageIndicator> extends ViewGroup {
+public abstract class PagedView<T extends View> extends ViewGroup {
     private static final String TAG = "PagedView";
     private static final boolean DEBUG = false;
 
@@ -78,8 +76,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
     private static final int FLING_THRESHOLD_VELOCITY = 500;
     private static final int MIN_SNAP_VELOCITY = 1500;
     private static final int MIN_FLING_VELOCITY = 250;
-
-    public static final int INVALID_RESTORE_PAGE = -1001;
 
     private boolean mFreeScroll = false;
 
@@ -303,23 +299,9 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
         int prevPage = overridePrevPage != INVALID_PAGE ? overridePrevPage : mCurrentPage;
         mCurrentPage = validateNewPage(currentPage);
         updateCurrentPageScroll();
-        notifyPageSwitchListener(prevPage);
         invalidate();
     }
 
-    /**
-     * Should be called whenever the page changes. In the case of a scroll, we wait until the page
-     * has settled.
-     */
-    protected void notifyPageSwitchListener(int prevPage) {
-        updatePageIndicator();
-    }
-
-    private void updatePageIndicator() {
-        if (mPageIndicator != null) {
-            mPageIndicator.setActiveMarker(getNextPage());
-        }
-    }
     protected void pageBeginTransition() {
         if (!mIsPageInTransition) {
             mIsPageInTransition = true;
@@ -444,7 +426,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
             int prevPage = mCurrentPage;
             mCurrentPage = validateNewPage(mNextPage);
             mNextPage = INVALID_PAGE;
-            notifyPageSwitchListener(prevPage);
 
             // We don't want to trigger a page end moving unless the page has settled
             // and the user has stopped scrolling
@@ -656,14 +637,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
         requestLayout();
     }
 
-    public int getPageSpacing() {
-        return mPageSpacing;
-    }
-
     private void dispatchPageCountChanged() {
-        if (mPageIndicator != null) {
-            mPageIndicator.setMarkersCount(getChildCount());
-        }
         // This ensures that when children are added, they get the correct transforms / alphas
         // in accordance with any scroll effects.
         invalidate();
@@ -1424,8 +1398,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
         }
 
         mScroller.startScroll(getUnboundedScrollX(), delta, duration);
-
-        updatePageIndicator();
 
         // Trigger a compute() to finish switching pages if necessary
         if (immediate) {

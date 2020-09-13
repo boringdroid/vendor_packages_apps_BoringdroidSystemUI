@@ -61,19 +61,6 @@ public class FlingSpringAnim {
         }));
     }
 
-    public float getTargetPosition() {
-        return mTargetPosition;
-    }
-
-    public void updatePosition(float startPosition, float targetPosition) {
-        mFlingAnim.setMinValue(Math.min(startPosition, targetPosition))
-                .setMaxValue(Math.max(startPosition, targetPosition));
-        mTargetPosition = targetPosition;
-        if (mSpringAnim != null) {
-            mSpringAnim.animateToFinalPosition(mTargetPosition);
-        }
-    }
-
     public void start() {
         mFlingAnim.start();
     }

@@ -19,8 +19,6 @@ package com.android.launcher3.compat;
 import android.content.Context;
 import android.os.UserHandle;
 
-import com.android.launcher3.Utilities;
-
 import java.util.List;
 
 public abstract class UserManagerCompat {
@@ -33,11 +31,7 @@ public abstract class UserManagerCompat {
     public static UserManagerCompat getInstance(Context context) {
         synchronized (sInstanceLock) {
             if (sInstance == null) {
-                if (Utilities.ATLEAST_P) {
-                    sInstance = new UserManagerCompatVP(context.getApplicationContext());
-                } else {
-                    sInstance = new UserManagerCompatVNMr1(context.getApplicationContext());
-                }
+                sInstance = new UserManagerCompatVNMr1(context.getApplicationContext());
             }
             return sInstance;
         }

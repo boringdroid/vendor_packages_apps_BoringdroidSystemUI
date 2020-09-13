@@ -16,8 +16,6 @@
 
 package com.android.launcher3;
 
-import static com.android.launcher3.icons.BitmapInfo.LOW_RES_ICON;
-
 import android.graphics.Bitmap;
 
 import com.android.launcher3.icons.BitmapInfo;
@@ -40,16 +38,6 @@ public abstract class ItemInfoWithIcon extends ItemInfo {
     public int iconColor;
 
     /**
-     * Indicates that the icon is disabled due to safe mode restrictions.
-     */
-    public static final int FLAG_DISABLED_SAFEMODE = 1 << 0;
-
-    /**
-     * Indicates that the icon is disabled as the app is not available.
-     */
-    public static final int FLAG_DISABLED_NOT_AVAILABLE = 1 << 1;
-
-    /**
      * Indicates that the icon is disabled as the app is suspended
      */
     public static final int FLAG_DISABLED_SUSPENDED = 1 << 2;
@@ -58,20 +46,6 @@ public abstract class ItemInfoWithIcon extends ItemInfo {
      * Indicates that the icon is disabled as the user is in quiet mode.
      */
     public static final int FLAG_DISABLED_QUIET_USER = 1 << 3;
-
-    /**
-     * Indicates that the icon is disabled as the publisher has disabled the actual shortcut.
-     */
-    public static final int FLAG_DISABLED_BY_PUBLISHER = 1 << 4;
-
-    /**
-     * Indicates that the icon is disabled as the user partition is currently locked.
-     */
-    public static final int FLAG_DISABLED_LOCKED_USER = 1 << 5;
-
-    public static final int FLAG_DISABLED_MASK = FLAG_DISABLED_SAFEMODE |
-            FLAG_DISABLED_NOT_AVAILABLE | FLAG_DISABLED_SUSPENDED |
-            FLAG_DISABLED_QUIET_USER | FLAG_DISABLED_BY_PUBLISHER | FLAG_DISABLED_LOCKED_USER;
 
     /**
      * The item points to a system app.
@@ -102,13 +76,6 @@ public abstract class ItemInfoWithIcon extends ItemInfo {
         iconBitmap = info.iconBitmap;
         iconColor = info.iconColor;
         runtimeStatusFlags = info.runtimeStatusFlags;
-    }
-
-    /**
-     * Indicates whether we're using a low res icon
-     */
-    public boolean usingLowResIcon() {
-        return iconBitmap == LOW_RES_ICON;
     }
 
     public void applyFrom(BitmapInfo info) {

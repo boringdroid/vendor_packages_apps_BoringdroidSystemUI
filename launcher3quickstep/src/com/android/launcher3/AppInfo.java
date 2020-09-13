@@ -43,9 +43,6 @@ public class AppInfo extends ItemInfoWithIcon {
     // Section name used for indexing.
     public String sectionName = "";
 
-    public AppInfo() {
-    }
-
     @Override
     public Intent getIntent() {
         return intent;

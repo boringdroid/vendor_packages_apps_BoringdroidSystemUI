@@ -15,15 +15,11 @@ public class IconProvider implements ResourceBasedOverride {
 
     public IconProvider() { }
 
-    public String getSystemStateForPackage(String systemState, String packageName) {
+    public String getSystemStateForPackage(String systemState) {
         return systemState;
     }
 
-    /**
-     * @param flattenDrawable true if the caller does not care about the specification of the
-     *                        original icon as long as the flattened version looks the same.
-     */
-    public Drawable getIcon(LauncherActivityInfo info, int iconDpi, boolean flattenDrawable) {
+    public Drawable getIcon(LauncherActivityInfo info, int iconDpi) {
         return info.getIcon(iconDpi);
     }
 }

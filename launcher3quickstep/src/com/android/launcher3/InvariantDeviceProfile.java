@@ -299,11 +299,6 @@ public class InvariantDeviceProfile {
         mChangeListeners.remove(listener);
     }
 
-    private void killProcess(Context context) {
-        Log.e("ConfigMonitor", "restarting launcher");
-        android.os.Process.killProcess(android.os.Process.myPid());
-    }
-
     public void verifyConfigChangedInBackground(final Context context) {
         String savedIconMaskPath = getDevicePrefs(context).getString(KEY_ICON_PATH_REF, "");
         // Good place to check if grid size changed in themepicker when launcher was dead.

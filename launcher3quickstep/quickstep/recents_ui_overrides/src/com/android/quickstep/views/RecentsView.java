@@ -1419,13 +1419,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     @Override
-    protected void notifyPageSwitchListener(int prevPage) {
-        super.notifyPageSwitchListener(prevPage);
-        loadVisibleTaskData();
-        updateEnabledOverlays();
-    }
-
-    @Override
     protected String getCurrentPageDescription() {
         return "";
     }

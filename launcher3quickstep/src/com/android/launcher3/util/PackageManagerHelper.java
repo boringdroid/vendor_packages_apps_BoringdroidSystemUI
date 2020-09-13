@@ -16,15 +16,8 @@
 
 package com.android.launcher3.util;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
 import android.os.PatternMatcher;
 
 /**
@@ -54,33 +47,5 @@ public class PackageManagerHelper {
         packageFilter.addDataScheme("package");
         packageFilter.addDataSchemeSpecificPart(pkg, PatternMatcher.PATTERN_LITERAL);
         return packageFilter;
-    }
-
-    public static boolean isSystemApp(Context context, Intent intent) {
-        PackageManager pm = context.getPackageManager();
-        ComponentName cn = intent.getComponent();
-        String packageName = null;
-        if (cn == null) {
-            ResolveInfo info = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-            if ((info != null) && (info.activityInfo != null)) {
-                packageName = info.activityInfo.packageName;
-            }
-        } else {
-            packageName = cn.getPackageName();
-        }
-        if (packageName == null) {
-            packageName = intent.getPackage();
-        }
-        if (packageName != null) {
-            try {
-                PackageInfo info = pm.getPackageInfo(packageName, 0);
-                return (info != null) && (info.applicationInfo != null) &&
-                        ((info.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
-            } catch (NameNotFoundException e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
     }
 }

@@ -29,6 +29,4 @@ public interface TouchController {
      * Called when the draglayer receives a intercept touch event.
      */
     boolean onControllerInterceptTouchEvent(MotionEvent ev);
-
-    default void dump() { }
 }

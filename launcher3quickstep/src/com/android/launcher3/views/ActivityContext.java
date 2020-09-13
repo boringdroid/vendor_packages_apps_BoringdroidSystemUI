@@ -25,8 +25,7 @@ import android.view.ContextThemeWrapper;
  */
 public interface ActivityContext {
 
-    default boolean finishAutoCancelActionMode() {
-        return false;
+    default void finishAutoCancelActionMode() {
     }
 
     static ActivityContext lookupContext(Context context) {

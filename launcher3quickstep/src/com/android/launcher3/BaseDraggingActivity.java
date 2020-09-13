@@ -17,24 +17,13 @@
 package com.android.launcher3;
 
 import android.app.ActivityOptions;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Process;
-import android.os.UserHandle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.View;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
-import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.uioverrides.DisplayRotationListener;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
-import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.Themes;
 
 /**
@@ -42,8 +31,6 @@ import com.android.launcher3.util.Themes;
  */
 public abstract class BaseDraggingActivity extends BaseActivity
         implements WallpaperColorInfo.OnChangeListener {
-
-    private static final String TAG = "BaseDraggingActivity";
 
     // When starting an action mode, setting this tag will cause the action mode to be cancelled
     // automatically when user interacts with the launcher.
@@ -104,58 +91,15 @@ public abstract class BaseDraggingActivity extends BaseActivity
     }
 
     @Override
-    public boolean finishAutoCancelActionMode() {
+    public void finishAutoCancelActionMode() {
         if (mCurrentActionMode != null && AUTO_CANCEL_ACTION_MODE == mCurrentActionMode.getTag()) {
             mCurrentActionMode.finish();
-            return true;
         }
-        return false;
     }
 
     public abstract <T extends View> T getOverviewPanel();
 
-    public Rect getViewBounds(View v) {
-        int[] pos = new int[2];
-        v.getLocationOnScreen(pos);
-        return new Rect(pos[0], pos[1], pos[0] + v.getWidth(), pos[1] + v.getHeight());
-    }
-
-    public final Bundle getActivityLaunchOptionsAsBundle(View v) {
-        ActivityOptions activityOptions = getActivityLaunchOptions(v);
-        return activityOptions == null ? null : activityOptions.toBundle();
-    }
-
     public abstract ActivityOptions getActivityLaunchOptions(View v);
-
-    public boolean startActivitySafely(View v, Intent intent, @Nullable ItemInfo item) {
-        if (mIsSafeModeEnabled && !PackageManagerHelper.isSystemApp(this, intent)) {
-            Toast.makeText(this, R.string.safemode_shortcut_error, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        Bundle optsBundle = (v != null) ? getActivityLaunchOptionsAsBundle(v) : null;
-        UserHandle user = item == null ? null : item.user;
-
-        // Prepare intent
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (v != null) {
-            intent.setSourceBounds(getViewBounds(v));
-        }
-        try {
-            if (user == null || user.equals(Process.myUserHandle())) {
-                // Could be launching some bookkeeping activity
-                startActivity(intent, optsBundle);
-            } else {
-                LauncherAppsCompat.getInstance(this).startActivityForProfile(
-                        intent.getComponent(), user, intent.getSourceBounds(), optsBundle);
-            }
-            return true;
-        } catch (NullPointerException|ActivityNotFoundException|SecurityException e) {
-            Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Unable to launch. tag=" + item + " intent=" + intent, e);
-        }
-        return false;
-    }
 
     @Override
     protected void onStart() {

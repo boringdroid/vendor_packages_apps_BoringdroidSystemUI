@@ -31,7 +31,6 @@ import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.icons.IconCache;
 import com.android.launcher3.model.AllAppsList;
 import com.android.launcher3.model.BaseLoaderResults;
-import com.android.launcher3.model.BaseModelUpdateTask;
 import com.android.launcher3.model.BgDataModel;
 import com.android.launcher3.model.BgDataModel.Callbacks;
 import com.android.launcher3.model.CacheDataUpdatedTask;
@@ -39,12 +38,9 @@ import com.android.launcher3.model.LoaderTask;
 import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.model.PackageInstallStateChangedTask;
 import com.android.launcher3.model.PackageUpdatedTask;
-import com.android.launcher3.util.IntSparseArrayMap;
-import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.Thunk;
 
 import java.lang.ref.WeakReference;
-import java.util.HashSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 
@@ -96,16 +92,6 @@ public class LauncherModel extends BroadcastReceiver
         enqueueModelUpdateTask(new PackageInstallStateChangedTask(installInfo));
     }
 
-    /**
-     * Updates the icons and label of all pending icons for the provided package name.
-     */
-    public void updateSessionDisplayInfo(final String packageName) {
-        HashSet<String> packages = new HashSet<>();
-        packages.add(packageName);
-        enqueueModelUpdateTask(new CacheDataUpdatedTask(
-        ));
-    }
-
     public ModelWriter getWriter(boolean verifyChanges) {
         return new ModelWriter(this, sBgDataModel, verifyChanges);
     }
@@ -114,18 +100,6 @@ public class LauncherModel extends BroadcastReceiver
     public void onPackageChanged(String packageName, UserHandle user) {
         int op = PackageUpdatedTask.OP_UPDATE;
         enqueueModelUpdateTask(new PackageUpdatedTask(op, user, packageName));
-    }
-
-    public void onSessionFailure() {
-        enqueueModelUpdateTask(new BaseModelUpdateTask() {
-            @Override
-            public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
-                final IntSparseArrayMap<Boolean> removedIds = new IntSparseArrayMap<>();
-                if (!removedIds.isEmpty()) {
-                    deleteAndBindComponentsRemoved(ItemInfoMatcher.ofItemIds(removedIds, false));
-                }
-            }
-        });
     }
 
     @Override
@@ -270,16 +244,6 @@ public class LauncherModel extends BroadcastReceiver
             // that we exit any nested synchronized blocks
             MODEL_EXECUTOR.post(mLoaderTask);
         }
-    }
-
-    public void onInstallSessionCreated(final PackageInstallInfo sessionInfo) {
-        enqueueModelUpdateTask(new BaseModelUpdateTask() {
-            @Override
-            public void execute(LauncherAppState app, BgDataModel dataModel, AllAppsList apps) {
-                apps.addPromiseApp(app.getContext(), sessionInfo);
-                bindApplicationsIfNeeded();
-            }
-        });
     }
 
     public class LoaderTransaction implements AutoCloseable {

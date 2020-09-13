@@ -32,7 +32,6 @@ import com.android.launcher3.uioverrides.WallpaperColorInfo;
  * Various utility methods associated with theming.
  */
 public class Themes {
-
     public static int getActivityThemeRes(Context context) {
         WallpaperColorInfo wallpaperColorInfo = WallpaperColorInfo.getInstance(context);
         boolean darkTheme;
