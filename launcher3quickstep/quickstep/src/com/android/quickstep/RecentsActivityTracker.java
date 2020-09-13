@@ -15,8 +15,6 @@
  */
 package com.android.quickstep;
 
-import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
-
 import android.annotation.TargetApi;
 import android.os.Build;
 
@@ -70,11 +68,6 @@ public class RecentsActivityTracker<T extends BaseRecentsActivity> implements Ac
 
         private WeakReference<RecentsActivityTracker> mPendingTracker = new WeakReference<>(null);
 
-        public synchronized void schedule(RecentsActivityTracker tracker) {
-            mPendingTracker = new WeakReference<>(tracker);
-            MAIN_EXECUTOR.execute(this);
-        }
-
         @Override
         public void run() {
             BaseRecentsActivity activity = sCurrentActivity.get();
@@ -90,14 +83,6 @@ public class RecentsActivityTracker<T extends BaseRecentsActivity> implements Ac
                 if (!tracker.init(activity, alreadyOnHome)) {
                     mPendingTracker.clear();
                 }
-                return true;
-            }
-            return false;
-        }
-
-        public synchronized boolean clearReference(RecentsActivityTracker tracker) {
-            if (mPendingTracker.get() == tracker) {
-                mPendingTracker.clear();
                 return true;
             }
             return false;

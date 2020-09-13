@@ -17,7 +17,6 @@
 package com.android.launcher3.proxy;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
@@ -71,12 +70,5 @@ public class ProxyActivityStarter extends Activity {
             mParams.deliverResult(this, resultCode, data);
         }
         finishAndRemoveTask();
-    }
-
-    public static Intent getLaunchIntent(Context context, StartActivityParams params) {
-        return new Intent(context, ProxyActivityStarter.class)
-                .putExtra(EXTRA_PARAMS, params)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 }

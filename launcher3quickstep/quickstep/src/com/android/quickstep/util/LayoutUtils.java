@@ -123,12 +123,4 @@ public class LayoutUtils {
         outRect.set(Math.round(x), Math.round(y),
                 Math.round(x) + Math.round(outWidth), Math.round(y) + Math.round(outHeight));
     }
-
-    public static int getShelfTrackingDistance(Context context, DeviceProfile dp) {
-        // Track the bottom of the window.
-        int shelfHeight = dp.getInsets().bottom;
-        int spaceBetweenShelfAndRecents = (int) context.getResources().getDimension(
-                R.dimen.task_card_vert_space);
-        return shelfHeight + spaceBetweenShelfAndRecents;
-    }
 }

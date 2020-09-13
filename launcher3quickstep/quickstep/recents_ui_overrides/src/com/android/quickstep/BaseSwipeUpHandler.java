@@ -19,7 +19,6 @@ import static com.android.launcher3.Utilities.postAsyncCallback;
 import static com.android.launcher3.anim.Interpolators.ACCEL_1_5;
 import static com.android.launcher3.anim.Interpolators.DEACCEL;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
-import static com.android.launcher3.util.VibratorWrapper.OVERVIEW_HAPTIC;
 
 import android.animation.Animator;
 import android.annotation.TargetApi;
@@ -46,7 +45,6 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimationSuccessListener;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.util.VibratorWrapper;
 import com.android.quickstep.ActivityControlHelper.HomeAnimationFactory;
 import com.android.quickstep.SysUINavigationMode.Mode;
 import com.android.quickstep.inputconsumers.InputConsumer;
@@ -140,10 +138,6 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         } else {
             postAsyncCallback(mMainThreadHandler, () -> mStateCallback.setState(stateFlag));
         }
-    }
-
-    protected void performHapticFeedback() {
-        VibratorWrapper.INSTANCE.get(mContext).vibrate(OVERVIEW_HAPTIC);
     }
 
     public Consumer<MotionEvent> getRecentsViewDispatcher(RotationMode rotationMode) {

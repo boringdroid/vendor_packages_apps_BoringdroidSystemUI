@@ -51,9 +51,6 @@ import java.util.function.Consumer;
  */
 @TargetApi(Build.VERSION_CODES.O)
 public class RecentsModel extends TaskStackChangeListener {
-
-    private static final String TAG = "RecentsModel";
-
     // We do not need any synchronization for this variable as its only written on UI thread.
     public static final MainThreadInitializedObject<RecentsModel> INSTANCE =
             new MainThreadInitializedObject<>(RecentsModel::new);

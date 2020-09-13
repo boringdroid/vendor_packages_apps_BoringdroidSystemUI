@@ -88,7 +88,7 @@ public class UserManagerCompatVNMr1 extends UserManagerCompat {
         }
 
         List<UserHandle> users = mUserManager.getUserProfiles();
-        return users == null ? Collections.<UserHandle>emptyList() : users;
+        return users == null ? Collections.emptyList() : users;
     }
 
 }

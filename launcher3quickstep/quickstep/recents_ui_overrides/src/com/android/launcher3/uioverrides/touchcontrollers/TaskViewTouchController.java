@@ -41,7 +41,7 @@ import com.android.quickstep.views.TaskView;
 /**
  * Touch controller for handling task view card swipes
  */
-public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
+public class TaskViewTouchController<T extends BaseDraggingActivity>
         extends AnimatorListenerAdapter implements TouchController,
         SingleAxisSwipeDetector.Listener {
 
@@ -81,7 +81,9 @@ public abstract class TaskViewTouchController<T extends BaseDraggingActivity>
         return isRecentsInteractive();
     }
 
-    protected abstract boolean isRecentsInteractive();
+    protected boolean isRecentsInteractive() {
+        return mActivity.hasWindowFocus();
+    }
 
     protected void onUserControlledAnimationCreated() {
     }

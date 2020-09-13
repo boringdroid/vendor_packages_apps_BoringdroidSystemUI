@@ -23,6 +23,7 @@ import android.util.AttributeSet;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.R;
+import com.android.launcher3.uioverrides.touchcontrollers.TaskViewTouchController;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.TouchController;
 import com.android.launcher3.views.BaseDragLayer;
@@ -48,7 +49,7 @@ public class RecentsRootView extends BaseDragLayer<RecentsActivity> {
     }
 
     public void setup() {
-        mControllers = new TouchController[] { new RecentsTaskController(mActivity) };
+        mControllers = new TouchController[] {new TaskViewTouchController<>(mActivity) };
     }
 
     @Override

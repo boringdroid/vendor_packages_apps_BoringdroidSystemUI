@@ -64,15 +64,6 @@ public class RemoteAnimationTargetSet {
         return null;
     }
 
-    public boolean isAnimatingHome() {
-        for (RemoteAnimationTargetCompat target : apps) {
-            if (target.activityType == RemoteAnimationTargetCompat.ACTIVITY_TYPE_HOME) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void addDependentTransactionApplier(SyncRtSurfaceTransactionApplierCompat delay) {
         mDependentTransactionAppliers.add(delay);
     }

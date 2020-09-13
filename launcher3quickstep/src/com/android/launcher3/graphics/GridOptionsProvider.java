@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
 import android.text.TextUtils;
@@ -63,15 +62,11 @@ public class GridOptionsProvider extends ContentProvider {
     private static final String MIME_TYPE_PNG = "image/png";
 
     public static final PipeDataWriter<Future<Bitmap>> BITMAP_WRITER =
-            new PipeDataWriter<Future<Bitmap>>() {
-                @Override
-                public void writeDataToPipe(ParcelFileDescriptor output, Uri uri, String s,
-                        Bundle bundle, Future<Bitmap> bitmap) {
-                    try (AutoCloseOutputStream os = new AutoCloseOutputStream(output)) {
-                        bitmap.get().compress(Bitmap.CompressFormat.PNG, 100, os);
-                    } catch (Exception e) {
-                        Log.w(TAG, "fail to write to pipe", e);
-                    }
+            (output, uri, s, bundle, bitmap) -> {
+                try (AutoCloseOutputStream os = new AutoCloseOutputStream(output)) {
+                    bitmap.get().compress(Bitmap.CompressFormat.PNG, 100, os);
+                } catch (Exception e) {
+                    Log.w(TAG, "fail to write to pipe", e);
                 }
             };
 

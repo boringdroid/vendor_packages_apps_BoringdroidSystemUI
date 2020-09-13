@@ -353,9 +353,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         if (mIsShelfPeeking != wasShelfPeeking) {
             maybeUpdateRecentsAttachedState();
         }
-        if (shelfState.shouldPreformHaptic) {
-            performHapticFeedback();
-        }
     }
 
     private void buildAnimationController() {
@@ -392,9 +389,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
         final boolean passed = mCurrentShift.value >= MIN_PROGRESS_FOR_OVERVIEW;
         if (passed != mPassedOverviewThreshold) {
             mPassedOverviewThreshold = passed;
-            if (mMode != Mode.NO_BUTTON) {
-                performHapticFeedback();
-            }
         }
 
         if (mLauncherTransitionController == null || mLauncherTransitionController

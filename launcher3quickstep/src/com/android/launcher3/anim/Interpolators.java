@@ -71,20 +71,14 @@ public class Interpolators {
     public static final Interpolator TOUCH_RESPONSE_INTERPOLATOR =
             new PathInterpolator(0.3f, 0f, 0.1f, 1f);
 
-    public static final Interpolator SCROLL = new Interpolator() {
-        @Override
-        public float getInterpolation(float t) {
-            t -= 1.0f;
-            return t*t*t*t*t + 1;
-        }
+    public static final Interpolator SCROLL = t -> {
+        t -= 1.0f;
+        return t*t*t*t*t + 1;
     };
 
-    public static final Interpolator SCROLL_CUBIC = new Interpolator() {
-        @Override
-        public float getInterpolation(float t) {
-            t -= 1.0f;
-            return t*t*t + 1;
-        }
+    public static final Interpolator SCROLL_CUBIC = t -> {
+        t -= 1.0f;
+        return t*t*t + 1;
     };
 
     private static final float FAST_FLING_PX_MS = 10;

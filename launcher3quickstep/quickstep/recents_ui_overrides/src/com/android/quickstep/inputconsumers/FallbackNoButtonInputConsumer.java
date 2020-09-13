@@ -184,7 +184,6 @@ public class FallbackNoButtonInputConsumer extends
             mIsMotionPaused = isPaused;
             mLauncherAlpha.animateToValue(mLauncherAlpha.value, isPaused ? 0 : 1)
                     .setDuration(150).start();
-            performHapticFeedback();
         }
     }
 

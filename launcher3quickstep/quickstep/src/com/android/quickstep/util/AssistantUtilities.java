@@ -22,7 +22,6 @@ import android.app.TaskInfo;
 import android.content.Intent;
 import android.os.Build;
 
-import com.android.systemui.shared.system.ActivityManagerWrapper;
 import com.android.systemui.shared.system.TaskInfoCompat;
 
 /**
@@ -30,11 +29,6 @@ import com.android.systemui.shared.system.TaskInfoCompat;
  */
 @TargetApi(Build.VERSION_CODES.Q)
 public final class AssistantUtilities {
-
-    /** Returns true if an Assistant activity that is excluded from recents is running. */
-    public static boolean isExcludedAssistantRunning() {
-        return isExcludedAssistant(ActivityManagerWrapper.getInstance().getRunningTask());
-    }
 
     /** Returns true if the given task holds an Assistant activity that is excluded from recents. */
     public static boolean isExcludedAssistant(TaskInfo info) {

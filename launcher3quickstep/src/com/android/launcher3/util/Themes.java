@@ -74,10 +74,6 @@ public class Themes {
         return value;
     }
 
-    public static int getColorAccent(Context context) {
-        return getAttrColor(context, android.R.attr.colorAccent);
-    }
-
     public static int getAttrColor(Context context, int attr) {
         TypedArray ta = context.obtainStyledAttributes(new int[]{attr});
         int colorAccent = ta.getColor(0, 0);

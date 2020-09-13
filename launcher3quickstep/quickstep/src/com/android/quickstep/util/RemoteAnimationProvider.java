@@ -16,36 +16,16 @@
 package com.android.quickstep.util;
 
 import android.animation.AnimatorSet;
-import android.app.ActivityOptions;
-import android.content.Context;
-import android.os.Handler;
 
-import com.android.launcher3.LauncherAnimationRunner;
-import com.android.systemui.shared.system.ActivityOptionsCompat;
-import com.android.systemui.shared.system.RemoteAnimationAdapterCompat;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
 import com.android.systemui.shared.system.TransactionCompat;
 
 @FunctionalInterface
 public interface RemoteAnimationProvider {
 
-    static final int Z_BOOST_BASE = 800570000;
+    int Z_BOOST_BASE = 800570000;
 
     AnimatorSet createWindowAnimation(RemoteAnimationTargetCompat[] targets);
-
-    default ActivityOptions toActivityOptions(Handler handler, long duration, Context context) {
-        LauncherAnimationRunner runner = new LauncherAnimationRunner(handler,
-                false /* startAtFrontOfQueue */) {
-
-            @Override
-            public void onCreateAnimation(RemoteAnimationTargetCompat[] targetCompats,
-                    AnimationResult result) {
-                result.setAnimation(createWindowAnimation(targetCompats), context);
-            }
-        };
-        return ActivityOptionsCompat.makeRemoteAnimation(
-                new RemoteAnimationAdapterCompat(runner, duration, 0));
-    }
 
     /**
      * Prepares the given {@param targets} for a remote animation, and should be called with the

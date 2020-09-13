@@ -42,37 +42,19 @@ public class OverviewInteractionState {
     private static final int MSG_SET_PROXY = 200;
     private static final int MSG_SET_BACK_BUTTON_ALPHA = 201;
 
-    private final Context mContext;
-    private final Handler mUiHandler;
     private final Handler mBgHandler;
 
     // These are updated on the background thread
     private ISystemUiProxy mISystemUiProxy;
-    private float mBackButtonAlpha = 1;
 
     private int mSystemUiStateFlags;
 
     private OverviewInteractionState(Context context) {
-        mContext = context;
 
         // Data posted to the uihandler will be sent to the bghandler. Data is sent to uihandler
         // because of its high send frequency and data may be very different than the previous value
         // For example, send back alpha on uihandler to avoid flickering when setting its visibility
-        mUiHandler = new Handler(this::handleUiMessage);
         mBgHandler = new Handler(UI_HELPER_EXECUTOR.getLooper(), this::handleBgMessage);
-    }
-
-    public float getBackButtonAlpha() {
-        return mBackButtonAlpha;
-    }
-
-    public void setBackButtonAlpha(float alpha, boolean animate) {
-        if (!modeSupportsGestures()) {
-            alpha = 1;
-        }
-        mUiHandler.removeMessages(MSG_SET_BACK_BUTTON_ALPHA);
-        mUiHandler.obtainMessage(MSG_SET_BACK_BUTTON_ALPHA, animate ? 1 : 0, 0, alpha)
-                .sendToTarget();
     }
 
     public void setSystemUiProxy(ISystemUiProxy proxy) {
@@ -85,14 +67,6 @@ public class OverviewInteractionState {
 
     public int getSystemUiStateFlags() {
         return mSystemUiStateFlags;
-    }
-
-    private boolean handleUiMessage(Message msg) {
-        if (msg.what == MSG_SET_BACK_BUTTON_ALPHA) {
-            mBackButtonAlpha = (float) msg.obj;
-        }
-        mBgHandler.obtainMessage(msg.what, msg.arg1, msg.arg2, msg.obj).sendToTarget();
-        return true;
     }
 
     private boolean handleBgMessage(Message msg) {
@@ -119,7 +93,4 @@ public class OverviewInteractionState {
         }
     }
 
-    private boolean modeSupportsGestures() {
-        return SysUINavigationMode.getMode(mContext).hasGestures;
-    }
 }

@@ -118,7 +118,6 @@ public class TouchInteractionService extends Service implements
     private final IBinder mMyBinder = new IOverviewProxy.Stub() {
 
         public void onActiveNavBarRegionChanges(Region region) {
-            mActiveNavBarRegion = region;
         }
 
         public void onInitialize(Bundle bundle) {
@@ -264,8 +263,6 @@ public class TouchInteractionService extends Service implements
     private InputConsumer mUncheckedConsumer = InputConsumer.NO_OP;
     private InputConsumer mConsumer = InputConsumer.NO_OP;
     private Choreographer mMainChoreographer;
-
-    private Region mActiveNavBarRegion = new Region();
 
     private InputMonitorCompat mInputMonitorCompat;
     private InputEventReceiver mInputEventReceiver;
