@@ -63,9 +63,7 @@ public class RecentsActivityTracker<T extends BaseRecentsActivity> implements Ac
         }
     }
 
-
     private static class Scheduler implements Runnable {
-
         private WeakReference<RecentsActivityTracker> mPendingTracker = new WeakReference<>(null);
 
         @Override

@@ -15,9 +15,6 @@
  */
 package com.android.quickstep;
 
-import static android.content.pm.ActivityInfo.CONFIG_ORIENTATION;
-import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -33,10 +30,13 @@ import com.android.launcher3.util.Themes;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
+import static android.content.pm.ActivityInfo.CONFIG_ORIENTATION;
+import static android.content.pm.ActivityInfo.CONFIG_SCREEN_SIZE;
+
 /**
  * A base fallback recents activity that provides support for device profile changes, activity
  * lifecycle tracking, and basic input handling from recents.
- *
+ * <p>
  * This class is only used as a fallback in case the default launcher does not have a recents
  * implementation.
  */
@@ -52,8 +52,11 @@ public abstract class BaseRecentsActivity extends BaseDraggingActivity {
         initDeviceProfile();
         initViews();
 
-        getSystemUiController().updateUiState(SystemUiController.UI_STATE_BASE_WINDOW,
-                Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText));
+        getSystemUiController()
+                .updateUiState(
+                        SystemUiController.UI_STATE_BASE_WINDOW,
+                        Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText)
+                );
         RecentsActivityTracker.onRecentsActivityCreate(this);
     }
 
@@ -94,6 +97,7 @@ public abstract class BaseRecentsActivity extends BaseDraggingActivity {
 
     /**
      * Generate the device profile to use in this activity.
+     *
      * @return device profile
      */
     protected DeviceProfile createDeviceProfile() {
@@ -139,8 +143,7 @@ public abstract class BaseRecentsActivity extends BaseDraggingActivity {
 
     @Override
     public void onBackPressed() {
-        // TODO: Launch the task we came from
-        startHome();
+        finish();
     }
 
     public void startHome() {
