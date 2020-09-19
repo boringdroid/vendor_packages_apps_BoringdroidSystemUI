@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.systemui.plugins.OverlayPlugin;
 import com.android.systemui.plugins.annotations.Requires;
@@ -36,6 +35,10 @@ public class SystemUIOverlay implements OverlayPlugin {
     // Copied from systemui source code, please keep it update to source code.
     private static final String ACTION_PLUGIN_CHANGED =
             "com.android.systemui.action.PLUGIN_CHANGED";
+
+    private static final String TAG_ALL_APPS_GROUP = "tag-bt-all-apps-group";
+    private static final String TAG_APP_STATE_LAYOUT = "tag-app-state-layout";
+
     private Context mPluginContext;
     private Context mSystemUIContext;
     private View mNavBarButtonGroup;
@@ -78,7 +81,18 @@ public class SystemUIOverlay implements OverlayPlugin {
                                 FrameLayout.LayoutParams.MATCH_PARENT
                         );
                 ViewGroup group = (ViewGroup) buttonGroup;
+                View oldBtAllAppsGroup = group.findViewWithTag(TAG_ALL_APPS_GROUP);
+                if (oldBtAllAppsGroup != null) {
+                    group.removeView(oldBtAllAppsGroup);
+                }
+                mBtAllAppsGroup.setTag(TAG_ALL_APPS_GROUP);
                 group.addView(mBtAllAppsGroup, 0, layoutParams);
+
+                View oldAppStateLayout = group.findViewWithTag(TAG_APP_STATE_LAYOUT);
+                if (oldAppStateLayout != null) {
+                    group.removeView(oldAppStateLayout);
+                }
+                mAppStateLayout.setTag(TAG_APP_STATE_LAYOUT);
                 // The first item is all apps group.
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.

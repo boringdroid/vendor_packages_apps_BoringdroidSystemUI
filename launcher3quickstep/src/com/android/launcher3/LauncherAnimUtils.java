@@ -29,6 +29,8 @@ public class LauncherAnimUtils {
 
                 @Override
                 public void setValue(View view, float scale) {
+                    // TODO: Fix java.lang.IllegalArgumentException: Cannot set 'scaleX'
+                    //  to Float.NaN when clicking recents view
                     view.setScaleX(scale);
                     view.setScaleY(scale);
                 }
