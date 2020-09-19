@@ -217,11 +217,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         }, getHandler());
     }
 
-    public void launchTask(boolean animate, Consumer<Boolean> resultCallback,
-            Handler resultCallbackHandler) {
-        launchTask(animate, false /* freezeTaskList */, resultCallback, resultCallbackHandler);
-    }
-
     public void launchTask(boolean animate, boolean freezeTaskList, Consumer<Boolean> resultCallback,
             Handler resultCallbackHandler) {
         launchTaskInternal(animate, freezeTaskList, resultCallback, resultCallbackHandler);
@@ -259,6 +254,7 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
                             }
                         }, resultCallbackHandler);
             }
+            mActivity.onTaskLaunched();
         }
     }
 

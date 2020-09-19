@@ -135,6 +135,8 @@ public abstract class BaseDraggingActivity extends BaseActivity
 
     protected abstract void reapplyUi();
 
+    public abstract void onTaskLaunched();
+
     /**
      * Callback for listening for onStart
      */

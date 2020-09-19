@@ -208,8 +208,10 @@ public final class RecentsActivity extends BaseRecentsActivity {
         mFallbackRecentsView.reset();
     }
 
+    @Override
     public void onTaskLaunched() {
         Log.d(TAG, "onTaskLaunched");
         mFallbackRecentsView.resetTaskVisuals();
+        finish();
     }
 }
