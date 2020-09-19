@@ -10,15 +10,16 @@
 
     <application tools:ignore="AllowBackup,MissingApplicationIcon">
         <activity
-            android:largeHeap="true"
-            android:supportsRtl="false"
             android:name=".DebugActivity"
-            android:label="@string/system_ui_debug_name">
+            android:label="@string/system_ui_debug_name"
+            android:largeHeap="true"
+            android:supportsRtl="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
             android:name="com.boringdroid.systemui.SystemUIOverlay"
             android:label="@string/system_ui_overlay_name"
@@ -29,8 +30,8 @@
         </service>
         <service
             android:name="com.android.quickstep.TouchInteractionService"
-            android:permission="android.permission.STATUS_BAR_SERVICE"
-            android:directBootAware="true" >
+            android:directBootAware="true"
+            android:permission="android.permission.STATUS_BAR_SERVICE">
             <intent-filter>
                 <action android:name="android.intent.action.QUICKSTEP_SERVICE" />
             </intent-filter>
@@ -38,30 +39,32 @@
 
         <!-- STOPSHIP: Change exported to false once all the integration is complete.
         It is set to true so that the activity can be started from command line -->
-        <activity android:name="com.android.quickstep.RecentsActivity"
-            android:exported="true"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
+        <activity
+            android:name="com.android.quickstep.RecentsActivity"
             android:clearTaskOnLaunch="true"
-            android:stateNotNeeded="true"
-            android:theme="@style/LauncherTheme"
-            android:screenOrientation="unspecified"
             android:configChanges="keyboard|keyboardHidden|mcc|mnc|navigation|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:resumeWhilePausing="true"
-            android:taskAffinity="" />
+            android:screenOrientation="unspecified"
+            android:stateNotNeeded="true"
+            android:taskAffinity=""
+            android:theme="@style/LauncherTheme" />
         <activity
             android:name="com.android.launcher3.proxy.ProxyActivityStarter"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
-            android:launchMode="singleTask"
             android:clearTaskOnLaunch="true"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
-        <activity android:name="com.android.quickstep.LockScreenRecentsActivity"
-            android:theme="@android:style/Theme.NoDisplay"
+        <activity
+            android:name="com.android.quickstep.LockScreenRecentsActivity"
+            android:directBootAware="true"
             android:showOnLockScreen="true"
             android:taskAffinity="com.boringdroid.systemui.locktask"
-            android:directBootAware="true" />
+            android:theme="@android:style/Theme.NoDisplay" />
     </application>
 
 </manifest>

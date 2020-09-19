@@ -1,9 +1,11 @@
 package com.boringdroid.systemui;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.systemui.plugins.OverlayPlugin;
 import com.android.systemui.plugins.annotations.Requires;
@@ -34,6 +37,7 @@ public class SystemUIOverlay implements OverlayPlugin {
     private static final String ACTION_PLUGIN_CHANGED =
             "com.android.systemui.action.PLUGIN_CHANGED";
     private Context mPluginContext;
+    private Context mSystemUIContext;
     private View mNavBarButtonGroup;
     private ViewGroup mBtAllAppsGroup;
     private AppStateLayout mAppStateLayout;
@@ -43,6 +47,20 @@ public class SystemUIOverlay implements OverlayPlugin {
     private ContentResolver mResolver;
     private List<String> mTunerKeys = new ArrayList<>();
     private ContentObserver mTunerKeyObserver = new TunerKeyObserver();
+
+    private BroadcastReceiver mCloseSystemDialogsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "receive intent " + intent);
+            if (mAllAppsWindow == null) {
+                return;
+            }
+            if (intent == null || !Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
+                return;
+            }
+            mAllAppsWindow.dismiss();
+        }
+    };
 
     @Override
     public void setup(View statusBar, View navBar) {
@@ -81,6 +99,7 @@ public class SystemUIOverlay implements OverlayPlugin {
 
     @Override
     public void onCreate(Context sysUIContext, Context pluginContext) {
+        mSystemUIContext = sysUIContext;
         mPluginContext = pluginContext;
         mNavBarButtonGroupId =
                 sysUIContext
@@ -97,10 +116,17 @@ public class SystemUIOverlay implements OverlayPlugin {
         mBtAllApps.setOnClickListener(mAllAppsWindow);
         mResolver = sysUIContext.getContentResolver();
         initializeTuningServiceSettingKeys(mResolver, mTunerKeyObserver);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        mSystemUIContext.registerReceiver(mCloseSystemDialogsReceiver, filter);
     }
 
     @Override
     public void onDestroy() {
+        if (mSystemUIContext != null) {
+            mSystemUIContext.unregisterReceiver(mCloseSystemDialogsReceiver);
+        }
         mResolver.unregisterContentObserver(mTunerKeyObserver);
         mBtAllAppsGroup.setOnClickListener(null);
         if (mNavBarButtonGroup instanceof ViewGroup) {

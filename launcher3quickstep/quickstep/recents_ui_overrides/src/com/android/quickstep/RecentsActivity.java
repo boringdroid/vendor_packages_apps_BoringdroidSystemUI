@@ -33,6 +33,7 @@ import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 
 import com.android.launcher3.DeviceProfile;
@@ -56,9 +57,10 @@ import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
  * See {@link com.android.quickstep.views.RecentsView}.
  */
 public final class RecentsActivity extends BaseRecentsActivity {
-
     public static final String EXTRA_THUMBNAIL = "thumbnailData";
     public static final String EXTRA_TASK_ID = "taskID";
+
+    private static final String TAG = "RecentsActivity";
 
     private Handler mUiHandler = new Handler(Looper.getMainLooper());
     private RecentsRootView mRecentsRootView;
@@ -74,11 +76,13 @@ public final class RecentsActivity extends BaseRecentsActivity {
 
     @Override
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode, Configuration newConfig) {
+        Log.d(TAG, "onMultiWindowModeChanged " + isInMultiWindowMode + ", config " + newConfig);
         onHandleConfigChanged();
         super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig);
     }
 
     public void onRootViewSizeChanged() {
+        Log.d(TAG, "onRootViewSizeChanged");
         if (isInMultiWindowMode()) {
             onHandleConfigChanged();
         }
@@ -86,6 +90,7 @@ public final class RecentsActivity extends BaseRecentsActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent " + intent);
         if (intent.getExtras() != null) {
             int taskID = intent.getIntExtra(EXTRA_TASK_ID, 0);
             IBinder thumbnail = intent.getExtras().getBinder(EXTRA_THUMBNAIL);
@@ -102,17 +107,20 @@ public final class RecentsActivity extends BaseRecentsActivity {
 
     @Override
     protected void onHandleConfigChanged() {
+        Log.d(TAG, "onHandleConfigChanged");
         super.onHandleConfigChanged();
         mRecentsRootView.setup();
     }
 
     @Override
     protected void reapplyUi() {
+        Log.d(TAG, "reapplyUi");
         mRecentsRootView.dispatchInsets();
     }
 
     @Override
     protected DeviceProfile createDeviceProfile() {
+        Log.d(TAG, "createDeviceProfile");
         DeviceProfile dp = InvariantDeviceProfile.INSTANCE.get(this).getDeviceProfile(this);
         return (mRecentsRootView != null) && isInMultiWindowMode()
                 ? dp.getMultiWindowProfile(this, mRecentsRootView.getLastKnownSize())
@@ -121,11 +129,13 @@ public final class RecentsActivity extends BaseRecentsActivity {
 
     @Override
     public <T extends View> T getOverviewPanel() {
+        Log.d(TAG, "getOverviewPanel " + mFallbackRecentsView);
         return (T) mFallbackRecentsView;
     }
 
     @Override
     public ActivityOptions getActivityLaunchOptions(final View v) {
+        Log.d(TAG, "getActivityLaunchOptions " + v);
         if (!(v instanceof TaskView)) {
             return null;
         }
@@ -183,6 +193,7 @@ public final class RecentsActivity extends BaseRecentsActivity {
 
     @Override
     protected void onStart() {
+        Log.d(TAG, "onStart");
         // Set the alpha to 1 before calling super, as it may get set back to 0 due to
         // onActivityStart callback.
         mFallbackRecentsView.setContentAlpha(1);
@@ -192,11 +203,13 @@ public final class RecentsActivity extends BaseRecentsActivity {
 
     @Override
     protected void onStop() {
+        Log.d(TAG, "onStop");
         super.onStop();
         mFallbackRecentsView.reset();
     }
 
     public void onTaskLaunched() {
+        Log.d(TAG, "onTaskLaunched");
         mFallbackRecentsView.resetTaskVisuals();
     }
 }
