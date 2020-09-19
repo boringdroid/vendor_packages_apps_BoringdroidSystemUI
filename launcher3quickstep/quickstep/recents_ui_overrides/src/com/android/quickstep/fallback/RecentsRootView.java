@@ -19,6 +19,8 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 import com.android.launcher3.BaseActivity;
@@ -81,9 +83,7 @@ public class RecentsRootView extends BaseDragLayer<RecentsActivity> {
         if (!insets.equals(mInsets)) {
             super.setInsets(insets);
         }
-        setBackground(insets.top == 0  || !mAllowSysuiScrims
-                ? null
-                : Themes.getAttrDrawable(getContext(), R.attr.workspaceStatusBarScrim));
+        setBackgroundResource(R.color.recents_background);
     }
 
     public void dispatchInsets() {

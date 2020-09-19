@@ -31,7 +31,6 @@
     <attr name="workspaceShadowColor" format="color" />
     <attr name="workspaceAmbientShadowColor" format="color"/>
     <attr name="workspaceKeyShadowColor" format="color" />
-    <attr name="workspaceStatusBarScrim" format="reference" />
     <attr name="widgetsTheme" format="reference" />
     <attr name="loadingIconColor" format="color" />
 

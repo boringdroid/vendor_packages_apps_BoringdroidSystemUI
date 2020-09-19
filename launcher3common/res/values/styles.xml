@@ -42,7 +42,6 @@
         <item name="workspaceShadowColor">#B0000000</item>
         <item name="workspaceAmbientShadowColor">#33000000</item>
         <item name="workspaceKeyShadowColor">#44000000</item>
-        <item name="workspaceStatusBarScrim">@drawable/workspace_bg</item>
         <item name="widgetsTheme">@style/WidgetContainerTheme</item>
         <item name="folderDotColor">?android:attr/colorPrimary</item>
         <item name="folderFillColor">#CDFFFFFF</item>
@@ -69,7 +68,6 @@
         <item name="workspaceAmbientShadowColor">@android:color/transparent</item>
         <item name="workspaceKeyShadowColor">@android:color/transparent</item>
         <item name="isWorkspaceDarkText">true</item>
-        <item name="workspaceStatusBarScrim">@null</item>
         <item name="folderDotColor">#FF464646</item>
         <item name="folderFillColor">#CDFFFFFF</item>
         <item name="folderIconBorderColor">#FF80868B</item>
@@ -113,7 +111,6 @@
         <item name="workspaceAmbientShadowColor">@android:color/transparent</item>
         <item name="workspaceKeyShadowColor">@android:color/transparent</item>
         <item name="isWorkspaceDarkText">true</item>
-        <item name="workspaceStatusBarScrim">@null</item>
     </style>
 
     <!-- A derivative project can extend these themes to customize the application theme without
