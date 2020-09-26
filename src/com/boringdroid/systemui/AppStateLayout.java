@@ -82,7 +82,15 @@ public class AppStateLayout extends RecyclerView {
             mAdapter.setTopTaskId(-1);
             mAdapter.notifyDataSetChanged();
             return;
-        }        
+        }
+        if (packageName != null
+                && getContext() != null
+                && packageName.startsWith(getContext().getPackageName())) {
+            Log.d(TAG, "Ignore self " + packageName);
+            mAdapter.setTopTaskId(-1);
+            mAdapter.notifyDataSetChanged();
+            return;
+        }
         if (isLauncher(getContext(), packageName)) {
             Log.d(TAG, "Ignore launcher " + packageName);
             mAdapter.setTopTaskId(-1);
