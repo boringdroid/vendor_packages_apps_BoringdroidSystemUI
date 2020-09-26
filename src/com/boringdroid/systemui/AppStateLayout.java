@@ -213,7 +213,10 @@ public class AppStateLayout extends RecyclerView {
                 holder.highLightLineTV.setImageResource(R.drawable.line_short);
             }
             holder.iconIV.setOnClickListener(
-                    v -> mActivityManager.moveTaskToFront(taskInfo.getId(), 0)
+                    v -> {
+                        mActivityManager.moveTaskToFront(taskInfo.getId(), 0);
+                        mContext.sendBroadcast(new Intent("com.boringdroid.systemui.CLOSE_RECENTS"));
+                    }
             );
         }
 

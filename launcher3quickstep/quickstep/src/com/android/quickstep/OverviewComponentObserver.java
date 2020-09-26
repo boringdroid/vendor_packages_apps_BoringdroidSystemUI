@@ -55,6 +55,17 @@ public final class OverviewComponentObserver {
             updateOverviewTargets();
         }
     };
+    private final BroadcastReceiver mCloseRecentsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            RecentsActivity createdActivity =
+                    mActivityControlHelper != null ?
+                            (RecentsActivity) mActivityControlHelper.getCreatedActivity() : null;
+            if (createdActivity != null) {
+                createdActivity.finish();
+            }
+        }
+    };
     private final Context mContext;
     private final Intent mCurrentHomeIntent;
     private final Intent mFallbackIntent;
@@ -85,6 +96,10 @@ public final class OverviewComponentObserver {
 
         mContext.registerReceiver(mUserPreferenceChangeReceiver,
                 new IntentFilter(ACTION_PREFERRED_ACTIVITY_CHANGED));
+        mContext.registerReceiver(
+                mCloseRecentsReceiver,
+                new IntentFilter("com.boringdroid.systemui.CLOSE_RECENTS")
+        );
         updateOverviewTargets();
     }
 
@@ -144,6 +159,7 @@ public final class OverviewComponentObserver {
      * Clean up any registered receivers.
      */
     public void onDestroy() {
+        mContext.unregisterReceiver(mCloseRecentsReceiver);
         mContext.unregisterReceiver(mUserPreferenceChangeReceiver);
 
         if (mUpdateRegisteredPackage != null) {
