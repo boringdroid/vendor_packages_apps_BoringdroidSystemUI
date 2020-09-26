@@ -124,6 +124,12 @@ public class AppStateLayout extends RecyclerView {
                 && packageName.equals(res.activityInfo.packageName);
     }
 
+    void reloadActivityManager(Context context) {
+        if (mAdapter != null) {
+            mAdapter.reloadActivityManager(context);
+        }
+    }
+
     private class AppStateListener extends TaskStackChangeListener {
         @Override
         public void onTaskCreated(int taskId, ComponentName componentName) {
@@ -170,7 +176,7 @@ public class AppStateLayout extends RecyclerView {
     private static class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private final List<TaskInfo> mTasks = new ArrayList<>();
         private final Context mContext;
-        private final ActivityManager mActivityManager;
+        private ActivityManager mActivityManager;
         private int mTopTaskId = -1;
 
         public TaskAdapter(@NonNull Context context) {
@@ -215,6 +221,10 @@ public class AppStateLayout extends RecyclerView {
 
         public void setTopTaskId(int id) {
             mTopTaskId = id;
+        }
+
+        public void reloadActivityManager(Context context) {
+            mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         }
 
         private static class ViewHolder extends RecyclerView.ViewHolder {

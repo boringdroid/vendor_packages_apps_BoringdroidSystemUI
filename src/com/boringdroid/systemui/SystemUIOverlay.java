@@ -125,6 +125,7 @@ public class SystemUIOverlay implements OverlayPlugin {
                         );
         mBtAllAppsGroup = initializeAllAppsButton(mPluginContext, mBtAllAppsGroup);
         mAppStateLayout = initializeAppStateLayout(mPluginContext, mAppStateLayout);
+        mAppStateLayout.reloadActivityManager(mSystemUIContext);
         mBtAllApps = mBtAllAppsGroup.findViewById(R.id.bt_all_apps);
         mAllAppsWindow = new AllAppsWindow(mPluginContext);
         mBtAllApps.setOnClickListener(mAllAppsWindow);
