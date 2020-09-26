@@ -1,6 +1,7 @@
 package com.boringdroid.systemui;
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.LauncherActivityInfo;
@@ -124,6 +125,27 @@ public class AppStateLayout extends RecyclerView {
     }
 
     private class AppStateListener extends TaskStackChangeListener {
+        @Override
+        public void onTaskCreated(int taskId, ComponentName componentName) {
+            super.onTaskCreated(taskId, componentName);
+            Log.d(TAG, "onTaskCreated " + taskId + ", cm " + componentName);
+            onTaskStackChanged();
+        }
+
+        @Override
+        public void onTaskMovedToFront(int taskId) {
+            super.onTaskMovedToFront(taskId);
+            Log.d(TAG, "onTaskMoveToFront taskId " + taskId);
+            onTaskStackChanged();
+        }
+
+        @Override
+        public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
+            super.onTaskMovedToFront(taskInfo);
+            Log.d(TAG, "onTaskMovedToFront " + taskInfo);
+            onTaskStackChanged();
+        }
+
         @Override
         public void onTaskStackChanged() {
             super.onTaskStackChanged();
