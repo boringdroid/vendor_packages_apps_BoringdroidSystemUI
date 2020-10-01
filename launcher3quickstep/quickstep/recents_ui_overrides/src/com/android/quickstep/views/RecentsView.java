@@ -41,6 +41,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.FloatProperty;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -53,6 +54,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ListView;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
@@ -131,6 +133,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
                     return recentsView.mFullscreenProgress;
                 }
             };
+    private static final String TAG = "RecentsView";
 
     protected RecentsAnimationWrapper mRecentsAnimationWrapper;
     protected ClipAnimationHelper mClipAnimationHelper;
@@ -291,11 +294,11 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     public RecentsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setPageSpacing(getResources().getDimensionPixelSize(R.dimen.recents_page_spacing));
+        setTaskViewSpacing(getResources().getDimensionPixelSize(R.dimen.recents_task_view_spacing));
         setEnableFreeScroll(true);
 
-        mFastFlingVelocity = getResources()
-                .getDimensionPixelSize(R.dimen.recents_fast_fling_velocity);
+        mFastFlingVelocity =
+                getResources().getDimensionPixelSize(R.dimen.recents_fast_fling_velocity);
         mActivity = (T) BaseActivity.fromContext(context);
         mModel = RecentsModel.INSTANCE.get(context);
         mIdp = InvariantDeviceProfile.INSTANCE.get(context);
@@ -304,13 +307,11 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mClearAllButton = (ClearAllButton) LayoutInflater.from(context)
                 .inflate(R.layout.overview_clear_all_button, this, false);
         mClearAllButton.setOnClickListener(this::dismissAllTasks);
-        mTaskViewPool = new ViewPool<>(context, this, R.layout.task, 20 /* max size */,
-                10 /* initial size */);
+        mTaskViewPool = new ViewPool<>(context, this, R.layout.task, MAX_TASK_COUNT, MAX_TASK_COUNT);
 
         mIsRtl = !Utilities.isRtl(getResources());
         setLayoutDirection(mIsRtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
-        mTaskTopMargin = getResources()
-                .getDimensionPixelSize(R.dimen.task_thumbnail_top_margin);
+        mTaskTopMargin = getResources().getDimensionPixelSize(R.dimen.task_thumbnail_top_margin);
         mSquaredTouchSlop = squaredTouchSlop(context);
 
         mEmptyIcon = context.getDrawable(R.drawable.ic_empty_recents);
@@ -323,8 +324,8 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mEmptyMessagePaint.setTypeface(
                 Typeface.create(Themes.getDefaultBodyFont(context), Typeface.NORMAL)
         );
-        mEmptyMessagePadding = getResources()
-                .getDimensionPixelSize(R.dimen.recents_empty_message_text_padding);
+        mEmptyMessagePadding =
+                getResources().getDimensionPixelSize(R.dimen.recents_empty_message_text_padding);
         setWillNotDraw(false);
         updateEmptyMessage();
 
@@ -507,7 +508,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         TaskView ignoreResetTaskView =
                 mIgnoreResetTaskId == -1 ? null : getTaskView(mIgnoreResetTaskId);
 
-        final int requiredTaskCount = tasks.size();
+        final int requiredTaskCount = Math.min(MAX_TASK_COUNT, tasks.size());
         if (getTaskViewCount() != requiredTaskCount) {
             if (indexOfChild(mClearAllButton) != -1) {
                 removeView(mClearAllButton);
@@ -531,14 +532,12 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
             taskView.bind(task);
         }
 
-        if (mNextPage == INVALID_PAGE) {
-            // Set the current page to the running task, but not if settling on new task.
-            TaskView runningTaskView = getRunningTaskView();
-            if (runningTaskView != null) {
-                setCurrentPage(indexOfChild(runningTaskView));
-            } else if (getTaskViewCount() > 0) {
-                setCurrentPage(indexOfChild(getTaskViewAt(0)));
-            }
+        // Set the current page to the running task, but not if settling on new task.
+        TaskView runningTaskView = getRunningTaskView();
+        if (runningTaskView != null) {
+            setCurrentPage(indexOfChild(runningTaskView));
+        } else if (getTaskViewCount() > 0) {
+            setCurrentPage(indexOfChild(getTaskViewAt(0)));
         }
 
         if (mIgnoreResetTaskId != -1 && getTaskView(mIgnoreResetTaskId) != ignoreResetTaskView) {
@@ -562,7 +561,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public int getTaskViewCount() {
-        int taskViewCount = getChildCount() - mTaskViewStartIndex;
+        int taskViewCount = getChildCount();
         if (indexOfChild(mClearAllButton) != -1) {
             taskViewCount--;
         }
@@ -657,6 +656,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
      * Scales and adjusts translation of adjacent pages as if on a curved carousel.
      */
     public void updateCurveProperties() {
+        Log.d(TAG, "updateCurveProperties page count " + getPageCount());
         if (getPageCount() == 0 || getPageAt(0).getMeasuredWidth() == 0) {
             return;
         }
@@ -664,7 +664,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         final int halfPageWidth = getNormalChildWidth() / 2;
         final int screenCenter = mInsets.left + getPaddingLeft() + scrollX + halfPageWidth;
         final int halfScreenWidth = getMeasuredWidth() / 2;
-        final int pageSpacing = mPageSpacing;
+        final int pageSpacing = mTaskViewSpacing;
         mScrollState.scrollFromEdge = mIsRtl ? scrollX : (mMaxScrollX - scrollX);
 
         final int pageCount = getPageCount();
@@ -690,10 +690,9 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
             return;
         }
 
-        int centerPageIndex = getPageNearestToCenterOfScreen();
-        int numChildren = getChildCount();
-        int lower = Math.max(0, centerPageIndex - 2);
-        int upper = Math.min(centerPageIndex + 2, numChildren - 1);
+        // Load all visible task data
+        int lower = getLowerVisibleTaskIndex();
+        int upper = getUpperVisibleTaskIndex();
 
         // Update the task data for the in/visible children
         for (int i = 0; i < getTaskViewCount(); i++) {
@@ -1439,6 +1438,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);

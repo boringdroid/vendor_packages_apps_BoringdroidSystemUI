@@ -127,7 +127,7 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
         mMode = SysUINavigationMode.getMode(context);
 
         mClipAnimationHelper = new ClipAnimationHelper(context);
-        mPageSpacing = context.getResources().getDimensionPixelSize(R.dimen.recents_page_spacing);
+        mPageSpacing = context.getResources().getDimensionPixelSize(R.dimen.recents_task_view_spacing);
         initTransitionEndpoints(InvariantDeviceProfile.INSTANCE.get(mContext)
                 .getDeviceProfile(mContext));
     }

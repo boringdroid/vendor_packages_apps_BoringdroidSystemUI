@@ -22,7 +22,7 @@
     <!-- For screens without rounded corners -->
     <dimen name="task_corner_radius_small">2dp</dimen>
 
-    <dimen name="recents_page_spacing">10dp</dimen>
+    <dimen name="recents_task_view_spacing">30dp</dimen>
     <dimen name="recents_clear_all_deadzone_vertical_margin">70dp</dimen>
 
     <!-- The speed in dp/s at which the user needs to be scrolling in recents such that we start
@@ -60,13 +60,9 @@
        docked_stack_divider_thickness - 2 * docked_stack_divider_insets -->
     <dimen name="multi_window_task_divider_size">10dp</dimen>
 
-    <!-- same as vertical_drag_handle_size -->
-
     <!-- Assistant Gestures -->
     <!-- Distance from the vertical edges of the screen in which assist gestures are recognized -->
     <dimen name="gestures_assistant_width">48dp</dimen>
     <dimen name="gestures_assistant_drag_threshold">55dp</dimen>
     <dimen name="gestures_assistant_fling_threshold">55dp</dimen>
-
-    <!-- Distance to move elements when swiping up to go home from launcher -->
 </resources>

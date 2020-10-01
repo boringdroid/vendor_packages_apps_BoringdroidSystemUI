@@ -23,7 +23,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.InputDevice;
@@ -43,7 +42,6 @@ import android.widget.ScrollView;
 import androidx.annotation.RequiresApi;
 
 import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.touch.OverScroll;
 import com.android.launcher3.util.OverScroller;
 
 import java.util.ArrayList;
@@ -57,6 +55,8 @@ import static com.android.launcher3.touch.OverScroll.OVERSCROLL_DAMP_FACTOR;
  * sequential list of "pages"
  */
 public abstract class PagedView extends ViewGroup {
+    public static final int MAX_TASK_COUNT = 8;
+
     private static final String TAG = "PagedView";
     private static final boolean DEBUG = false;
 
@@ -96,7 +96,7 @@ public abstract class PagedView extends ViewGroup {
     protected OverScroller mScroller;
     private Interpolator mDefaultInterpolator;
     private VelocityTracker mVelocityTracker;
-    protected int mPageSpacing = 0;
+    protected int mTaskViewSpacing = 0;
 
     private float mDownMotionX;
     private float mLastMotionX;
@@ -189,7 +189,7 @@ public abstract class PagedView extends ViewGroup {
     }
 
     public int getPageCount() {
-        return getChildCount();
+        return Math.min(MAX_TASK_COUNT, getChildCount());
     }
 
     public View getPageAt(int index) {
@@ -308,49 +308,7 @@ public abstract class PagedView extends ViewGroup {
     }
 
     @Override
-    public void scrollBy(int x, int y) {
-        scrollTo(getUnboundedScrollX() + x, getScrollY() + y);
-    }
-
-    @Override
     public void scrollTo(int x, int y) {
-        mUnboundedScrollX = x;
-
-        boolean isXBeforeFirstPage = mIsRtl ? (x > mMaxScrollX) : (x < mMinScrollX);
-        boolean isXAfterLastPage = mIsRtl ? (x < mMinScrollX) : (x > mMaxScrollX);
-
-        if (!isXBeforeFirstPage && !isXAfterLastPage) {
-            mSpringOverScrollX = 0;
-        }
-
-        if (isXBeforeFirstPage) {
-            super.scrollTo(mIsRtl ? mMaxScrollX : mMinScrollX, y);
-            if (mAllowOverScroll) {
-                mWasInOverscroll = true;
-                if (mIsRtl) {
-                    overScroll(x - mMaxScrollX);
-                } else {
-                    overScroll(x - mMinScrollX);
-                }
-            }
-        } else if (isXAfterLastPage) {
-            super.scrollTo(mIsRtl ? mMinScrollX : mMaxScrollX, y);
-            if (mAllowOverScroll) {
-                mWasInOverscroll = true;
-                if (mIsRtl) {
-                    overScroll(x - mMinScrollX);
-                } else {
-                    overScroll(x - mMaxScrollX);
-                }
-            }
-        } else {
-            if (mWasInOverscroll) {
-                overScroll(0);
-                mWasInOverscroll = false;
-            }
-            super.scrollTo(x, y);
-        }
-
     }
 
     private void sendScrollAccessibilityEvent() {
@@ -466,10 +424,22 @@ public abstract class PagedView extends ViewGroup {
         // unless they were set to WRAP_CONTENT
         if (DEBUG) Log.d(TAG, "PagedView.onMeasure(): " + widthSize + ", " + heightSize);
 
-        int myWidthSpec = MeasureSpec.makeMeasureSpec(
-                widthSize - mInsets.left - mInsets.right, MeasureSpec.EXACTLY);
-        int myHeightSpec = MeasureSpec.makeMeasureSpec(
-                heightSize - mInsets.top - mInsets.bottom, MeasureSpec.EXACTLY);
+        int column = getColumn(getPageCount());
+        int taskViewTotalWidth = widthSize - mInsets.left - mInsets.right;
+        int singleTaskViewWidth = column == 0 ? taskViewTotalWidth
+                : (taskViewTotalWidth - (column + 1) * mTaskViewSpacing) / column;
+        Log.d(TAG, "PagedView.onMeasure(): column " + column
+                + ", task view width " + singleTaskViewWidth);
+        int myWidthSpec = MeasureSpec.makeMeasureSpec(singleTaskViewWidth, MeasureSpec.EXACTLY);
+
+        int row = getRow(getPageCount());
+        int taskViewTotalHeight = (heightSize - mInsets.top - mInsets.bottom);
+        // TODO add method to set task view vertical spacing
+        int singleTaskViewHeight = row == 0 ? taskViewTotalHeight
+                : (taskViewTotalHeight - (row + 1) * mTaskViewSpacing) / row;
+        Log.d(TAG, "PagedView.onMeasure(): row " + row
+                + ", task view height " + singleTaskViewHeight);
+        int myHeightSpec = MeasureSpec.makeMeasureSpec(singleTaskViewHeight, MeasureSpec.EXACTLY);
 
         // measureChildren takes accounts for content padding, we only need to care about extra
         // space due to insets.
@@ -482,20 +452,34 @@ public abstract class PagedView extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         mIsLayoutValid = true;
         final int childCount = getChildCount();
-        boolean pageScrollChanged = false;
         if (mPageScrolls == null || childCount != mPageScrolls.length) {
             mPageScrolls = new int[childCount];
-            pageScrollChanged = true;
         }
 
         if (childCount == 0) {
             return;
         }
 
-        if (DEBUG) Log.d(TAG, "PagedView.onLayout()");
+        int column = getColumn(getPageCount());
+        Log.d(TAG, "PagedView.onLayout() column " + column);
+        int currentColumn = 0;
+        int currentRow = 0;
+        for (int i = 0; i < getPageCount(); i++) {
+            View child = getPageAt(i);
+            int width = child.getMeasuredWidth();
+            int height = child.getMeasuredHeight();
+            int marginLeft = (getMeasuredWidth() - column * width
+                    - (column + 1) * mTaskViewSpacing - mInsets.left) / 2;
+            int x = marginLeft + mInsets.left + currentColumn * width
+                    + (currentColumn + 1) * mTaskViewSpacing;
+            int y = mInsets.top + currentRow * height + (currentRow + 1) * mTaskViewSpacing;
+            child.layout(x, y, x + width, y + height);
 
-        if (getPageScrolls(mPageScrolls, true, SIMPLE_SCROLL_LOGIC)) {
-            pageScrollChanged = true;
+            currentColumn++;
+            if (currentColumn >= column) {
+                currentColumn = 0;
+                currentRow++;
+            }
         }
 
         final LayoutTransition transition = getLayoutTransition();
@@ -526,10 +510,6 @@ public abstract class PagedView extends ViewGroup {
         if (mFirstLayout && mCurrentPage >= 0 && mCurrentPage < childCount) {
             updateCurrentPageScroll();
             mFirstLayout = false;
-        }
-
-        if (mScroller.isFinished() && pageScrollChanged) {
-            setCurrentPage(getNextPage());
         }
     }
 
@@ -574,7 +554,7 @@ public abstract class PagedView extends ViewGroup {
                     outPageScrolls[i] = pageScroll;
                 }
 
-                childLeft += childWidth + mPageSpacing + getChildGap();
+                childLeft += childWidth + mTaskViewSpacing + getChildGap();
             }
         }
         return pageScrollChanged;
@@ -603,8 +583,8 @@ public abstract class PagedView extends ViewGroup {
         }
     }
 
-    public void setPageSpacing(int pageSpacing) {
-        mPageSpacing = pageSpacing;
+    public void setTaskViewSpacing(int pageSpacing) {
+        mTaskViewSpacing = pageSpacing;
         requestLayout();
     }
 
@@ -900,44 +880,6 @@ public abstract class PagedView extends ViewGroup {
         }
     }
 
-    protected void dampedOverScroll(int amount) {
-        mSpringOverScrollX = amount;
-        if (amount == 0) {
-            return;
-        }
-
-        int overScrollAmount = OverScroll.dampedScroll(amount, getMeasuredWidth());
-        mSpringOverScrollX = overScrollAmount;
-        if (mScroller.isSpringing()) {
-            invalidate();
-            return;
-        }
-
-        int x = Utilities.boundToRange(getScrollX(), mMinScrollX, mMaxScrollX);
-        super.scrollTo(x + overScrollAmount, getScrollY());
-        invalidate();
-    }
-
-    protected void overScroll(int amount) {
-        mSpringOverScrollX = amount;
-        if (mScroller.isSpringing()) {
-            invalidate();
-            return;
-        }
-
-        if (amount == 0) return;
-
-        if (mFreeScroll && !mScroller.isFinished()) {
-            if (amount < 0) {
-                super.scrollTo(mMinScrollX + amount, getScrollY());
-            } else {
-                super.scrollTo(mMaxScrollX + amount, getScrollY());
-            }
-        } else {
-            dampedOverScroll(amount);
-        }
-    }
-
 
     public void setEnableFreeScroll(boolean freeScroll) {
         if (mFreeScroll == freeScroll) {
@@ -1154,13 +1096,6 @@ public abstract class PagedView extends ViewGroup {
                     return true;
                 }
                 if (hscroll != 0 || vscroll != 0) {
-                    boolean isForwardScroll = mIsRtl ? (hscroll < 0 || vscroll < 0)
-                            : (hscroll > 0 || vscroll > 0);
-                    if (isForwardScroll) {
-                        scrollRight();
-                    } else {
-                        scrollLeft();
-                    }
                     return true;
                 }
             }
@@ -1364,28 +1299,6 @@ public abstract class PagedView extends ViewGroup {
         return Math.abs(delta) > 0;
     }
 
-    public boolean scrollLeft() {
-        if (getNextPage() > 0) {
-            snapToPage(getNextPage() - 1);
-            return true;
-        }
-        return onOverscroll(-getMeasuredWidth());
-    }
-
-    public boolean scrollRight() {
-        if (getNextPage() < getChildCount() - 1) {
-            snapToPage(getNextPage() + 1);
-            return true;
-        }
-        return onOverscroll(getMeasuredWidth());
-    }
-
-    protected boolean onOverscroll(int amount) {
-        if (!mAllowOverScroll) return false;
-        overScroll(amount);
-        return true;
-    }
-
     @Override
     public CharSequence getAccessibilityClassName() {
         // Some accessibility services have special logic for ScrollView. Since we provide same
@@ -1443,43 +1356,6 @@ public abstract class PagedView extends ViewGroup {
         event.setScrollable(mAllowOverScroll || getPageCount() > 1);
     }
 
-    @Override
-    public boolean performAccessibilityAction(int action, Bundle arguments) {
-        if (super.performAccessibilityAction(action, arguments)) {
-            return true;
-        }
-        final boolean pagesFlipped = isPageOrderFlipped();
-        switch (action) {
-            case AccessibilityNodeInfo.ACTION_SCROLL_FORWARD: {
-                if (pagesFlipped ? scrollLeft() : scrollRight()) {
-                    return true;
-                }
-            }
-            break;
-            case AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD: {
-                if (pagesFlipped ? scrollRight() : scrollLeft()) {
-                    return true;
-                }
-            }
-            break;
-            case android.R.id.accessibilityActionPageRight: {
-                if (!mIsRtl) {
-                    return scrollRight();
-                } else {
-                    return scrollLeft();
-                }
-            }
-            case android.R.id.accessibilityActionPageLeft: {
-                if (!mIsRtl) {
-                    return scrollLeft();
-                } else {
-                    return scrollRight();
-                }
-            }
-        }
-        return false;
-    }
-
     protected boolean canAnnouncePageDescription() {
         return true;
     }
@@ -1521,5 +1397,52 @@ public abstract class PagedView extends ViewGroup {
         mTmpIntPair[0] = leftChild;
         mTmpIntPair[1] = rightChild;
         return mTmpIntPair;
+    }
+
+    public int getLowerVisibleTaskIndex() {
+        return 0;
+    }
+
+    public int getUpperVisibleTaskIndex() {
+        return Math.min(MAX_TASK_COUNT, getPageCount()) - 1;
+    }
+
+    private static int getColumn(int taskCount) {
+        if (taskCount < 0 || taskCount > MAX_TASK_COUNT) {
+            throw new IllegalArgumentException("Unsupported task count " + taskCount);
+        }
+        switch (taskCount) {
+            case 0:
+                return 0;
+            case 1:
+                return 1;
+            case 2:
+            case 4:
+                return 2;
+            case 3:
+            case 5:
+            case 6:
+                return 3;
+            case 7:
+            case 8:
+            default:
+                return 4;
+        }
+    }
+
+    private static int getRow(int taskCount) {
+        if (taskCount < 0 || taskCount > MAX_TASK_COUNT) {
+            throw new IllegalArgumentException("Unsupported task count " + taskCount);
+        }
+        if (taskCount == 0) {
+            return 0;
+        }
+        int column = getColumn(taskCount);
+        if (column == 0) {
+            return 1;
+        }
+        int div = taskCount / column;
+        int mod = taskCount % column;
+        return mod == 0 ? div : div + 1;
     }
 }
