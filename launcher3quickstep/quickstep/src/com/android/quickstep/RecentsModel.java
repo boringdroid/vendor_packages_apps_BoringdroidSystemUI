@@ -231,7 +231,6 @@ public class RecentsModel extends TaskStackChangeListener {
     }
 
     public interface TaskThumbnailChangeListener {
-
         Task onTaskThumbnailChanged(int taskId, ThumbnailData thumbnailData);
     }
 }

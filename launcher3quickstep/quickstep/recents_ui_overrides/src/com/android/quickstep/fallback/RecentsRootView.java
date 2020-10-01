@@ -32,7 +32,6 @@ import com.android.launcher3.views.BaseDragLayer;
 import com.android.quickstep.RecentsActivity;
 
 public class RecentsRootView extends BaseDragLayer<RecentsActivity> {
-
     private static final int MIN_SIZE = 10;
     private final RecentsActivity mActivity;
 

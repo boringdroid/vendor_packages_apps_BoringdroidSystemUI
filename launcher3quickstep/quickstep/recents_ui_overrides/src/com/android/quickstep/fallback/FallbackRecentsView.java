@@ -15,14 +15,15 @@
  */
 package com.android.quickstep.fallback;
 
-import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
-
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
 
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.ScaleAndTranslation;
@@ -35,6 +36,8 @@ import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.recents.model.Task.TaskKey;
 
 import java.util.ArrayList;
+
+import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
 
 public class FallbackRecentsView extends RecentsView<RecentsActivity> {
     private float mZoomInProgress = 0;
@@ -131,6 +134,7 @@ public class FallbackRecentsView extends RecentsView<RecentsActivity> {
         FULLSCREEN_PROGRESS.set(this, mZoomInProgress);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void setCurrentTask(int runningTaskId) {
         super.setCurrentTask(runningTaskId);
@@ -139,6 +143,7 @@ public class FallbackRecentsView extends RecentsView<RecentsActivity> {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void applyLoadPlan(ArrayList<Task> tasks) {
         // When quick-switching on 3p-launcher, we add a "dummy" tile corresponding to Launcher

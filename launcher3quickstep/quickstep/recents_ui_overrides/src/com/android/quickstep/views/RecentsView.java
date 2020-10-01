@@ -16,20 +16,6 @@
 
 package com.android.quickstep.views;
 
-import static com.android.launcher3.BaseActivity.STATE_HANDLER_INVISIBILITY_FLAGS;
-import static com.android.launcher3.InvariantDeviceProfile.CHANGE_FLAG_ICON_PARAMS;
-import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
-import static com.android.launcher3.Utilities.EDGE_NAV_BAR;
-import static com.android.launcher3.Utilities.squaredHypot;
-import static com.android.launcher3.Utilities.squaredTouchSlop;
-import static com.android.launcher3.anim.Interpolators.ACCEL;
-import static com.android.launcher3.anim.Interpolators.ACCEL_2;
-import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
-import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
-import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
-import static com.android.quickstep.TaskUtils.checkCurrentOrManagedUserId;
-
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
@@ -97,6 +83,20 @@ import com.android.systemui.shared.system.TaskStackChangeListener;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
+
+import static com.android.launcher3.BaseActivity.STATE_HANDLER_INVISIBILITY_FLAGS;
+import static com.android.launcher3.InvariantDeviceProfile.CHANGE_FLAG_ICON_PARAMS;
+import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
+import static com.android.launcher3.Utilities.EDGE_NAV_BAR;
+import static com.android.launcher3.Utilities.squaredHypot;
+import static com.android.launcher3.Utilities.squaredTouchSlop;
+import static com.android.launcher3.anim.Interpolators.ACCEL;
+import static com.android.launcher3.anim.Interpolators.ACCEL_2;
+import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
+import static com.android.launcher3.anim.Interpolators.LINEAR;
+import static com.android.launcher3.util.Executors.UI_HELPER_EXECUTOR;
+import static com.android.launcher3.util.SystemUiController.UI_STATE_OVERVIEW;
+import static com.android.quickstep.TaskUtils.checkCurrentOrManagedUserId;
 
 /**
  * A list of recent tasks.
@@ -283,11 +283,11 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     private BaseActivity.MultiWindowModeChangedListener mMultiWindowModeChangedListener =
             (inMultiWindowMode) -> {
-        if (!inMultiWindowMode && mOverviewStateEnabled) {
-            // TODO: Re-enable layout transitions for addition of the unpinned task
-            reloadIfNeeded();
-        }
-    };
+                if (!inMultiWindowMode && mOverviewStateEnabled) {
+                    // TODO: Re-enable layout transitions for addition of the unpinned task
+                    reloadIfNeeded();
+                }
+            };
 
     public RecentsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -320,8 +320,9 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mEmptyMessagePaint.setColor(Themes.getAttrColor(context, android.R.attr.textColorPrimary));
         mEmptyMessagePaint.setTextSize(getResources()
                 .getDimension(R.dimen.recents_empty_message_text_size));
-        mEmptyMessagePaint.setTypeface(Typeface.create(Themes.getDefaultBodyFont(context),
-                Typeface.NORMAL));
+        mEmptyMessagePaint.setTypeface(
+                Typeface.create(Themes.getDefaultBodyFont(context), Typeface.NORMAL)
+        );
         mEmptyMessagePadding = getResources()
                 .getDimensionPixelSize(R.dimen.recents_empty_message_text_padding);
         setWillNotDraw(false);
@@ -410,7 +411,10 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     public TaskView getTaskView(int taskId) {
         for (int i = 0; i < getTaskViewCount(); i++) {
             TaskView tv = getTaskViewAt(i);
-            if (tv.getTask() != null && tv.getTask().key != null && tv.getTask().key.id == taskId) {
+            if (tv != null
+                    && tv.getTask() != null
+                    && tv.getTask().key != null
+                    && tv.getTask().key.id == taskId) {
                 return tv;
             }
         }
@@ -565,7 +569,8 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         return taskViewCount;
     }
 
-    protected void onTaskStackUpdated() { }
+    protected void onTaskStackUpdated() {
+    }
 
     public void resetTaskVisuals() {
         for (int i = getTaskViewCount() - 1; i >= 0; i--) {
@@ -760,7 +765,8 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mActivity.getSystemUiController().updateUiState(UI_STATE_OVERVIEW, 0);
     }
 
-    public @Nullable TaskView getRunningTaskView() {
+    public @Nullable
+    TaskView getRunningTaskView() {
         return getTaskView(mRunningTaskId);
     }
 
@@ -819,7 +825,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     /**
      * Creates a task view (if necessary) to represent the task with the {@param runningTaskId}.
-     *
+     * <p>
      * All subsequent calls to reload will keep the task as the first item until {@link #reset()}
      * is called.  Also scrolls the view to this task.
      */
@@ -852,6 +858,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     /**
      * Sets the running task id, cleaning up the old running task if necessary.
+     *
      * @param runningTaskId
      */
     public void setCurrentTask(int runningTaskId) {
@@ -935,12 +942,12 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
             mLayoutTransition.addTransitionListener(new TransitionListener() {
                 @Override
                 public void startTransition(LayoutTransition transition, ViewGroup viewGroup,
-                    View view, int i) {
+                                            View view, int i) {
                 }
 
                 @Override
                 public void endTransition(LayoutTransition transition, ViewGroup viewGroup,
-                    View view, int i) {
+                                          View view, int i) {
                     // When the unpinned task is added, snap to first page and disable transitions
                     if (view instanceof TaskView) {
                         snapToPage(0);
@@ -965,7 +972,8 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         /**
          * Updates the page UI based on scroll params.
          */
-        default void onPageScroll(ScrollState scrollState) {}
+        default void onPageScroll(ScrollState scrollState) {
+        }
     }
 
     public static class ScrollState {
@@ -995,7 +1003,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     public PendingAnimation createTaskDismissAnimation(TaskView taskView, boolean animateTaskView,
-            boolean shouldRemoveTask, long duration) {
+                                                       boolean shouldRemoveTask, long duration) {
         if (mPendingAnimation != null) {
             mPendingAnimation.finish(false);
         }
@@ -1125,7 +1133,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     }
 
     private static void addAnim(Animator anim, long duration,
-            TimeInterpolator interpolator, AnimatorSet set) {
+                                TimeInterpolator interpolator, AnimatorSet set) {
         anim.setDuration(duration).setInterpolator(interpolator);
         set.play(anim);
     }
@@ -1197,7 +1205,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction,
-            @Nullable Rect previouslyFocusedRect) {
+                                  @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         if (gainFocus && getChildCount() > 0) {
             switch (direction) {
@@ -1372,7 +1380,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
 
     /**
      * Animate adjacent tasks off screen while scaling up.
-     *
+     * <p>
      * If launching one of the adjacent tasks, parallax the center task and other adjacent task
      * to the right.
      */
