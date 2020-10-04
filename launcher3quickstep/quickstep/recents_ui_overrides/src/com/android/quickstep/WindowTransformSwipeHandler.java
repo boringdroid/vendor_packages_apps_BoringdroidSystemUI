@@ -323,7 +323,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 : mRecentsAnimationWrapper.targetSet.findTask(mRunningTaskId);
         if (mGestureEndTarget != null) {
         } else if (mContinuingLastGesture
-                && mRecentsView.getRunningTaskIndex() != mRecentsView.getNextPage()) {
+                && mRecentsView.getRunningTaskIndex() != mRecentsView.getNextTaskViewIndex()) {
         } else if (runningTaskTarget != null && isNotInRecents(runningTaskTarget)) {
             // The window is going away so make sure recents is always visible in this case.
         } else {
@@ -517,7 +517,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 goingToNewTask = true;
             } else {
                 final int runningTaskIndex = mRecentsView.getRunningTaskIndex();
-                final int taskToLaunch = mRecentsView.getNextPage();
+                final int taskToLaunch = mRecentsView.getNextTaskViewIndex();
                 goingToNewTask = runningTaskIndex >= 0 && taskToLaunch != runningTaskIndex;
             }
         } else {
@@ -703,7 +703,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
                 @Override
                 public void onAnimationSuccess(Animator animator) {
                     if (target == NEW_TASK && mRecentsView != null
-                            && mRecentsView.getNextPage() == mRecentsView.getRunningTaskIndex()) {
+                            && mRecentsView.getNextTaskViewIndex() == mRecentsView.getRunningTaskIndex()) {
                         // We are about to launch the current running task, so use LAST_TASK state
                         // instead of NEW_TASK. This could happen, for example, if our scroll is
                         // aborted after we determined the target to be NEW_TASK.

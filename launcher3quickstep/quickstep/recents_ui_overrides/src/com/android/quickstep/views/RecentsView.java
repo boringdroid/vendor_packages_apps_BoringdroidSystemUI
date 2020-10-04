@@ -65,7 +65,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
-import com.android.launcher3.anim.PropertyListBuilder;
 import com.android.launcher3.graphics.RotationMode;
 import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.PendingAnimation;
@@ -982,14 +981,14 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                 // - Current page is rightmost page (leftmost for RTL)
                 // - Dragging an adjacent page on the left side (right side for RTL)
                 int offset = mIsRtl ? scrollDiffPerPage : 0;
-                if (mCurrentPage == draggedIndex) {
+                if (mCurrentTaskViewIndex == draggedIndex) {
                     int lastPage = taskCount - 1;
-                    if (mCurrentPage == lastPage) {
+                    if (mCurrentTaskViewIndex == lastPage) {
                         offset += mIsRtl ? -scrollDiffPerPage : scrollDiffPerPage;
                     }
                 } else {
                     // Dragging an adjacent page.
-                    int negativeAdjacent = mCurrentPage - 1; // (Right in RTL, left in LTR)
+                    int negativeAdjacent = mCurrentTaskViewIndex - 1; // (Right in RTL, left in LTR)
                     if (draggedIndex == negativeAdjacent) {
                         offset += mIsRtl ? -scrollDiffPerPage : scrollDiffPerPage;
                     }
@@ -1070,15 +1069,15 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         set.play(anim);
     }
 
-    private boolean snapToPageRelative(int pageCount, int delta, boolean cycle) {
+    private boolean snapToTaskViewRelative(int pageCount, int delta, boolean cycle) {
         if (pageCount == 0) {
             return false;
         }
-        final int newPageUnbound = getNextPage() + delta;
+        final int newPageUnbound = getNextTaskViewIndex() + delta;
         if (!cycle && (newPageUnbound < 0 || newPageUnbound >= pageCount)) {
             return false;
         }
-        getChildAt(getNextPage()).requestFocus();
+        getChildAt(getNextTaskViewIndex()).requestFocus();
         return true;
     }
 
@@ -1101,7 +1100,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     private void dismissCurrentTask() {
-        TaskView taskView = getTaskView(getNextPage());
+        TaskView taskView = getTaskView(getNextTaskViewIndex());
         if (taskView != null) {
             dismissTask(taskView, true /*animateTaskView*/, true /*removeTask*/);
         }
@@ -1112,12 +1111,12 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_TAB:
-                    return snapToPageRelative(getTaskViewCount(), event.isShiftPressed() ? -1 : 1,
+                    return snapToTaskViewRelative(getTaskViewCount(), event.isShiftPressed() ? -1 : 1,
                             event.isAltPressed() /* cycle */);
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    return snapToPageRelative(getPageCount(), mIsRtl ? -1 : 1, false /* cycle */);
+                    return snapToTaskViewRelative(getPageCount(), mIsRtl ? -1 : 1, false /* cycle */);
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    return snapToPageRelative(getPageCount(), mIsRtl ? 1 : -1, false /* cycle */);
+                    return snapToTaskViewRelative(getPageCount(), mIsRtl ? 1 : -1, false /* cycle */);
                 case KeyEvent.KEYCODE_DEL:
                 case KeyEvent.KEYCODE_FORWARD_DEL:
                     dismissCurrentTask();
@@ -1175,7 +1174,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
     @Nullable
     public TaskView getNextPageTaskView() {
-        return getTaskViewAtByAbsoluteIndex(getNextPage());
+        return getTaskViewAtByAbsoluteIndex(getNextTaskViewIndex());
     }
 
     @Nullable
@@ -1407,7 +1406,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     private void updateEnabledOverlays() {
-        int overlayEnabledPage = mOverlayEnabled ? getNextPage() : -1;
+        int overlayEnabledPage = mOverlayEnabled ? getNextTaskViewIndex() : -1;
         int taskCount = getTaskViewCount();
         for (int i = 0; i < taskCount; i++) {
             getTaskViewAt(i).setOverlayEnabled(i == overlayEnabledPage);

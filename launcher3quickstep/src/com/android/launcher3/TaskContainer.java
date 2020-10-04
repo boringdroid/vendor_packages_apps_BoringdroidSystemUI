@@ -32,15 +32,12 @@ import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.ScrollView;
 
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.util.OverScroller;
 
 import java.util.ArrayList;
-
-import static com.android.launcher3.compat.AccessibilityManagerCompat.isObservedEventType;
 
 /**
  * An abstraction of the original Workspace which supports browsing through a
@@ -52,7 +49,7 @@ public abstract class TaskContainer extends ViewGroup {
     private static final String TAG = "PagedView";
     private static final boolean DEBUG = false;
 
-    protected static final int INVALID_PAGE = -1;
+    protected static final int INVALID_TASK_VIEW_INDEX = -1;
 
     // The following constants need to be scaled based on density. The scaled versions will be
     // assigned to the corresponding member variables below.
@@ -69,10 +66,10 @@ public abstract class TaskContainer extends ViewGroup {
     protected boolean mFirstLayout = true;
 
     @ViewDebug.ExportedProperty(category = "launcher")
-    protected int mCurrentPage;
+    protected int mCurrentTaskViewIndex;
 
     @ViewDebug.ExportedProperty(category = "launcher")
-    protected int mNextPage = INVALID_PAGE;
+    protected int mNextTaskViewIndex = INVALID_TASK_VIEW_INDEX;
     protected OverScroller mScroller;
     private VelocityTracker mVelocityTracker;
     protected int mTaskViewSpacing = 0;
@@ -143,8 +140,9 @@ public abstract class TaskContainer extends ViewGroup {
     /**
      * Returns the index of page to be shown immediately afterwards.
      */
-    public int getNextPage() {
-        return (mNextPage != INVALID_PAGE) ? mNextPage : mCurrentPage;
+    public int getNextTaskViewIndex() {
+        return (mNextTaskViewIndex != INVALID_TASK_VIEW_INDEX)
+                ? mNextTaskViewIndex : mCurrentTaskViewIndex;
     }
 
     public int getPageCount() {
@@ -155,17 +153,8 @@ public abstract class TaskContainer extends ViewGroup {
         return getChildAt(index);
     }
 
-    protected int indexToPage(int index) {
-        return index;
-    }
-
-    private void abortScrollerAnimation(boolean resetNextPage) {
+    private void abortScrollerAnimation() {
         mScroller.abortAnimation();
-        // We need to clean up the next page here to avoid computeScrollHelper from
-        // updating current page on the pass.
-        if (resetNextPage) {
-            mNextPage = INVALID_PAGE;
-        }
     }
 
     protected int getUnboundedScrollX() {
@@ -174,20 +163,6 @@ public abstract class TaskContainer extends ViewGroup {
 
     @Override
     public void scrollTo(int x, int y) {
-    }
-
-    private void sendScrollAccessibilityEvent() {
-        if (isObservedEventType(getContext())) {
-            if (mCurrentPage != getNextPage()) {
-                AccessibilityEvent ev =
-                        AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_SCROLLED);
-                ev.setScrollable(true);
-                ev.setScrollX(getScrollX());
-                ev.setScrollY(getScrollY());
-
-                sendAccessibilityEventUnchecked(ev);
-            }
-        }
     }
 
     protected boolean computeScrollHelper() {
@@ -199,9 +174,8 @@ public abstract class TaskContainer extends ViewGroup {
             }
             invalidate();
             return true;
-        } else if (mNextPage != INVALID_PAGE) {
-            sendScrollAccessibilityEvent();
-            mNextPage = INVALID_PAGE;
+        } else if (mNextTaskViewIndex != INVALID_TASK_VIEW_INDEX) {
+            mNextTaskViewIndex = INVALID_TASK_VIEW_INDEX;
         }
         return false;
     }
@@ -338,7 +312,7 @@ public abstract class TaskContainer extends ViewGroup {
             });
         }
 
-        if (mFirstLayout && mCurrentPage >= 0 && mCurrentPage < childCount) {
+        if (mFirstLayout && mCurrentTaskViewIndex >= 0 && mCurrentTaskViewIndex < childCount) {
             mFirstLayout = false;
         }
     }
@@ -372,18 +346,12 @@ public abstract class TaskContainer extends ViewGroup {
     }
 
     @Override
-    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
-        int page = indexToPage(indexOfChild(child));
-        return page != mCurrentPage || !mScroller.isFinished();
-    }
-
-    @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
         int focusablePage;
-        if (mNextPage != INVALID_PAGE) {
-            focusablePage = mNextPage;
+        if (mNextTaskViewIndex != INVALID_TASK_VIEW_INDEX) {
+            focusablePage = mNextTaskViewIndex;
         } else {
-            focusablePage = mCurrentPage;
+            focusablePage = mCurrentTaskViewIndex;
         }
         View v = getPageAt(focusablePage);
         if (v != null) {
@@ -399,16 +367,16 @@ public abstract class TaskContainer extends ViewGroup {
         }
 
         // XXX-RTL: This will be fixed in a future CL
-        if (mCurrentPage >= 0 && mCurrentPage < getPageCount()) {
-            getPageAt(mCurrentPage).addFocusables(views, direction, focusableMode);
+        if (mCurrentTaskViewIndex >= 0 && mCurrentTaskViewIndex < getPageCount()) {
+            getPageAt(mCurrentTaskViewIndex).addFocusables(views, direction, focusableMode);
         }
         if (direction == View.FOCUS_LEFT) {
-            if (mCurrentPage > 0) {
-                getPageAt(mCurrentPage - 1).addFocusables(views, direction, focusableMode);
+            if (mCurrentTaskViewIndex > 0) {
+                getPageAt(mCurrentTaskViewIndex - 1).addFocusables(views, direction, focusableMode);
             }
         } else if (direction == View.FOCUS_RIGHT) {
-            if (mCurrentPage < getPageCount() - 1) {
-                getPageAt(mCurrentPage + 1).addFocusables(views, direction, focusableMode);
+            if (mCurrentTaskViewIndex < getPageCount() - 1) {
+                getPageAt(mCurrentTaskViewIndex + 1).addFocusables(views, direction, focusableMode);
             }
         }
     }
@@ -422,7 +390,7 @@ public abstract class TaskContainer extends ViewGroup {
      */
     @Override
     public void focusableViewAvailable(View focused) {
-        View current = getPageAt(mCurrentPage);
+        View current = getPageAt(mCurrentTaskViewIndex);
         View v = focused;
         while (true) {
             if (v == current) {
@@ -449,7 +417,7 @@ public abstract class TaskContainer extends ViewGroup {
         if (disallowIntercept) {
             // We need to make sure to cancel our long press if
             // a scrollable widget takes over touch events
-            final View currentPage = getPageAt(mCurrentPage);
+            final View currentPage = getPageAt(mCurrentTaskViewIndex);
             currentPage.cancelLongPress();
         }
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
@@ -604,7 +572,7 @@ public abstract class TaskContainer extends ViewGroup {
                  * will be false if being flinged.
                  */
                 if (!mScroller.isFinished()) {
-                    abortScrollerAnimation(false);
+                    abortScrollerAnimation();
                 }
 
                 // Remember where the motion event started
@@ -644,7 +612,7 @@ public abstract class TaskContainer extends ViewGroup {
 
                     if (mFreeScroll) {
                         if (!mScroller.isFinished()) {
-                            abortScrollerAnimation(true);
+                            abortScrollerAnimation();
                         }
                         invalidate();
                     }
