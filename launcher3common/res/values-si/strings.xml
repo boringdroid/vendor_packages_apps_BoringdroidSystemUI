@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"මුල් පිටුවේ ඇති සැකසීම් සහ කෙටිමං කියවීමට යෙදුමකට අවසර දෙයි."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"මුල් පිටු සැකසීම් සහ කෙටිමං ලියන්න"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"මුල් පිටුවේ සැකසීම් සහ කෙටිමං ඉවත් කිරීමට යෙදුමට අවසර දෙයි."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"%2$d හි %1$d පිටුව"</string>
 </resources>

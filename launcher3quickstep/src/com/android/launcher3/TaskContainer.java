@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.InputDevice;
@@ -34,10 +33,7 @@ import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ScrollView;
-
-import androidx.annotation.RequiresApi;
 
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.util.OverScroller;
@@ -88,7 +84,6 @@ public abstract class TaskContainer extends ViewGroup {
 
     protected int mTouchSlop;
     private int mMaximumVelocity;
-    protected boolean mAllowOverScroll = true;
 
     protected static final int INVALID_POINTER = -1;
 
@@ -128,7 +123,6 @@ public abstract class TaskContainer extends ViewGroup {
     protected void init() {
         mScroller = new OverScroller(getContext());
         setDefaultInterpolator();
-        mCurrentPage = 0;
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledPagingTouchSlop();
@@ -144,16 +138,6 @@ public abstract class TaskContainer extends ViewGroup {
 
     protected void setDefaultInterpolator() {
         mScroller.setInterpolator(Interpolators.SCROLL);
-    }
-
-    /**
-     * Returns the index of the currently displayed page. When in free scroll mode, this is the page
-     * that the user was on before entering free scroll mode (e.g. the home screen page they
-     * long-pressed on to enter the overview). Try using {@link #getPageNearestToCenterOfScreen()}
-     * to get the page the user is currently scrolling over.
-     */
-    public int getCurrentPage() {
-        return mCurrentPage;
     }
 
     /**
@@ -175,19 +159,6 @@ public abstract class TaskContainer extends ViewGroup {
         return index;
     }
 
-    /**
-     * Updates the scroll of the current page immediately to its final scroll position.  We use this
-     * in CustomizePagedView to allow tabs to share the same PagedView while resetting the scroll of
-     * the previous tab page.
-     */
-    protected void updateCurrentPageScroll() {
-        // If the current page is invalid, just reset the scroll position to zero
-        int newX = 0;
-        scrollTo(newX, 0);
-        mScroller.startScroll(mScroller.getCurrPos(), newX - mScroller.getCurrPos());
-        forceFinishScroller();
-    }
-
     private void abortScrollerAnimation(boolean resetNextPage) {
         mScroller.abortAnimation();
         // We need to clean up the next page here to avoid computeScrollHelper from
@@ -195,32 +166,6 @@ public abstract class TaskContainer extends ViewGroup {
         if (resetNextPage) {
             mNextPage = INVALID_PAGE;
         }
-    }
-
-    private void forceFinishScroller() {
-        mScroller.forceFinished(true);
-        // We need to clean up the next page here to avoid computeScrollHelper from
-        // updating current page on the pass.
-        mNextPage = INVALID_PAGE;
-    }
-
-    private int validateNewPage(int newPage) {
-        // Ensure that it is clamped by the actual set of children in all cases
-        return Utilities.boundToRange(newPage, 0, getPageCount() - 1);
-    }
-
-    public void setCurrentPage(int currentPage) {
-        if (!mScroller.isFinished()) {
-            abortScrollerAnimation(true);
-        }
-        // don't introduce any checks like mCurrentPage == currentPage here-- if we change the
-        // the default
-        if (getChildCount() == 0) {
-            return;
-        }
-        mCurrentPage = validateNewPage(currentPage);
-        updateCurrentPageScroll();
-        invalidate();
     }
 
     protected int getUnboundedScrollX() {
@@ -256,8 +201,6 @@ public abstract class TaskContainer extends ViewGroup {
             return true;
         } else if (mNextPage != INVALID_PAGE) {
             sendScrollAccessibilityEvent();
-
-            mCurrentPage = validateNewPage(mNextPage);
             mNextPage = INVALID_PAGE;
         }
         return false;
@@ -396,7 +339,6 @@ public abstract class TaskContainer extends ViewGroup {
         }
 
         if (mFirstLayout && mCurrentPage >= 0 && mCurrentPage < childCount) {
-            updateCurrentPageScroll();
             mFirstLayout = false;
         }
     }
@@ -421,7 +363,6 @@ public abstract class TaskContainer extends ViewGroup {
     @Override
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
-        mCurrentPage = validateNewPage(mCurrentPage);
         dispatchPageCountChanged();
     }
 
@@ -433,13 +374,7 @@ public abstract class TaskContainer extends ViewGroup {
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
         int page = indexToPage(indexOfChild(child));
-        if (page != mCurrentPage || !mScroller.isFinished()) {
-            if (immediate) {
-                setCurrentPage(page);
-            }
-            return true;
-        }
-        return false;
+        return page != mCurrentPage || !mScroller.isFinished();
     }
 
     @Override
@@ -597,14 +532,7 @@ public abstract class TaskContainer extends ViewGroup {
         final int xDist = Math.abs(mScroller.getFinalPos() - mScroller.getCurrPos());
         final boolean finishedScrolling = (mScroller.isFinished() || xDist < mTouchSlop / 3);
 
-        if (finishedScrolling) {
-            mIsBeingDragged = false;
-            if (!mScroller.isFinished() && !mFreeScroll) {
-                setCurrentPage(getNextPage());
-            }
-        } else {
-            mIsBeingDragged = true;
-        }
+        mIsBeingDragged = !finishedScrolling;
     }
 
     public boolean isHandlingTouch() {
@@ -656,10 +584,6 @@ public abstract class TaskContainer extends ViewGroup {
         }
 
         mFreeScroll = freeScroll;
-
-        if (mFreeScroll) {
-            setCurrentPage(getNextPage());
-        }
     }
 
     @Override
@@ -839,55 +763,6 @@ public abstract class TaskContainer extends ViewGroup {
         // Some accessibility services have special logic for ScrollView. Since we provide same
         // accessibility info as ScrollView, inform the service to handle use the same way.
         return ScrollView.class.getName();
-    }
-
-    protected boolean isPageOrderFlipped() {
-        return false;
-    }
-
-    /* Accessibility */
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-        final boolean pagesFlipped = isPageOrderFlipped();
-        int offset = (mAllowOverScroll ? 0 : 1);
-        info.setScrollable(getPageCount() > offset);
-        if (getCurrentPage() < getPageCount() - offset) {
-            info.addAction(pagesFlipped ?
-                    AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD
-                    : AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD);
-            info.addAction(mIsRtl ?
-                    AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_LEFT
-                    : AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_RIGHT);
-        }
-        if (getCurrentPage() >= offset) {
-            info.addAction(pagesFlipped ?
-                    AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD
-                    : AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD);
-            info.addAction(mIsRtl ?
-                    AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_RIGHT
-                    : AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_LEFT);
-        }
-        // Accessibility-wise, PagedView doesn't support long click, so disabling it.
-        // Besides disabling the accessibility long-click, this also prevents this view from getting
-        // accessibility focus.
-        info.setLongClickable(false);
-        info.removeAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK);
-    }
-
-    @Override
-    public void sendAccessibilityEvent(int eventType) {
-        // Don't let the view send real scroll events.
-        if (eventType != AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            super.sendAccessibilityEvent(eventType);
-        }
-    }
-
-    @Override
-    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        super.onInitializeAccessibilityEvent(event);
-        event.setScrollable(mAllowOverScroll || getPageCount() > 1);
     }
 
     public int[] getVisibleChildrenRange() {

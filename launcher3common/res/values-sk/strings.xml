@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Povoľuje aplikácii čítať nastavenia a odkazy na ploche."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"zápis nastavení a odkazov plochy"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Povoľuje aplikácii zmeniť nastavenia a odkazy na ploche."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Stránka %1$d z %2$d"</string>
 </resources>

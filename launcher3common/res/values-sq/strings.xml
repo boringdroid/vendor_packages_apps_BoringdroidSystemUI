@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Lejon aplikacionin të lexojë cilësimet dhe shkurtoret në ekranin bazë."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"shkruaj cilësimet dhe shkurtoret e ekranit bazë"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Lejon aplikacionin të ndryshojë cilësimet dhe shkurtoret në ekranin bazë."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Faqja: %1$d nga gjithsej %2$d"</string>
 </resources>

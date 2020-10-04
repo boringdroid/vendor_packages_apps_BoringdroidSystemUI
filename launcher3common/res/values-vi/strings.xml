@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Cho phép ứng dụng đọc cài đặt và lối tắt trên Màn hình chính."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"ghi cài đặt và lối tắt trên Màn hình chính"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Cho phép ứng dụng thay đổi cài đặt và lối tắt trên Màn hình chính."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Trang %1$d / %2$d"</string>
 </resources>

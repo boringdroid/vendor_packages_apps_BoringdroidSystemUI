@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"એપ્લિકેશનને હોમમાં સેટિંગ્સ અને શોર્ટકટ્સ વાંચવાની મંજૂરી આપે છે."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"હોમ સેટિંગ્સ અને શોર્ટકટ્સ લખો"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"એપ્લિકેશનને હોમમાં સેટિંગ્સ અને શોર્ટકટ્સ બદલવાની મંજૂરી આપે છે."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"%2$d માંથી %1$d પૃષ્ઠ"</string>
 </resources>

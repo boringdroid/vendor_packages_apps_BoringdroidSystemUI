@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"హోమ్‌లో సెట్టింగ్‌లు మరియు సత్వరమార్గాలను చదవడానికి అనువర్తనాన్ని అనుమతిస్తుంది."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"హోమ్ సెట్టింగ్‌లు మరియు సత్వరమార్గాలను వ్రాయడం"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"హోమ్‌లో సెట్టింగ్‌లు మరియు సత్వరమార్గాలను మార్చడానికి అనువర్తనాన్ని అనుమతిస్తుంది."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"%2$dలో %1$dవ పేజీ"</string>
 </resources>

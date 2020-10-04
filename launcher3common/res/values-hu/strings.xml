@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Lehetővé teszi az alkalmazás számára, hogy beolvassa a kezdőképernyő beállításait és parancsikonjait."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"Főoldal beállításainak és parancsikonjainak írása"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Lehetővé teszi az alkalmazás számára, hogy módosítsa a kezdőképernyő beállításait és parancsikonjait."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"%2$d/%1$d. oldal"</string>
 </resources>

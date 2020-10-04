@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Pozwala aplikacji na odczytywanie ustawień i skrótów na ekranie głównym."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"zapisywanie ustawień i skrótów na ekranie głównym"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Umożliwia aplikacji zmianę ustawień i skrótów na ekranie głównym."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Strona %1$d z %2$d"</string>
 </resources>

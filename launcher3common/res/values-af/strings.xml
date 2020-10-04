@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Laat die program toe om die instellings en kortpaaie in Tuis te lees."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"skryf Tuis-instellings en -kortpaaie"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Laat die program toe om die instellings en kortpaaie in Tuis te verander."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Bladsy %1$d van %2$d"</string>
 </resources>

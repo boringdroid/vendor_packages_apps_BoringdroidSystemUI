@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Permite à aplicação ler as definições e os atalhos no Ecrã Principal."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"escrever definições e atalhos do Ecrã principal"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Permite à aplicação alterar as definições e os atalhos no Ecrã Principal."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Página %1$d de %2$d"</string>
 </resources>

@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Permite que o app leia as configurações e os atalhos na tela inicial."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"gravar configurações e atalhos da tela inicial"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Permite que o app altere as configurações e os atalhos na tela inicial."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Página %1$d de %2$d"</string>
 </resources>

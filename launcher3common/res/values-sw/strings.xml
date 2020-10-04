@@ -27,7 +27,6 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Huruhusu programu kusoma mipangilio na njia za mikato zilizo katika skirini ya Mwanzo."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"andika mipangilio ya skrini ya Mwanzo na njia za mkato"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Huruhusu programu kubadilisha mipangilio na njia za mkato katika skrini ya Mwanzo."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Ukurasa%1$d wa %2$d"</string>
     <!-- String.format failed for translation -->
     <!-- no translation found for workspace_scroll_format (8458889198184077399) -->
     <skip />

@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Permite que la aplicación consulte los ajustes y los accesos directos de la pantalla de inicio."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"escribir información de accesos directos y de ajustes de la pantalla de inicio"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Permite que las aplicaciones cambien los ajustes y los accesos directos de la pantalla de inicio."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"Página %1$d de %2$d"</string>
 </resources>

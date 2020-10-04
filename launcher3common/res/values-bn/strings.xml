@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"হোমে অ্যাপ্লিকেশানটিকে সেটিংস এবং শর্টকাটগুলি পড়তে দেয়৷"</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"হোম সেটিংস এবং শর্টকাটগুলি লেখে"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"হোমে অ্যাপ্লিকেশানটিকে সেটিংস এবং শর্টকাটগুলি পরিবর্তন করতে দেয়৷"</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"%2$dটির মধ্যে %1$dটি পৃষ্ঠা"</string>
 </resources>

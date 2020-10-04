@@ -520,14 +520,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
             taskView.bind(task);
         }
 
-        // Set the current page to the running task, but not if settling on new task.
-        TaskView runningTaskView = getRunningTaskView();
-        if (runningTaskView != null) {
-            setCurrentPage(indexOfChild(runningTaskView));
-        } else if (getTaskViewCount() > 0) {
-            setCurrentPage(indexOfChild(getTaskViewAt(0)));
-        }
-
         if (mIgnoreResetTaskId != -1 && getTaskView(mIgnoreResetTaskId) != ignoreResetTaskView) {
             // If the taskView mapping is changing, do not preserve the visuals. Since we are
             // mostly preserving the first task, and new taskViews are added to the end, it should
@@ -747,7 +739,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         mClipAnimationHelper = null;
 
         unloadVisibleTaskData();
-        setCurrentPage(0);
         mActivity.getSystemUiController().updateUiState(UI_STATE_OVERVIEW, 0);
     }
 
@@ -830,7 +821,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
         boolean runningTaskTileHidden = mRunningTaskTileHidden;
         setCurrentTask(runningTaskId);
-        setCurrentPage(getRunningTaskIndex());
         setRunningTaskHidden(runningTaskTileHidden);
 
         // Reload the task list
@@ -1143,24 +1133,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         return super.dispatchKeyEvent(event);
     }
 
-    @Override
-    protected void onFocusChanged(boolean gainFocus, int direction,
-                                  @Nullable Rect previouslyFocusedRect) {
-        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        if (gainFocus && getChildCount() > 0) {
-            switch (direction) {
-                case FOCUS_FORWARD:
-                    setCurrentPage(0);
-                    break;
-                case FOCUS_BACKWARD:
-                case FOCUS_RIGHT:
-                case FOCUS_LEFT:
-                    setCurrentPage(getChildCount() - 1);
-                    break;
-            }
-        }
-    }
-
     public float getContentAlpha() {
         return mContentAlpha;
     }
@@ -1328,33 +1300,14 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
             TaskView tv, ClipAnimationHelper clipAnimationHelper) {
         AnimatorSet anim = new AnimatorSet();
 
-        int taskIndex = indexOfChild(tv);
-        int centerTaskIndex = getCurrentPage();
-        boolean launchingCenterTask = taskIndex == centerTaskIndex;
-
         ScaleAndTranslation toScaleAndTranslation = clipAnimationHelper
                 .getScaleAndTranslation();
         float toScale = toScaleAndTranslation.scale;
         float toTranslationY = toScaleAndTranslation.translationY;
-        if (launchingCenterTask) {
-            RecentsView recentsView = tv.getRecentsView();
-            anim.play(ObjectAnimator.ofFloat(recentsView, SCALE_PROPERTY, toScale));
-            anim.play(ObjectAnimator.ofFloat(recentsView, TRANSLATION_Y, toTranslationY));
-            anim.play(ObjectAnimator.ofFloat(recentsView, FULLSCREEN_PROGRESS, 1));
-        } else {
-            // We are launching an adjacent task, so parallax the center and other adjacent task.
-            float displacementX = tv.getWidth() * (toScale - tv.getCurveScale());
-            anim.play(ObjectAnimator.ofFloat(getPageAt(centerTaskIndex), TRANSLATION_X,
-                    mIsRtl ? -displacementX : displacementX));
-
-            int otherAdjacentTaskIndex = centerTaskIndex + (centerTaskIndex - taskIndex);
-            if (otherAdjacentTaskIndex >= 0 && otherAdjacentTaskIndex < getPageCount()) {
-                anim.play(new PropertyListBuilder()
-                        .translationX(mIsRtl ? -displacementX : displacementX)
-                        .scale(1)
-                        .build(getPageAt(otherAdjacentTaskIndex)));
-            }
-        }
+        RecentsView recentsView = tv.getRecentsView();
+        anim.play(ObjectAnimator.ofFloat(recentsView, SCALE_PROPERTY, toScale));
+        anim.play(ObjectAnimator.ofFloat(recentsView, TRANSLATION_Y, toTranslationY));
+        anim.play(ObjectAnimator.ofFloat(recentsView, FULLSCREEN_PROGRESS, 1));
         return anim;
     }
 
@@ -1398,11 +1351,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     public CharSequence getAccessibilityClassName() {
         // To hear position-in-list related feedback from Talkback.
         return ListView.class.getName();
-    }
-
-    @Override
-    protected boolean isPageOrderFlipped() {
-        return true;
     }
 
     public void setEnableDrawingLiveTile(boolean enableDrawingLiveTile) {

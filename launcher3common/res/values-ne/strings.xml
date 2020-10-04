@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"गृहमा एउटा अनुप्रयोगलाई सेटिङहरू र सर्टकटहरू पढ्न अनुमति दिनुहोस्।"</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"गृह सेटिङहरू र सर्टकटहरू लेख्नुहोस्"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"गृहमा एउटा अनुप्रयोगलाई सेटिङ र सर्टकट बदल्न अनुमति दिनुहोस्।"</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"पृष्ठ %2$d को %1$d"</string>
 </resources>

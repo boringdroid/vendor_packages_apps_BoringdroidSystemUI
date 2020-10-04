@@ -17,9 +17,11 @@
 package com.android.launcher3;
 
 import android.util.FloatProperty;
+import android.util.Log;
 import android.view.View;
 
 public class LauncherAnimUtils {
+    private static final String TAG = "LauncherAnimUtils";
     public static final FloatProperty<View> SCALE_PROPERTY =
             new FloatProperty<View>("scale") {
                 @Override
@@ -29,8 +31,10 @@ public class LauncherAnimUtils {
 
                 @Override
                 public void setValue(View view, float scale) {
-                    // TODO: Fix java.lang.IllegalArgumentException: Cannot set 'scaleX'
-                    //  to Float.NaN when clicking recents view
+                    if (Float.isNaN(scale)) {
+                        Log.d(TAG, "Ignore scaleX NaN");
+                        return;
+                    }
                     view.setScaleX(scale);
                     view.setScaleY(scale);
                 }

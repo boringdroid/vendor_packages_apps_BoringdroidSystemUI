@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"Қолданбаға Негізгі экрандағы параметрлер мен төте пернелерді оқу мүмкіндігін береді."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"Негізгі экран параметрлері мен төте пернелерін жазу"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"Қолданбаға Негізгі экрандағы параметрлер мен төте пернелерді өзгерту мүмкіндігін береді."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"%1$d бет, барлығы %2$d"</string>
 </resources>

@@ -27,5 +27,4 @@
     <string name="permdesc_read_settings" msgid="5833423719057558387">"앱이 홈에 있는 설정 및 바로가기를 읽을 수 있도록 합니다."</string>
     <string name="permlab_write_settings" msgid="3574213698004620587">"홈 설정 및 바로가기 쓰기"</string>
     <string name="permdesc_write_settings" msgid="5440712911516509985">"앱이 홈에 있는 설정 및 바로가기를 변경할 수 있도록 합니다."</string>
-    <string name="default_scroll_format" msgid="7475544710230993317">"페이지 %1$d/%2$d"</string>
 </resources>
