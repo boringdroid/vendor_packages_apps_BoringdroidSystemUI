@@ -17,17 +17,14 @@
 <resources>
 
     <dimen name="task_thumbnail_top_margin">24dp</dimen>
-    <dimen name="task_thumbnail_half_top_margin">12dp</dimen>
     <dimen name="task_thumbnail_icon_size">48dp</dimen>
     <!-- For screens without rounded corners -->
     <dimen name="task_corner_radius_small">2dp</dimen>
 
     <dimen name="recents_task_view_spacing">30dp</dimen>
-    <dimen name="recents_clear_all_deadzone_vertical_margin">70dp</dimen>
 
     <!-- The speed in dp/s at which the user needs to be scrolling in recents such that we start
              loading full resolution screenshots. -->
-    <dimen name="recents_fast_fling_velocity">600dp</dimen>
 
     <!-- These velocities are in dp / s -->
     <dimen name="quickstep_fling_threshold_velocity">500dp</dimen>

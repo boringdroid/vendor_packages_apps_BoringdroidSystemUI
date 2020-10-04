@@ -275,8 +275,6 @@ public class FallbackNoButtonInputConsumer extends
 
     private void onHandlerInvalidatedWithRecents() {
         mRecentsView.onGestureAnimationEnd();
-        mRecentsView.setDisallowScrollToClearAll(false);
-        mRecentsView.getClearAllButton().setVisibilityAlpha(1);
     }
 
     private void finishAnimationTargetSetAnimationComplete() {

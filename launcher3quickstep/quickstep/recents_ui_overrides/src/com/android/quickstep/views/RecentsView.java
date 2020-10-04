@@ -42,7 +42,6 @@ import android.util.AttributeSet;
 import android.util.FloatProperty;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
@@ -60,7 +59,6 @@ import com.android.launcher3.TaskContainer;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.graphics.RotationMode;
-import com.android.launcher3.util.OverScroller;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.ViewPool;
@@ -141,11 +139,8 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     public static final float UPDATE_SYSUI_FLAGS_THRESHOLD = 0.85f;
 
     protected final T mActivity;
-    private final float mFastFlingVelocity;
     private final RecentsModel mModel;
     private final int mTaskTopMargin;
-    private final ClearAllButton mClearAllButton;
-    private final Rect mClearAllButtonDeadZoneRect = new Rect();
     private final Rect mTaskViewDeadZoneRect = new Rect();
     protected final ClipAnimationHelper mTempClipAnimationHelper;
 
@@ -156,7 +151,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
     private final ViewPool<TaskView> mTaskViewPool;
 
-    protected boolean mDisallowScrollToClearAll;
     private boolean mOverlayEnabled;
 
     /**
@@ -287,16 +281,11 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         super(context, attrs, defStyleAttr);
         setTaskViewSpacing(getResources().getDimensionPixelSize(R.dimen.recents_task_view_spacing));
 
-        mFastFlingVelocity =
-                getResources().getDimensionPixelSize(R.dimen.recents_fast_fling_velocity);
         mActivity = BaseActivity.fromContext(context);
         mModel = RecentsModel.INSTANCE.get(context);
         mIdp = InvariantDeviceProfile.INSTANCE.get(context);
         mTempClipAnimationHelper = new ClipAnimationHelper(context);
 
-        mClearAllButton = (ClearAllButton) LayoutInflater.from(context)
-                .inflate(R.layout.overview_clear_all_button, this, false);
-        mClearAllButton.setOnClickListener(this::dismissAllTasks);
         mTaskViewPool = new ViewPool<>(context, this, R.layout.task, MAX_TASK_COUNT, MAX_TASK_COUNT);
 
         mIsRtl = !Utilities.isRtl(getResources());
@@ -445,11 +434,8 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                         mTouchDownToStartHome = true;
                     } else {
                         updateDeadZoneRects();
-                        final boolean clearAllButtonDeadZoneConsumed =
-                                mClearAllButton.getAlpha() == 1
-                                        && mClearAllButtonDeadZoneRect.contains(x, y);
                         final boolean cameFromNavBar = (ev.getEdgeFlags() & EDGE_NAV_BAR) != 0;
-                        if (!clearAllButtonDeadZoneConsumed && !cameFromNavBar
+                        if (!cameFromNavBar
                                 && !mTaskViewDeadZoneRect.contains(x + getScrollX(), y)) {
                             mTouchDownToStartHome = true;
                         }
@@ -484,21 +470,12 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
         final int requiredTaskCount = Math.min(MAX_TASK_COUNT, tasks.size());
         if (getTaskViewCount() != requiredTaskCount) {
-            if (indexOfChild(mClearAllButton) != -1) {
-                removeView(mClearAllButton);
-            }
             for (int i = getTaskViewCount(); i < requiredTaskCount; i++) {
                 addView(mTaskViewPool.getView());
             }
             while (getTaskViewCount() > requiredTaskCount) {
                 removeView(getChildAt(getChildCount() - 1));
             }
-            // TODO bring back clear all button after concept changing finished.
-            /*
-            if (requiredTaskCount > 0) {
-                addView(mClearAllButton);
-            }
-             */
         }
 
         // Rebind and reset all task views
@@ -523,9 +500,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     private void removeTasksViewsAndClearAllButton() {
         for (int i = getTaskViewCount() - 1; i >= 0; i--) {
             removeView(getTaskViewAt(i));
-        }
-        if (indexOfChild(mClearAllButton) != -1) {
-            removeView(mClearAllButton);
         }
     }
 
@@ -735,16 +709,9 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
      */
     public void showCurrentTask(int runningTaskId) {
         if (getTaskView(runningTaskId) == null) {
-            boolean wasEmpty = getTaskViewCount() == 0;
             // Add an empty view for now until the task plan is loaded and applied
             final TaskView taskView = mTaskViewPool.getView();
             addView(taskView, mTaskViewStartIndex);
-            // TODO bring back clear all button after concept changing finished.
-            /*
-            if (wasEmpty) {
-                addView(mClearAllButton);
-            }
-            */
             // The temporary running task is only used for the duration between the start of the
             // gesture and the task list is loaded and applied
             mTmpRunningTask = new Task(new Task.TaskKey(runningTaskId, 0, new Intent(),
@@ -934,35 +901,12 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                     removeView(taskView);
 
                     if (getTaskViewCount() == 0) {
-                        removeView(mClearAllButton);
                         startHome();
                     }
                 }
                 resetTaskVisuals();
                 mPendingAnimation = null;
             }
-        });
-        return pendingAnimation;
-    }
-
-    public PendingAnimation createAllTasksDismissAnimation(long duration) {
-        AnimatorSet anim = new AnimatorSet();
-        PendingAnimation pendingAnimation = new PendingAnimation(anim);
-
-        int count = getTaskViewCount();
-        for (int i = 0; i < count; i++) {
-            addDismissedTaskAnimations(getTaskViewAt(i), anim, duration);
-        }
-
-        mPendingAnimation = pendingAnimation;
-        mPendingAnimation.addEndListener((onEndListener) -> {
-            if (onEndListener.isSuccess) {
-                // Remove all the task views now
-                ActivityManagerWrapper.getInstance().removeAllRecentTasks();
-                removeTasksViewsAndClearAllButton();
-                startHome();
-            }
-            mPendingAnimation = null;
         });
         return pendingAnimation;
     }
@@ -997,10 +941,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     public void dismissTask(TaskView taskView, boolean animateTaskView, boolean removeTask) {
         runDismissAnimation(createTaskDismissAnimation(taskView, animateTaskView, removeTask,
                 DISMISS_TASK_DURATION));
-    }
-
-    private void dismissAllTasks(View view) {
-        runDismissAnimation(createAllTasksDismissAnimation(DISMISS_TASK_DURATION));
     }
 
     private void dismissCurrentTask() {
@@ -1052,7 +992,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                 child.setStableAlpha(alpha);
             }
         }
-        mClearAllButton.setContentAlpha(mContentAlpha);
 
         int alphaInt = Math.round(alpha * 255);
         mEmptyMessagePaint.setAlpha(alphaInt);
@@ -1124,15 +1063,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     private void updateDeadZoneRects() {
-        // Get the deadzone rect surrounding the clear all button to not dismiss overview to home
-        mClearAllButtonDeadZoneRect.setEmpty();
-        if (mClearAllButton.getWidth() > 0) {
-            int verticalMargin = getResources()
-                    .getDimensionPixelSize(R.dimen.recents_clear_all_deadzone_vertical_margin);
-            mClearAllButton.getHitRect(mClearAllButtonDeadZoneRect);
-            mClearAllButtonDeadZoneRect.inset(-getPaddingRight() / 2, -verticalMargin);
-        }
-
         // Get the deadzone rect between the task views
         mTaskViewDeadZoneRect.setEmpty();
         int count = getTaskViewCount();
@@ -1215,16 +1145,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         mEnableDrawingLiveTile = enableDrawingLiveTile;
     }
 
-    public void setDisallowScrollToClearAll(boolean disallowScrollToClearAll) {
-        if (mDisallowScrollToClearAll != disallowScrollToClearAll) {
-            mDisallowScrollToClearAll = disallowScrollToClearAll;
-        }
-    }
-
-    public ClearAllButton getClearAllButton() {
-        return mClearAllButton;
-    }
-
     /**
      * @return How many pixels the running task is offset on the x-axis due to the current scrollX.
      */
@@ -1296,7 +1216,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     private boolean isExtraCardView(View view, int index) {
-        return !(view instanceof TaskView) && !(view instanceof ClearAllButton)
-                && index <= mTaskViewStartIndex;
+        return !(view instanceof TaskView) && index <= mTaskViewStartIndex;
     }
 }

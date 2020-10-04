@@ -63,9 +63,6 @@ public final class FallbackActivityControllerHelper implements
 
     @Override
     public void onSwipeUpToRecentsComplete(RecentsActivity activity) {
-        RecentsView recentsView = activity.getOverviewPanel();
-        recentsView.getClearAllButton().setVisibilityAlpha(1);
-        recentsView.setDisallowScrollToClearAll(false);
     }
 
     @Override
