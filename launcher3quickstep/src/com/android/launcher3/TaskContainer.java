@@ -50,7 +50,7 @@ import static com.android.launcher3.compat.AccessibilityManagerCompat.isObserved
  * An abstraction of the original Workspace which supports browsing through a
  * sequential list of "pages"
  */
-public abstract class PagedView extends ViewGroup {
+public abstract class TaskContainer extends ViewGroup {
     public static final int MAX_TASK_COUNT = 8;
 
     private static final String TAG = "PagedView";
@@ -106,15 +106,15 @@ public abstract class PagedView extends ViewGroup {
 
     private int[] mTmpIntPair = new int[2];
 
-    public PagedView(Context context) {
+    public TaskContainer(Context context) {
         this(context, null);
     }
 
-    public PagedView(Context context, AttributeSet attrs) {
+    public TaskContainer(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public PagedView(Context context, AttributeSet attrs, int defStyle) {
+    public TaskContainer(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         setHapticFeedbackEnabled(false);

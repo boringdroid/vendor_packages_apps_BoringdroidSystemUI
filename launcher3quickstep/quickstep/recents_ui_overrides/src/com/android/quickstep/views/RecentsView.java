@@ -60,7 +60,7 @@ import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Insettable;
 import com.android.launcher3.InvariantDeviceProfile;
-import com.android.launcher3.PagedView;
+import com.android.launcher3.TaskContainer;
 import com.android.launcher3.R;
 import com.android.launcher3.ScaleAndTranslation;
 import com.android.launcher3.Utilities;
@@ -104,7 +104,7 @@ import static com.android.quickstep.TaskUtils.checkCurrentOrManagedUserId;
  * A list of recent tasks.
  */
 @TargetApi(Build.VERSION_CODES.P)
-public abstract class RecentsView<T extends BaseActivity> extends PagedView implements Insettable,
+public abstract class RecentsView<T extends BaseActivity> extends TaskContainer implements Insettable,
         TaskThumbnailCache.HighResLoadingState.HighResLoadingStateChangedCallback,
         InvariantDeviceProfile.OnIDPChangeListener, TaskThumbnailChangeListener {
 
