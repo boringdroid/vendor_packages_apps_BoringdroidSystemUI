@@ -1109,11 +1109,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     @Nullable
-    public TaskView getNextPageTaskView() {
-        return getTaskViewAtByAbsoluteIndex(getNextTaskViewIndex());
-    }
-
-    @Nullable
     public TaskView getTaskViewNearestToCenterOfScreen() {
         return getTaskViewAtByAbsoluteIndex(getPageNearestToCenterOfScreen());
     }

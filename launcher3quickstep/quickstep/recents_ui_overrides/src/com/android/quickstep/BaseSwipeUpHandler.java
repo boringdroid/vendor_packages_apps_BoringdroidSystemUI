@@ -173,7 +173,11 @@ public abstract class BaseSwipeUpHandler<T extends BaseDraggingActivity, Q exten
     public abstract Intent getLaunchIntent();
 
     protected void startNewTask(int successStateFlag, Consumer<Boolean> resultCallback) {
-        int taskId = mRecentsView.getNextPageTaskView().getTask().key.id;
+        TaskView nextTaskView = mRecentsView.getNextTaskView();
+        if (nextTaskView == null) {
+            return;
+        }
+        int taskId = nextTaskView.getTask().key.id;
         mFinishingRecentsAnimationForNewTaskId = taskId;
         mRecentsAnimationWrapper.finish(true /* toRecents */, () -> {
             if (!mCanceled) {
