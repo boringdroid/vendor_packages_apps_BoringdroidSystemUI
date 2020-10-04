@@ -94,11 +94,7 @@ public abstract class PagedView extends ViewGroup {
 
     protected int mActivePointerId = INVALID_POINTER;
 
-    protected boolean mIsPageInTransition = false;
-
     protected float mSpringOverScrollX;
-
-    protected boolean mWasInOverscroll = false;
 
     protected int mUnboundedScrollX;
 
@@ -198,7 +194,6 @@ public abstract class PagedView extends ViewGroup {
         // updating current page on the pass.
         if (resetNextPage) {
             mNextPage = INVALID_PAGE;
-            pageEndTransition();
         }
     }
 
@@ -207,7 +202,6 @@ public abstract class PagedView extends ViewGroup {
         // We need to clean up the next page here to avoid computeScrollHelper from
         // updating current page on the pass.
         mNextPage = INVALID_PAGE;
-        pageEndTransition();
     }
 
     private int validateNewPage(int newPage) {
@@ -227,27 +221,6 @@ public abstract class PagedView extends ViewGroup {
         mCurrentPage = validateNewPage(currentPage);
         updateCurrentPageScroll();
         invalidate();
-    }
-
-    protected void pageBeginTransition() {
-        if (!mIsPageInTransition) {
-            mIsPageInTransition = true;
-        }
-    }
-
-    protected void pageEndTransition() {
-        if (mIsPageInTransition) {
-            mIsPageInTransition = false;
-            onPageEndTransition();
-        }
-    }
-
-    /**
-     * Called when the page ends moving as part of the scroll. Subclasses can override this
-     * to provide custom behavior during animation.
-     */
-    protected void onPageEndTransition() {
-        mWasInOverscroll = false;
     }
 
     protected int getUnboundedScrollX() {
@@ -286,12 +259,6 @@ public abstract class PagedView extends ViewGroup {
 
             mCurrentPage = validateNewPage(mNextPage);
             mNextPage = INVALID_PAGE;
-
-            // We don't want to trigger a page end moving unless the page has settled
-            // and the user has stopped scrolling
-            if (!mIsBeingDragged) {
-                pageEndTransition();
-            }
         }
         return false;
     }
@@ -634,7 +601,6 @@ public abstract class PagedView extends ViewGroup {
             mIsBeingDragged = false;
             if (!mScroller.isFinished() && !mFreeScroll) {
                 setCurrentPage(getNextPage());
-                pageEndTransition();
             }
         } else {
             mIsBeingDragged = true;
@@ -664,7 +630,6 @@ public abstract class PagedView extends ViewGroup {
             mIsBeingDragged = true;
             mLastMotionX = x;
             mLastMotionXRemainder = 0;
-            pageBeginTransition();
             // Stop listening for things like pinches.
             requestDisallowInterceptTouchEvent(true);
         }
@@ -722,11 +687,7 @@ public abstract class PagedView extends ViewGroup {
                 mLastMotionXRemainder = 0;
                 mActivePointerId = ev.getPointerId(0);
 
-                if (mIsBeingDragged) {
-                    pageBeginTransition();
-                }
                 break;
-
             case MotionEvent.ACTION_MOVE:
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
