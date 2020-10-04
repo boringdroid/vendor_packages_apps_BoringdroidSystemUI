@@ -47,12 +47,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
-import android.widget.ListView;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
@@ -1240,46 +1236,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     public abstract boolean shouldUseMultiWindowTaskSizeStrategy();
-
-    @Override
-    public void addChildrenForAccessibility(ArrayList<View> outChildren) {
-        // Add children in reverse order
-        for (int i = getChildCount() - 1; i >= 0; --i) {
-            outChildren.add(getChildAt(i));
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-        final AccessibilityNodeInfo.CollectionInfo
-                collectionInfo = AccessibilityNodeInfo.CollectionInfo.obtain(
-                1, getTaskViewCount(), false,
-                AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_NONE);
-        info.setCollectionInfo(collectionInfo);
-    }
-
-    @Override
-    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        super.onInitializeAccessibilityEvent(event);
-
-        final int taskViewCount = getTaskViewCount();
-        event.setScrollable(taskViewCount > 0);
-
-        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            final int[] visibleTasks = getVisibleChildrenRange();
-            event.setFromIndex(taskViewCount - visibleTasks[1] - 1);
-            event.setToIndex(taskViewCount - visibleTasks[0] - 1);
-            event.setItemCount(taskViewCount);
-        }
-    }
-
-    @Override
-    public CharSequence getAccessibilityClassName() {
-        // To hear position-in-list related feedback from Talkback.
-        return ListView.class.getName();
-    }
 
     public void setEnableDrawingLiveTile(boolean enableDrawingLiveTile) {
         mEnableDrawingLiveTile = enableDrawingLiveTile;

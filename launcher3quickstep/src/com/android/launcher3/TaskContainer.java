@@ -32,7 +32,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.ScrollView;
 
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.util.OverScroller;
@@ -95,8 +94,6 @@ public abstract class TaskContainer extends ViewGroup {
 
     // Similar to the platform implementation of isLayoutValid();
     protected boolean mIsLayoutValid;
-
-    private int[] mTmpIntPair = new int[2];
 
     public TaskContainer(Context context) {
         this(context, null);
@@ -179,15 +176,6 @@ public abstract class TaskContainer extends ViewGroup {
     @Override
     public void computeScroll() {
         computeScrollHelper();
-    }
-
-    public int getExpectedWidth() {
-        return getMeasuredWidth();
-    }
-
-    public int getNormalChildWidth() {
-        return getExpectedWidth() - getPaddingLeft() - getPaddingRight()
-                - mInsets.left - mInsets.right;
     }
 
     @Override
@@ -334,11 +322,6 @@ public abstract class TaskContainer extends ViewGroup {
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
         dispatchTaskViewCountChanged();
-    }
-
-    protected int getChildOffset(int index) {
-        if (index < 0 || index > getChildCount() - 1) return 0;
-        return getChildAt(index).getLeft();
     }
 
     @Override
@@ -697,42 +680,6 @@ public abstract class TaskContainer extends ViewGroup {
                 mVelocityTracker.clear();
             }
         }
-    }
-
-    @Override
-    public CharSequence getAccessibilityClassName() {
-        // Some accessibility services have special logic for ScrollView. Since we provide same
-        // accessibility info as ScrollView, inform the service to handle use the same way.
-        return ScrollView.class.getName();
-    }
-
-    public int[] getVisibleChildrenRange() {
-        float visibleLeft = 0;
-        float visibleRight = visibleLeft + getMeasuredWidth();
-        float scaleX = getScaleX();
-        if (scaleX < 1 && scaleX > 0) {
-            float mid = getMeasuredWidth() / 2;
-            visibleLeft = mid - ((mid - visibleLeft) / scaleX);
-            visibleRight = mid + ((visibleRight - mid) / scaleX);
-        }
-
-        int leftChild = -1;
-        int rightChild = -1;
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-
-            float left = child.getLeft() + child.getTranslationX() - getScrollX();
-            if (left <= visibleRight && (left + child.getMeasuredWidth()) >= visibleLeft) {
-                if (leftChild == -1) {
-                    leftChild = i;
-                }
-                rightChild = i;
-            }
-        }
-        mTmpIntPair[0] = leftChild;
-        mTmpIntPair[1] = rightChild;
-        return mTmpIntPair;
     }
 
     public int getLowerVisibleTaskIndex() {
