@@ -149,10 +149,6 @@ public abstract class TaskContainer extends ViewGroup {
         return Math.min(MAX_TASK_COUNT, getChildCount());
     }
 
-    public View getPageAt(int index) {
-        return getChildAt(index);
-    }
-
     private void abortScrollerAnimation() {
         mScroller.abortAnimation();
     }
@@ -272,8 +268,8 @@ public abstract class TaskContainer extends ViewGroup {
         Log.d(TAG, "PagedView.onLayout() column " + column);
         int currentColumn = 0;
         int currentRow = 0;
-        for (int i = 0; i < getPageCount(); i++) {
-            View child = getPageAt(i);
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
             int width = child.getMeasuredWidth();
             int height = child.getMeasuredHeight();
             int marginLeft = (getMeasuredWidth() - column * width
@@ -322,7 +318,7 @@ public abstract class TaskContainer extends ViewGroup {
         requestLayout();
     }
 
-    private void dispatchPageCountChanged() {
+    private void dispatchTaskViewCountChanged() {
         // This ensures that when children are added, they get the correct transforms / alphas
         // in accordance with any scroll effects.
         invalidate();
@@ -331,18 +327,18 @@ public abstract class TaskContainer extends ViewGroup {
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
-        dispatchPageCountChanged();
+        dispatchTaskViewCountChanged();
     }
 
     @Override
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
-        dispatchPageCountChanged();
+        dispatchTaskViewCountChanged();
     }
 
     protected int getChildOffset(int index) {
         if (index < 0 || index > getChildCount() - 1) return 0;
-        return getPageAt(index).getLeft();
+        return getChildAt(index).getLeft();
     }
 
     @Override
@@ -353,7 +349,7 @@ public abstract class TaskContainer extends ViewGroup {
         } else {
             focusablePage = mCurrentTaskViewIndex;
         }
-        View v = getPageAt(focusablePage);
+        View v = getChildAt(focusablePage);
         if (v != null) {
             return v.requestFocus(direction, previouslyFocusedRect);
         }
@@ -368,15 +364,15 @@ public abstract class TaskContainer extends ViewGroup {
 
         // XXX-RTL: This will be fixed in a future CL
         if (mCurrentTaskViewIndex >= 0 && mCurrentTaskViewIndex < getPageCount()) {
-            getPageAt(mCurrentTaskViewIndex).addFocusables(views, direction, focusableMode);
+            getChildAt(mCurrentTaskViewIndex).addFocusables(views, direction, focusableMode);
         }
         if (direction == View.FOCUS_LEFT) {
             if (mCurrentTaskViewIndex > 0) {
-                getPageAt(mCurrentTaskViewIndex - 1).addFocusables(views, direction, focusableMode);
+                getChildAt(mCurrentTaskViewIndex - 1).addFocusables(views, direction, focusableMode);
             }
         } else if (direction == View.FOCUS_RIGHT) {
             if (mCurrentTaskViewIndex < getPageCount() - 1) {
-                getPageAt(mCurrentTaskViewIndex + 1).addFocusables(views, direction, focusableMode);
+                getChildAt(mCurrentTaskViewIndex + 1).addFocusables(views, direction, focusableMode);
             }
         }
     }
@@ -390,7 +386,7 @@ public abstract class TaskContainer extends ViewGroup {
      */
     @Override
     public void focusableViewAvailable(View focused) {
-        View current = getPageAt(mCurrentTaskViewIndex);
+        View current = getChildAt(mCurrentTaskViewIndex);
         View v = focused;
         while (true) {
             if (v == current) {
@@ -417,7 +413,7 @@ public abstract class TaskContainer extends ViewGroup {
         if (disallowIntercept) {
             // We need to make sure to cancel our long press if
             // a scrollable widget takes over touch events
-            final View currentPage = getPageAt(mCurrentTaskViewIndex);
+            final View currentPage = getChildAt(mCurrentTaskViewIndex);
             currentPage.cancelLongPress();
         }
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
@@ -713,7 +709,7 @@ public abstract class TaskContainer extends ViewGroup {
         int minDistanceFromScreenCenterIndex = -1;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; ++i) {
-            View layout = getPageAt(i);
+            View layout = getChildAt(i);
             int childWidth = layout.getMeasuredWidth();
             int halfChildWidth = (childWidth / 2);
             int childCenter = getChildOffset(i) + halfChildWidth;
@@ -747,7 +743,7 @@ public abstract class TaskContainer extends ViewGroup {
         int rightChild = -1;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            final View child = getPageAt(i);
+            final View child = getChildAt(i);
 
             float left = child.getLeft() + child.getTranslationX() - getScrollX();
             if (left <= visibleRight && (left + child.getMeasuredWidth()) >= visibleLeft) {
