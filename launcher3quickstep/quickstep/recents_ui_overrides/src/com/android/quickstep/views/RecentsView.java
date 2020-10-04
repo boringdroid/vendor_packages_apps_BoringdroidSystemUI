@@ -286,7 +286,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     public RecentsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setTaskViewSpacing(getResources().getDimensionPixelSize(R.dimen.recents_task_view_spacing));
-        setEnableFreeScroll(true);
 
         mFastFlingVelocity =
                 getResources().getDimensionPixelSize(R.dimen.recents_fast_fling_velocity);
@@ -323,10 +322,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
         // Initialize quickstep specific cache params here, as this is constructed only once
         mActivity.getViewCache().setCacheSize(R.layout.digital_wellbeing_toast, 5);
-    }
-
-    public OverScroller getScroller() {
-        return mScroller;
     }
 
     @Override
@@ -597,25 +592,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         getTaskSize(mActivity.getDeviceProfile(), outRect);
     }
 
-    @Override
-    protected boolean computeScrollHelper() {
-        boolean scrolling = super.computeScrollHelper();
-        boolean isFlingingFast = false;
-        if (scrolling || isHandlingTouch()) {
-            if (scrolling) {
-                // Check if we are flinging quickly to disable high res thumbnail loading
-                isFlingingFast = mScroller.getCurrVelocity() > mFastFlingVelocity;
-            }
-
-            // After scrolling, update the visible task's data
-            loadVisibleTaskData();
-        }
-
-        // Update the high res thumbnail loader state
-        mModel.getThumbnailCache().getHighResLoadingState().setFlingingFast(isFlingingFast);
-        return scrolling;
-    }
-
     /**
      * Iterates through all the tasks, and loads the associated task data for newly visible tasks,
      * and unloads the associated task data for tasks that are no longer visible.
@@ -725,7 +701,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     public void onGestureAnimationStart(int runningTaskId) {
         // This needs to be called before the other states are set since it can create the task view
         showCurrentTask(runningTaskId);
-        setEnableFreeScroll(false);
         setEnableDrawingLiveTile(false);
         setRunningTaskHidden(true);
         setRunningTaskIconScaledDown(true);
@@ -746,7 +721,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
      * Called when a gesture from an app has finished.
      */
     public void onGestureAnimationEnd() {
-        setEnableFreeScroll(true);
         setEnableDrawingLiveTile(true);
         setOnScrollChangeListener(null);
         setRunningTaskHidden(false);

@@ -15,16 +15,6 @@
  */
 package com.android.quickstep.inputconsumers;
 
-import static com.android.quickstep.MultiStateCallback.DEBUG_STATES;
-import static com.android.quickstep.RecentsActivity.EXTRA_TASK_ID;
-import static com.android.quickstep.RecentsActivity.EXTRA_THUMBNAIL;
-import static com.android.quickstep.WindowTransformSwipeHandler.MIN_PROGRESS_FOR_OVERVIEW;
-import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.HOME;
-import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.LAST_TASK;
-import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.NEW_TASK;
-import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.RECENTS;
-import static com.android.quickstep.views.RecentsView.UPDATE_SYSUI_FLAGS_THRESHOLD;
-
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -55,6 +45,16 @@ import com.android.systemui.shared.recents.model.ThumbnailData;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
 import com.android.systemui.shared.system.ActivityOptionsCompat;
 import com.android.systemui.shared.system.InputConsumerController;
+
+import static com.android.quickstep.MultiStateCallback.DEBUG_STATES;
+import static com.android.quickstep.RecentsActivity.EXTRA_TASK_ID;
+import static com.android.quickstep.RecentsActivity.EXTRA_THUMBNAIL;
+import static com.android.quickstep.WindowTransformSwipeHandler.MIN_PROGRESS_FOR_OVERVIEW;
+import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.HOME;
+import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.LAST_TASK;
+import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.NEW_TASK;
+import static com.android.quickstep.inputconsumers.FallbackNoButtonInputConsumer.GestureEndTarget.RECENTS;
+import static com.android.quickstep.views.RecentsView.UPDATE_SYSUI_FLAGS_THRESHOLD;
 
 public class FallbackNoButtonInputConsumer extends
         BaseSwipeUpHandler<RecentsActivity, FallbackRecentsView> {
@@ -110,10 +110,10 @@ public class FallbackNoButtonInputConsumer extends
     private RunningWindowAnim mFinishAnimation;
 
     public FallbackNoButtonInputConsumer(Context context,
-            OverviewComponentObserver overviewComponentObserver,
-            RunningTaskInfo runningTaskInfo, RecentsModel recentsModel,
-            InputConsumerController inputConsumer,
-            boolean isLikelyToStartNewTask, boolean continuingLastGesture) {
+                                         OverviewComponentObserver overviewComponentObserver,
+                                         RunningTaskInfo runningTaskInfo, RecentsModel recentsModel,
+                                         InputConsumerController inputConsumer,
+                                         boolean isLikelyToStartNewTask, boolean continuingLastGesture) {
         super(context, overviewComponentObserver, recentsModel, inputConsumer, runningTaskInfo.id);
         mLauncherAlpha.value = 1;
 
@@ -319,7 +319,8 @@ public class FallbackNoButtonInputConsumer extends
                 break;
             }
             case NEW_TASK: {
-                startNewTask(STATE_HANDLER_INVALIDATED, b -> {});
+                startNewTask(STATE_HANDLER_INVALIDATED, b -> {
+                });
                 break;
             }
         }
@@ -344,9 +345,6 @@ public class FallbackNoButtonInputConsumer extends
         float endProgress = mEndTarget.mEndProgress;
         long duration = (long) (mEndTarget.mDurationMultiplier *
                 Math.abs(endProgress - mCurrentShift.value));
-        if (mRecentsView != null) {
-            duration = Math.max(duration, mRecentsView.getScroller().getDuration());
-        }
         if (mCurrentShift.value != endProgress || mInQuickSwitchMode) {
             AnimationSuccessListener endListener = new AnimationSuccessListener() {
 
@@ -401,6 +399,7 @@ public class FallbackNoButtonInputConsumer extends
 
     /**
      * Creates an animation that transforms the current app window into the home app.
+     *
      * @param startProgress The progress of {@link #mCurrentShift} to start the window from.
      */
     private RectFSpringAnim createWindowAnimationToHome(float startProgress, long duration) {

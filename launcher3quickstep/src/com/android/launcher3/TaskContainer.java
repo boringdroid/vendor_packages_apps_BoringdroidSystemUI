@@ -19,7 +19,6 @@ package com.android.launcher3;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -32,9 +31,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-
-import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.util.OverScroller;
 
 import java.util.ArrayList;
 
@@ -56,8 +52,6 @@ public abstract class TaskContainer extends ViewGroup {
     private static final int MIN_SNAP_VELOCITY = 1500;
     private static final int MIN_FLING_VELOCITY = 250;
 
-    private boolean mFreeScroll = false;
-
     protected int mFlingThresholdVelocity;
     protected int mMinFlingVelocity;
     protected int mMinSnapVelocity;
@@ -69,7 +63,6 @@ public abstract class TaskContainer extends ViewGroup {
 
     @ViewDebug.ExportedProperty(category = "launcher")
     protected int mNextTaskViewIndex = INVALID_TASK_VIEW_INDEX;
-    protected OverScroller mScroller;
     private VelocityTracker mVelocityTracker;
     protected int mTaskViewSpacing = 0;
 
@@ -84,10 +77,6 @@ public abstract class TaskContainer extends ViewGroup {
     protected static final int INVALID_POINTER = -1;
 
     protected int mActivePointerId = INVALID_POINTER;
-
-    protected float mSpringOverScrollX;
-
-    protected int mUnboundedScrollX;
 
     protected final Rect mInsets = new Rect();
     protected boolean mIsRtl;
@@ -115,9 +104,6 @@ public abstract class TaskContainer extends ViewGroup {
      * Initializes various states for this workspace.
      */
     protected void init() {
-        mScroller = new OverScroller(getContext());
-        setDefaultInterpolator();
-
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledPagingTouchSlop();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
@@ -130,10 +116,6 @@ public abstract class TaskContainer extends ViewGroup {
         setDefaultFocusHighlightEnabled(false);
     }
 
-    protected void setDefaultInterpolator() {
-        mScroller.setInterpolator(Interpolators.SCROLL);
-    }
-
     /**
      * Returns the index of page to be shown immediately afterwards.
      */
@@ -144,38 +126,6 @@ public abstract class TaskContainer extends ViewGroup {
 
     public int getTaskViewCount() {
         return Math.min(MAX_TASK_COUNT, getChildCount());
-    }
-
-    private void abortScrollerAnimation() {
-        mScroller.abortAnimation();
-    }
-
-    protected int getUnboundedScrollX() {
-        return mUnboundedScrollX;
-    }
-
-    @Override
-    public void scrollTo(int x, int y) {
-    }
-
-    protected boolean computeScrollHelper() {
-        if (mScroller.computeScrollOffset()) {
-            // Don't bother scrolling if the page does not need to be moved
-            if (getUnboundedScrollX() != mScroller.getCurrPos()
-                    || getScrollX() != mScroller.getCurrPos()) {
-                scrollTo(mScroller.getCurrPos(), 0);
-            }
-            invalidate();
-            return true;
-        } else if (mNextTaskViewIndex != INVALID_TASK_VIEW_INDEX) {
-            mNextTaskViewIndex = INVALID_TASK_VIEW_INDEX;
-        }
-        return false;
-    }
-
-    @Override
-    public void computeScroll() {
-        computeScrollHelper();
     }
 
     @Override
@@ -427,13 +377,6 @@ public abstract class TaskContainer extends ViewGroup {
 
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_MOVE: {
-                /*
-                 * mIsBeingDragged == false, otherwise the shortcut would have caught it. Check
-                 * whether the user has moved far enough from his original down touch.
-                 */
-                if (mActivePointerId != INVALID_POINTER) {
-                    determineScrollingStart(ev);
-                }
                 // if mActivePointerId is INVALID_POINTER, then we must have missed an ACTION_DOWN
                 // event. in that case, treat the first occurence of a move event as a ACTION_DOWN
                 // i.e. fall through to the next case (don't break)
@@ -447,8 +390,6 @@ public abstract class TaskContainer extends ViewGroup {
                 mLastMotionX = ev.getX();
                 mLastMotionXRemainder = 0;
                 mActivePointerId = ev.getPointerId(0);
-
-                updateIsBeingDraggedOnTouchDown();
 
                 break;
             }
@@ -471,66 +412,8 @@ public abstract class TaskContainer extends ViewGroup {
         return mIsBeingDragged;
     }
 
-    /**
-     * If being flinged and user touches the screen, initiate drag; otherwise don't.
-     */
-    private void updateIsBeingDraggedOnTouchDown() {
-        // mScroller.isFinished should be false when being flinged.
-        final int xDist = Math.abs(mScroller.getFinalPos() - mScroller.getCurrPos());
-        final boolean finishedScrolling = (mScroller.isFinished() || xDist < mTouchSlop / 3);
-
-        mIsBeingDragged = !finishedScrolling;
-    }
-
     public boolean isHandlingTouch() {
         return mIsBeingDragged;
-    }
-
-    /*
-     * Determines if we should change the touch state to start scrolling after the
-     * user moves their touch point too far.
-     */
-    protected void determineScrollingStart(MotionEvent ev) {
-        // Disallow scrolling if we don't have a valid pointer index
-        final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-        if (pointerIndex == -1) return;
-
-        final float x = ev.getX(pointerIndex);
-        final int xDiff = (int) Math.abs(x - mLastMotionX);
-        final int touchSlop = Math.round(mTouchSlop);
-        boolean xMoved = xDiff > touchSlop;
-
-        if (xMoved) {
-            // Scroll if the user moved far enough along the X axis
-            mIsBeingDragged = true;
-            mLastMotionX = x;
-            mLastMotionXRemainder = 0;
-            // Stop listening for things like pinches.
-            requestDisallowInterceptTouchEvent(true);
-        }
-    }
-
-    @Override
-    protected void dispatchDraw(Canvas canvas) {
-        if (mScroller.isSpringing() && mSpringOverScrollX != 0) {
-            int saveCount = canvas.save();
-
-            canvas.translate(-mSpringOverScrollX, 0);
-            super.dispatchDraw(canvas);
-
-            canvas.restoreToCount(saveCount);
-        } else {
-            super.dispatchDraw(canvas);
-        }
-    }
-
-
-    public void setEnableFreeScroll(boolean freeScroll) {
-        if (mFreeScroll == freeScroll) {
-            return;
-        }
-
-        mFreeScroll = freeScroll;
     }
 
     @Override
@@ -544,16 +427,6 @@ public abstract class TaskContainer extends ViewGroup {
 
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                updateIsBeingDraggedOnTouchDown();
-
-                /*
-                 * If being flinged and user touches, stop the fling. isFinished
-                 * will be false if being flinged.
-                 */
-                if (!mScroller.isFinished()) {
-                    abortScrollerAnimation();
-                }
-
                 // Remember where the motion event started
                 mLastMotionXRemainder = 0;
                 mActivePointerId = ev.getPointerId(0);
@@ -579,8 +452,6 @@ public abstract class TaskContainer extends ViewGroup {
                     } else {
                         awakenScrollBars();
                     }
-                } else {
-                    determineScrollingStart(ev);
                 }
                 break;
 
@@ -588,13 +459,6 @@ public abstract class TaskContainer extends ViewGroup {
                 if (mIsBeingDragged) {
                     final VelocityTracker velocityTracker = mVelocityTracker;
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-
-                    if (mFreeScroll) {
-                        if (!mScroller.isFinished()) {
-                            abortScrollerAnimation();
-                        }
-                        invalidate();
-                    }
                 }
 
                 // End any intermediate reordering states
@@ -634,19 +498,12 @@ public abstract class TaskContainer extends ViewGroup {
                     vscroll = -event.getAxisValue(MotionEvent.AXIS_VSCROLL);
                     hscroll = event.getAxisValue(MotionEvent.AXIS_HSCROLL);
                 }
-                if (Math.abs(vscroll) > Math.abs(hscroll) && !isVerticalScrollable()) {
-                    return true;
-                }
                 if (hscroll != 0 || vscroll != 0) {
                     return true;
                 }
             }
         }
         return super.onGenericMotionEvent(event);
-    }
-
-    protected boolean isVerticalScrollable() {
-        return true;
     }
 
     private void acquireVelocityTrackerAndAddMovement(MotionEvent ev) {
