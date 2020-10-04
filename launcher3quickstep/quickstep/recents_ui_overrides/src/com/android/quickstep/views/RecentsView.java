@@ -502,9 +502,12 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
             while (getTaskViewCount() > requiredTaskCount) {
                 removeView(getChildAt(getChildCount() - 1));
             }
+            // TODO bring back clear all button after concept changing finished.
+            /*
             if (requiredTaskCount > 0) {
                 addView(mClearAllButton);
             }
+             */
         }
 
         // Rebind and reset all task views
@@ -766,9 +769,12 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
             // Add an empty view for now until the task plan is loaded and applied
             final TaskView taskView = mTaskViewPool.getView();
             addView(taskView, mTaskViewStartIndex);
+            // TODO bring back clear all button after concept changing finished.
+            /*
             if (wasEmpty) {
                 addView(mClearAllButton);
             }
+            */
             // The temporary running task is only used for the duration between the start of the
             // gesture and the task list is loaded and applied
             mTmpRunningTask = new Task(new Task.TaskKey(runningTaskId, 0, new Intent(),
