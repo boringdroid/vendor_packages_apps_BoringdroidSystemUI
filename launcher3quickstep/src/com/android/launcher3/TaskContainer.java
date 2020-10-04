@@ -30,9 +30,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-
-import java.util.ArrayList;
 
 /**
  * An abstraction of the original Workspace which supports browsing through a
@@ -272,70 +269,6 @@ public abstract class TaskContainer extends ViewGroup {
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
         dispatchTaskViewCountChanged();
-    }
-
-    @Override
-    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
-        int focusablePage;
-        if (mNextTaskViewIndex != INVALID_TASK_VIEW_INDEX) {
-            focusablePage = mNextTaskViewIndex;
-        } else {
-            focusablePage = mCurrentTaskViewIndex;
-        }
-        View v = getChildAt(focusablePage);
-        if (v != null) {
-            return v.requestFocus(direction, previouslyFocusedRect);
-        }
-        return false;
-    }
-
-    @Override
-    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
-        if (getDescendantFocusability() == FOCUS_BLOCK_DESCENDANTS) {
-            return;
-        }
-
-        // XXX-RTL: This will be fixed in a future CL
-        if (mCurrentTaskViewIndex >= 0 && mCurrentTaskViewIndex < getTaskViewCount()) {
-            getChildAt(mCurrentTaskViewIndex).addFocusables(views, direction, focusableMode);
-        }
-        if (direction == View.FOCUS_LEFT) {
-            if (mCurrentTaskViewIndex > 0) {
-                getChildAt(mCurrentTaskViewIndex - 1).addFocusables(views, direction, focusableMode);
-            }
-        } else if (direction == View.FOCUS_RIGHT) {
-            if (mCurrentTaskViewIndex < getTaskViewCount() - 1) {
-                getChildAt(mCurrentTaskViewIndex + 1).addFocusables(views, direction, focusableMode);
-            }
-        }
-    }
-
-    /**
-     * If one of our descendant views decides that it could be focused now, only
-     * pass that along if it's on the current page.
-     * <p>
-     * This happens when live folders requery, and if they're off page, they
-     * end up calling requestFocus, which pulls it on page.
-     */
-    @Override
-    public void focusableViewAvailable(View focused) {
-        View current = getChildAt(mCurrentTaskViewIndex);
-        View v = focused;
-        while (true) {
-            if (v == current) {
-                super.focusableViewAvailable(focused);
-                return;
-            }
-            if (v == this) {
-                return;
-            }
-            ViewParent parent = v.getParent();
-            if (parent instanceof View) {
-                v = (View) v.getParent();
-            } else {
-                return;
-            }
-        }
     }
 
     /**

@@ -15,17 +15,6 @@
  */
 package com.android.quickstep.inputconsumers;
 
-import static android.view.MotionEvent.ACTION_CANCEL;
-import static android.view.MotionEvent.ACTION_POINTER_DOWN;
-import static android.view.MotionEvent.ACTION_UP;
-
-import static com.android.launcher3.Utilities.squaredHypot;
-import static com.android.launcher3.Utilities.squaredTouchSlop;
-import static com.android.quickstep.MultiStateCallback.DEBUG_STATES;
-import static com.android.quickstep.TouchInteractionService.INTENT_EXTRA_LOG_TRACE_ID;
-import static com.android.quickstep.TouchInteractionService.startRecentsActivityAsync;
-import static com.android.quickstep.WindowTransformSwipeHandler.MIN_PROGRESS_FOR_OVERVIEW;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +38,15 @@ import com.android.quickstep.util.SwipeAnimationTargetSet;
 import com.android.systemui.shared.system.InputMonitorCompat;
 import com.android.systemui.shared.system.RemoteAnimationTargetCompat;
 
+import static android.view.MotionEvent.ACTION_CANCEL;
+import static android.view.MotionEvent.ACTION_POINTER_DOWN;
+import static android.view.MotionEvent.ACTION_UP;
+import static com.android.launcher3.Utilities.squaredHypot;
+import static com.android.launcher3.Utilities.squaredTouchSlop;
+import static com.android.quickstep.MultiStateCallback.DEBUG_STATES;
+import static com.android.quickstep.TouchInteractionService.startRecentsActivityAsync;
+import static com.android.quickstep.WindowTransformSwipeHandler.MIN_PROGRESS_FOR_OVERVIEW;
+
 /**
  * A dummy input consumer used when the device is still locked, e.g. from secure camera.
  */
@@ -58,6 +56,7 @@ public class DeviceLockedInputConsumer implements InputConsumer,
     private static final float SCALE_DOWN = 0.75f;
 
     private static final String[] STATE_NAMES = DEBUG_STATES ? new String[2] : null;
+
     private static int getFlagForIndex(int index, String name) {
         if (DEBUG_STATES) {
             STATE_NAMES[index] = name;
@@ -77,7 +76,6 @@ public class DeviceLockedInputConsumer implements InputConsumer,
 
     private final PointF mTouchDown = new PointF();
     private final ClipAnimationHelper mClipAnimationHelper;
-    private int mLogId;
     private final ClipAnimationHelper.TransformParams mTransformParams;
     private final Point mDisplaySize;
     private final MultiStateCallback mStateCallback;
@@ -92,13 +90,11 @@ public class DeviceLockedInputConsumer implements InputConsumer,
     private SwipeAnimationTargetSet mTargetSet;
 
     public DeviceLockedInputConsumer(Context context, SwipeSharedState swipeSharedState,
-            InputMonitorCompat inputMonitorCompat, RectF swipeTouchRegion, int runningTaskId,
-            int logId) {
+                                     InputMonitorCompat inputMonitorCompat, RectF swipeTouchRegion, int runningTaskId) {
         mContext = context;
         mTouchSlopSquared = squaredTouchSlop(context);
         mSwipeSharedState = swipeSharedState;
         mClipAnimationHelper = new ClipAnimationHelper(context);
-        mLogId = logId;
         mTransformParams = new ClipAnimationHelper.TransformParams();
         mInputMonitorCompat = inputMonitorCompat;
         mSwipeTouchRegion = swipeTouchRegion;
@@ -208,8 +204,7 @@ public class DeviceLockedInputConsumer implements InputConsumer,
         Intent intent = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_DEFAULT)
                 .setComponent(new ComponentName(mContext, LockScreenRecentsActivity.class))
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .putExtra(INTENT_EXTRA_LOG_TRACE_ID, mLogId);
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         mInputMonitorCompat.pilferPointers();
         startRecentsActivityAsync(intent, newListenerSet);

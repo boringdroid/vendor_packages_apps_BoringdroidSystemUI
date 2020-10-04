@@ -102,12 +102,6 @@ import java.io.PrintWriter;
 public class TouchInteractionService extends Service implements
         NavigationModeChangeListener, DefaultDisplay.DisplayInfoChangeListener {
 
-    /**
-     * NOTE: This value should be kept same as
-     * ActivityTaskManagerService#INTENT_EXTRA_LOG_TRACE_ID in platform
-     */
-    public static final String INTENT_EXTRA_LOG_TRACE_ID = "INTENT_EXTRA_LOG_TRACE_ID";
-
     private static final String TAG = "TouchInteractionService";
 
     private static final String KEY_BACK_NOTIFICATION_COUNT = "backNotificationCount";
@@ -228,7 +222,6 @@ public class TouchInteractionService extends Service implements
     };
 
     private static final SwipeSharedState sSwipeSharedState = new SwipeSharedState();
-    private int mLogId;
 
     private final InputConsumer mResetGestureInputConsumer =
             new ResetGestureInputConsumer(sSwipeSharedState);
@@ -503,8 +496,6 @@ public class TouchInteractionService extends Service implements
 
         MotionEvent event = (MotionEvent) ev;
         if (event.getAction() == ACTION_DOWN) {
-            sSwipeSharedState.setLogTraceId(mLogId);
-
             if (mSwipeTouchRegion.contains(event.getX(), event.getY())) {
                 boolean useSharedState = mConsumer.useSharedSwipeState();
                 mConsumer.onConsumerAboutToBeSwitched();
@@ -661,13 +652,13 @@ public class TouchInteractionService extends Service implements
         return new OtherActivityInputConsumer(this, runningTaskInfo,
                 shouldDefer, mOverviewCallbacks, this::onConsumerInactive,
                 sSwipeSharedState, mInputMonitorCompat, mSwipeTouchRegion,
-                disableHorizontalSwipe(event), factory, mLogId);
+                disableHorizontalSwipe(event), factory);
     }
 
     private InputConsumer createDeviceLockedInputConsumer(RunningTaskInfo taskInfo) {
         if (mMode == Mode.NO_BUTTON && taskInfo != null) {
             return new DeviceLockedInputConsumer(this, sSwipeSharedState, mInputMonitorCompat,
-                    mSwipeTouchRegion, taskInfo.taskId, mLogId);
+                    mSwipeTouchRegion, taskInfo.taskId);
         } else {
             return mResetGestureInputConsumer;
         }
