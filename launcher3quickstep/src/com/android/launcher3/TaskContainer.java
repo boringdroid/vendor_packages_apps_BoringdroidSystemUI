@@ -145,7 +145,7 @@ public abstract class TaskContainer extends ViewGroup {
                 ? mNextTaskViewIndex : mCurrentTaskViewIndex;
     }
 
-    public int getPageCount() {
+    public int getTaskViewCount() {
         return Math.min(MAX_TASK_COUNT, getChildCount());
     }
 
@@ -231,7 +231,7 @@ public abstract class TaskContainer extends ViewGroup {
         // unless they were set to WRAP_CONTENT
         if (DEBUG) Log.d(TAG, "PagedView.onMeasure(): " + widthSize + ", " + heightSize);
 
-        int column = getColumn(getPageCount());
+        int column = getColumn(getTaskViewCount());
         int taskViewTotalWidth = widthSize - mInsets.left - mInsets.right;
         int singleTaskViewWidth = column == 0 ? taskViewTotalWidth
                 : (taskViewTotalWidth - (column + 1) * mTaskViewSpacing) / column;
@@ -239,7 +239,7 @@ public abstract class TaskContainer extends ViewGroup {
                 + ", task view width " + singleTaskViewWidth);
         int myWidthSpec = MeasureSpec.makeMeasureSpec(singleTaskViewWidth, MeasureSpec.EXACTLY);
 
-        int row = getRow(getPageCount());
+        int row = getRow(getTaskViewCount());
         int taskViewTotalHeight = (heightSize - mInsets.top - mInsets.bottom);
         // TODO add method to set task view vertical spacing
         int singleTaskViewHeight = row == 0 ? taskViewTotalHeight
@@ -264,7 +264,7 @@ public abstract class TaskContainer extends ViewGroup {
             return;
         }
 
-        int column = getColumn(getPageCount());
+        int column = getColumn(getTaskViewCount());
         Log.d(TAG, "PagedView.onLayout() column " + column);
         int currentColumn = 0;
         int currentRow = 0;
@@ -363,7 +363,7 @@ public abstract class TaskContainer extends ViewGroup {
         }
 
         // XXX-RTL: This will be fixed in a future CL
-        if (mCurrentTaskViewIndex >= 0 && mCurrentTaskViewIndex < getPageCount()) {
+        if (mCurrentTaskViewIndex >= 0 && mCurrentTaskViewIndex < getTaskViewCount()) {
             getChildAt(mCurrentTaskViewIndex).addFocusables(views, direction, focusableMode);
         }
         if (direction == View.FOCUS_LEFT) {
@@ -371,7 +371,7 @@ public abstract class TaskContainer extends ViewGroup {
                 getChildAt(mCurrentTaskViewIndex - 1).addFocusables(views, direction, focusableMode);
             }
         } else if (direction == View.FOCUS_RIGHT) {
-            if (mCurrentTaskViewIndex < getPageCount() - 1) {
+            if (mCurrentTaskViewIndex < getTaskViewCount() - 1) {
                 getChildAt(mCurrentTaskViewIndex + 1).addFocusables(views, direction, focusableMode);
             }
         }
@@ -699,29 +699,6 @@ public abstract class TaskContainer extends ViewGroup {
         }
     }
 
-    public int getPageNearestToCenterOfScreen() {
-        return getPageNearestToCenterOfScreen(getScrollX());
-    }
-
-    private int getPageNearestToCenterOfScreen(int scaledScrollX) {
-        int screenCenter = scaledScrollX + (getMeasuredWidth() / 2);
-        int minDistanceFromScreenCenter = Integer.MAX_VALUE;
-        int minDistanceFromScreenCenterIndex = -1;
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; ++i) {
-            View layout = getChildAt(i);
-            int childWidth = layout.getMeasuredWidth();
-            int halfChildWidth = (childWidth / 2);
-            int childCenter = getChildOffset(i) + halfChildWidth;
-            int distanceFromScreenCenter = Math.abs(childCenter - screenCenter);
-            if (distanceFromScreenCenter < minDistanceFromScreenCenter) {
-                minDistanceFromScreenCenter = distanceFromScreenCenter;
-                minDistanceFromScreenCenterIndex = i;
-            }
-        }
-        return minDistanceFromScreenCenterIndex;
-    }
-
     @Override
     public CharSequence getAccessibilityClassName() {
         // Some accessibility services have special logic for ScrollView. Since we provide same
@@ -763,7 +740,7 @@ public abstract class TaskContainer extends ViewGroup {
     }
 
     public int getUpperVisibleTaskIndex() {
-        return Math.min(MAX_TASK_COUNT, getPageCount()) - 1;
+        return Math.min(MAX_TASK_COUNT, getTaskViewCount()) - 1;
     }
 
     private static int getColumn(int taskCount) {

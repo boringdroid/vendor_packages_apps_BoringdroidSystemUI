@@ -535,14 +535,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         }
     }
 
-    public int getTaskViewCount() {
-        int taskViewCount = getChildCount();
-        if (indexOfChild(mClearAllButton) != -1) {
-            taskViewCount--;
-        }
-        return taskViewCount;
-    }
-
     protected void onTaskStackUpdated() {
     }
 
@@ -902,7 +894,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         AnimatorSet anim = new AnimatorSet();
         PendingAnimation pendingAnimation = new PendingAnimation(anim);
 
-        int count = getPageCount();
+        int count = this.getTaskViewCount();
         if (count == 0) {
             return pendingAnimation;
         }
@@ -1050,9 +1042,9 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                     return snapToTaskViewRelative(getTaskViewCount(), event.isShiftPressed() ? -1 : 1,
                             event.isAltPressed() /* cycle */);
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    return snapToTaskViewRelative(getPageCount(), mIsRtl ? -1 : 1, false /* cycle */);
+                    return snapToTaskViewRelative(this.getTaskViewCount(), mIsRtl ? -1 : 1, false /* cycle */);
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    return snapToTaskViewRelative(getPageCount(), mIsRtl ? 1 : -1, false /* cycle */);
+                    return snapToTaskViewRelative(this.getTaskViewCount(), mIsRtl ? 1 : -1, false /* cycle */);
                 case KeyEvent.KEYCODE_DEL:
                 case KeyEvent.KEYCODE_FORWARD_DEL:
                     dismissCurrentTask();
@@ -1110,7 +1102,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
     @Nullable
     public TaskView getTaskViewNearestToCenterOfScreen() {
-        return getTaskViewAtByAbsoluteIndex(getPageNearestToCenterOfScreen());
+        return getTaskViewAtByAbsoluteIndex(0);
     }
 
     /**
