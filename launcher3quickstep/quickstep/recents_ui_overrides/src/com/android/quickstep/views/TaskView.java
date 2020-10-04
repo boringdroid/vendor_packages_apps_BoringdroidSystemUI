@@ -16,11 +16,6 @@
 
 package com.android.quickstep.views;
 
-import static android.widget.Toast.LENGTH_SHORT;
-
-import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -54,8 +49,6 @@ import com.android.quickstep.RecentsModel;
 import com.android.quickstep.TaskIconCache;
 import com.android.quickstep.TaskThumbnailCache;
 import com.android.quickstep.util.TaskCornerRadius;
-import com.android.quickstep.views.RecentsView.PageCallbacks;
-import com.android.quickstep.views.RecentsView.ScrollState;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
 import com.android.systemui.shared.system.ActivityOptionsCompat;
@@ -65,14 +58,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static android.widget.Toast.LENGTH_SHORT;
+import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
+import static com.android.launcher3.anim.Interpolators.LINEAR;
+
 /**
  * A task in the Recents view.
  */
-public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
+public class TaskView extends FrameLayout implements Reusable {
 
     private static final String TAG = TaskView.class.getSimpleName();
 
-    /** A curve of x from 0 to 1, where 0 is the center of the screen and 1 is the edge. */
+    /**
+     * A curve of x from 0 to 1, where 0 is the center of the screen and 1 is the edge.
+     */
     private static final TimeInterpolator CURVE_INTERPOLATOR
             = x -> (float) -Math.cos(x * Math.PI) / 2f + .5f;
 
@@ -181,6 +180,7 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mSnapshotView = findViewById(R.id.snapshot);
+        mSnapshotView.setDimAlpha(0);
         mIconView = findViewById(R.id.icon);
     }
 
@@ -218,12 +218,12 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
     }
 
     public void launchTask(boolean animate, boolean freezeTaskList, Consumer<Boolean> resultCallback,
-            Handler resultCallbackHandler) {
+                           Handler resultCallbackHandler) {
         launchTaskInternal(animate, freezeTaskList, resultCallback, resultCallbackHandler);
     }
 
     private void launchTaskInternal(boolean animate, boolean freezeTaskList,
-            Consumer<Boolean> resultCallback, Handler resultCallbackHandler) {
+                                    Consumer<Boolean> resultCallback, Handler resultCallbackHandler) {
         if (mTask != null) {
             final ActivityOptions opts;
             if (animate) {
@@ -401,29 +401,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         onTaskListVisibilityChanged(false);
     }
 
-    @Override
-    public void onPageScroll(ScrollState scrollState) {
-        float curveInterpolation =
-                CURVE_INTERPOLATOR.getInterpolation(scrollState.linearInterpolation);
-
-        mSnapshotView.setDimAlpha(curveInterpolation * MAX_PAGE_SCRIM_ALPHA);
-        setCurveScale(getCurveScaleForCurveInterpolation(curveInterpolation));
-
-        mFooterAlpha = Utilities.boundToRange(1.0f - 2 * scrollState.linearInterpolation, 0f, 1f);
-        for (FooterWrapper footer : mFooters) {
-            if (footer != null) {
-                footer.mView.setAlpha(mFooterAlpha);
-            }
-        }
-
-        if (mMenuView != null) {
-            mMenuView.setPosition(getX() - getRecentsView().getScrollX(), getY());
-            mMenuView.setScaleX(getScaleX());
-            mMenuView.setScaleY(getScaleY());
-        }
-    }
-
-
     /**
      * Sets the footer at the specific index and returns the previously set footer.
      */
@@ -508,10 +485,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
     public void setCurveScale(float curveScale) {
         mCurveScale = curveScale;
         onScaleChanged();
-    }
-
-    public float getCurveScale() {
-        return mCurveScale;
     }
 
     private void onScaleChanged() {
@@ -613,8 +586,8 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
         void animateEntry() {
             ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
             animator.addUpdateListener(anim -> {
-               float factor = 1 - anim.getAnimatedFraction();
-               int totalShift = mExpectedHeight + mView.getPaddingBottom() - mOldPaddingBottom;
+                float factor = 1 - anim.getAnimatedFraction();
+                int totalShift = mExpectedHeight + mView.getPaddingBottom() - mOldPaddingBottom;
                 mEntryAnimationOffset = Math.round(factor * totalShift);
                 updateFooterOffset();
             });
@@ -677,6 +650,7 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
 
     /**
      * Hides the icon and shows insets when this TaskView is about to be shown fullscreen.
+     *
      * @param progress: 0 = show icon and no insets; 1 = don't show icon and show full insets.
      */
     public void setFullscreenProgress(float progress) {
@@ -730,7 +704,9 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
     static class FullscreenDrawParams {
         RectF mCurrentDrawnInsets = new RectF();
         float mCurrentDrawnCornerRadius;
-        /** The current scale we apply to the thumbnail to adjust for new left/right insets. */
+        /**
+         * The current scale we apply to the thumbnail to adjust for new left/right insets.
+         */
         float mScale = 1;
 
         public FullscreenDrawParams(float cornerRadius) {

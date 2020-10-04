@@ -22,7 +22,6 @@ import android.animation.LayoutTransition;
 import android.animation.LayoutTransition.TransitionListener;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
-import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -41,7 +40,6 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.FloatProperty;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -60,9 +58,9 @@ import com.android.launcher3.BaseActivity;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Insettable;
 import com.android.launcher3.InvariantDeviceProfile;
-import com.android.launcher3.TaskContainer;
 import com.android.launcher3.R;
 import com.android.launcher3.ScaleAndTranslation;
+import com.android.launcher3.TaskContainer;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.graphics.RotationMode;
@@ -132,7 +130,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                     return recentsView.mFullscreenProgress;
                 }
             };
-    private static final String TAG = "RecentsView";
 
     protected RecentsAnimationWrapper mRecentsAnimationWrapper;
     protected ClipAnimationHelper mClipAnimationHelper;
@@ -156,7 +153,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     private final Rect mTaskViewDeadZoneRect = new Rect();
     protected final ClipAnimationHelper mTempClipAnimationHelper;
 
-    private final ScrollState mScrollState = new ScrollState();
     // Keeps track of the previously known visible tasks for purposes of loading/unloading task data
     private final SparseBooleanArray mHasVisibleTaskData = new SparseBooleanArray();
 
@@ -567,7 +563,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
             applyRunningTaskIconScale();
         }
 
-        updateCurveProperties();
         // Update the set of visible task's data
         loadVisibleTaskData();
     }
@@ -615,7 +610,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     protected boolean computeScrollHelper() {
         boolean scrolling = super.computeScrollHelper();
         boolean isFlingingFast = false;
-        updateCurveProperties();
         if (scrolling || isHandlingTouch()) {
             if (scrolling) {
                 // Check if we are flinging quickly to disable high res thumbnail loading
@@ -629,32 +623,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         // Update the high res thumbnail loader state
         mModel.getThumbnailCache().getHighResLoadingState().setFlingingFast(isFlingingFast);
         return scrolling;
-    }
-
-    /**
-     * Scales and adjusts translation of adjacent pages as if on a curved carousel.
-     */
-    public void updateCurveProperties() {
-        Log.d(TAG, "updateCurveProperties page count " + getPageCount());
-        if (getPageCount() == 0 || getPageAt(0).getMeasuredWidth() == 0) {
-            return;
-        }
-        int scrollX = getScrollX();
-        final int halfPageWidth = getNormalChildWidth() / 2;
-        final int screenCenter = mInsets.left + getPaddingLeft() + scrollX + halfPageWidth;
-        final int halfScreenWidth = getMeasuredWidth() / 2;
-        final int pageSpacing = mTaskViewSpacing;
-
-        final int pageCount = getPageCount();
-        for (int i = 0; i < pageCount; i++) {
-            View page = getPageAt(i);
-            float pageCenter = page.getLeft() + page.getTranslationX() + halfPageWidth;
-            float distanceFromScreenCenter = screenCenter - pageCenter;
-            float distanceToReachEdge = halfScreenWidth + halfPageWidth + pageSpacing;
-            mScrollState.linearInterpolation = Math.min(1,
-                    Math.abs(distanceFromScreenCenter) / distanceToReachEdge);
-            ((PageCallbacks) page).onPageScroll(mScrollState);
-        }
     }
 
     /**
@@ -914,29 +882,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         setLayoutTransition(null);
     }
 
-    public interface PageCallbacks {
-
-        /**
-         * Updates the page UI based on scroll params.
-         */
-        default void onPageScroll(ScrollState scrollState) {
-        }
-    }
-
-    public static class ScrollState {
-
-        /**
-         * The progress from 0 to 1, where 0 is the center
-         * of the screen and 1 is the edge of the screen.
-         */
-        public float linearInterpolation;
-
-        /**
-         * The amount by which all the content is scrolled relative to the end of the list.
-         */
-        public float scrollFromEdge;
-    }
-
     private void addDismissedTaskAnimations(View taskView, AnimatorSet anim, long duration) {
         addAnim(ObjectAnimator.ofFloat(taskView, ALPHA, 0), duration, ACCEL_2, anim);
         addAnim(ObjectAnimator.ofFloat(taskView, TRANSLATION_Y, -taskView.getHeight()),
@@ -966,7 +911,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         int scrollDiffPerPage = 0;
         int draggedIndex = indexOfChild(taskView);
 
-        boolean needsCurveUpdates = false;
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             if (child == taskView) {
@@ -997,16 +941,8 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                 if (scrollDiff != 0) {
                     addAnim(ObjectAnimator.ofFloat(child, TRANSLATION_X, scrollDiff), duration,
                             ACCEL, anim);
-
-                    needsCurveUpdates = true;
                 }
             }
-        }
-
-        if (needsCurveUpdates) {
-            ValueAnimator va = ValueAnimator.ofFloat(0, 1);
-            va.addUpdateListener((a) -> updateCurveProperties());
-            anim.play(va);
         }
 
         // Add a tiny bit of translation Z, so that it draws on top of other views

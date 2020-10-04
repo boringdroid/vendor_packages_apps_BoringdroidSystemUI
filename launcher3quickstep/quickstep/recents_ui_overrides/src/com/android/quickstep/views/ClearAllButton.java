@@ -18,33 +18,15 @@ package com.android.quickstep.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Property;
 import android.widget.Button;
 
-import com.android.launcher3.Utilities;
-import com.android.quickstep.views.RecentsView.PageCallbacks;
-import com.android.quickstep.views.RecentsView.ScrollState;
-
-public class ClearAllButton extends Button implements PageCallbacks {
+public class ClearAllButton extends Button {
     private float mScrollAlpha = 1;
     private float mContentAlpha = 1;
     private float mVisibilityAlpha = 1;
 
-    private final boolean mIsRtl;
-
-    private int mScrollOffset;
-
     public ClearAllButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mIsRtl = Utilities.isRtl(context.getResources());
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-
-        RecentsView parent = (RecentsView) getParent();
-        mScrollOffset = mIsRtl ? parent.getPaddingRight() / 2 : - parent.getPaddingLeft() / 2;
     }
 
     @Override
@@ -64,19 +46,6 @@ public class ClearAllButton extends Button implements PageCallbacks {
             mVisibilityAlpha = alpha;
             updateAlpha();
         }
-    }
-
-    @Override
-    public void onPageScroll(ScrollState scrollState) {
-        float width = getWidth();
-        if (width == 0) {
-            return;
-        }
-
-        float shift = Math.min(scrollState.scrollFromEdge, width);
-        setTranslationX(mIsRtl ? (mScrollOffset - shift) : (mScrollOffset + shift));
-        mScrollAlpha = 1 - shift / width;
-        updateAlpha();
     }
 
     private void updateAlpha() {
