@@ -1361,11 +1361,6 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     public abstract boolean shouldUseMultiWindowTaskSizeStrategy();
 
     @Override
-    protected String getCurrentPageDescription() {
-        return "";
-    }
-
-    @Override
     public void addChildrenForAccessibility(ArrayList<View> outChildren) {
         // Add children in reverse order
         for (int i = getChildCount() - 1; i >= 0; --i) {

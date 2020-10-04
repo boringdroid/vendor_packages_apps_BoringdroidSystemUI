@@ -44,7 +44,6 @@ import com.android.launcher3.util.OverScroller;
 
 import java.util.ArrayList;
 
-import static com.android.launcher3.compat.AccessibilityManagerCompat.isAccessibilityEnabled;
 import static com.android.launcher3.compat.AccessibilityManagerCompat.isObservedEventType;
 
 /**
@@ -273,13 +272,6 @@ public abstract class PagedView extends ViewGroup {
         }
     }
 
-    protected void announcePageForAccessibility() {
-        if (isAccessibilityEnabled(getContext())) {
-            // Notify the user when the page changes
-            announceForAccessibility(getCurrentPageDescription());
-        }
-    }
-
     protected boolean computeScrollHelper() {
         if (mScroller.computeScrollOffset()) {
             // Don't bother scrolling if the page does not need to be moved
@@ -299,10 +291,6 @@ public abstract class PagedView extends ViewGroup {
             // and the user has stopped scrolling
             if (!mIsBeingDragged) {
                 pageEndTransition();
-            }
-
-            if (canAnnouncePageDescription()) {
-                announcePageForAccessibility();
             }
         }
         return false;
@@ -939,15 +927,6 @@ public abstract class PagedView extends ViewGroup {
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         event.setScrollable(mAllowOverScroll || getPageCount() > 1);
-    }
-
-    protected boolean canAnnouncePageDescription() {
-        return true;
-    }
-
-    protected String getCurrentPageDescription() {
-        return getContext().getString(R.string.default_scroll_format,
-                getNextPage() + 1, getChildCount());
     }
 
     public int[] getVisibleChildrenRange() {
