@@ -297,7 +297,6 @@ public class TaskView extends FrameLayout implements PageCallbacks, Reusable {
     }
 
     private boolean showTaskMenu() {
-        getRecentsView().snapToPage(getRecentsView().indexOfChild(this));
         mMenuView = TaskMenuView.showForTask(this);
         if (mMenuView != null) {
             mMenuView.addOnAttachStateChangeListener(mTaskMenuStateListener);

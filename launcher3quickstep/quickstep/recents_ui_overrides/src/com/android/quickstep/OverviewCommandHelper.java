@@ -23,7 +23,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.ViewConfiguration;
 
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.quickstep.views.RecentsView;
@@ -80,12 +79,6 @@ public class OverviewCommandHelper {
         }
 
         @Override
-        protected boolean handleCommand(long elapsedTime) {
-            // TODO: Go to the next page if started from alt-tab.
-            return mHelper.getVisibleRecentsView() != null;
-        }
-
-        @Override
         protected void onTransitionComplete() {
             // TODO(b/138729100) This doesn't execute first time launcher is run
             if (mTriggeredFromAltTab) {
@@ -112,20 +105,6 @@ public class OverviewCommandHelper {
 
     private class HideRecentsCommand extends RecentsActivityCommand {
 
-        @Override
-        protected boolean handleCommand(long elapsedTime) {
-            RecentsView recents = (RecentsView) mHelper.getVisibleRecentsView();
-            if (recents == null) {
-                return false;
-            }
-            int currentPage = recents.getNextPage();
-            if (currentPage >= 0 && currentPage < recents.getTaskViewCount()) {
-                ((TaskView) recents.getPageAt(currentPage)).launchTask(true);
-            } else {
-                recents.startHome();
-            }
-            return true;
-        }
     }
 
     private class RecentsActivityCommand<T extends BaseDraggingActivity> implements Runnable {
@@ -144,14 +123,7 @@ public class OverviewCommandHelper {
         @Override
         public void run() {
             Log.d(TAG, "RecentsActivityCommand starts to run");
-            long elapsedTime = mCreateTime - mLastToggleTime;
             mLastToggleTime = mCreateTime;
-
-            if (handleCommand(elapsedTime)) {
-                Log.d(TAG, "RecentsActivityCommand command handled");
-                // Command already handled.
-                return;
-            }
 
             if (mHelper.switchToRecentsIfVisible(this::onTransitionComplete)) {
                 Log.d(TAG, "RecentsActivityCommand command switchToRecents succeed");
@@ -161,23 +133,6 @@ public class OverviewCommandHelper {
             // Otherwise, start overview.
             Log.d(TAG, "RecentsActivityCommand command start overview " + mHelper);
             mOverviewComponentObserver.startOverview();
-        }
-
-        protected boolean handleCommand(long elapsedTime) {
-            // TODO: We need to fix this case with PIP, when an activity first enters PIP, it shows
-            //       the menu activity which takes window focus, preventing the right condition from
-            //       being run below
-            RecentsView recents = mHelper.getVisibleRecentsView();
-            if (recents != null) {
-                // Launch the next task
-                recents.showNextTask();
-                return true;
-            } else if (elapsedTime < ViewConfiguration.getDoubleTapTimeout()) {
-                // The user tried to launch back into overview too quickly, either after
-                // launching an app, or before overview has actually shown, just ignore for now
-                return true;
-            }
-            return false;
         }
 
         protected void onTransitionComplete() { }

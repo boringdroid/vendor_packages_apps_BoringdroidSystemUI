@@ -23,6 +23,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.Utilities;
@@ -38,6 +39,8 @@ import com.android.systemui.shared.system.SyncRtSurfaceTransactionApplierCompat;
  * Utility class for helpful methods related to {@link TaskView} objects and their tasks.
  */
 public final class TaskViewUtils {
+
+    private static final String TAG = "TaskViewUtils";
 
     private TaskViewUtils() {}
 
@@ -92,6 +95,10 @@ public final class TaskViewUtils {
                 boolean parallaxCenterAndAdjacentTask = taskIndex != centerTaskIndex;
                 if (!skipViewChanges && parallaxCenterAndAdjacentTask) {
                     float scale = taskBounds.width() / mThumbnailRect.width();
+                    if (Float.isNaN(scale)) {
+                        Log.d(TAG, "Ignore scaleX NaN");
+                        return;
+                    }
                     v.setScaleX(scale);
                     v.setScaleY(scale);
                     v.setTranslationX(taskBounds.centerX() - mThumbnailRect.centerX());

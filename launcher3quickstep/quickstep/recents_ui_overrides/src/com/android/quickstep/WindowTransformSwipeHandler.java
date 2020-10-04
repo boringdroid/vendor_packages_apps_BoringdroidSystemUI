@@ -625,15 +625,6 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity>
             duration = Math.max(MIN_OVERSHOOT_DURATION, duration);
         } else if (endTarget == RECENTS) {
             if (mRecentsView != null) {
-                int nearestPage = mRecentsView.getPageNearestToCenterOfScreen();
-                if (mRecentsView.getNextPage() != nearestPage) {
-                    // We shouldn't really scroll to the next page when swiping up to recents.
-                    // Only allow settling on the next page if it's nearest to the center.
-                    mRecentsView.snapToPage(nearestPage, Math.toIntExact(duration));
-                }
-                if (mRecentsView.getScroller().getDuration() > MAX_SWIPE_DURATION) {
-                    mRecentsView.snapToPage(mRecentsView.getNextPage(), (int) MAX_SWIPE_DURATION);
-                }
                 duration = Math.max(duration, mRecentsView.getScroller().getDuration());
             }
             if (mMode == Mode.NO_BUTTON) {
