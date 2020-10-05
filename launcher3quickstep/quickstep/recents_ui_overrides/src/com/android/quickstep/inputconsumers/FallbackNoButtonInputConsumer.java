@@ -334,7 +334,7 @@ public class FallbackNoButtonInputConsumer extends
                 mEndTarget = LAST_TASK;
             } else {
                 final int runningTaskIndex = mRecentsView.getRunningTaskIndex();
-                final int taskToLaunch = mRecentsView.getNextTaskViewIndex();
+                final int taskToLaunch = mRecentsView.getCurrentTaskViewIndex();
                 mEndTarget = (runningTaskIndex >= 0 && taskToLaunch != runningTaskIndex)
                         ? NEW_TASK : LAST_TASK;
             }

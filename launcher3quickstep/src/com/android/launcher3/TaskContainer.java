@@ -58,8 +58,6 @@ public abstract class TaskContainer extends ViewGroup {
     @ViewDebug.ExportedProperty(category = "launcher")
     protected int mCurrentTaskViewIndex;
 
-    @ViewDebug.ExportedProperty(category = "launcher")
-    protected int mNextTaskViewIndex = INVALID_TASK_VIEW_INDEX;
     private VelocityTracker mVelocityTracker;
     protected int mTaskViewSpacing = 0;
 
@@ -113,16 +111,16 @@ public abstract class TaskContainer extends ViewGroup {
         setDefaultFocusHighlightEnabled(false);
     }
 
-    /**
-     * Returns the index of page to be shown immediately afterwards.
-     */
-    public int getNextTaskViewIndex() {
-        return (mNextTaskViewIndex != INVALID_TASK_VIEW_INDEX)
-                ? mNextTaskViewIndex : mCurrentTaskViewIndex;
-    }
-
     public int getTaskViewCount() {
         return Math.min(MAX_TASK_COUNT, getChildCount());
+    }
+
+    public void setCurrentTaskViewIndex(int currentTaskViewIndex) {
+        mCurrentTaskViewIndex = currentTaskViewIndex;
+    }
+
+    public int getCurrentTaskViewIndex() {
+        return mCurrentTaskViewIndex;
     }
 
     @Override

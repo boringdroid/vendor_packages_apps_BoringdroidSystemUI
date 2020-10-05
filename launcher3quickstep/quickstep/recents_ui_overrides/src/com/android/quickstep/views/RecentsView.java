@@ -40,6 +40,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.FloatProperty;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -124,6 +125,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
                     return recentsView.mFullscreenProgress;
                 }
             };
+    private static final String TAG = "RecentsView";
 
     protected RecentsAnimationWrapper mRecentsAnimationWrapper;
     protected ClipAnimationHelper mClipAnimationHelper;
@@ -267,6 +269,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     private Layout mEmptyTextLayout;
 
     // Keeps track of the index where the first TaskView should be
+    // It is used to calculate real task view index.
     private int mTaskViewStartIndex = 0;
 
     private BaseActivity.MultiWindowModeChangedListener mMultiWindowModeChangedListener =
@@ -288,7 +291,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
         mTaskViewPool = new ViewPool<>(context, this, R.layout.task, MAX_TASK_COUNT, MAX_TASK_COUNT);
 
-        mIsRtl = !Utilities.isRtl(getResources());
+        mIsRtl = Utilities.isRtl(getResources());
         setLayoutDirection(mIsRtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
         mTaskTopMargin = getResources().getDimensionPixelSize(R.dimen.task_thumbnail_top_margin);
         mSquaredTouchSlop = squaredTouchSlop(context);
@@ -480,9 +483,9 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
 
         // Rebind and reset all task views
         for (int i = requiredTaskCount - 1; i >= 0; i--) {
-            final int pageIndex = requiredTaskCount - i - 1 + mTaskViewStartIndex;
+            final int taskViewIndex = requiredTaskCount - i - 1 + mTaskViewStartIndex;
             final Task task = tasks.get(i);
-            final TaskView taskView = (TaskView) getChildAt(pageIndex);
+            final TaskView taskView = (TaskView) getChildAt(taskViewIndex);
             taskView.bind(task);
         }
 
@@ -685,10 +688,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
      * {@link #onGestureAnimationStart} and {@link #onGestureAnimationEnd()}.
      */
     public void onSwipeUpAnimationSuccess() {
-        if (getRunningTaskView() != null) {
-            float startProgress = 0f;
-            animateUpRunningTaskIconScale(startProgress);
-        }
     }
 
     /**
@@ -698,7 +697,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         setEnableDrawingLiveTile(true);
         setOnScrollChangeListener(null);
         setRunningTaskHidden(false);
-        animateUpRunningTaskIconScale();
     }
 
     /**
@@ -774,19 +772,6 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         }
     }
 
-    public void animateUpRunningTaskIconScale() {
-        animateUpRunningTaskIconScale(0);
-    }
-
-    public void animateUpRunningTaskIconScale(float startProgress) {
-        mRunningTaskIconScaledDown = false;
-        TaskView firstTask = getRunningTaskView();
-        if (firstTask != null) {
-            firstTask.animateIconScaleAndDimIntoView();
-            firstTask.setIconScaleAnimStartProgress(startProgress);
-        }
-    }
-
     private void enableLayoutTransitions() {
         if (mLayoutTransition == null) {
             mLayoutTransition = new LayoutTransition();
@@ -829,8 +814,10 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         }
     }
 
-    public PendingAnimation createTaskDismissAnimation(TaskView taskView, boolean animateTaskView,
-                                                       boolean shouldRemoveTask, long duration) {
+    public PendingAnimation createTaskDismissAnimation(TaskView taskView,
+                                                       boolean animateTaskView,
+                                                       boolean shouldRemoveTask,
+                                                       long duration) {
         if (mPendingAnimation != null) {
             mPendingAnimation.finish(false);
         }
@@ -917,15 +904,24 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
         set.play(anim);
     }
 
-    private boolean snapToTaskViewRelative(int pageCount, int delta, boolean cycle) {
-        if (pageCount == 0) {
+    private boolean snapToTaskViewRelative(int taskCount, int delta, boolean cycle) {
+        if (taskCount == 0) {
             return false;
         }
-        final int newPageUnbound = getNextTaskViewIndex() + delta;
-        if (!cycle && (newPageUnbound < 0 || newPageUnbound >= pageCount)) {
+        int newTaskViewIndex = getCurrentTaskViewIndex() + delta;
+        Log.d(TAG, "snap to task view " + newTaskViewIndex + ", count " + taskCount
+                + ", delta " + delta + ", cycle " + cycle);
+        if (!cycle && (newTaskViewIndex < 0 || newTaskViewIndex >= taskCount)) {
             return false;
         }
-        getChildAt(getNextTaskViewIndex()).requestFocus();
+        if (newTaskViewIndex < 0) {
+            newTaskViewIndex = taskCount - 1;
+        } else if (newTaskViewIndex >= taskCount) {
+            newTaskViewIndex = 0;
+        }
+        Log.d(TAG, "snap to task view final " + newTaskViewIndex + ", count " + taskCount);
+        getChildAt(newTaskViewIndex).requestFocus();
+        setCurrentTaskViewIndex(newTaskViewIndex);
         return true;
     }
 
@@ -944,33 +940,35 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     private void dismissCurrentTask() {
-        TaskView taskView = getTaskView(getNextTaskViewIndex());
-        if (taskView != null) {
-            dismissTask(taskView, true /*animateTaskView*/, true /*removeTask*/);
+        View taskView = getChildAt(getCurrentTaskViewIndex());
+        Log.d(TAG, "dismiss current task index " + getCurrentTaskViewIndex()
+                + ", taskView " + taskView);
+        if (taskView instanceof TaskView) {
+            dismissTask((TaskView) taskView, true /*animateTaskView*/, true /*removeTask*/);
         }
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            Log.d(TAG, "dispatchKeyEvent " + event);
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_TAB:
-                    return snapToTaskViewRelative(getTaskViewCount(), event.isShiftPressed() ? -1 : 1,
-                            event.isAltPressed() /* cycle */);
+                    return snapToTaskViewRelative(
+                            getTaskViewCount(),
+                            event.isShiftPressed() ? -1 : 1,
+                            event.isAltPressed()
+                    );
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    return snapToTaskViewRelative(this.getTaskViewCount(), mIsRtl ? -1 : 1, false /* cycle */);
+                    return snapToTaskViewRelative(getTaskViewCount(), mIsRtl ? -1 : 1, false);
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    return snapToTaskViewRelative(this.getTaskViewCount(), mIsRtl ? 1 : -1, false /* cycle */);
+                    return snapToTaskViewRelative(getTaskViewCount(), mIsRtl ? 1 : -1, false);
                 case KeyEvent.KEYCODE_DEL:
                 case KeyEvent.KEYCODE_FORWARD_DEL:
                     dismissCurrentTask();
                     return true;
-                case KeyEvent.KEYCODE_NUMPAD_DOT:
-                    if (event.isAltPressed()) {
-                        // Numpad DEL pressed while holding Alt.
-                        dismissCurrentTask();
-                        return true;
-                    }
+                default:
+                    return super.dispatchKeyEvent(event);
             }
         }
         return super.dispatchKeyEvent(event);
@@ -1185,7 +1183,7 @@ public abstract class RecentsView<T extends BaseActivity> extends TaskContainer 
     }
 
     private void updateEnabledOverlays() {
-        int overlayEnabledPage = mOverlayEnabled ? getNextTaskViewIndex() : -1;
+        int overlayEnabledPage = mOverlayEnabled ? getCurrentTaskViewIndex() : -1;
         int taskCount = getTaskViewCount();
         for (int i = 0; i < taskCount; i++) {
             getTaskViewAt(i).setOverlayEnabled(i == overlayEnabledPage);

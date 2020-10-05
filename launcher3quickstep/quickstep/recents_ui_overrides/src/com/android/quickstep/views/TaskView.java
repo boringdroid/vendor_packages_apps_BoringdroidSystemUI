@@ -16,9 +16,6 @@
 
 package com.android.quickstep.views;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
@@ -28,17 +25,16 @@ import android.graphics.Outline;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.FloatProperty;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewOutlineProvider;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
@@ -60,7 +56,6 @@ import java.util.function.Consumer;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.android.launcher3.anim.Interpolators.FAST_OUT_SLOW_IN;
-import static com.android.launcher3.anim.Interpolators.LINEAR;
 
 /**
  * A task in the Recents view.
@@ -92,19 +87,6 @@ public class TaskView extends FrameLayout implements Reusable {
     private static final List<Rect> SYSTEM_GESTURE_EXCLUSION_RECT =
             Collections.singletonList(new Rect());
 
-    private static final FloatProperty<TaskView> FOCUS_TRANSITION =
-            new FloatProperty<TaskView>("focusTransition") {
-                @Override
-                public void setValue(TaskView taskView, float v) {
-                    taskView.setIconAndDimTransitionProgress(v, false /* invert */);
-                }
-
-                @Override
-                public Float get(TaskView taskView) {
-                    return taskView.mFocusTransitionProgress;
-                }
-            };
-
     private final OnAttachStateChangeListener mTaskMenuStateListener =
             new OnAttachStateChangeListener() {
                 @Override
@@ -134,9 +116,6 @@ public class TaskView extends FrameLayout implements Reusable {
     private final float mWindowCornerRadius;
     private final BaseDraggingActivity mActivity;
 
-    private ObjectAnimator mIconAndDimAnimator;
-    private float mIconScaleAnimStartProgress = 0;
-    private float mFocusTransitionProgress = 1;
     private float mStableAlpha = 1;
 
     // The current background requests to load the task thumbnail and icon
@@ -323,7 +302,6 @@ public class TaskView extends FrameLayout implements Reusable {
         if (invert) {
             progress = 1 - progress;
         }
-        mFocusTransitionProgress = progress;
         mSnapshotView.setDimAlphaMultipler(progress);
         float iconScalePercentage = (float) SCALE_ICON_DURATION / DIM_ANIM_DURATION;
         float lowerClamp = invert ? 1f - iconScalePercentage : 0;
@@ -341,34 +319,11 @@ public class TaskView extends FrameLayout implements Reusable {
         }
     }
 
-    public void setIconScaleAnimStartProgress(float startProgress) {
-        mIconScaleAnimStartProgress = startProgress;
-    }
-
-    public void animateIconScaleAndDimIntoView() {
-        if (mIconAndDimAnimator != null) {
-            mIconAndDimAnimator.cancel();
-        }
-        mIconAndDimAnimator = ObjectAnimator.ofFloat(this, FOCUS_TRANSITION, 1);
-        mIconAndDimAnimator.setCurrentFraction(mIconScaleAnimStartProgress);
-        mIconAndDimAnimator.setDuration(DIM_ANIM_DURATION).setInterpolator(LINEAR);
-        mIconAndDimAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mIconAndDimAnimator = null;
-            }
-        });
-        mIconAndDimAnimator.start();
-    }
-
     protected void setIconScaleAndDim(float iconScale) {
         setIconScaleAndDim(iconScale, false);
     }
 
     private void setIconScaleAndDim(float iconScale, boolean invert) {
-        if (mIconAndDimAnimator != null) {
-            mIconAndDimAnimator.cancel();
-        }
         setIconAndDimTransitionProgress(iconScale, invert);
     }
 
@@ -499,6 +454,15 @@ public class TaskView extends FrameLayout implements Reusable {
         return false;
     }
 
+    @Override
+    protected void onFocusChanged(boolean gainFocus, int direction, @Nullable Rect previouslyFocusedRect) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        Log.d(TAG, this + ", onFocusChanged " + gainFocus + ", task " + getTask());
+        float scale = gainFocus ? 1.2f : 1.0f;
+        mIconView.setScaleX(scale);
+        mIconView.setScaleY(scale);
+    }
+
     private static final class TaskOutlineProvider extends ViewOutlineProvider {
 
         private final int mMarginTop;
@@ -594,45 +558,6 @@ public class TaskView extends FrameLayout implements Reusable {
             animator.setDuration(100);
             animator.start();
         }
-    }
-
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-
-        info.addAction(
-                new AccessibilityNodeInfo.AccessibilityAction(R.string.accessibility_close_task,
-                        getContext().getText(R.string.accessibility_close_task)));
-
-        if (mDigitalWellBeingToast.hasLimit()) {
-            info.addAction(
-                    new AccessibilityNodeInfo.AccessibilityAction(
-                            R.string.accessibility_app_usage_settings,
-                            getContext().getText(R.string.accessibility_app_usage_settings)));
-        }
-
-        final RecentsView recentsView = getRecentsView();
-        final AccessibilityNodeInfo.CollectionItemInfo itemInfo =
-                AccessibilityNodeInfo.CollectionItemInfo.obtain(
-                        0, 1, recentsView.getChildCount() - recentsView.indexOfChild(this) - 1, 1,
-                        false);
-        info.setCollectionItemInfo(itemInfo);
-    }
-
-    @Override
-    public boolean performAccessibilityAction(int action, Bundle arguments) {
-        if (action == R.string.accessibility_close_task) {
-            getRecentsView().dismissTask(this, true /*animateTaskView*/,
-                    true /*removeTask*/);
-            return true;
-        }
-
-        if (action == R.string.accessibility_app_usage_settings) {
-            mDigitalWellBeingToast.openAppUsageSettings(this);
-            return true;
-        }
-
-        return super.performAccessibilityAction(action, arguments);
     }
 
     public RecentsView getRecentsView() {
