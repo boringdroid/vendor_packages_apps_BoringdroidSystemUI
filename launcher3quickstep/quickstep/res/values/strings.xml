@@ -21,11 +21,6 @@
     <!-- Application name -->
     <string name="derived_app_name" translatable="false">Quickstep</string>
 
-    <!-- Options for recent tasks -->
-    <!-- Title for an option to enter split screen mode for a given app -->
-    <!-- Title for an option to keep an app pinned to the screen until it is unpinned -->
-    <!-- Title for an option to enter freeform mode for a given app -->
-
     <!-- Content description for the recent apps panel (not shown on the screen). [CHAR LIMIT=NONE] -->
 
     <!-- Recents: The empty recents string. [CHAR LIMIT=NONE] -->
@@ -39,5 +34,6 @@
 
     <string name="app_info_drop_target_label" translatable="false">App info</string>
     <string name="recent_task_option_split_screen" translatable="false">Split screen</string>
+    <string name="recent_task_option_close_task" translatable="false">Close task</string>
     <string name="activity_not_found" translatable="false">App isn\'t installed.</string>
 </resources>

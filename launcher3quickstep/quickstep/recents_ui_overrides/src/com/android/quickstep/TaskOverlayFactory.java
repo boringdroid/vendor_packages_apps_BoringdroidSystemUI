@@ -43,6 +43,7 @@ public class TaskOverlayFactory implements ResourceBasedOverride {
     private static final TaskSystemShortcut[] MENU_OPTIONS = new TaskSystemShortcut[]{
             new TaskSystemShortcut.AppInfo(),
             new TaskSystemShortcut.SplitScreen(),
+            new TaskSystemShortcut.CloseTask(),
     };
 
     public TaskOverlay createOverlay() {

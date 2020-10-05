@@ -30,6 +30,7 @@ import android.view.View;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.popup.SystemShortcut;
+import com.android.quickstep.views.RecentsView;
 import com.android.quickstep.views.TaskThumbnailView;
 import com.android.quickstep.views.TaskView;
 import com.android.systemui.shared.recents.ISystemUiProxy;
@@ -84,6 +85,27 @@ public class TaskSystemShortcut<T extends SystemShortcut> extends SystemShortcut
     public static class AppInfo extends TaskSystemShortcut<SystemShortcut.AppInfo> {
         public AppInfo() {
             super(new SystemShortcut.AppInfo());
+        }
+    }
+
+    public static class CloseTask extends TaskSystemShortcut {
+        public CloseTask() {
+            super(R.drawable.ic_close_task, R.string.recent_task_option_split_screen);
+        }
+
+        @Override
+        public View.OnClickListener getOnClickListener(BaseDraggingActivity activity,
+                                                       TaskView taskView) {
+            return v -> {
+                dismissTaskMenuView(activity);
+                if (taskView == null) {
+                    return;
+                }
+                RecentsView recentsView = taskView.getRecentsView();
+                if (recentsView != null) {
+                    recentsView.removeView(taskView);
+                }
+            };
         }
     }
 
