@@ -172,6 +172,10 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
         updateThumbnailPaintFilter();
     }
 
+    public float getDimAlpha() {
+        return mDimAlpha;
+    }
+
     public int getSysUiStatusNavFlags() {
         if (mThumbnailData != null) {
             int flags = 0;

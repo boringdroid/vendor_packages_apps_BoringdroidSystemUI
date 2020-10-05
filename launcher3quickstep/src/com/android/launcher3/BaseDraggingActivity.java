@@ -25,6 +25,7 @@ import android.view.View;
 import com.android.launcher3.uioverrides.DisplayRotationListener;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
 import com.android.launcher3.util.Themes;
+import com.android.launcher3.views.BaseDragLayer;
 
 /**
  * Extension of BaseActivity allowing support for drag-n-drop
@@ -100,6 +101,8 @@ public abstract class BaseDraggingActivity extends BaseActivity
     public abstract <T extends View> T getOverviewPanel();
 
     public abstract ActivityOptions getActivityLaunchOptions(View v);
+
+    public abstract BaseDragLayer getDragLayer();
 
     @Override
     protected void onStart() {

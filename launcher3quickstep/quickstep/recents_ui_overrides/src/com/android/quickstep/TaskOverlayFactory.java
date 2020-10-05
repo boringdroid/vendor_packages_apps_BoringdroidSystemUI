@@ -16,11 +16,19 @@
 
 package com.android.quickstep;
 
-import static com.android.launcher3.util.MainThreadInitializedObject.forOverride;
+import android.view.View;
 
+import com.android.launcher3.BaseActivity;
+import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.util.MainThreadInitializedObject;
 import com.android.launcher3.util.ResourceBasedOverride;
+import com.android.quickstep.views.TaskView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.android.launcher3.util.MainThreadInitializedObject.forOverride;
 
 /**
  * Factory class to create and add an overlays on the TaskView
@@ -29,8 +37,29 @@ public class TaskOverlayFactory implements ResourceBasedOverride {
     public static final MainThreadInitializedObject<TaskOverlayFactory> INSTANCE =
             forOverride(TaskOverlayFactory.class, R.string.task_overlay_factory_class);
 
+    /**
+     * Note that these will be shown in order from top to bottom, if available for the task.
+     */
+    private static final TaskSystemShortcut[] MENU_OPTIONS = new TaskSystemShortcut[]{
+            new TaskSystemShortcut.AppInfo(),
+            new TaskSystemShortcut.SplitScreen(),
+    };
+
     public TaskOverlay createOverlay() {
         return new TaskOverlay();
+    }
+
+    public List<TaskSystemShortcut> getEnabledShortcuts(TaskView taskView) {
+        final ArrayList<TaskSystemShortcut> shortcuts = new ArrayList<>();
+        final BaseDraggingActivity activity = BaseActivity.fromContext(taskView.getContext());
+        for (TaskSystemShortcut menuOption : MENU_OPTIONS) {
+            View.OnClickListener onClickListener =
+                    menuOption.getOnClickListener(activity, taskView);
+            if (onClickListener != null) {
+                shortcuts.add(menuOption);
+            }
+        }
+        return shortcuts;
     }
 
     public static class TaskOverlay {
@@ -38,11 +67,13 @@ public class TaskOverlayFactory implements ResourceBasedOverride {
         /**
          * Called when the current task is interactive for the user
          */
-        public void initOverlay() { }
+        public void initOverlay() {
+        }
 
         /**
          * Called when the overlay is no longer used.
          */
-        public void reset() { }
+        public void reset() {
+        }
     }
 }

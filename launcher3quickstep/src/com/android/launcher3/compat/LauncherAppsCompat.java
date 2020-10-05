@@ -16,11 +16,14 @@
 
 package com.android.launcher3.compat;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInstaller.SessionCallback;
+import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.UserHandle;
 
 import com.android.launcher3.Utilities;
@@ -77,4 +80,6 @@ public abstract class LauncherAppsCompat {
 
     public abstract void registerSessionCallback(LooperExecutor executor,
                                                  SessionCallback sessionCallback);
+    public abstract void showAppDetailsForProfile(ComponentName component, UserHandle user,
+                                                  Rect sourceBounds, Bundle opts);
 }

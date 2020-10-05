@@ -20,9 +20,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.android.launcher3.util.TouchController;
+import com.android.launcher3.views.BaseDragLayer;
 
 /**
  * Base class for a View which shows a floating UI on top of the launcher UI.
@@ -74,5 +76,18 @@ public abstract class AbstractFloatingView extends LinearLayout implements Touch
 
     public static AbstractFloatingView getTopOpenViewWithType() {
         return getOpenView();
+    }
+
+    public static void closeOpenViews(BaseDraggingActivity activity, boolean animate) {
+        BaseDragLayer dragLayer = activity.getDragLayer();
+        // Iterate in reverse order. AbstractFloatingView is added later to the dragLayer,
+        // and will be one of the last views.
+        for (int i = dragLayer.getChildCount() - 1; i >= 0; i--) {
+            View child = dragLayer.getChildAt(i);
+            if (child instanceof AbstractFloatingView) {
+                AbstractFloatingView abs = (AbstractFloatingView) child;
+                abs.close(animate);
+            }
+        }
     }
 }

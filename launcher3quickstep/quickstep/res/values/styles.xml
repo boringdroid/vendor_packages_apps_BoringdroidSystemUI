@@ -17,8 +17,32 @@
 <resources>
     <!-- Task Menu layout styles. -->
     <style name="TaskMenu">
-        <item name="android:orientation">vertical</item>
+        <item name="android:orientation">horizontal</item>
     </style>
 
     <!-- Task Menu Option layout styles. -->
+    <style name="TaskMenu.Option">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- Theme for the popup container -->
+    <style name="PopupItem">
+        <item name="android:colorControlHighlight">?attr/popupColorTertiary</item>
+    </style>
+
+    <!-- Base theme for BubbleTextView and sub classes -->
+    <style name="BaseIcon" parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:lines">1</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:defaultFocusHighlightEnabled">false</item>
+
+        <!-- No shadows in the base theme -->
+        <item name="android:shadowRadius">0</item>
+    </style>
 </resources>
