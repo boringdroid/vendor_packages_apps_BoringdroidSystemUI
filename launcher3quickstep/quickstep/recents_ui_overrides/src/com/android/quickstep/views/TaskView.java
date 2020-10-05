@@ -20,7 +20,6 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Outline;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -102,8 +101,6 @@ public class TaskView extends FrameLayout implements Reusable {
                 }
             };
 
-    private final TaskOutlineProvider mOutlineProvider;
-
     private Task mTask;
     private TaskThumbnailView mSnapshotView;
     private TaskMenuView mMenuView;
@@ -150,9 +147,6 @@ public class TaskView extends FrameLayout implements Reusable {
         mWindowCornerRadius = QuickStepContract.getWindowCornerRadius(context.getResources());
         mCurrentFullscreenParams = new FullscreenDrawParams(mCornerRadius);
         mDigitalWellBeingToast = new DigitalWellBeingToast(mActivity, this);
-
-        mOutlineProvider = new TaskOutlineProvider(getResources(), mCurrentFullscreenParams);
-        setOutlineProvider(mOutlineProvider);
     }
 
     @Override
@@ -467,32 +461,6 @@ public class TaskView extends FrameLayout implements Reusable {
         mIconView.setScaleY(scale);
     }
 
-    private static final class TaskOutlineProvider extends ViewOutlineProvider {
-
-        private final int mMarginTop;
-        private FullscreenDrawParams mFullscreenParams;
-
-        TaskOutlineProvider(Resources res, FullscreenDrawParams fullscreenParams) {
-            mMarginTop = res.getDimensionPixelSize(R.dimen.task_thumbnail_top_margin);
-            mFullscreenParams = fullscreenParams;
-        }
-
-        public void setFullscreenParams(FullscreenDrawParams params) {
-            mFullscreenParams = params;
-        }
-
-        @Override
-        public void getOutline(View view, Outline outline) {
-            RectF insets = mFullscreenParams.mCurrentDrawnInsets;
-            float scale = mFullscreenParams.mScale;
-            outline.setRoundRect(0,
-                    (int) (mMarginTop * scale),
-                    (int) ((insets.left + view.getWidth() + insets.right) * scale),
-                    (int) ((insets.top + view.getHeight() + insets.bottom) * scale),
-                    mFullscreenParams.mCurrentDrawnCornerRadius);
-        }
-    }
-
     private class FooterWrapper extends ViewOutlineProvider {
 
         final View mView;
@@ -619,8 +587,6 @@ public class TaskView extends FrameLayout implements Reusable {
         }
 
         thumbnail.setFullscreenParams(mCurrentFullscreenParams);
-        mOutlineProvider.setFullscreenParams(mCurrentFullscreenParams);
-        invalidateOutline();
     }
 
     public void setOverlayEnabled(boolean overlayEnabled) {

@@ -16,8 +16,6 @@
 
 package com.android.quickstep.views;
 
-import static com.android.systemui.shared.system.WindowManagerWrapper.WINDOWING_MODE_FULLSCREEN;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -53,6 +51,8 @@ import com.android.systemui.plugins.OverviewScreenshotActions;
 import com.android.systemui.plugins.PluginListener;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.recents.model.ThumbnailData;
+
+import static com.android.systemui.shared.system.WindowManagerWrapper.WINDOWING_MODE_FULLSCREEN;
 
 /**
  * A task in the Recents view.
@@ -152,7 +152,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
 
         if (mOverviewScreenshotActionsPlugin != null) {
             mOverviewScreenshotActionsPlugin
-                .setupActions(getTaskView(), getThumbnail(), mActivity);
+                    .setupActions(getTaskView(), getThumbnail(), mActivity);
         }
         updateThumbnailPaintFilter();
     }
@@ -197,18 +197,20 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
         canvas.translate(currentDrawnInsets.left, currentDrawnInsets.top);
         canvas.scale(mFullscreenParams.mScale, mFullscreenParams.mScale);
         // Draw the insets if we're being drawn fullscreen (we do this for quick switch).
-        drawOnCanvas(canvas,
+        drawOnCanvas(
+                canvas,
                 -currentDrawnInsets.left,
                 -currentDrawnInsets.top,
                 getMeasuredWidth() + currentDrawnInsets.right,
                 getMeasuredHeight() + currentDrawnInsets.bottom,
-                mFullscreenParams.mCurrentDrawnCornerRadius);
+                mFullscreenParams.mCurrentDrawnCornerRadius
+        );
         canvas.restore();
     }
 
     @Override
     public void onPluginConnected(OverviewScreenshotActions overviewScreenshotActions,
-            Context context) {
+                                  Context context) {
         mOverviewScreenshotActionsPlugin = overviewScreenshotActions;
         mOverviewScreenshotActionsPlugin.setupActions(getTaskView(), getThumbnail(), mActivity);
     }
@@ -224,7 +226,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         PluginManagerWrapper.INSTANCE.get(getContext())
-            .addPluginListener(this, OverviewScreenshotActions.class);
+                .addPluginListener(this, OverviewScreenshotActions.class);
     }
 
     @Override
@@ -244,12 +246,20 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     }
 
     public void drawOnCanvas(Canvas canvas, float x, float y, float width, float height,
-            float cornerRadius) {
+                             float cornerRadius) {
         // Draw the background in all cases, except when the thumbnail data is opaque
         final boolean drawBackgroundOnly = mTask == null || mTask.isLocked || mBitmapShader == null
                 || mThumbnailData == null;
         if (drawBackgroundOnly || mClipBottom > 0 || mThumbnailData.isTranslucent) {
-            canvas.drawRoundRect(x, y, width, height, cornerRadius, cornerRadius, mBackgroundPaint);
+            canvas.drawRoundRect(
+                    x,
+                    y,
+                    width,
+                    mClipBottom > 0 ? mClipBottom : height,
+                    cornerRadius,
+                    cornerRadius,
+                    mBackgroundPaint
+            );
             if (drawBackgroundOnly) {
                 return;
             }
@@ -258,7 +268,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
         if (mClipBottom > 0) {
             canvas.save();
             canvas.clipRect(x, y, width, mClipBottom);
-            canvas.drawRoundRect(x, y, width, height, cornerRadius, cornerRadius, mPaint);
+            canvas.drawRoundRect(x, y, width, mClipBottom, cornerRadius, cornerRadius, mPaint);
             canvas.restore();
         } else {
             canvas.drawRoundRect(x, y, width, height, cornerRadius, cornerRadius, mPaint);
@@ -396,8 +406,9 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
      * @param intensity multiplier for color values. 0 - make black (white if shouldLighten), 255 -
      *                  leave unchanged.
      */
-    private static ColorFilter getColorFilter(int intensity, boolean shouldLighten,
-            float saturation) {
+    private static ColorFilter getColorFilter(int intensity,
+                                              boolean shouldLighten,
+                                              float saturation) {
         intensity = Utilities.boundToRange(intensity, 0, 255);
 
         if (intensity == 255 && saturation == 1) {
