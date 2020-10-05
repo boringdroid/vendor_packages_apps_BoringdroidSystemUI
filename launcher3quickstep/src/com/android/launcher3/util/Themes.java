@@ -46,11 +46,11 @@ public class Themes {
         if (darkTheme) {
             return wallpaperColorInfo.supportsDarkText() ?
                     R.style.AppTheme_Dark_DarkText : wallpaperColorInfo.isMainColorDark() ?
-                            R.style.AppTheme_Dark_DarkMainColor : R.style.AppTheme_Dark;
+                    R.style.AppTheme_Dark_DarkMainColor : R.style.AppTheme_Dark;
         } else {
             return wallpaperColorInfo.supportsDarkText() ?
                     R.style.AppTheme_DarkText : wallpaperColorInfo.isMainColorDark() ?
-                            R.style.AppTheme_DarkMainColor : R.style.AppTheme;
+                    R.style.AppTheme_DarkMainColor : R.style.AppTheme;
         }
     }
 
@@ -63,8 +63,7 @@ public class Themes {
     }
 
     public static float getDialogCornerRadius(Context context) {
-        return getDimension(context, android.R.attr.dialogCornerRadius,
-                context.getResources().getDimension(R.dimen.default_dialog_corner_radius));
+        return context.getResources().getDimension(R.dimen.default_dialog_corner_radius);
     }
 
     public static float getDimension(Context context, int attr, float defaultValue) {
@@ -100,7 +99,7 @@ public class Themes {
      * held in memory for later use.
      */
     public static SparseArray<TypedValue> createValueMap(Context context, AttributeSet attrSet,
-            IntArray keysToIgnore) {
+                                                         IntArray keysToIgnore) {
         int count = attrSet.getAttributeCount();
         IntArray attrNameArray = new IntArray(count);
         for (int i = 0; i < count; i++) {

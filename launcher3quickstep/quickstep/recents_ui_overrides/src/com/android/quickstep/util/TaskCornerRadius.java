@@ -23,7 +23,6 @@ import com.android.launcher3.R;
 import com.android.launcher3.util.Themes;
 
 public class TaskCornerRadius {
-
     public static float get(Context context) {
         return supportsRoundedCornersOnWindows(context.getResources()) ?
                 Themes.getDialogCornerRadius(context):

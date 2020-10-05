@@ -644,6 +644,7 @@ public class TaskView extends FrameLayout implements Reusable {
 
         public void setCornerRadius(float cornerRadius) {
             mCurrentDrawnCornerRadius = cornerRadius;
+            android.util.Log.e("TaskView", this + ", fullscreenCornerRadius " + mCurrentDrawnCornerRadius, new Exception());
         }
 
         public void setScale(float scale) {

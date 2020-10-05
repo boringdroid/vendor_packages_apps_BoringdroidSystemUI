@@ -29,14 +29,14 @@ import androidx.annotation.Nullable;
 
 import com.android.launcher3.graphics.IconShape;
 import com.android.launcher3.icons.DotRenderer;
-import com.android.launcher3.icons.IconNormalizer;
 import com.android.launcher3.util.DefaultDisplay;
 
 public class DeviceProfile {
 
     public final InvariantDeviceProfile inv;
     // IDP with no grid override values.
-    @Nullable private final InvariantDeviceProfile originalIdp;
+    @Nullable
+    private final InvariantDeviceProfile originalIdp;
 
     // Device properties
     public final boolean isTablet;
@@ -89,19 +89,6 @@ public class DeviceProfile {
     public int cellHeightPx;
     public int workspaceCellPaddingXPx;
 
-    // Folder
-    public int folderIconSizePx;
-    public int folderIconOffsetYPx;
-
-    // Folder cell
-    public int folderCellWidthPx;
-    public int folderCellHeightPx;
-
-    // Folder child
-    public int folderChildIconSizePx;
-    public int folderChildTextSizePx;
-    public int folderChildDrawablePaddingPx;
-
     // All apps
     public int allAppsCellHeightPx;
     public int allAppsCellWidthPx;
@@ -126,8 +113,8 @@ public class DeviceProfile {
     public DotRenderer mDotRendererAllApps;
 
     public DeviceProfile(Context context, InvariantDeviceProfile inv,
-            InvariantDeviceProfile originalIDP, Point minSize, Point maxSize,
-            int width, int height, boolean isLandscape, boolean isMultiWindowMode) {
+                         InvariantDeviceProfile originalIDP, Point minSize, Point maxSize,
+                         int width, int height, boolean isLandscape, boolean isMultiWindowMode) {
 
         this.inv = inv;
         this.originalIdp = inv;
@@ -257,6 +244,7 @@ public class DeviceProfile {
 
     /**
      * Inverse of {@link #getMultiWindowProfile(Context, Point)}
+     *
      * @return device profile corresponding to the current orientation in non multi-window mode.
      */
     public DeviceProfile getFullScreenProfile() {
@@ -291,7 +279,6 @@ public class DeviceProfile {
             float scale = maxHeight / usedHeight;
             updateIconSize(scale, res, dm);
         }
-        updateAvailableFolderCellDimensions(dm, res);
     }
 
     /**
@@ -342,53 +329,6 @@ public class DeviceProfile {
             workspaceSpringLoadShrinkFactor =
                     res.getInteger(R.integer.config_workspaceSpringLoadShrinkPercentage) / 100.0f;
         }
-
-        // Folder icon
-        folderIconSizePx = IconNormalizer.getNormalizedCircleSize(iconSizePx);
-        folderIconOffsetYPx = (iconSizePx - folderIconSizePx) / 2;
-    }
-
-    private void updateAvailableFolderCellDimensions(DisplayMetrics dm, Resources res) {
-        int folderBottomPanelSize = res.getDimensionPixelSize(R.dimen.folder_label_padding_top)
-                + res.getDimensionPixelSize(R.dimen.folder_label_padding_bottom)
-                + Utilities.calculateTextHeight(res.getDimension(R.dimen.folder_label_text_size));
-
-        updateFolderCellSize(1f, dm, res);
-
-        // Don't let the folder get too close to the edges of the screen.
-        int folderMargin = edgeMarginPx * 2;
-        Point totalWorkspacePadding = getTotalWorkspacePadding();
-
-        // Check if the icons fit within the available height.
-        float contentUsedHeight = folderCellHeightPx * inv.numFolderRows;
-        int contentMaxHeight = availableHeightPx - totalWorkspacePadding.y - folderBottomPanelSize
-                - folderMargin;
-        float scaleY = contentMaxHeight / contentUsedHeight;
-
-        // Check if the icons fit within the available width.
-        float contentUsedWidth = folderCellWidthPx * inv.numFolderColumns;
-        int contentMaxWidth = availableWidthPx - totalWorkspacePadding.x - folderMargin;
-        float scaleX = contentMaxWidth / contentUsedWidth;
-
-        float scale = Math.min(scaleX, scaleY);
-        if (scale < 1f) {
-            updateFolderCellSize(scale, dm, res);
-        }
-    }
-
-    private void updateFolderCellSize(float scale, DisplayMetrics dm, Resources res) {
-        folderChildIconSizePx = (int) (ResourceUtils.pxFromDp(inv.iconSize, dm) * scale);
-        folderChildTextSizePx =
-                (int) (res.getDimensionPixelSize(R.dimen.folder_child_text_size) * scale);
-
-        int textHeight = Utilities.calculateTextHeight(folderChildTextSizePx);
-        int cellPaddingX = (int) (res.getDimensionPixelSize(R.dimen.folder_cell_x_padding) * scale);
-        int cellPaddingY = (int) (res.getDimensionPixelSize(R.dimen.folder_cell_y_padding) * scale);
-
-        folderCellWidthPx = folderChildIconSizePx + 2 * cellPaddingX;
-        folderCellHeightPx = folderChildIconSizePx + 2 * cellPaddingY + textHeight;
-        folderChildDrawablePaddingPx = Math.max(0,
-                (folderCellHeightPx - folderChildIconSizePx - textHeight) / 3);
     }
 
     public void updateInsets(Rect insets) {
@@ -468,6 +408,7 @@ public class DeviceProfile {
     public static int calculateCellWidth(int width, int countX) {
         return width / countX;
     }
+
     public static int calculateCellHeight(int height, int countY) {
         return height / countY;
     }

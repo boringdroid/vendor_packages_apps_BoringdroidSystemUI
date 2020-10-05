@@ -22,8 +22,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.InputDevice;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -413,28 +411,6 @@ public abstract class TaskContainer extends ViewGroup {
         releaseVelocityTracker();
         mIsBeingDragged = false;
         mActivePointerId = INVALID_POINTER;
-    }
-
-    @Override
-    public boolean onGenericMotionEvent(MotionEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_CLASS_POINTER) != 0) {
-            if (event.getAction() == MotionEvent.ACTION_SCROLL) {
-                // Handle mouse (or ext. device) by shifting the page depending on the scroll
-                final float vscroll;
-                final float hscroll;
-                if ((event.getMetaState() & KeyEvent.META_SHIFT_ON) != 0) {
-                    vscroll = 0;
-                    hscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
-                } else {
-                    vscroll = -event.getAxisValue(MotionEvent.AXIS_VSCROLL);
-                    hscroll = event.getAxisValue(MotionEvent.AXIS_HSCROLL);
-                }
-                if (hscroll != 0 || vscroll != 0) {
-                    return true;
-                }
-            }
-        }
-        return super.onGenericMotionEvent(event);
     }
 
     private void acquireVelocityTrackerAndAddMovement(MotionEvent ev) {
