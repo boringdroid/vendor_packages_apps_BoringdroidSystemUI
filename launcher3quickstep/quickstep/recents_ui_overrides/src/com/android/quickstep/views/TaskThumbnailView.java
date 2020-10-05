@@ -58,10 +58,11 @@ import static com.android.systemui.shared.system.WindowManagerWrapper.WINDOWING_
  * A task in the Recents view.
  */
 public class TaskThumbnailView extends View implements PluginListener<OverviewScreenshotActions> {
-
     private final static ColorMatrix COLOR_MATRIX = new ColorMatrix();
     private final static ColorMatrix SATURATION_COLOR_MATRIX = new ColorMatrix();
     private final static RectF EMPTY_RECT_F = new RectF();
+    private final static float FOCUS_INSET = 3.0f;
+    private final static float UNFOCUS_INSET = 0.0f;
 
     public static final Property<TaskThumbnailView, Float> DIM_ALPHA =
             new FloatProperty<TaskThumbnailView>("dimAlpha") {
@@ -81,6 +82,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     private final boolean mIsDarkTextTheme;
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mClearPaint = new Paint();
     private final Paint mDimmingPaintAfterClearing = new Paint();
 
@@ -89,6 +91,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     private float mClipBottom = -1;
     // Contains the portion of the thumbnail that is clipped when fullscreen progress = 0.
     private RectF mClippedInsets = new RectF();
+    private RectF mTmpRectF = new RectF();
     private TaskView.FullscreenDrawParams mFullscreenParams;
 
     private Task mTask;
@@ -102,6 +105,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     private boolean mOverlayEnabled;
     private boolean mRotated;
     private OverviewScreenshotActions mOverviewScreenshotActionsPlugin;
+    private float mFocusInset = UNFOCUS_INSET;
 
     public TaskThumbnailView(Context context) {
         this(context, null);
@@ -116,6 +120,7 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
         mOverlay = TaskOverlayFactory.INSTANCE.get(context).createOverlay();
         mPaint.setFilterBitmap(true);
         mBackgroundPaint.setColor(Color.WHITE);
+        mBorderPaint.setColor(Color.YELLOW);
         mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         mDimmingPaintAfterClearing.setColor(Color.BLACK);
         mActivity = BaseActivity.fromContext(context);
@@ -176,6 +181,11 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
         return mDimAlpha;
     }
 
+    public void onFocusChanged(boolean gainFocus) {
+        mFocusInset = gainFocus ? FOCUS_INSET : UNFOCUS_INSET;
+        invalidate();
+    }
+
     public int getSysUiStatusNavFlags() {
         if (mThumbnailData != null) {
             int flags = 0;
@@ -192,19 +202,58 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
 
     @Override
     protected void onDraw(Canvas canvas) {
-        RectF currentDrawnInsets = mFullscreenParams.mCurrentDrawnInsets;
-        canvas.save();
-        canvas.translate(currentDrawnInsets.left, currentDrawnInsets.top);
-        canvas.scale(mFullscreenParams.mScale, mFullscreenParams.mScale);
-        // Draw the insets if we're being drawn fullscreen (we do this for quick switch).
-        drawOnCanvas(
-                canvas,
-                -currentDrawnInsets.left,
-                -currentDrawnInsets.top,
-                getMeasuredWidth() + currentDrawnInsets.right,
-                getMeasuredHeight() + currentDrawnInsets.bottom,
-                mFullscreenParams.mCurrentDrawnCornerRadius
+        mTmpRectF.set(mFullscreenParams.mCurrentDrawnInsets);
+        mTmpRectF.set(
+                mTmpRectF.left + mFocusInset,
+                mTmpRectF.top + mFocusInset,
+                mTmpRectF.right + mFocusInset,
+                mTmpRectF.bottom + mFocusInset
         );
+        float scale = mFullscreenParams.mScale;
+        float radius = mFullscreenParams.mCurrentDrawnCornerRadius;
+        int width = getMeasuredWidth();
+        int height = getMeasuredHeight();
+        float left = mTmpRectF.left;
+        float right = mTmpRectF.right;
+        float top = mTmpRectF.top;
+        float bottom = mTmpRectF.bottom;
+
+        canvas.save();
+        canvas.scale(scale, scale);
+        canvas.drawRoundRect(
+                0, 0, width, mClipBottom > 0 ? mClipBottom : height, radius, radius, mBorderPaint
+        );
+        // Draw the background in all cases, except when the thumbnail data is opaque
+        final boolean drawBackgroundOnly =
+                mTask == null
+                        || mTask.isLocked
+                        || mBitmapShader == null
+                        || mThumbnailData == null;
+        if (drawBackgroundOnly || mClipBottom > 0 || mThumbnailData.isTranslucent) {
+            canvas.drawRoundRect(
+                    left,
+                    top,
+                    width - right,
+                    mClipBottom > 0 ? mClipBottom - bottom : height - bottom,
+                    radius,
+                    radius,
+                    mBackgroundPaint
+            );
+            if (drawBackgroundOnly) {
+                return;
+            }
+        }
+
+        if (mClipBottom > 0) {
+            canvas.save();
+            canvas.clipRect(left, top, width - right, mClipBottom - bottom);
+            canvas.drawRoundRect(left, top, width - right, mClipBottom - bottom, radius, radius, mPaint);
+            canvas.restore();
+        } else {
+            canvas.drawRoundRect(
+                    left, top, width - right, height - bottom, radius, radius, mPaint
+            );
+        }
         canvas.restore();
     }
 
@@ -243,36 +292,6 @@ public class TaskThumbnailView extends View implements PluginListener<OverviewSc
     public void setFullscreenParams(TaskView.FullscreenDrawParams fullscreenParams) {
         mFullscreenParams = fullscreenParams;
         invalidate();
-    }
-
-    public void drawOnCanvas(Canvas canvas, float x, float y, float width, float height,
-                             float cornerRadius) {
-        // Draw the background in all cases, except when the thumbnail data is opaque
-        final boolean drawBackgroundOnly = mTask == null || mTask.isLocked || mBitmapShader == null
-                || mThumbnailData == null;
-        if (drawBackgroundOnly || mClipBottom > 0 || mThumbnailData.isTranslucent) {
-            canvas.drawRoundRect(
-                    x,
-                    y,
-                    width,
-                    mClipBottom > 0 ? mClipBottom : height,
-                    cornerRadius,
-                    cornerRadius,
-                    mBackgroundPaint
-            );
-            if (drawBackgroundOnly) {
-                return;
-            }
-        }
-
-        if (mClipBottom > 0) {
-            canvas.save();
-            canvas.clipRect(x, y, width, mClipBottom);
-            canvas.drawRoundRect(x, y, width, mClipBottom, cornerRadius, cornerRadius, mPaint);
-            canvas.restore();
-        } else {
-            canvas.drawRoundRect(x, y, width, height, cornerRadius, cornerRadius, mPaint);
-        }
     }
 
     public TaskView getTaskView() {

@@ -452,13 +452,18 @@ public class TaskView extends FrameLayout implements Reusable {
     protected void onFocusChanged(boolean gainFocus, int direction, @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         Log.d(TAG, this + ", onFocusChanged " + gainFocus + ", task " + getTask());
-        float scale = gainFocus ? 1.2f : 1.0f;
+        updateFocus(gainFocus);
+    }
+
+    private void updateFocus(boolean focus) {
+        float scale = focus ? 1.2f : 1.0f;
         // Dismiss menu view if gaining focus.
         if (mMenuView != null && mMenuView.getVisibility() == View.VISIBLE) {
             mMenuView.close(true);
         }
         mIconView.setScaleX(scale);
         mIconView.setScaleY(scale);
+        mSnapshotView.onFocusChanged(focus);
     }
 
     private class FooterWrapper extends ViewOutlineProvider {
