@@ -459,6 +459,10 @@ public class TaskView extends FrameLayout implements Reusable {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         Log.d(TAG, this + ", onFocusChanged " + gainFocus + ", task " + getTask());
         float scale = gainFocus ? 1.2f : 1.0f;
+        // Dismiss menu view if gaining focus.
+        if (mMenuView != null && mMenuView.getVisibility() == View.VISIBLE) {
+            mMenuView.close(true);
+        }
         mIconView.setScaleX(scale);
         mIconView.setScaleY(scale);
     }
