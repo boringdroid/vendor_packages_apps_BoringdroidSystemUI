@@ -41,7 +41,7 @@ public class AllAppsLayout extends RecyclerView {
         setAdapter(mAdapter);
     }
 
-    public void setData(List<AppInfo> apps) {
+    public void setData(List<AppData> apps) {
         mAdapter.setData(apps);
         mAdapter.notifyDataSetChanged();
     }
@@ -52,7 +52,7 @@ public class AllAppsLayout extends RecyclerView {
 
     private static class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
         private static final String TAG = "AppListAdapter";
-        private final List<AppInfo> mApps = new ArrayList<>();
+        private final List<AppData> mApps = new ArrayList<>();
         private final Context mContext;
         private Handler mHandler;
 
@@ -72,12 +72,12 @@ public class AllAppsLayout extends RecyclerView {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            AppInfo appInfo = mApps.get(position);
-            holder.iconIV.setImageDrawable(appInfo.getIcon());
-            holder.nameTV.setText(appInfo.getName());
+            AppData appData = mApps.get(position);
+            holder.iconIV.setImageDrawable(appData.getIcon());
+            holder.nameTV.setText(appData.getName());
             holder.appInfoLayout.setOnClickListener(v -> {
                 Intent intent = new Intent();
-                intent.setComponent(appInfo.getComponentName());
+                intent.setComponent(appData.getComponentName());
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(intent);
                 if (mHandler != null) {
@@ -93,7 +93,7 @@ public class AllAppsLayout extends RecyclerView {
             return mApps.size();
         }
 
-        public void setData(List<AppInfo> apps) {
+        public void setData(List<AppData> apps) {
             mApps.clear();
             mApps.addAll(apps);
         }

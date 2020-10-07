@@ -21,7 +21,7 @@ import android.view.WindowManager;
 import java.lang.ref.WeakReference;
 
 public class AllAppsWindow implements View.OnClickListener {
-    private static final String TAG = "AppAppsWindow";
+    private static final String TAG = "AllAppsWindow";
     private final Context mContext;
     private final WindowManager mWindowManager;
     private View mWindowContentView;

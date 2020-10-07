@@ -24,7 +24,7 @@ public class AppLoaderTask implements Runnable {
     private WeakReference<Context> mContext;
     private WeakReference<Handler> mTarget;
 
-    private List<AppInfo> mAllApps = new ArrayList<>();
+    private List<AppData> mAllApps = new ArrayList<>();
     private boolean mStopped = false;
 
     public AppLoaderTask(Context context, Handler target) {
@@ -50,16 +50,16 @@ public class AppLoaderTask implements Runnable {
         }
         mAllApps.clear();
         for (LauncherActivityInfo info : activityInfoList) {
-            AppInfo appInfo = new AppInfo();
-            appInfo.setName((String) info.getLabel());
-            appInfo.setComponentName(info.getComponentName());
-            appInfo.setPackageName(info.getApplicationInfo().packageName);
-            appInfo.setIcon(info.getIcon(0));
-            mAllApps.add(appInfo);
+            AppData appData = new AppData();
+            appData.setName((String) info.getLabel());
+            appData.setComponentName(info.getComponentName());
+            appData.setPackageName(info.getApplicationInfo().packageName);
+            appData.setIcon(info.getIcon(0));
+            mAllApps.add(appData);
         }
         mAllApps.sort(
-                (appInfoOne, appInfoTwo)
-                        -> appInfoOne.getName().compareTo(appInfoTwo.getName())
+                (appDataOne, appDataTwo)
+                        -> appDataOne.getName().compareTo(appDataTwo.getName())
         );
         Handler target = getTarget();
         if (target != null) {
@@ -77,7 +77,7 @@ public class AppLoaderTask implements Runnable {
         notify();
     }
 
-    public List<AppInfo> getAllApps() {
+    public List<AppData> getAllApps() {
         return new ArrayList<>(mAllApps);
     }
 

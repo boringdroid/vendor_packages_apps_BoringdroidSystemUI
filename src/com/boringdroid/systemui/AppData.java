@@ -3,7 +3,7 @@ package com.boringdroid.systemui;
 import android.content.ComponentName;
 import android.graphics.drawable.Drawable;
 
-public class AppInfo {
+public class AppData {
     private String mName;
     private String mPackageName;
     private ComponentName mComponentName;
