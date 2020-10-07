@@ -90,7 +90,7 @@ public class TaskSystemShortcut<T extends SystemShortcut> extends SystemShortcut
 
     public static class CloseTask extends TaskSystemShortcut {
         public CloseTask() {
-            super(R.drawable.ic_close_task, R.string.recent_task_option_split_screen);
+            super(R.drawable.ic_close_task, R.string.recent_task_option_close_task);
         }
 
         @Override
@@ -103,7 +103,7 @@ public class TaskSystemShortcut<T extends SystemShortcut> extends SystemShortcut
                 }
                 RecentsView recentsView = taskView.getRecentsView();
                 if (recentsView != null) {
-                    recentsView.removeView(taskView);
+                    recentsView.dismissTask(taskView, true, true);
                 }
             };
         }
