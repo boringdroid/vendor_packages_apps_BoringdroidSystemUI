@@ -1,0 +1,4 @@
+include ':launcher3quickstep'
+include ':launcher3secondarydisplay'
+include ':launcher3common'
+include ':iconloader'

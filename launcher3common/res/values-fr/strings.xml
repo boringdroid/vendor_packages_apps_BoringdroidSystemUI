@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/*
+* Copyright (C) 2008 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="649227358658669779">"Launcher3"</string>
+    <string name="activity_not_available" msgid="7456344436509528827">"Application indisponible"</string>
+    <string name="permlab_install_shortcut" msgid="5632423390354674437">"installer des raccourcis"</string>
+    <string name="permdesc_install_shortcut" msgid="923466509822011139">"Permettre à une application d\'ajouter des raccourcis sans l\'intervention de l\'utilisateur"</string>
+    <string name="permlab_read_settings" msgid="1941457408239617576">"lire les paramètres et les raccourcis de l\'écran d\'accueil"</string>
+    <string name="permdesc_read_settings" msgid="5833423719057558387">"Permettre à l\'application de lire les paramètres et les raccourcis de l\'écran d\'accueil"</string>
+    <string name="permlab_write_settings" msgid="3574213698004620587">"modifier les paramètres et les raccourcis de l\'écran d\'accueil"</string>
+    <string name="permdesc_write_settings" msgid="5440712911516509985">"Permettre à l\'application de modifier les paramètres et les raccourcis de l\'écran d\'accueil"</string>
+</resources>

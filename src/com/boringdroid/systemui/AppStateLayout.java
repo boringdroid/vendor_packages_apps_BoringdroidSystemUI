@@ -1,6 +1,7 @@
 package com.boringdroid.systemui;
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.LauncherActivityInfo;
@@ -81,7 +82,15 @@ public class AppStateLayout extends RecyclerView {
             mAdapter.setTopTaskId(-1);
             mAdapter.notifyDataSetChanged();
             return;
-        }        
+        }
+        if (packageName != null
+                && getContext() != null
+                && packageName.startsWith(getContext().getPackageName())) {
+            Log.d(TAG, "Ignore self " + packageName);
+            mAdapter.setTopTaskId(-1);
+            mAdapter.notifyDataSetChanged();
+            return;
+        }
         if (isLauncher(getContext(), packageName)) {
             Log.d(TAG, "Ignore launcher " + packageName);
             mAdapter.setTopTaskId(-1);
@@ -123,7 +132,34 @@ public class AppStateLayout extends RecyclerView {
                 && packageName.equals(res.activityInfo.packageName);
     }
 
+    void reloadActivityManager(Context context) {
+        if (mAdapter != null) {
+            mAdapter.reloadActivityManager(context);
+        }
+    }
+
     private class AppStateListener extends TaskStackChangeListener {
+        @Override
+        public void onTaskCreated(int taskId, ComponentName componentName) {
+            super.onTaskCreated(taskId, componentName);
+            Log.d(TAG, "onTaskCreated " + taskId + ", cm " + componentName);
+            onTaskStackChanged();
+        }
+
+        @Override
+        public void onTaskMovedToFront(int taskId) {
+            super.onTaskMovedToFront(taskId);
+            Log.d(TAG, "onTaskMoveToFront taskId " + taskId);
+            onTaskStackChanged();
+        }
+
+        @Override
+        public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
+            super.onTaskMovedToFront(taskInfo);
+            Log.d(TAG, "onTaskMovedToFront " + taskInfo);
+            onTaskStackChanged();
+        }
+
         @Override
         public void onTaskStackChanged() {
             super.onTaskStackChanged();
@@ -148,7 +184,7 @@ public class AppStateLayout extends RecyclerView {
     private static class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private final List<TaskInfo> mTasks = new ArrayList<>();
         private final Context mContext;
-        private final ActivityManager mActivityManager;
+        private ActivityManager mActivityManager;
         private int mTopTaskId = -1;
 
         public TaskAdapter(@NonNull Context context) {
@@ -177,7 +213,10 @@ public class AppStateLayout extends RecyclerView {
                 holder.highLightLineTV.setImageResource(R.drawable.line_short);
             }
             holder.iconIV.setOnClickListener(
-                    v -> mActivityManager.moveTaskToFront(taskInfo.getId(), 0)
+                    v -> {
+                        mActivityManager.moveTaskToFront(taskInfo.getId(), 0);
+                        mContext.sendBroadcast(new Intent("com.boringdroid.systemui.CLOSE_RECENTS"));
+                    }
             );
         }
 
@@ -193,6 +232,10 @@ public class AppStateLayout extends RecyclerView {
 
         public void setTopTaskId(int id) {
             mTopTaskId = id;
+        }
+
+        public void reloadActivityManager(Context context) {
+            mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         }
 
         private static class ViewHolder extends RecyclerView.ViewHolder {

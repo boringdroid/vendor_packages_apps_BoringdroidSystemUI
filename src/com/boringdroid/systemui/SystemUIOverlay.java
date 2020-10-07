@@ -1,9 +1,11 @@
 package com.boringdroid.systemui;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
@@ -33,7 +35,12 @@ public class SystemUIOverlay implements OverlayPlugin {
     // Copied from systemui source code, please keep it update to source code.
     private static final String ACTION_PLUGIN_CHANGED =
             "com.android.systemui.action.PLUGIN_CHANGED";
+
+    private static final String TAG_ALL_APPS_GROUP = "tag-bt-all-apps-group";
+    private static final String TAG_APP_STATE_LAYOUT = "tag-app-state-layout";
+
     private Context mPluginContext;
+    private Context mSystemUIContext;
     private View mNavBarButtonGroup;
     private ViewGroup mBtAllAppsGroup;
     private AppStateLayout mAppStateLayout;
@@ -43,6 +50,20 @@ public class SystemUIOverlay implements OverlayPlugin {
     private ContentResolver mResolver;
     private List<String> mTunerKeys = new ArrayList<>();
     private ContentObserver mTunerKeyObserver = new TunerKeyObserver();
+
+    private BroadcastReceiver mCloseSystemDialogsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "receive intent " + intent);
+            if (mAllAppsWindow == null) {
+                return;
+            }
+            if (intent == null || !Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
+                return;
+            }
+            mAllAppsWindow.dismiss();
+        }
+    };
 
     @Override
     public void setup(View statusBar, View navBar) {
@@ -60,7 +81,18 @@ public class SystemUIOverlay implements OverlayPlugin {
                                 FrameLayout.LayoutParams.MATCH_PARENT
                         );
                 ViewGroup group = (ViewGroup) buttonGroup;
+                View oldBtAllAppsGroup = group.findViewWithTag(TAG_ALL_APPS_GROUP);
+                if (oldBtAllAppsGroup != null) {
+                    group.removeView(oldBtAllAppsGroup);
+                }
+                mBtAllAppsGroup.setTag(TAG_ALL_APPS_GROUP);
                 group.addView(mBtAllAppsGroup, 0, layoutParams);
+
+                View oldAppStateLayout = group.findViewWithTag(TAG_APP_STATE_LAYOUT);
+                if (oldAppStateLayout != null) {
+                    group.removeView(oldAppStateLayout);
+                }
+                mAppStateLayout.setTag(TAG_APP_STATE_LAYOUT);
                 // The first item is all apps group.
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
@@ -81,6 +113,7 @@ public class SystemUIOverlay implements OverlayPlugin {
 
     @Override
     public void onCreate(Context sysUIContext, Context pluginContext) {
+        mSystemUIContext = sysUIContext;
         mPluginContext = pluginContext;
         mNavBarButtonGroupId =
                 sysUIContext
@@ -92,15 +125,23 @@ public class SystemUIOverlay implements OverlayPlugin {
                         );
         mBtAllAppsGroup = initializeAllAppsButton(mPluginContext, mBtAllAppsGroup);
         mAppStateLayout = initializeAppStateLayout(mPluginContext, mAppStateLayout);
+        mAppStateLayout.reloadActivityManager(mSystemUIContext);
         mBtAllApps = mBtAllAppsGroup.findViewById(R.id.bt_all_apps);
         mAllAppsWindow = new AllAppsWindow(mPluginContext);
         mBtAllApps.setOnClickListener(mAllAppsWindow);
         mResolver = sysUIContext.getContentResolver();
         initializeTuningServiceSettingKeys(mResolver, mTunerKeyObserver);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        mSystemUIContext.registerReceiver(mCloseSystemDialogsReceiver, filter);
     }
 
     @Override
     public void onDestroy() {
+        if (mSystemUIContext != null) {
+            mSystemUIContext.unregisterReceiver(mCloseSystemDialogsReceiver);
+        }
         mResolver.unregisterContentObserver(mTunerKeyObserver);
         mBtAllAppsGroup.setOnClickListener(null);
         if (mNavBarButtonGroup instanceof ViewGroup) {
