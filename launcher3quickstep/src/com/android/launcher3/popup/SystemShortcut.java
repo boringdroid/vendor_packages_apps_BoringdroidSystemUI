@@ -83,6 +83,7 @@ public abstract class SystemShortcut<T extends BaseDraggingActivity> extends Ite
                         sourceBounds,
                         ActivityOptions.makeBasic().toBundle()
                 );
+                activity.finish();
             };
         }
     }
