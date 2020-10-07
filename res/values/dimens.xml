@@ -9,8 +9,8 @@
     <dimen name="all_apps_item_height">55dp</dimen>
     <dimen name="all_apps_corner_radius">8dp</dimen>
     <dimen name="app_info_name_text_size">13sp</dimen>
-    <dimen name="app_info_icon_width">36dp</dimen>
-    <dimen name="app_info_icon_height">36dp</dimen>
+    <dimen name="app_info_icon_width">30dp</dimen>
+    <dimen name="app_info_icon_height">30dp</dimen>
     <dimen name="all_apps_margin_vertical">20dp</dimen>
     <dimen name="all_apps_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
