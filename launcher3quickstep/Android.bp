@@ -11,36 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-java_import {
-    name: "boringdroidSharedSystemUI",
-
-    jars: ["libs/impl/sysui_shared.jar"],
-    installable: false,
-    sdk_version: "current",
-}
-
-java_import {
-    name: "boringdroidSystemUIPluginLib",
-
-    jars: ["libs/compile/SystemUIPluginLib.jar"],
-    installable: false,
-    sdk_version: "current",
-}
-
-android_app {
-    name: "BoringdroidSystemUI",
-
+android_library {
+    name: "boringdroidLauncher3Quickstep",
+    sdk_version: "29",
+    min_sdk_version: "28",
     libs: ["boringdroidSystemUIPluginLib"],
     static_libs: [
+        "androidx.appcompat_appcompat",
         "androidx.recyclerview_recyclerview",
+        "androidx.dynamicanimation_dynamicanimation",
+        "androidx.preference_preference",
+        "boringdroidIconloader",
+        "boringdroidLauncher3Common",
+        "boringdroidLauncher3SecondaryDisplay",
         "boringdroidSharedSystemUI",
-        "boringdroidLauncher3Quickstep",
     ],
-
-    certificate: "platform",
-    optimize: {
-        enabled: false,
-    },
-
-    srcs: ["src/**/*.java"],
+    resource_dirs: [
+        "quickstep/res",
+        "quickstep/recents_ui_overrides/res",
+    ],
+    srcs: [
+        "src/**/*.java",
+        "quickstep/src/**/*.java",
+        "quickstep/recents_ui_overrides/src/**/*.java",
+    ],
+    manifest: "quickstep/AndroidManifest.xml",
 }
