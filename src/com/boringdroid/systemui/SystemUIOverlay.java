@@ -118,7 +118,7 @@ public class SystemUIOverlay implements OverlayPlugin {
             Method getMethod =
                     systemPropertiesClass.getMethod("get", String.class, String.class);
             String tunerKeys =
-                    (String) getMethod.invoke(null, "persist.sys.bd.tunerkeys", "");
+                    (String) getMethod.invoke(null, "persist.sys.settings.tunerkeys", "");
             Log.d(TAG, "Got tuner keys " + tunerKeys);
             List<String> tunerKeyList =
                     Arrays
