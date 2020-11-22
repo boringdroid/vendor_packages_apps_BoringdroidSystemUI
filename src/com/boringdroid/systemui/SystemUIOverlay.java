@@ -78,7 +78,9 @@ public class SystemUIOverlay implements OverlayPlugin {
 
     @Override
     public void onDestroy() {
-        mBtAllAppsGroup.setOnClickListener(null);
+        if (mBtAllAppsGroup != null) {
+            mBtAllAppsGroup.setOnClickListener(null);
+        }
         if (mNavBarButtonGroup instanceof ViewGroup) {
             ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
             ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
