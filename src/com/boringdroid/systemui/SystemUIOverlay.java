@@ -140,7 +140,11 @@ public class SystemUIOverlay implements OverlayPlugin {
     @Override
     public void onDestroy() {
         if (mSystemUIContext != null) {
-            mSystemUIContext.unregisterReceiver(mCloseSystemDialogsReceiver);
+            try {
+                mSystemUIContext.unregisterReceiver(mCloseSystemDialogsReceiver);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Try to unregister close system dialogs receiver without registering");
+            }
         }
         mResolver.unregisterContentObserver(mTunerKeyObserver);
         mBtAllAppsGroup.setOnClickListener(null);
