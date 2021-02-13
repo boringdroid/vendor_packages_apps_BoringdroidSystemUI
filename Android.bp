@@ -34,7 +34,6 @@ android_app {
     static_libs: [
         "androidx.recyclerview_recyclerview",
         "boringdroidSharedSystemUI",
-        "boringdroidLauncher3Quickstep",
     ],
 
     platform_apis: true,
