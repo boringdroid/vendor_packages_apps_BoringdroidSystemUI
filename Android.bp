@@ -37,6 +37,7 @@ android_app {
         "boringdroidLauncher3Quickstep",
     ],
 
+    platform_apis: true,
     certificate: "platform",
     optimize: {
         enabled: false,
