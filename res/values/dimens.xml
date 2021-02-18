@@ -22,4 +22,6 @@
     <dimen name="line_short_height">2dp</dimen>
     <dimen name="iv_highlight_line_margin_top">5dp</dimen>
     <dimen name="task_info_item_padding_horizontal">5dp</dimen>
+    <dimen name="all_apps_padding_vertical">5dp</dimen>
+    <dimen name="all_apps_padding_horizontal">5dp</dimen>
 </resources>
