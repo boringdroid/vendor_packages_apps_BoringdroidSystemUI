@@ -8,7 +8,14 @@
     android:layout_marginTop="@dimen/all_apps_item_spacing_vertical"
     android:layout_marginEnd="@dimen/all_apps_item_spacing_horizontal"
     android:layout_marginBottom="@dimen/all_apps_item_spacing_vertical"
+    android:background="@drawable/bg_app_info"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical"
+    android:paddingStart="@dimen/all_apps_padding_horizontal"
+    android:paddingTop="@dimen/all_apps_padding_vertical"
+    android:paddingEnd="@dimen/all_apps_padding_horizontal"
+    android:paddingBottom="@dimen/all_apps_padding_vertical"
     tools:ignore="UseCompoundDrawables">
 
     <ImageView
