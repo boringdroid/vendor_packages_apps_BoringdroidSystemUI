@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -24,8 +25,6 @@ import com.android.systemui.shared.system.TaskStackChangeListener;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.android.systemui.shared.system.RemoteAnimationTargetCompat.ACTIVITY_TYPE_UNDEFINED;
 
 public class AppStateLayout extends RecyclerView {
     private static final String TAG = "AppStateLayout";
@@ -185,12 +184,14 @@ public class AppStateLayout extends RecyclerView {
         private final List<TaskInfo> mTasks = new ArrayList<>();
         private final Context mContext;
         private ActivityManager mActivityManager;
+        private PackageManager mPackageManager;
         private int mTopTaskId = -1;
 
         public TaskAdapter(@NonNull Context context) {
             mContext = context;
             mActivityManager =
                     (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            mPackageManager = mContext.getPackageManager();
         }
 
         @NonNull
@@ -212,6 +213,18 @@ public class AppStateLayout extends RecyclerView {
             } else {
                 holder.highLightLineTV.setImageResource(R.drawable.line_short);
             }
+            CharSequence label = taskInfo.getPackageName();
+            try {
+                label = mPackageManager.getApplicationLabel(
+                        mPackageManager.getApplicationInfo(
+                                taskInfo.getPackageName(),
+                                PackageManager.GET_META_DATA
+                        )
+                );
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, "Failed to get label for " + taskInfo.getPackageName());
+            }
+            holder.iconIV.setTooltipText(label);
             holder.iconIV.setOnClickListener(
                     v -> {
                         mActivityManager.moveTaskToFront(taskInfo.getId(), 0);
