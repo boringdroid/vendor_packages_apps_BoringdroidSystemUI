@@ -28,3 +28,8 @@ you push changes to the repository for reviewing:
 
 If you encounter an error when use `./gradlew spotlessApply`, you should fix format errors
 manually, because the Spotless based formatter can't fix all errors.
+
+## JDK Requirement
+
+The google java format used by [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle)
+needs `JDK 11`, so you should setup `JDK 11` to build and run `spotlessCheck` and `spotlessApply`.
