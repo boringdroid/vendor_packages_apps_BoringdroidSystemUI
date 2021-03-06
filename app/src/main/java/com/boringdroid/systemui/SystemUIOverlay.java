@@ -45,10 +45,10 @@ public class SystemUIOverlay implements OverlayPlugin {
     private AllAppsWindow mAllAppsWindow;
     private int mNavBarButtonGroupId = -1;
     private ContentResolver mResolver;
-    private List<String> mTunerKeys = new ArrayList<>();
-    private ContentObserver mTunerKeyObserver = new TunerKeyObserver();
+    private final List<String> mTunerKeys = new ArrayList<>();
+    private final ContentObserver mTunerKeyObserver = new TunerKeyObserver();
 
-    private BroadcastReceiver mCloseSystemDialogsReceiver =
+    private final BroadcastReceiver mCloseSystemDialogsReceiver =
             new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -95,6 +95,8 @@ public class SystemUIOverlay implements OverlayPlugin {
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
                 group.addView(mAppStateLayout, 4, layoutParams);
+
+                mAppStateLayout.initTasks();
             }
         }
     }
