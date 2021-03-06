@@ -59,7 +59,13 @@ public class TaskInfo {
 
     @Override
     public String toString() {
-        return "Task id " + mId + ", origin " + mBaseActivityComponentName
-                + ", real " + mRealActivityComponentName + ", package " + mPackageName;
+        return "Task id "
+                + mId
+                + ", origin "
+                + mBaseActivityComponentName
+                + ", real "
+                + mRealActivityComponentName
+                + ", package "
+                + mPackageName;
     }
 }

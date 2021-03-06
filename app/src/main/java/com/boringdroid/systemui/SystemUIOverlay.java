@@ -16,12 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
 import androidx.annotation.NonNull;
-
 import com.android.systemui.plugins.OverlayPlugin;
 import com.android.systemui.plugins.annotations.Requires;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -51,19 +48,21 @@ public class SystemUIOverlay implements OverlayPlugin {
     private List<String> mTunerKeys = new ArrayList<>();
     private ContentObserver mTunerKeyObserver = new TunerKeyObserver();
 
-    private BroadcastReceiver mCloseSystemDialogsReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "receive intent " + intent);
-            if (mAllAppsWindow == null) {
-                return;
-            }
-            if (intent == null || !Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
-                return;
-            }
-            mAllAppsWindow.dismiss();
-        }
-    };
+    private BroadcastReceiver mCloseSystemDialogsReceiver =
+            new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    Log.d(TAG, "receive intent " + intent);
+                    if (mAllAppsWindow == null) {
+                        return;
+                    }
+                    if (intent == null
+                            || !Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
+                        return;
+                    }
+                    mAllAppsWindow.dismiss();
+                }
+            };
 
     @Override
     public void setup(View statusBar, View navBar) {
@@ -78,8 +77,7 @@ public class SystemUIOverlay implements OverlayPlugin {
                 FrameLayout.LayoutParams layoutParams =
                         new FrameLayout.LayoutParams(
                                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                                FrameLayout.LayoutParams.MATCH_PARENT
-                        );
+                                FrameLayout.LayoutParams.MATCH_PARENT);
                 ViewGroup group = (ViewGroup) buttonGroup;
                 View oldBtAllAppsGroup = group.findViewWithTag(TAG_ALL_APPS_GROUP);
                 if (oldBtAllAppsGroup != null) {
@@ -118,11 +116,7 @@ public class SystemUIOverlay implements OverlayPlugin {
         mNavBarButtonGroupId =
                 sysUIContext
                         .getResources()
-                        .getIdentifier(
-                                "ends_group",
-                                "id",
-                                "com.android.systemui"
-                        );
+                        .getIdentifier("ends_group", "id", "com.android.systemui");
         mBtAllAppsGroup = initializeAllAppsButton(mPluginContext, mBtAllAppsGroup);
         mAppStateLayout = initializeAppStateLayout(mPluginContext, mAppStateLayout);
         mAppStateLayout.reloadActivityManager(mSystemUIContext);
@@ -156,18 +150,15 @@ public class SystemUIOverlay implements OverlayPlugin {
     }
 
     @SuppressLint("PrivateApi")
-    private void initializeTuningServiceSettingKeys(ContentResolver resolver,
-                                                    ContentObserver observer) {
+    private void initializeTuningServiceSettingKeys(
+            ContentResolver resolver, ContentObserver observer) {
         try {
             Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
-            Method getMethod =
-                    systemPropertiesClass.getMethod("get", String.class, String.class);
-            String tunerKeys =
-                    (String) getMethod.invoke(null, "persist.sys.bd.tunerkeys", "");
+            Method getMethod = systemPropertiesClass.getMethod("get", String.class, String.class);
+            String tunerKeys = (String) getMethod.invoke(null, "persist.sys.bd.tunerkeys", "");
             Log.d(TAG, "Got tuner keys " + tunerKeys);
             List<String> tunerKeyList =
-                    Arrays
-                            .stream(tunerKeys.split("--"))
+                    Arrays.stream(tunerKeys.split("--"))
                             .map(String::trim)
                             .filter(key -> !key.isEmpty())
                             .collect(Collectors.toList());
@@ -191,20 +182,17 @@ public class SystemUIOverlay implements OverlayPlugin {
         if (btAllAppsGroup != null) {
             return btAllAppsGroup;
         }
-        return (ViewGroup) LayoutInflater
-                .from(context)
-                .inflate(R.layout.layout_bt_all_apps, null);
+        return (ViewGroup) LayoutInflater.from(context).inflate(R.layout.layout_bt_all_apps, null);
     }
 
     @SuppressLint("InflateParams")
-    private AppStateLayout initializeAppStateLayout(Context context,
-                                                    AppStateLayout appStateLayout) {
+    private AppStateLayout initializeAppStateLayout(
+            Context context, AppStateLayout appStateLayout) {
         if (appStateLayout != null) {
             return appStateLayout;
         }
-        return (AppStateLayout) LayoutInflater
-                .from(context)
-                .inflate(R.layout.layout_app_state, null);
+        return (AppStateLayout)
+                LayoutInflater.from(context).inflate(R.layout.layout_app_state, null);
     }
 
     private void onTunerChange(@NonNull Uri uri) {
