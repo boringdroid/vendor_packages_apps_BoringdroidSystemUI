@@ -76,7 +76,9 @@ public class AppStateLayout extends RecyclerView {
     private void topTask(ActivityManager.RunningTaskInfo runningTaskInfo) {
         String packageName = runningTaskInfo.baseActivity == null ?
                 null : runningTaskInfo.baseActivity.getPackageName();
-        if (packageName != null && packageName.startsWith("com.farmerbb.taskbar")) {
+        if (packageName != null && ( packageName.startsWith("com.farmerbb.taskbar") ||  
+		packageName.startsWith("com.teslacoilsw.launcher")
+		)) {
             Log.d(TAG, "Ignore launcher " + packageName);
             mAdapter.setTopTaskId(-1);
             mAdapter.notifyDataSetChanged();
