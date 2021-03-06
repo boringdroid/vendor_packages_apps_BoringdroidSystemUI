@@ -1,16 +1,25 @@
 package com.boringdroid.systemui;
 
 import android.app.ActivityManager;
+import android.content.ClipData;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.ResolveInfo;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -23,6 +32,9 @@ import com.android.systemui.shared.system.TaskStackChangeListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+
+import static android.content.pm.PackageManager.GET_META_DATA;
 
 import static com.android.systemui.shared.system.RemoteAnimationTargetCompat.ACTIVITY_TYPE_UNDEFINED;
 
@@ -51,7 +63,10 @@ public class AppStateLayout extends RecyclerView {
                 new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false);
         setLayoutManager(manager);
         setHasFixedSize(true);
-        mAdapter = new TaskAdapter(context);
+        int dragCloseThreshold =
+                (int) (context.getResources()
+                        .getDimensionPixelSize(R.dimen.app_info_icon_width) * 5);
+        mAdapter = new TaskAdapter(context, dragCloseThreshold);
         setAdapter(mAdapter);
     }
 
@@ -148,15 +163,23 @@ public class AppStateLayout extends RecyclerView {
     }
 
     private static class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
+        private static final String TAG_TASK_ICON = "task_icon";
+
         private final List<TaskInfo> mTasks = new ArrayList<>();
         private final Context mContext;
-        private final ActivityManager mActivityManager;
+        private ActivityManager mSystemUIActivityManager;
+        private final PackageManager mPackageManager;
         private int mTopTaskId = -1;
+        private final int mDragCloseThreshold;
 
-        public TaskAdapter(@NonNull Context context) {
+        public TaskAdapter(@NonNull Context context, int dragCloseThreshold) {
             mContext = context;
-            mActivityManager =
+            // We will use reloadActivityManager to update mSystemUIActivityManager with
+            // systemui context.
+            mSystemUIActivityManager =
                     (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            mPackageManager = mContext.getPackageManager();
+            mDragCloseThreshold = dragCloseThreshold;
         }
 
         @NonNull
@@ -178,9 +201,35 @@ public class AppStateLayout extends RecyclerView {
             } else {
                 holder.highLightLineTV.setImageResource(R.drawable.line_short);
             }
+            String packageName = taskInfo.getPackageName();
+            CharSequence label = packageName;
+            try {
+                label = mPackageManager.getApplicationLabel(
+                        mPackageManager.getApplicationInfo(packageName, GET_META_DATA)
+                );
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, "Failed to get label for " + packageName);
+            }
+            holder.iconIV.setTag(taskInfo.getId());
+            holder.iconIV.setTooltipText(label);
             holder.iconIV.setOnClickListener(
-                    v -> mActivityManager.moveTaskToFront(taskInfo.getId(), 0)
+                    v -> {
+                        mSystemUIActivityManager.moveTaskToFront(taskInfo.getId(), 0);
+                        mContext.sendBroadcast(new Intent("com.boringdroid.systemui.CLOSE_RECENTS"));
+                    }
             );
+            holder.iconIV.setOnLongClickListener(v -> {
+                ClipData.Item item = new ClipData.Item(TAG_TASK_ICON);
+                ClipData dragData = new ClipData(TAG_TASK_ICON, new String[]{"unknown"}, item);
+                DragShadowBuilder shadow = new DragDropShadowBuilder(v);
+                holder.iconIV.setOnDragListener(new DragDropCloseListener(
+                        mDragCloseThreshold,
+                        mDragCloseThreshold,
+                        taskId -> ActivityManagerWrapper.getInstance().removeTask(taskId)
+                ));
+                v.startDragAndDrop(dragData, shadow, null, View.DRAG_FLAG_GLOBAL);
+                return true;
+            });
         }
 
         @Override
@@ -197,6 +246,10 @@ public class AppStateLayout extends RecyclerView {
             mTopTaskId = id;
         }
 
+        public void reloadActivityManager(Context context) {
+            mSystemUIActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        }
+
         private static class ViewHolder extends RecyclerView.ViewHolder {
             public final ImageView iconIV;
             public final ImageView highLightLineTV;
@@ -206,6 +259,74 @@ public class AppStateLayout extends RecyclerView {
                 iconIV = taskInfoLayout.findViewById(R.id.iv_task_info_icon);
                 highLightLineTV = taskInfoLayout.findViewById(R.id.iv_highlight_line);
             }
+        }
+    }
+
+    private static final class DragDropCloseListener implements OnDragListener {
+        private final Consumer<Integer> mEndCallback;
+        private final int mWidth;
+        private final int mHeight;
+        private float mStartX;
+        private float mStartY;
+
+        public DragDropCloseListener(int width, int height, Consumer<Integer> endCallback) {
+            mWidth = width;
+            mHeight = height;
+            mEndCallback = endCallback;
+        }
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            int action = event.getAction();
+            switch (action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    int[] locations = new int[2];
+                    v.getLocationOnScreen(locations);
+                    mStartX = locations[0];
+                    mStartY = locations[1];
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    float x = event.getX();
+                    float y = event.getY();
+                    if (Math.abs(x - mStartX) < mWidth && Math.abs(y - mStartY) < mHeight) {
+                        break;
+                    }
+                    v.setOnDragListener(null);
+                    if (mEndCallback != null && v.getTag() instanceof Integer) {
+                        mEndCallback.accept((Integer) v.getTag());
+                    }
+            }
+            return true;
+        }
+    }
+
+    private static final class DragDropShadowBuilder extends View.DragShadowBuilder {
+        private static Drawable mShadow;
+
+        public DragDropShadowBuilder(View v) {
+            super(v);
+            if (v instanceof ImageView) {
+                Drawable drawable = ((ImageView) v).getDrawable();
+                if (drawable != null) {
+                    mShadow = drawable.mutate().getConstantState().newDrawable();
+                    return;
+                }
+            }
+            mShadow = new ColorDrawable(Color.LTGRAY);
+        }
+
+        @Override
+        public void onProvideShadowMetrics(Point size, Point touch) {
+            int width = getView().getWidth();
+            int height = getView().getHeight();
+            mShadow.setBounds(0, 0, width, height);
+            size.set(width, height);
+            touch.set(width / 2, height / 2);
+        }
+
+        @Override
+        public void onDrawShadow(Canvas canvas) {
+            mShadow.draw(canvas);
         }
     }
 }
