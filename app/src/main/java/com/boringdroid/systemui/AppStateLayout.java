@@ -37,6 +37,10 @@ import java.util.function.Consumer;
 public class AppStateLayout extends RecyclerView {
     private static final String TAG = "AppStateLayout";
 
+    private static final ActivityManagerWrapper AM_WRAPPER = ActivityManagerWrapper.getInstance();
+    private static final int MAX_RUNNING_TASKS = 50;
+
+    private final ActivityManager mActivityManager;
     private final AppStateListener mListener = new AppStateListener();
     private final LauncherApps mLaunchApps;
     private final UserManager mUserManager;
@@ -53,16 +57,16 @@ public class AppStateLayout extends RecyclerView {
 
     public AppStateLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         mLaunchApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
         LinearLayoutManager manager =
                 new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false);
         setLayoutManager(manager);
         setHasFixedSize(true);
-        int dragCloseThreshold =
-                (int)
-                        (context.getResources().getDimensionPixelSize(R.dimen.app_info_icon_width)
-                                * 5);
+        int appInfoIconWidth =
+                context.getResources().getDimensionPixelSize(R.dimen.app_info_icon_width);
+        int dragCloseThreshold = (int) (appInfoIconWidth * 5);
         mAdapter = new TaskAdapter(context, dragCloseThreshold);
         setAdapter(mAdapter);
     }
@@ -70,13 +74,25 @@ public class AppStateLayout extends RecyclerView {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        ActivityManagerWrapper.getInstance().registerTaskStackListener(mListener);
+        AM_WRAPPER.registerTaskStackListener(mListener);
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        ActivityManagerWrapper.getInstance().unregisterTaskStackListener(mListener);
+        AM_WRAPPER.unregisterTaskStackListener(mListener);
         super.onDetachedFromWindow();
+    }
+
+    public void initTasks() {
+        List<ActivityManager.RunningTaskInfo> runningTaskInfos =
+                mActivityManager.getRunningTasks(MAX_RUNNING_TASKS);
+        for (int i = runningTaskInfos.size() - 1; i >= 0; i--) {
+            ActivityManager.RunningTaskInfo runningTaskInfo = runningTaskInfos.get(i);
+            if (shouldIgnoreTopTask(getRunningTaskInfoPackageName(runningTaskInfo))) {
+                continue;
+            }
+            topTask(runningTaskInfo, true);
+        }
     }
 
     private void removeTask(int taskId) {
@@ -85,33 +101,41 @@ public class AppStateLayout extends RecyclerView {
         mAdapter.notifyDataSetChanged();
     }
 
-    private void topTask(ActivityManager.RunningTaskInfo runningTaskInfo) {
-        String packageName =
-                runningTaskInfo.baseActivity == null
-                        ? null
-                        : runningTaskInfo.baseActivity.getPackageName();
+    private String getRunningTaskInfoPackageName(ActivityManager.RunningTaskInfo runningTaskInfo) {
+        return runningTaskInfo.baseActivity == null
+                ? null
+                : runningTaskInfo.baseActivity.getPackageName();
+    }
+
+    public boolean shouldIgnoreTopTask(String packageName) {
         if (packageName != null && packageName.startsWith("com.farmerbb.taskbar")) {
             Log.d(TAG, "Ignore launcher " + packageName);
-            mAdapter.setTopTaskId(-1);
-            mAdapter.notifyDataSetChanged();
-            return;
+            return true;
         }
         if (packageName != null
                 && getContext() != null
                 && packageName.startsWith(getContext().getPackageName())) {
             Log.d(TAG, "Ignore self " + packageName);
-            mAdapter.setTopTaskId(-1);
-            mAdapter.notifyDataSetChanged();
-            return;
+            return true;
         }
         if (isLauncher(getContext(), packageName)) {
             Log.d(TAG, "Ignore launcher " + packageName);
-            mAdapter.setTopTaskId(-1);
-            mAdapter.notifyDataSetChanged();
-            return;
+            return true;
         }
         if (packageName != null && packageName.startsWith("com.android.systemui")) {
             Log.d(TAG, "Ignore systemui " + packageName);
+            return true;
+        }
+        return false;
+    }
+
+    private void topTask(ActivityManager.RunningTaskInfo runningTaskInfo) {
+        topTask(runningTaskInfo, false);
+    }
+
+    private void topTask(ActivityManager.RunningTaskInfo runningTaskInfo, boolean skipIgnoreCheck) {
+        String packageName = getRunningTaskInfoPackageName(runningTaskInfo);
+        if (!skipIgnoreCheck && shouldIgnoreTopTask(packageName)) {
             mAdapter.setTopTaskId(-1);
             mAdapter.notifyDataSetChanged();
             return;
@@ -135,6 +159,7 @@ public class AppStateLayout extends RecyclerView {
         mTasks.add(index >= 0 ? index : mTasks.size(), taskInfo);
         mAdapter.setData(mTasks);
         mAdapter.setTopTaskId(taskInfo.getId());
+        Log.d(TAG, "Top task " + taskInfo);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -178,8 +203,7 @@ public class AppStateLayout extends RecyclerView {
         @Override
         public void onTaskStackChanged() {
             super.onTaskStackChanged();
-            ActivityManager.RunningTaskInfo info =
-                    ActivityManagerWrapper.getInstance().getRunningTask(false);
+            ActivityManager.RunningTaskInfo info = AM_WRAPPER.getRunningTask(false);
             Log.d(TAG, "onTaskStackChanged " + info);
             if (info != null) {
                 topTask(info);
@@ -260,9 +284,7 @@ public class AppStateLayout extends RecyclerView {
                                 new DragDropCloseListener(
                                         mDragCloseThreshold,
                                         mDragCloseThreshold,
-                                        taskId ->
-                                                ActivityManagerWrapper.getInstance()
-                                                        .removeTask(taskId)));
+                                        AM_WRAPPER::removeTask));
                         v.startDragAndDrop(dragData, shadow, null, View.DRAG_FLAG_GLOBAL);
                         return true;
                     });
