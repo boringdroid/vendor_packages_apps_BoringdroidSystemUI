@@ -14,3 +14,17 @@ generated from AOSP debug key, and it will help to install debug app from Androi
 Both `Android.bp` and `build.gradle` use jars of above library to remove system API dependency, and
 built this project directly and separately. The jars are built from system, so we should update them
 when we upgrade AOSP.
+
+## Spotless
+
+This project uses [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle) to
+format source code, and you can use the below command to check and format source code before
+you push changes to the repository for reviewing:
+
+```shell
+./gradlew spotlessCheck
+./gradlew spotlessApply
+```
+
+If you encounter an error when use `./gradlew spotlessApply`, you should fix format errors
+manually, because the Spotless based formatter can't fix all errors.
