@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.systemui.shared.system.ActivityManagerWrapper;
@@ -163,7 +164,8 @@ public class AppStateLayout extends RecyclerView {
         mAdapter.notifyDataSetChanged();
     }
 
-    private boolean isLauncher(Context context, String packageName) {
+    @VisibleForTesting
+    boolean isLauncher(Context context, String packageName) {
         final Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         final ResolveInfo res = context.getPackageManager().resolveActivity(intent, 0);
