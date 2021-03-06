@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.UserHandle;
 import android.os.UserManager;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +20,10 @@ public class AppLoaderTask implements Runnable {
 
     private final Handler sHandler = new Handler(WORK_THREAD.getLooper());
 
-    private WeakReference<Context> mContext;
-    private WeakReference<Handler> mTarget;
+    private final WeakReference<Context> mContext;
+    private final WeakReference<Handler> mTarget;
 
-    private List<AppInfo> mAllApps = new ArrayList<>();
+    private final List<AppData> mAllApps = new ArrayList<>();
     private boolean mStopped = false;
 
     public AppLoaderTask(Context context, Handler target) {
@@ -58,9 +57,7 @@ public class AppLoaderTask implements Runnable {
             mAllApps.add(appInfo);
         }
         mAllApps.sort(
-                (appInfoOne, appInfoTwo)
-                        -> appInfoOne.getName().compareTo(appInfoTwo.getName())
-        );
+                (appDataOne, appDataTwo) -> appDataOne.getName().compareTo(appDataTwo.getName()));
         Handler target = getTarget();
         if (target != null) {
             target.sendEmptyMessage(HandlerConstant.H_LOAD_SUCCEED);

@@ -1,5 +1,7 @@
 package com.boringdroid.systemui;
 
+import static android.content.pm.PackageManager.GET_META_DATA;
+
 import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ComponentName;
@@ -23,21 +25,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.android.systemui.shared.system.ActivityManagerWrapper;
 import com.android.systemui.shared.system.TaskStackChangeListener;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import static android.content.pm.PackageManager.GET_META_DATA;
-
-import static com.android.systemui.shared.system.RemoteAnimationTargetCompat.ACTIVITY_TYPE_UNDEFINED;
 
 public class AppStateLayout extends RecyclerView {
     private static final String TAG = "AppStateLayout";
@@ -65,8 +60,9 @@ public class AppStateLayout extends RecyclerView {
         setLayoutManager(manager);
         setHasFixedSize(true);
         int dragCloseThreshold =
-                (int) (context.getResources()
-                        .getDimensionPixelSize(R.dimen.app_info_icon_width) * 5);
+                (int)
+                        (context.getResources().getDimensionPixelSize(R.dimen.app_info_icon_width)
+                                * 5);
         mAdapter = new TaskAdapter(context, dragCloseThreshold);
         setAdapter(mAdapter);
     }
@@ -119,7 +115,8 @@ public class AppStateLayout extends RecyclerView {
         taskInfo.setPackageName(packageName);
         List<UserHandle> userHandles = mUserManager.getUserProfiles();
         for (UserHandle userHandle : userHandles) {
-            List<LauncherActivityInfo> infoList = mLaunchApps.getActivityList(packageName, userHandle);
+            List<LauncherActivityInfo> infoList =
+                    mLaunchApps.getActivityList(packageName, userHandle);
             if (infoList.size() > 0 && infoList.get(0) != null) {
                 taskInfo.setIcon(infoList.get(0).getIcon(0));
                 break;
@@ -137,7 +134,8 @@ public class AppStateLayout extends RecyclerView {
         final Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         final ResolveInfo res = context.getPackageManager().resolveActivity(intent, 0);
-        return res != null && res.activityInfo != null
+        return res != null
+                && res.activityInfo != null
                 && packageName.equals(res.activityInfo.packageName);
     }
 
@@ -187,9 +185,9 @@ public class AppStateLayout extends RecyclerView {
         @Override
         public TaskAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             ViewGroup taskInfoLayout =
-                    (ViewGroup) LayoutInflater
-                            .from(mContext)
-                            .inflate(R.layout.layout_task_info, parent, false);
+                    (ViewGroup)
+                            LayoutInflater.from(mContext)
+                                    .inflate(R.layout.layout_task_info, parent, false);
             return new ViewHolder(taskInfoLayout);
         }
 
@@ -205,9 +203,9 @@ public class AppStateLayout extends RecyclerView {
             String packageName = taskInfo.getPackageName();
             CharSequence label = packageName;
             try {
-                label = mPackageManager.getApplicationLabel(
-                        mPackageManager.getApplicationInfo(packageName, GET_META_DATA)
-                );
+                label =
+                        mPackageManager.getApplicationLabel(
+                                mPackageManager.getApplicationInfo(packageName, GET_META_DATA));
             } catch (PackageManager.NameNotFoundException e) {
                 Log.e(TAG, "Failed to get label for " + packageName);
             }
@@ -216,21 +214,25 @@ public class AppStateLayout extends RecyclerView {
             holder.iconIV.setOnClickListener(
                     v -> {
                         mSystemUIActivityManager.moveTaskToFront(taskInfo.getId(), 0);
-                        mContext.sendBroadcast(new Intent("com.boringdroid.systemui.CLOSE_RECENTS"));
-                    }
-            );
-            holder.iconIV.setOnLongClickListener(v -> {
-                ClipData.Item item = new ClipData.Item(TAG_TASK_ICON);
-                ClipData dragData = new ClipData(TAG_TASK_ICON, new String[]{"unknown"}, item);
-                DragShadowBuilder shadow = new DragDropShadowBuilder(v);
-                holder.iconIV.setOnDragListener(new DragDropCloseListener(
-                        mDragCloseThreshold,
-                        mDragCloseThreshold,
-                        taskId -> ActivityManagerWrapper.getInstance().removeTask(taskId)
-                ));
-                v.startDragAndDrop(dragData, shadow, null, View.DRAG_FLAG_GLOBAL);
-                return true;
-            });
+                        mContext.sendBroadcast(
+                                new Intent("com.boringdroid.systemui.CLOSE_RECENTS"));
+                    });
+            holder.iconIV.setOnLongClickListener(
+                    v -> {
+                        ClipData.Item item = new ClipData.Item(TAG_TASK_ICON);
+                        ClipData dragData =
+                                new ClipData(TAG_TASK_ICON, new String[] {"unknown"}, item);
+                        DragShadowBuilder shadow = new DragDropShadowBuilder(v);
+                        holder.iconIV.setOnDragListener(
+                                new DragDropCloseListener(
+                                        mDragCloseThreshold,
+                                        mDragCloseThreshold,
+                                        taskId ->
+                                                ActivityManagerWrapper.getInstance()
+                                                        .removeTask(taskId)));
+                        v.startDragAndDrop(dragData, shadow, null, View.DRAG_FLAG_GLOBAL);
+                        return true;
+                    });
         }
 
         @Override
@@ -248,7 +250,8 @@ public class AppStateLayout extends RecyclerView {
         }
 
         public void reloadActivityManager(Context context) {
-            mSystemUIActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            mSystemUIActivityManager =
+                    (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         }
 
         private static class ViewHolder extends RecyclerView.ViewHolder {

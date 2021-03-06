@@ -1,5 +1,7 @@
 package com.boringdroid.systemui;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -9,16 +11,12 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class AllAppsLayout extends RecyclerView {
     private static final int NUMBER_OF_COLUMNS = 5;
@@ -64,28 +62,29 @@ public class AllAppsLayout extends RecyclerView {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             ViewGroup appInfoLayout =
-                    (ViewGroup) LayoutInflater
-                            .from(mContext)
-                            .inflate(R.layout.layout_app_info, parent, false);
+                    (ViewGroup)
+                            LayoutInflater.from(mContext)
+                                    .inflate(R.layout.layout_app_info, parent, false);
             return new ViewHolder(appInfoLayout);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            AppInfo appInfo = mApps.get(position);
-            holder.iconIV.setImageDrawable(appInfo.getIcon());
-            holder.nameTV.setText(appInfo.getName());
-            holder.appInfoLayout.setOnClickListener(v -> {
-                Intent intent = new Intent();
-                intent.setComponent(appInfo.getComponentName());
-                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
-                if (mHandler != null) {
-                    mHandler.sendEmptyMessage(HandlerConstant.H_DISMISS_ALL_APPS_WINDOW);
-                } else {
-                    Log.e(TAG, "Won't send dismiss event because of handler is null");
-                }
-            });
+            AppData appData = mApps.get(position);
+            holder.iconIV.setImageDrawable(appData.getIcon());
+            holder.nameTV.setText(appData.getName());
+            holder.appInfoLayout.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent();
+                        intent.setComponent(appData.getComponentName());
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent);
+                        if (mHandler != null) {
+                            mHandler.sendEmptyMessage(HandlerConstant.H_DISMISS_ALL_APPS_WINDOW);
+                        } else {
+                            Log.e(TAG, "Won't send dismiss event because of handler is null");
+                        }
+                    });
         }
 
         @Override
