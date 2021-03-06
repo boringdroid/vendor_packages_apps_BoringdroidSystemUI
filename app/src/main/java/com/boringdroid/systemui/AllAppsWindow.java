@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.Outline;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -17,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
-
 import java.lang.ref.WeakReference;
 
 public class AllAppsWindow implements View.OnClickListener {
@@ -56,35 +54,35 @@ public class AllAppsWindow implements View.OnClickListener {
                         dismiss();
                     }
                     return false;
-                }
-        );
+                });
         float cornerRadius = mContext.getResources().getDimension(R.dimen.all_apps_corner_radius);
-        mWindowContentView.setOutlineProvider(new ViewOutlineProvider() {
-            @Override
-            public void getOutline(View view, Outline outline) {
-                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerRadius);
-            }
-        });
+        mWindowContentView.setOutlineProvider(
+                new ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, Outline outline) {
+                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerRadius);
+                    }
+                });
         mWindowContentView.setClipToOutline(true);
         mWindowManager.addView(mWindowContentView, layoutParams);
         mAppLoaderTask.start();
         mShown = true;
     }
 
-    private WindowManager.LayoutParams generateLayoutParams(Context context,
-                                                            WindowManager windowManager) {
+    private WindowManager.LayoutParams generateLayoutParams(
+            Context context, WindowManager windowManager) {
         Resources resources = context.getResources();
         int windowWidth = (int) resources.getDimension(R.dimen.all_apps_window_width);
         int windowHeight = (int) resources.getDimension(R.dimen.all_apps_window_height);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
-                windowWidth,
-                windowHeight,
-                WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-                        | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                PixelFormat.RGB_565
-        );
+        WindowManager.LayoutParams layoutParams =
+                new WindowManager.LayoutParams(
+                        windowWidth,
+                        windowHeight,
+                        WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
+                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+                                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+                                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                        PixelFormat.RGB_565);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         Point size = new Point();
