@@ -1,7 +1,7 @@
 java_import {
     name: "boringSharedSystemUI",
 
-    jars: ["libs/impl/sysui_shared.jar"],
+    jars: ["app/libs/impl/sysui_shared.jar"],
     installable: false,
     sdk_version: "current",
 }
@@ -9,7 +9,7 @@ java_import {
 java_import {
     name: "boringSystemUIPluginLib",
 
-    jars: ["libs/compile/SystemUIPluginLib.jar"],
+    jars: ["app/libs/compile/SystemUIPluginLib.jar"],
     installable: false,
     sdk_version: "current",
 }
@@ -28,5 +28,6 @@ android_app {
         enabled: false,
     },
 
-    srcs: ["src/**/*.java"],
+    resource_dirs: ["app/src/main/res"],
+    srcs: ["app/src/**/*.java"],
 }
