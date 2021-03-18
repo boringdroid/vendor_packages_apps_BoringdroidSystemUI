@@ -29,5 +29,5 @@ android_app {
     },
 
     resource_dirs: ["app/src/main/res"],
-    srcs: ["app/src/**/*.java"],
+    srcs: ["app/src/main/**/*.java"],
 }
