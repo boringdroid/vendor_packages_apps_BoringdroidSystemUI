@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.boringdroid.systemui">
 
-    <uses-permission android:name="android.permission.REORDER_TASKS" />
-    <uses-permission android:name="com.android.systemui.permission.PLUGIN" />
-
-    <application tools:ignore="AllowBackup,MissingApplicationIcon">
+    <application
+        tools:ignore="AllowBackup,MissingApplicationIcon"
+        tools:node="merge">
         <activity
+            tools:node="merge"
             android:name=".DebugActivity"
             android:label="@string/system_ui_debug_name"
             android:largeHeap="true"
@@ -18,15 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name="com.boringdroid.systemui.SystemUIOverlay"
-            android:label="@string/system_ui_overlay_name"
-            tools:ignore="ExportedService,Instantiatable">
-            <intent-filter>
-                <action android:name="com.android.systemui.action.PLUGIN_OVERLAY" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>
