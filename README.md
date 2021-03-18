@@ -33,3 +33,14 @@ manually, because the Spotless based formatter can't fix all errors.
 
 The google java format used by [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle)
 needs `JDK 11`, so you should setup `JDK 11` to build and run `spotlessCheck` and `spotlessApply`.
+
+## Release
+
+The `BoringdroidSystemUI` is released with apk, and you can use the following commands build apk:
+
+```shell script
+./gradlew build
+```
+
+And copy the `app/build/outputs/apk/release/app-release-unsigned.apk` as the released apk to the 
+release repository.
