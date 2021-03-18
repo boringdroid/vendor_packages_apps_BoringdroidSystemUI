@@ -48,14 +48,6 @@ android {
 		}
 	}
 
-	sourceSets {
-		main {
-			res.srcDirs = ['src/main/res']
-			java.srcDirs = ['src/main/java', 'debug/src']
-			manifest.srcFile 'debug/AndroidManifest.xml'
-		}
-	}
-
 	lintOptions {
 		abortOnError false
 	}
