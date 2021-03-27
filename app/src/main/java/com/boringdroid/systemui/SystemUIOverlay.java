@@ -142,7 +142,9 @@ public class SystemUIOverlay implements OverlayPlugin {
                 Log.e(TAG, "Try to unregister close system dialogs receiver without registering");
             }
         }
-        mResolver.unregisterContentObserver(mTunerKeyObserver);
+        if (mResolver != null) {
+            mResolver.unregisterContentObserver(mTunerKeyObserver);
+        }
         mBtAllAppsGroup.setOnClickListener(null);
         if (mNavBarButtonGroup instanceof ViewGroup) {
             ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
