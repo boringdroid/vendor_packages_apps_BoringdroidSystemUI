@@ -205,7 +205,7 @@ public class AppStateLayout extends RecyclerView {
         @Override
         public void onTaskStackChanged() {
             super.onTaskStackChanged();
-            ActivityManager.RunningTaskInfo info = AM_WRAPPER.getRunningTask(false);
+            ActivityManager.RunningTaskInfo info = AM_WRAPPER.getRunningTask();
             Log.d(TAG, "onTaskStackChanged " + info);
             if (info != null) {
                 topTask(info);
