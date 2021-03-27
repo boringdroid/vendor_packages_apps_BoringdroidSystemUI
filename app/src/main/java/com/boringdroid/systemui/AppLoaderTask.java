@@ -50,7 +50,7 @@ public class AppLoaderTask implements Runnable {
         }
         mAllApps.clear();
         for (LauncherActivityInfo info : activityInfoList) {
-            AppInfo appInfo = new AppInfo();
+            AppData appInfo = new AppData();
             appInfo.setName((String) info.getLabel());
             appInfo.setComponentName(info.getComponentName());
             appInfo.setPackageName(info.getApplicationInfo().packageName);
@@ -75,7 +75,7 @@ public class AppLoaderTask implements Runnable {
         notify();
     }
 
-    public List<AppInfo> getAllApps() {
+    public List<AppData> getAllApps() {
         return new ArrayList<>(mAllApps);
     }
 

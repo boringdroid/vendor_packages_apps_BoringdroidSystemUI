@@ -99,7 +99,7 @@ public class AllAppsWindow implements View.OnClickListener {
         return layoutParams;
     }
 
-    private void dismiss() {
+    void dismiss() {
         try {
             mWindowManager.removeViewImmediate(mWindowContentView);
         } catch (IllegalArgumentException e) {

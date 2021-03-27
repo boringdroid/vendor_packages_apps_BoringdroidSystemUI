@@ -180,7 +180,7 @@ public class AppStateLayout extends RecyclerView {
         public void onTaskStackChanged() {
             super.onTaskStackChanged();
             ActivityManager.RunningTaskInfo info =
-                    ActivityManagerWrapper.getInstance().getRunningTask(ACTIVITY_TYPE_UNDEFINED);
+                    ActivityManagerWrapper.getInstance().getRunningTask();
             Log.d(TAG, "onTaskStackChanged " + info);
             if (info != null) {
                 topTask(info);
