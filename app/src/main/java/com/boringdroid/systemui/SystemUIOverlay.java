@@ -77,9 +77,7 @@ public class SystemUIOverlay implements OverlayPlugin {
     }
 
     @Override
-    public void setCollapseDesired(boolean collapseDesired) {
-
-    }
+    public void setCollapseDesired(boolean collapseDesired) {}
 
     @Override
     public void onCreate(Context sysUIContext, Context pluginContext) {

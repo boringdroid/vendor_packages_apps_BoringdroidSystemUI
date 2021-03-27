@@ -4,7 +4,6 @@ import static android.content.pm.PackageManager.GET_META_DATA;
 
 import android.app.ActivityManager;
 import android.content.ClipData;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.LauncherActivityInfo;
@@ -86,16 +85,18 @@ public class AppStateLayout extends RecyclerView {
     }
 
     private void topTask(ActivityManager.RunningTaskInfo runningTaskInfo) {
-        String packageName = runningTaskInfo.baseActivity == null ?
-                null : runningTaskInfo.baseActivity.getPackageName();
-        if (packageName != null && ( packageName.startsWith("com.farmerbb.taskbar") ||  
-		packageName.startsWith("com.teslacoilsw.launcher")
-		)) {
+        String packageName =
+                runningTaskInfo.baseActivity == null
+                        ? null
+                        : runningTaskInfo.baseActivity.getPackageName();
+        if (packageName != null
+                && (packageName.startsWith("com.farmerbb.taskbar")
+                        || packageName.startsWith("com.teslacoilsw.launcher"))) {
             Log.d(TAG, "Ignore launcher " + packageName);
             mAdapter.setTopTaskId(-1);
             mAdapter.notifyDataSetChanged();
             return;
-        }        
+        }
         if (isLauncher(getContext(), packageName)) {
             Log.d(TAG, "Ignore launcher " + packageName);
             mAdapter.setTopTaskId(-1);
@@ -144,9 +145,7 @@ public class AppStateLayout extends RecyclerView {
         public void onTaskStackChanged() {
             super.onTaskStackChanged();
             ActivityManager.RunningTaskInfo info =
-                    ActivityManagerWrapper
-                            .getInstance()
-                            .getRunningTask(ACTIVITY_TYPE_UNDEFINED);
+                    ActivityManagerWrapper.getInstance().getRunningTask(ACTIVITY_TYPE_UNDEFINED);
             Log.d(TAG, "onTaskStackChanged " + info);
             if (info != null) {
                 topTask(info);

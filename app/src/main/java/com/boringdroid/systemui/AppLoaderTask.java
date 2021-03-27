@@ -43,7 +43,8 @@ public class AppLoaderTask implements Runnable {
         UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
         List<UserHandle> userHandles = userManager.getUserProfiles();
         List<LauncherActivityInfo> activityInfoList = new ArrayList<>();
-        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        LauncherApps launcherApps =
+                (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
         for (UserHandle userHandle : userHandles) {
             activityInfoList.addAll(launcherApps.getActivityList(null, userHandle));
         }
