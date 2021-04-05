@@ -40,7 +40,6 @@ public class SystemUIOverlay implements OverlayPlugin {
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
                 group.addView(mAppStateLayout, 4, layoutParams);
-
                 mAppStateLayout.initTasks();
             }
         }
@@ -72,16 +71,12 @@ public class SystemUIOverlay implements OverlayPlugin {
         if (mBtAllAppsGroup != null) {
             mBtAllAppsGroup.setOnClickListener(null);
         }
-        if (mBtAllAppsGroup != null) {
-            mBtAllAppsGroup.post(
-                    () -> {
-                        mBtAllAppsGroup.setOnClickListener(null);
-                        mBtAllApps.setOnClickListener(null);
-                        if (mNavBarButtonGroup instanceof ViewGroup) {
-                            ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
-                            ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
-                        }
-                    });
+        if (mBtAllApps != null) {
+            mBtAllApps.setOnClickListener(null);
+        }
+        if (mNavBarButtonGroup instanceof ViewGroup) {
+            ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
+            ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
         }
         mPluginContext = null;
     }
