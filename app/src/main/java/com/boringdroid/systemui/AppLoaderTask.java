@@ -80,10 +80,10 @@ public class AppLoaderTask implements Runnable {
     }
 
     private Handler getTarget() {
-        return mTarget != null && mTarget.get() != null ? mTarget.get() : null;
+        return mTarget.get();
     }
 
     private Context getContext() {
-        return mContext != null && mContext.get() != null ? mContext.get() : null;
+        return mContext.get();
     }
 }

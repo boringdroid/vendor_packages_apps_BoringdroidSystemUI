@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
 import com.android.systemui.plugins.OverlayPlugin;
 import com.android.systemui.plugins.annotations.Requires;
 
@@ -18,7 +19,6 @@ public class SystemUIOverlay implements OverlayPlugin {
     private ViewGroup mBtAllAppsGroup;
     private AppStateLayout mAppStateLayout;
     private View mBtAllApps;
-    private AllAppsWindow mAllAppsWindow;
     private int mNavBarButtonGroupId = -1;
 
     @Override
@@ -53,7 +53,8 @@ public class SystemUIOverlay implements OverlayPlugin {
     }
 
     @Override
-    public void setCollapseDesired(boolean collapseDesired) {}
+    public void setCollapseDesired(boolean collapseDesired) {
+    }
 
     @Override
     public void onCreate(Context sysUIContext, Context pluginContext) {
@@ -65,8 +66,7 @@ public class SystemUIOverlay implements OverlayPlugin {
         mBtAllAppsGroup = initializeAllAppsButton(mPluginContext, mBtAllAppsGroup);
         mAppStateLayout = initializeAppStateLayout(mPluginContext, mAppStateLayout);
         mBtAllApps = mBtAllAppsGroup.findViewById(R.id.bt_all_apps);
-        mAllAppsWindow = new AllAppsWindow(mPluginContext);
-        mBtAllApps.setOnClickListener(mAllAppsWindow);
+        mBtAllApps.setOnClickListener(new AllAppsWindow(mPluginContext));
     }
 
     @Override
@@ -74,15 +74,17 @@ public class SystemUIOverlay implements OverlayPlugin {
         if (mBtAllAppsGroup != null) {
             mBtAllAppsGroup.setOnClickListener(null);
         }
-        mBtAllAppsGroup.post(
-                () -> {
-                    mBtAllAppsGroup.setOnClickListener(null);
-                    mBtAllApps.setOnClickListener(null);
-                    if (mNavBarButtonGroup instanceof ViewGroup) {
-                        ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
-                        ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
-                    }
-                });
+        if (mBtAllAppsGroup != null) {
+            mBtAllAppsGroup.post(
+                    () -> {
+                        mBtAllAppsGroup.setOnClickListener(null);
+                        mBtAllApps.setOnClickListener(null);
+                        if (mNavBarButtonGroup instanceof ViewGroup) {
+                            ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
+                            ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
+                        }
+                    });
+        }
         mPluginContext = null;
     }
 

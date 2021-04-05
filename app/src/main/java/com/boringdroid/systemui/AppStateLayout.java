@@ -66,7 +66,7 @@ public class AppStateLayout extends RecyclerView {
         setHasFixedSize(true);
         int appInfoIconWidth =
                 context.getResources().getDimensionPixelSize(R.dimen.app_info_icon_width);
-        int dragCloseThreshold = (int) (appInfoIconWidth * 5);
+        int dragCloseThreshold = appInfoIconWidth * 5;
         mAdapter = new TaskAdapter(context, dragCloseThreshold);
         setAdapter(mAdapter);
     }
