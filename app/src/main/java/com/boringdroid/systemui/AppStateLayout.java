@@ -316,10 +316,8 @@ public class AppStateLayout extends RecyclerView {
             int action = event.getAction();
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
-                    int[] locations = new int[2];
-                    v.getLocationOnScreen(locations);
-                    mStartX = locations[0];
-                    mStartY = locations[1];
+                    mStartX = event.getX();
+                    mStartY = event.getY();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     float x = event.getX();

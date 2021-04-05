@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
 import com.android.systemui.plugins.OverlayPlugin;
 import com.android.systemui.plugins.annotations.Requires;
 
@@ -53,8 +52,7 @@ public class SystemUIOverlay implements OverlayPlugin {
     }
 
     @Override
-    public void setCollapseDesired(boolean collapseDesired) {
-    }
+    public void setCollapseDesired(boolean collapseDesired) {}
 
     @Override
     public void onCreate(Context sysUIContext, Context pluginContext) {
