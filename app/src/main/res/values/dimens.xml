@@ -6,7 +6,7 @@
     <dimen name="all_apps_item_spacing_horizontal">10dp</dimen>
     <dimen name="all_apps_item_spacing_vertical">10dp</dimen>
     <dimen name="all_apps_item_width">70dp</dimen>
-    <dimen name="all_apps_item_height">55dp</dimen>
+    <dimen name="all_apps_item_height">70dp</dimen>
     <dimen name="all_apps_corner_radius">8dp</dimen>
     <dimen name="app_info_name_text_size">13sp</dimen>
     <dimen name="app_info_icon_width">30dp</dimen>
