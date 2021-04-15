@@ -29,6 +29,16 @@ public class AppStateLayoutTest {
     }
 
     @Test
+    public void shouldIgnoreTopTask_TrueForTeslaLauncher() {
+        assertThat(mLayout.shouldIgnoreTopTask("com.teslacoilsw.launcher")).isTrue();
+    }
+
+    @Test
+    public void shouldIgnoreTopTask_TrueForLawnchair() {
+        assertThat(mLayout.shouldIgnoreTopTask("ch.deletescape.lawnchair.plah")).isTrue();
+    }
+
+    @Test
     public void shouldIgnoreTopTask_TrueForSelf() {
         assertThat(mLayout.shouldIgnoreTopTask(mContext.getPackageName())).isTrue();
     }

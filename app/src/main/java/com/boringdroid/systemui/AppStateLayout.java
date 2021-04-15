@@ -108,9 +108,7 @@ public class AppStateLayout extends RecyclerView {
     }
 
     public boolean shouldIgnoreTopTask(String packageName) {
-        if (packageName != null
-                && (packageName.startsWith("com.farmerbb.taskbar")
-                        || packageName.startsWith("com.teslacoilsw.launcher"))) {
+        if (isSpecialLauncher(packageName)) {
             Log.d(TAG, "Ignore launcher " + packageName);
             return true;
         }
@@ -165,6 +163,19 @@ public class AppStateLayout extends RecyclerView {
         mAdapter.notifyDataSetChanged();
     }
 
+    private boolean isSpecialLauncher(String packageName) {
+        if ("com.farmerbb.taskbar".equals(packageName)) {
+            return true;
+        }
+        if ("com.teslacoilsw.launcher".equals(packageName)) {
+            return true;
+        }
+        if ("ch.deletescape.lawnchair.plah".equals(packageName)) {
+            return true;
+        }
+        return false;
+    }
+
     @VisibleForTesting
     boolean isLauncher(Context context, String packageName) {
         final Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -172,6 +183,7 @@ public class AppStateLayout extends RecyclerView {
         final ResolveInfo res = context.getPackageManager().resolveActivity(intent, 0);
         return res != null
                 && res.activityInfo != null
+                && packageName != null
                 && packageName.equals(res.activityInfo.packageName);
     }
 
