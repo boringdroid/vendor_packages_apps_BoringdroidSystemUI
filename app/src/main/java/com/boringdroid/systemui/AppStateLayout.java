@@ -7,6 +7,7 @@ import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
@@ -89,7 +90,7 @@ public class AppStateLayout extends RecyclerView {
                 mActivityManager.getRunningTasks(MAX_RUNNING_TASKS);
         for (int i = runningTaskInfos.size() - 1; i >= 0; i--) {
             ActivityManager.RunningTaskInfo runningTaskInfo = runningTaskInfos.get(i);
-            if (shouldIgnoreTopTask(getRunningTaskInfoPackageName(runningTaskInfo))) {
+            if (shouldIgnoreTopTask(runningTaskInfo.topActivity)) {
                 continue;
             }
             topTask(runningTaskInfo, true);
@@ -108,7 +109,16 @@ public class AppStateLayout extends RecyclerView {
                 : runningTaskInfo.baseActivity.getPackageName();
     }
 
-    public boolean shouldIgnoreTopTask(String packageName) {
+    public boolean shouldIgnoreTopTask(ComponentName componentName) {
+        if (componentName == null) {
+            Log.d(TAG, "Ignore invalid component name");
+            return true;
+        }
+        String packageName = componentName.getPackageName();
+        if ("android".equals(packageName)) {
+            Log.d(TAG, "Ignore android");
+            return true;
+        }
         if (isSpecialLauncher(packageName)) {
             Log.d(TAG, "Ignore launcher " + packageName);
             return true;
@@ -119,14 +129,15 @@ public class AppStateLayout extends RecyclerView {
             Log.d(TAG, "Ignore self " + packageName);
             return true;
         }
-        if (isLauncher(getContext(), packageName)) {
-            Log.d(TAG, "Ignore launcher " + packageName);
+        if (isLauncher(getContext(), componentName)) {
+            Log.d(TAG, "Ignore launcher " + componentName);
             return true;
         }
         if (packageName != null && packageName.startsWith("com.android.systemui")) {
             Log.d(TAG, "Ignore systemui " + packageName);
             return true;
         }
+        Log.d(TAG, "Don't ignore top task " + packageName);
         return false;
     }
 
@@ -136,7 +147,7 @@ public class AppStateLayout extends RecyclerView {
 
     private void topTask(ActivityManager.RunningTaskInfo runningTaskInfo, boolean skipIgnoreCheck) {
         String packageName = getRunningTaskInfoPackageName(runningTaskInfo);
-        if (!skipIgnoreCheck && shouldIgnoreTopTask(packageName)) {
+        if (!skipIgnoreCheck && shouldIgnoreTopTask(runningTaskInfo.topActivity)) {
             mAdapter.setTopTaskId(-1);
             mAdapter.notifyDataSetChanged();
             return;
@@ -178,14 +189,31 @@ public class AppStateLayout extends RecyclerView {
     }
 
     @VisibleForTesting
-    boolean isLauncher(Context context, String packageName) {
+    boolean isLauncher(Context context, ComponentName componentName) {
+        if (componentName == null) {
+            return false;
+        }
+        String packageName = componentName.getPackageName();
+        String className = componentName.getClassName();
+        if (packageName == null || className == null) {
+            return false;
+        }
         final Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
-        final ResolveInfo res = context.getPackageManager().resolveActivity(intent, 0);
-        return res != null
-                && res.activityInfo != null
-                && packageName != null
-                && packageName.equals(res.activityInfo.packageName);
+        List<ResolveInfo> resolveInfos =
+                context.getPackageManager().queryIntentActivities(intent, 0);
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            Log.d(TAG, "Found launcher " + resolveInfo);
+            if (resolveInfo == null || resolveInfo.activityInfo == null) {
+                continue;
+            }
+            ActivityInfo activityInfo = resolveInfo.activityInfo;
+            if (packageName.equals(activityInfo.packageName)
+                    && className.equals(activityInfo.name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void reloadActivityManager(Context context) {
@@ -267,13 +295,13 @@ public class AppStateLayout extends RecyclerView {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             TaskInfo taskInfo = mTasks.get(position);
+            String packageName = taskInfo.getPackageName();
             holder.iconIV.setImageDrawable(taskInfo.getIcon());
             if (taskInfo.getId() == mTopTaskId) {
                 holder.highLightLineTV.setImageResource(R.drawable.line_long);
             } else {
                 holder.highLightLineTV.setImageResource(R.drawable.line_short);
             }
-            String packageName = taskInfo.getPackageName();
             CharSequence label = packageName;
             try {
                 label =
