@@ -166,6 +166,15 @@ public class AppStateLayout extends RecyclerView {
                 break;
             }
         }
+        Drawable icon = taskInfo.getIcon();
+        icon =
+                (icon == null && getContext() != null)
+                        ? getContext().getDrawable(R.mipmap.default_icon_round)
+                        : icon;
+        if (icon == null) {
+            Log.e(TAG, packageName + "'s icon is null, context " + getContext());
+        }
+        taskInfo.setIcon(icon);
         int index = mTasks.indexOf(taskInfo);
         mTasks.remove(taskInfo);
         mTasks.add(index >= 0 ? index : mTasks.size(), taskInfo);
