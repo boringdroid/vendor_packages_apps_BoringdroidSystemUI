@@ -177,7 +177,7 @@ class AppStateLayout @JvmOverloads constructor(
     }
 
     private inner class AppStateListener : TaskStackChangeListener() {
-        override fun onTaskCreated(taskId: Int, componentName: ComponentName) {
+        override fun onTaskCreated(taskId: Int, componentName: ComponentName?) {
             super.onTaskCreated(taskId, componentName)
             Log.d(TAG, "onTaskCreated $taskId, cm $componentName")
             onTaskStackChanged()
