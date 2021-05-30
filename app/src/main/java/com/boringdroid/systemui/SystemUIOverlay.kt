@@ -41,9 +41,7 @@ class SystemUIOverlay : OverlayPlugin {
             if (mAllAppsWindow == null) {
                 return
             }
-            if (intent == null
-                || Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action
-            ) {
+            if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) {
                 return
             }
             mAllAppsWindow!!.dismiss()
@@ -63,22 +61,21 @@ class SystemUIOverlay : OverlayPlugin {
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                     FrameLayout.LayoutParams.MATCH_PARENT
                 )
-                val group = buttonGroup
-                val oldBtAllAppsGroup = group.findViewWithTag<View>(TAG_ALL_APPS_GROUP)
+                val oldBtAllAppsGroup = buttonGroup.findViewWithTag<View>(TAG_ALL_APPS_GROUP)
                 if (oldBtAllAppsGroup != null) {
-                    group.removeView(oldBtAllAppsGroup)
+                    buttonGroup.removeView(oldBtAllAppsGroup)
                 }
                 mBtAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
-                group.addView(mBtAllAppsGroup, 0, layoutParams)
-                val oldAppStateLayout = group.findViewWithTag<View>(TAG_APP_STATE_LAYOUT)
+                buttonGroup.addView(mBtAllAppsGroup, 0, layoutParams)
+                val oldAppStateLayout = buttonGroup.findViewWithTag<View>(TAG_APP_STATE_LAYOUT)
                 if (oldAppStateLayout != null) {
-                    group.removeView(oldAppStateLayout)
+                    buttonGroup.removeView(oldAppStateLayout)
                 }
                 mAppStateLayout!!.tag = TAG_APP_STATE_LAYOUT
                 // The first item is all apps group.
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
-                group.addView(mAppStateLayout, 4, layoutParams)
+                buttonGroup.addView(mAppStateLayout, 4, layoutParams)
                 mAppStateLayout!!.initTasks()
             }
         }
@@ -103,7 +100,7 @@ class SystemUIOverlay : OverlayPlugin {
         mAppStateLayout!!.reloadActivityManager(mSystemUIContext)
         mBtAllApps = mBtAllAppsGroup!!.findViewById(R.id.bt_all_apps)
         mAllAppsWindow = AllAppsWindow(mPluginContext)
-        mBtAllApps.setOnClickListener(mAllAppsWindow)
+        mBtAllApps!!.setOnClickListener(mAllAppsWindow)
         mResolver = sysUIContext.contentResolver
         initializeTuningServiceSettingKeys(mResolver, mTunerKeyObserver)
         val filter = IntentFilter()

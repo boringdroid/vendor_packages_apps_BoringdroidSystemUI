@@ -13,7 +13,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import java.lang.ref.WeakReference
@@ -33,25 +32,23 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         }
         val layoutParams = generateLayoutParams(mContext, mWindowManager)
         mWindowContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_all_apps, null)
-        mAllAppsLayout = mWindowContentView.findViewById(R.id.all_apps_layout)
-        mAllAppsLayout.setHandler(mHandler)
+        mAllAppsLayout = mWindowContentView!!.findViewById(R.id.all_apps_layout)
+        mAllAppsLayout!!.handler = mHandler
         val elevation = mContext!!.resources.getInteger(R.integer.all_apps_elevation)
-        mWindowContentView.setElevation(elevation.toFloat())
-        mWindowContentView.setOnTouchListener(
-            OnTouchListener { windowView: View?, event: MotionEvent ->
-                if (event.action == MotionEvent.ACTION_OUTSIDE) {
-                    dismiss()
-                }
-                false
-            })
+        mWindowContentView!!.elevation = elevation.toFloat()
+        mWindowContentView!!.setOnTouchListener { _: View?, event: MotionEvent ->
+            if (event.action == MotionEvent.ACTION_OUTSIDE) {
+                dismiss()
+            }
+            false
+        }
         val cornerRadius = mContext.resources.getDimension(R.dimen.all_apps_corner_radius)
-        mWindowContentView.setOutlineProvider(
-            object : ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: Outline) {
-                    outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
-                }
-            })
-        mWindowContentView.setClipToOutline(true)
+        mWindowContentView!!.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+            }
+        }
+        mWindowContentView!!.clipToOutline = true
         mWindowManager.addView(mWindowContentView, layoutParams)
         mAppLoaderTask.start()
         mShown = true
@@ -61,10 +58,8 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         context: Context?, windowManager: WindowManager
     ): WindowManager.LayoutParams {
         val resources = context!!.resources
-        val windowWidth = resources.getDimension(R.dimen.all_apps_window_width)
-            .toInt()
-        val windowHeight = resources.getDimension(R.dimen.all_apps_window_height)
-            .toInt()
+        val windowWidth = resources.getDimension(R.dimen.all_apps_window_width).toInt()
+        val windowHeight = resources.getDimension(R.dimen.all_apps_window_height).toInt()
         val layoutParams = WindowManager.LayoutParams(
             windowWidth,
             windowHeight,
@@ -110,9 +105,22 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         private val mAllAppsWindow: WeakReference<AllAppsWindow?>
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                HandlerConstant.H_LOAD_SUCCEED -> runMethodSafely(RunAllAppsWindowMethod { obj: AllAppsWindow -> obj.notifyLoadSucceed() })
-                HandlerConstant.H_DISMISS_ALL_APPS_WINDOW -> runMethodSafely(RunAllAppsWindowMethod { obj: AllAppsWindow -> obj.dismiss() })
+                HandlerConstant.H_LOAD_SUCCEED -> runMethodSafely(
+                    object : RunAllAppsWindowMethod {
+                        override fun run(allAppsWindow: AllAppsWindow?) {
+                            allAppsWindow!!.notifyLoadSucceed()
+                        }
+                    }
+                )
+                HandlerConstant.H_DISMISS_ALL_APPS_WINDOW -> runMethodSafely(
+                    object : RunAllAppsWindowMethod {
+                        override fun run(allAppsWindow: AllAppsWindow?) {
+                            allAppsWindow!!.dismiss()
+                        }
+                    }
+                )
                 else -> {
+                    // Do nothing
                 }
             }
         }

@@ -28,6 +28,7 @@ import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
 import java.util.*
 import java.util.function.Consumer
+import kotlin.math.abs
 
 class AppStateLayout @JvmOverloads constructor(
     context: Context,
@@ -85,7 +86,7 @@ class AppStateLayout @JvmOverloads constructor(
             Log.d(TAG, "Ignore launcher $packageName")
             return true
         }
-        if (packageName != null && context != null && packageName.startsWith(context.packageName)) {
+        if (context != null && packageName.startsWith(context.packageName)) {
             Log.d(TAG, "Ignore self $packageName")
             return true
         }
@@ -93,7 +94,7 @@ class AppStateLayout @JvmOverloads constructor(
             Log.d(TAG, "Ignore launcher $componentName")
             return true
         }
-        if (packageName != null && packageName.startsWith("com.android.systemui")) {
+        if (packageName.startsWith("com.android.systemui")) {
             Log.d(TAG, "Ignore systemui $packageName")
             return true
         }
@@ -144,9 +145,7 @@ class AppStateLayout @JvmOverloads constructor(
         if ("com.teslacoilsw.launcher" == packageName) {
             return true
         }
-        return if ("ch.deletescape.lawnchair.plah" == packageName) {
-            true
-        } else false
+        return "ch.deletescape.lawnchair.plah" == packageName
     }
 
     @VisibleForTesting
@@ -156,15 +155,12 @@ class AppStateLayout @JvmOverloads constructor(
         }
         val packageName = componentName.packageName
         val className = componentName.className
-        if (packageName == null || className == null) {
-            return false
-        }
         val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory(Intent.CATEGORY_HOME)
         val resolveInfos = context.packageManager.queryIntentActivities(intent, 0)
         for (resolveInfo in resolveInfos) {
             Log.d(TAG, "Found launcher $resolveInfo")
-            if (resolveInfo == null || resolveInfo.activityInfo == null) {
+            if (resolveInfo?.activityInfo == null) {
                 continue
             }
             val activityInfo = resolveInfo.activityInfo
@@ -244,7 +240,7 @@ class AppStateLayout @JvmOverloads constructor(
             }
             holder.iconIV.tag = taskInfo.id
             holder.iconIV.tooltipText = label
-            holder.iconIV.setOnClickListener { v: View? ->
+            holder.iconIV.setOnClickListener { _: View? ->
                 mSystemUIActivityManager.moveTaskToFront(taskInfo.id, 0)
                 mContext.sendBroadcast(
                     Intent("com.boringdroid.systemui.CLOSE_RECENTS")
@@ -288,13 +284,8 @@ class AppStateLayout @JvmOverloads constructor(
 
         private class ViewHolder(taskInfoLayout: ViewGroup) :
             RecyclerView.ViewHolder(taskInfoLayout) {
-            val iconIV: ImageView
-            val highLightLineTV: ImageView
-
-            init {
-                iconIV = taskInfoLayout.findViewById(R.id.iv_task_info_icon)
-                highLightLineTV = taskInfoLayout.findViewById(R.id.iv_highlight_line)
-            }
+            val iconIV: ImageView = taskInfoLayout.findViewById(R.id.iv_task_info_icon)
+            val highLightLineTV: ImageView = taskInfoLayout.findViewById(R.id.iv_highlight_line)
         }
 
         companion object {
@@ -319,8 +310,7 @@ class AppStateLayout @JvmOverloads constructor(
         private var mStartX = 0f
         private var mStartY = 0f
         override fun onDrag(v: View, event: DragEvent): Boolean {
-            val action = event.action
-            when (action) {
+            when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
                     val locations = IntArray(2)
                     v.getLocationOnScreen(locations)
@@ -330,12 +320,13 @@ class AppStateLayout @JvmOverloads constructor(
                 DragEvent.ACTION_DRAG_ENDED -> {
                     val x = event.x
                     val y = event.y
-                    if (Math.abs(x - mStartX) < mWidth && Math.abs(y - mStartY) < mHeight) {
-                        break
-                    }
-                    v.setOnDragListener(null)
-                    if (mEndCallback != null && v.tag is Int) {
-                        mEndCallback.accept(v.tag as Int)
+                    if (abs(x - mStartX) < mWidth && abs(y - mStartY) < mHeight) {
+                        // Do nothing
+                    } else {
+                        v.setOnDragListener(null)
+                        if (mEndCallback != null && v.tag is Int) {
+                            mEndCallback.accept(v.tag as Int)
+                        }
                     }
                 }
             }
@@ -357,19 +348,15 @@ class AppStateLayout @JvmOverloads constructor(
         }
 
         companion object {
-            private var mShadow: Drawable
+            private lateinit var mShadow: Drawable
         }
 
         init {
-            if (v is ImageView) {
-                val drawable = v.drawable
-                if (drawable != null) {
-                    mShadow = drawable.mutate().constantState!!
-                        .newDrawable()
-                    return
-                }
+            mShadow = if (v is ImageView && v.drawable != null) {
+                v.drawable.mutate().constantState!!.newDrawable()
+            } else {
+                ColorDrawable(Color.LTGRAY)
             }
-            mShadow = ColorDrawable(Color.LTGRAY)
         }
     }
 

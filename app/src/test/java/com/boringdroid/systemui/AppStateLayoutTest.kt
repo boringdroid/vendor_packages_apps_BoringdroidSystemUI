@@ -13,7 +13,8 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class AppStateLayoutTest {
     private var mLayout: AppStateLayout? = null
-    private var mContext: Context? = null
+    private lateinit var mContext: Context
+
     @Before
     fun before() {
         mContext = ApplicationProvider.getApplicationContext()

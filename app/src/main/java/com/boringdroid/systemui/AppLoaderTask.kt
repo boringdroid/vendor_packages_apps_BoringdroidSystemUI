@@ -44,12 +44,11 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
             appData.icon = info.getIcon(0)
             mAllApps.add(appData)
         }
-        mAllApps.sort(
-            java.util.Comparator { appDataOne: AppData, appDataTwo: AppData ->
-                appDataOne.name.compareTo(
-                    appDataTwo.name
-                )
-            })
+        mAllApps.sortWith { appDataOne: AppData, appDataTwo: AppData ->
+            appDataOne.name!!.compareTo(
+                appDataTwo.name!!
+            )
+        }
         val target = target
         target?.sendEmptyMessage(HandlerConstant.H_LOAD_SUCCEED)
     }
@@ -63,15 +62,16 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
     @Synchronized
     fun stop() {
         mStopped = true
-        notify()
+        // Could we remove notify() from kotlin
+        // notify()
     }
 
     val allApps: List<AppData>
         get() = ArrayList(mAllApps)
     private val target: Handler?
-        private get() = if (mTarget != null && mTarget.get() != null) mTarget.get() else null
+        get() = if (mTarget?.get() != null) mTarget.get() else null
     private val context: Context?
-        private get() = if (mContext != null && mContext.get() != null) mContext.get() else null
+        get() = if (mContext?.get() != null) mContext.get() else null
 
     init {
         mContext = WeakReference(context)

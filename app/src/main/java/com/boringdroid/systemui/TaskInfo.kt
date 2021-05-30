@@ -17,12 +17,12 @@ class TaskInfo {
         mRealActivityComponentName = realActivityComponentName
     }
 
-    override fun equals(another: Any?): Boolean {
-        if (another !is TaskInfo) {
+    override fun equals(other: Any?): Boolean {
+        if (other !is TaskInfo) {
             return false
         }
         // The task id is unique in system.
-        return id == another.id
+        return id == other.id
     }
 
     override fun hashCode(): Int {

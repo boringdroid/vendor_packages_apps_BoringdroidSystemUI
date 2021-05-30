@@ -41,11 +41,11 @@ class AllAppsLayout @JvmOverloads constructor(
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val appData = mApps[position]
-            holder.iconIV.setImageDrawable(appData.getIcon())
-            holder.nameTV.text = appData.getName()
-            holder.appInfoLayout.setOnClickListener { v: View? ->
+            holder.iconIV.setImageDrawable(appData!!.icon)
+            holder.nameTV.text = appData.name
+            holder.appInfoLayout.setOnClickListener {
                 val intent = Intent()
-                intent.component = appData.getComponentName()
+                intent.component = appData.componentName
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 mContext.startActivity(intent)
                 if (mHandler != null) {
@@ -72,13 +72,8 @@ class AllAppsLayout @JvmOverloads constructor(
         private class ViewHolder(val appInfoLayout: ViewGroup) : RecyclerView.ViewHolder(
             appInfoLayout
         ) {
-            val iconIV: ImageView
-            val nameTV: TextView
-
-            init {
-                iconIV = appInfoLayout.findViewById(R.id.app_info_icon)
-                nameTV = appInfoLayout.findViewById(R.id.app_info_name)
-            }
+            val iconIV: ImageView = appInfoLayout.findViewById(R.id.app_info_icon)
+            val nameTV: TextView = appInfoLayout.findViewById(R.id.app_info_name)
         }
 
         companion object {
