@@ -14,10 +14,9 @@ spotless {
 		indentWithTabs() // or spaces. Takes an integer argument if you don't like 4
 		endWithNewline()
 	}
-	java {
-		target 'src/**/*.java'
-		// apply a specific flavor of google-java-format
-		googleJavaFormat('1.8').aosp()
+	kotlin {
+		target '**/*.kt'
+		ktlint()userData(['max_line_length': '100'])
 	}
 }
 

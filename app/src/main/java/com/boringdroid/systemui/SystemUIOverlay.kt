@@ -19,8 +19,9 @@ import android.widget.FrameLayout
 import com.android.systemui.plugins.OverlayPlugin
 import com.android.systemui.plugins.annotations.Requires
 import java.lang.reflect.InvocationTargetException
-import java.util.*
+import java.util.Arrays
 import java.util.stream.Collectors
+import kotlin.collections.ArrayList
 
 @Requires(target = OverlayPlugin::class, version = OverlayPlugin.VERSION)
 class SystemUIOverlay : OverlayPlugin {
@@ -132,7 +133,8 @@ class SystemUIOverlay : OverlayPlugin {
 
     @SuppressLint("PrivateApi")
     private fun initializeTuningServiceSettingKeys(
-        resolver: ContentResolver?, observer: ContentObserver
+        resolver: ContentResolver?,
+        observer: ContentObserver
     ) {
         try {
             val systemPropertiesClass = Class.forName("android.os.SystemProperties")
@@ -171,7 +173,8 @@ class SystemUIOverlay : OverlayPlugin {
 
     @SuppressLint("InflateParams")
     private fun initializeAppStateLayout(
-        context: Context?, appStateLayout: AppStateLayout?
+        context: Context?,
+        appStateLayout: AppStateLayout?
     ): AppStateLayout {
         return appStateLayout
             ?: LayoutInflater.from(context)

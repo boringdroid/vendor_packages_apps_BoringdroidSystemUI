@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
-import java.util.*
 import java.util.function.Consumer
 import kotlin.math.abs
 
@@ -69,7 +68,8 @@ class AppStateLayout @JvmOverloads constructor(
     }
 
     private fun getRunningTaskInfoPackageName(runningTaskInfo: RunningTaskInfo): String? {
-        return if (runningTaskInfo.baseActivity == null) null else runningTaskInfo.baseActivity!!.packageName
+        return if (runningTaskInfo.baseActivity == null) null else
+            runningTaskInfo.baseActivity!!.packageName
     }
 
     fun shouldIgnoreTopTask(componentName: ComponentName?): Boolean {
@@ -124,7 +124,8 @@ class AppStateLayout @JvmOverloads constructor(
         }
         var icon = taskInfo.icon
         icon =
-            if (icon == null && context != null) context.getDrawable(R.mipmap.default_icon_round) else icon
+            if (icon == null && context != null)
+                context.getDrawable(R.mipmap.default_icon_round) else icon
         if (icon == null) {
             Log.e(TAG, "$packageName's icon is null, context $context")
         }
@@ -240,7 +241,7 @@ class AppStateLayout @JvmOverloads constructor(
             }
             holder.iconIV.tag = taskInfo.id
             holder.iconIV.tooltipText = label
-            holder.iconIV.setOnClickListener { _: View? ->
+            holder.iconIV.setOnClickListener {
                 mSystemUIActivityManager.moveTaskToFront(taskInfo.id, 0)
                 mContext.sendBroadcast(
                     Intent("com.boringdroid.systemui.CLOSE_RECENTS")

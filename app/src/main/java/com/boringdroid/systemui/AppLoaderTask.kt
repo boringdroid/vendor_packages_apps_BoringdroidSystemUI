@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.UserManager
 import java.lang.ref.WeakReference
-import java.util.*
 
 class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
     companion object {

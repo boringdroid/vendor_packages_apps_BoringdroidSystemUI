@@ -55,7 +55,8 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
     }
 
     private fun generateLayoutParams(
-        context: Context?, windowManager: WindowManager
+        context: Context?,
+        windowManager: WindowManager
     ): WindowManager.LayoutParams {
         val resources = context!!.resources
         val windowWidth = resources.getDimension(R.dimen.all_apps_window_width).toInt()
