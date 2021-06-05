@@ -18,40 +18,40 @@ import android.view.WindowManager
 import java.lang.ref.WeakReference
 
 class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
-    private val mWindowManager: WindowManager
-    private var mWindowContentView: View? = null
-    private var mAllAppsLayout: AllAppsLayout? = null
-    private var mShown = false
-    private val mAppLoaderTask: AppLoaderTask
-    private val mHandler = H(this)
+    private val windowManager: WindowManager
+    private var windowContentView: View? = null
+    private var allAppsLayout: AllAppsLayout? = null
+    private var shown = false
+    private val appLoaderTask: AppLoaderTask
+    private val handler = H(this)
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onClick(v: View) {
-        if (mShown) {
+        if (shown) {
             dismiss()
             return
         }
-        val layoutParams = generateLayoutParams(mContext, mWindowManager)
-        mWindowContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_all_apps, null)
-        mAllAppsLayout = mWindowContentView!!.findViewById(R.id.all_apps_layout)
-        mAllAppsLayout!!.handler = mHandler
+        val layoutParams = generateLayoutParams(mContext, windowManager)
+        windowContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_all_apps, null)
+        allAppsLayout = windowContentView!!.findViewById(R.id.all_apps_layout)
+        allAppsLayout!!.handler = handler
         val elevation = mContext!!.resources.getInteger(R.integer.all_apps_elevation)
-        mWindowContentView!!.elevation = elevation.toFloat()
-        mWindowContentView!!.setOnTouchListener { _: View?, event: MotionEvent ->
+        windowContentView!!.elevation = elevation.toFloat()
+        windowContentView!!.setOnTouchListener { _: View?, event: MotionEvent ->
             if (event.action == MotionEvent.ACTION_OUTSIDE) {
                 dismiss()
             }
             false
         }
         val cornerRadius = mContext.resources.getDimension(R.dimen.all_apps_corner_radius)
-        mWindowContentView!!.outlineProvider = object : ViewOutlineProvider() {
+        windowContentView!!.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
                 outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
             }
         }
-        mWindowContentView!!.clipToOutline = true
-        mWindowManager.addView(mWindowContentView, layoutParams)
-        mAppLoaderTask.start()
-        mShown = true
+        windowContentView!!.clipToOutline = true
+        windowManager.addView(windowContentView, layoutParams)
+        appLoaderTask.start()
+        shown = true
     }
 
     private fun generateLayoutParams(
@@ -90,20 +90,20 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
 
     fun dismiss() {
         try {
-            mWindowManager.removeViewImmediate(mWindowContentView)
+            windowManager.removeViewImmediate(windowContentView)
         } catch (e: IllegalArgumentException) {
             Log.e(TAG, "Catch exception when remove all apps window", e)
         }
-        mWindowContentView = null
-        mShown = false
+        windowContentView = null
+        shown = false
     }
 
     private fun notifyLoadSucceed() {
-        mAllAppsLayout!!.setData(mAppLoaderTask.allApps)
+        allAppsLayout!!.setData(appLoaderTask.allApps)
     }
 
     private class H(allAppsWindow: AllAppsWindow?) : Handler() {
-        private val mAllAppsWindow: WeakReference<AllAppsWindow?>
+        private val allAppsWindow: WeakReference<AllAppsWindow?>
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 HandlerConstant.H_LOAD_SUCCEED -> runMethodSafely(
@@ -127,8 +127,8 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         }
 
         private fun runMethodSafely(method: RunAllAppsWindowMethod) {
-            if (mAllAppsWindow.get() != null) {
-                method.run(mAllAppsWindow.get())
+            if (allAppsWindow.get() != null) {
+                method.run(allAppsWindow.get())
             }
         }
 
@@ -137,7 +137,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         }
 
         init {
-            mAllAppsWindow = WeakReference(allAppsWindow)
+            this.allAppsWindow = WeakReference(allAppsWindow)
         }
     }
 
@@ -146,7 +146,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
     }
 
     init {
-        mWindowManager = mContext!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        mAppLoaderTask = AppLoaderTask(mContext, mHandler)
+        windowManager = mContext!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        appLoaderTask = AppLoaderTask(mContext, handler)
     }
 }
