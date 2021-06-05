@@ -25,36 +25,36 @@ import kotlin.collections.ArrayList
 
 @Requires(target = OverlayPlugin::class, version = OverlayPlugin.VERSION)
 class SystemUIOverlay : OverlayPlugin {
-    private var mPluginContext: Context? = null
-    private var mSystemUIContext: Context? = null
-    private var mNavBarButtonGroup: View? = null
-    private var mBtAllAppsGroup: ViewGroup? = null
-    private var mAppStateLayout: AppStateLayout? = null
-    private var mBtAllApps: View? = null
-    private var mAllAppsWindow: AllAppsWindow? = null
-    private var mNavBarButtonGroupId = -1
-    private var mResolver: ContentResolver? = null
-    private val mTunerKeys: MutableList<String> = ArrayList()
-    private val mTunerKeyObserver: ContentObserver = TunerKeyObserver()
-    private val mCloseSystemDialogsReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private var pluginContext: Context? = null
+    private var systemUIContext: Context? = null
+    private var navBarButtonGroup: View? = null
+    private var btAllAppsGroup: ViewGroup? = null
+    private var appStateLayout: AppStateLayout? = null
+    private var btAllApps: View? = null
+    private var allAppsWindow: AllAppsWindow? = null
+    private var navBarButtonGroupId = -1
+    private var resolver: ContentResolver? = null
+    private val tunerKeys: MutableList<String> = ArrayList()
+    private val tunerKeyObserver: ContentObserver = TunerKeyObserver()
+    private val closeSystemDialogsReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             Log.d(TAG, "receive intent $intent")
-            if (mAllAppsWindow == null) {
+            if (allAppsWindow == null) {
                 return
             }
             if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) {
                 return
             }
-            mAllAppsWindow!!.dismiss()
+            allAppsWindow!!.dismiss()
         }
     }
 
     override fun setup(statusBar: View, navBar: View) {
         Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
-        if (mNavBarButtonGroupId > 0) {
-            val buttonGroup = navBar.findViewById<View>(mNavBarButtonGroupId)
+        if (navBarButtonGroupId > 0) {
+            val buttonGroup = navBar.findViewById<View>(navBarButtonGroupId)
             if (buttonGroup is ViewGroup) {
-                mNavBarButtonGroup = buttonGroup
+                navBarButtonGroup = buttonGroup
                 // We must set the height to match parent programmatically
                 // to let all apps button group be center of navigation
                 // bar view.
@@ -66,18 +66,18 @@ class SystemUIOverlay : OverlayPlugin {
                 if (oldBtAllAppsGroup != null) {
                     buttonGroup.removeView(oldBtAllAppsGroup)
                 }
-                mBtAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
-                buttonGroup.addView(mBtAllAppsGroup, 0, layoutParams)
+                btAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
+                buttonGroup.addView(btAllAppsGroup, 0, layoutParams)
                 val oldAppStateLayout = buttonGroup.findViewWithTag<View>(TAG_APP_STATE_LAYOUT)
                 if (oldAppStateLayout != null) {
                     buttonGroup.removeView(oldAppStateLayout)
                 }
-                mAppStateLayout!!.tag = TAG_APP_STATE_LAYOUT
+                appStateLayout!!.tag = TAG_APP_STATE_LAYOUT
                 // The first item is all apps group.
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
-                buttonGroup.addView(mAppStateLayout, 4, layoutParams)
-                mAppStateLayout!!.initTasks()
+                buttonGroup.addView(appStateLayout, 4, layoutParams)
+                appStateLayout!!.initTasks()
             }
         }
     }
@@ -91,44 +91,44 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     override fun onCreate(sysUIContext: Context, pluginContext: Context) {
-        mSystemUIContext = sysUIContext
-        mPluginContext = pluginContext
-        mNavBarButtonGroupId = sysUIContext
+        systemUIContext = sysUIContext
+        this.pluginContext = pluginContext
+        navBarButtonGroupId = sysUIContext
             .resources
             .getIdentifier("ends_group", "id", "com.android.systemui")
-        mBtAllAppsGroup = initializeAllAppsButton(mPluginContext, mBtAllAppsGroup)
-        mAppStateLayout = initializeAppStateLayout(mPluginContext, mAppStateLayout)
-        mAppStateLayout!!.reloadActivityManager(mSystemUIContext)
-        mBtAllApps = mBtAllAppsGroup!!.findViewById(R.id.bt_all_apps)
-        mAllAppsWindow = AllAppsWindow(mPluginContext)
-        mBtAllApps!!.setOnClickListener(mAllAppsWindow)
-        mResolver = sysUIContext.contentResolver
-        initializeTuningServiceSettingKeys(mResolver, mTunerKeyObserver)
+        btAllAppsGroup = initializeAllAppsButton(this.pluginContext, btAllAppsGroup)
+        appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
+        appStateLayout!!.reloadActivityManager(systemUIContext)
+        btAllApps = btAllAppsGroup!!.findViewById(R.id.bt_all_apps)
+        allAppsWindow = AllAppsWindow(this.pluginContext)
+        btAllApps!!.setOnClickListener(allAppsWindow)
+        resolver = sysUIContext.contentResolver
+        initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-        mSystemUIContext!!.registerReceiver(mCloseSystemDialogsReceiver, filter)
+        systemUIContext!!.registerReceiver(closeSystemDialogsReceiver, filter)
     }
 
     override fun onDestroy() {
-        if (mSystemUIContext != null) {
+        if (systemUIContext != null) {
             try {
-                mSystemUIContext!!.unregisterReceiver(mCloseSystemDialogsReceiver)
+                systemUIContext!!.unregisterReceiver(closeSystemDialogsReceiver)
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, "Try to unregister close system dialogs receiver without registering")
             }
         }
-        if (mResolver != null) {
-            mResolver!!.unregisterContentObserver(mTunerKeyObserver)
+        if (resolver != null) {
+            resolver!!.unregisterContentObserver(tunerKeyObserver)
         }
-        mBtAllAppsGroup!!.post {
-            mBtAllAppsGroup!!.setOnClickListener(null)
-            mBtAllApps!!.setOnClickListener(null)
-            if (mNavBarButtonGroup is ViewGroup) {
-                (mNavBarButtonGroup as ViewGroup).removeView(mBtAllAppsGroup)
-                (mNavBarButtonGroup as ViewGroup).removeView(mAppStateLayout)
+        btAllAppsGroup!!.post {
+            btAllAppsGroup!!.setOnClickListener(null)
+            btAllApps!!.setOnClickListener(null)
+            if (navBarButtonGroup is ViewGroup) {
+                (navBarButtonGroup as ViewGroup).removeView(btAllAppsGroup)
+                (navBarButtonGroup as ViewGroup).removeView(appStateLayout)
             }
         }
-        mPluginContext = null
+        pluginContext = null
     }
 
     @SuppressLint("PrivateApi")
@@ -146,9 +146,9 @@ class SystemUIOverlay : OverlayPlugin {
                 .map { obj: String -> obj.trim { it <= ' ' } }
                 .filter { key: String -> !key.isEmpty() }
                 .collect(Collectors.toList())
-            mTunerKeys.clear()
-            mTunerKeys.addAll(tunerKeyList)
-            for (key in mTunerKeys) {
+            this.tunerKeys.clear()
+            this.tunerKeys.addAll(tunerKeyList)
+            for (key in this.tunerKeys) {
                 Log.d(TAG, "Got key $key")
                 val uri = Settings.Secure.getUriFor(key)
                 resolver!!.registerContentObserver(uri, false, observer)
@@ -183,12 +183,12 @@ class SystemUIOverlay : OverlayPlugin {
 
     private fun onTunerChange(uri: Uri) {
         val keyName = uri.lastPathSegment
-        val value = Settings.Secure.getString(mResolver, keyName)
+        val value = Settings.Secure.getString(resolver, keyName)
         Log.d(TAG, "onTunerChange $uri, value $value")
-        val packageUri = Uri.fromParts("package", mPluginContext!!.packageName, null)
+        val packageUri = Uri.fromParts("package", pluginContext!!.packageName, null)
         Log.d(TAG, "onTunerChange packageUri $packageUri")
         val pluginChangedIntent = Intent(ACTION_PLUGIN_CHANGED, packageUri)
-        mPluginContext!!.sendBroadcast(pluginChangedIntent)
+        pluginContext!!.sendBroadcast(pluginChangedIntent)
     }
 
     private inner class TunerKeyObserver : ContentObserver(Handler(Looper.getMainLooper())) {
