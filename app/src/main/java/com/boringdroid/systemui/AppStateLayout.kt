@@ -34,24 +34,24 @@ class AppStateLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : RecyclerView(context, attrs, defStyleAttr) {
-    private val mActivityManager: ActivityManager
-    private val mListener = AppStateListener()
-    private val mLaunchApps: LauncherApps
-    private val mUserManager: UserManager
-    private val mTasks: MutableList<TaskInfo> = ArrayList()
-    private val mAdapter: TaskAdapter?
+    private val activityManager: ActivityManager
+    private val appStateListener = AppStateListener()
+    private val launchApps: LauncherApps
+    private val userManager: UserManager
+    private val tasks: MutableList<TaskInfo> = ArrayList()
+    private val taskAdapter: TaskAdapter?
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        AM_WRAPPER.registerTaskStackListener(mListener)
+        AM_WRAPPER.registerTaskStackListener(appStateListener)
     }
 
     override fun onDetachedFromWindow() {
-        AM_WRAPPER.unregisterTaskStackListener(mListener)
+        AM_WRAPPER.unregisterTaskStackListener(appStateListener)
         super.onDetachedFromWindow()
     }
 
     fun initTasks() {
-        val runningTaskInfos = mActivityManager.getRunningTasks(MAX_RUNNING_TASKS)
+        val runningTaskInfos = activityManager.getRunningTasks(MAX_RUNNING_TASKS)
         for (i in runningTaskInfos.indices.reversed()) {
             val runningTaskInfo = runningTaskInfos[i]
             if (shouldIgnoreTopTask(runningTaskInfo.topActivity)) {
@@ -62,9 +62,9 @@ class AppStateLayout @JvmOverloads constructor(
     }
 
     private fun removeTask(taskId: Int) {
-        mTasks.removeIf { taskInfo: TaskInfo -> taskInfo.id == taskId }
-        mAdapter!!.setData(mTasks)
-        mAdapter.notifyDataSetChanged()
+        tasks.removeIf { taskInfo: TaskInfo -> taskInfo.id == taskId }
+        taskAdapter!!.setData(tasks)
+        taskAdapter.notifyDataSetChanged()
     }
 
     private fun getRunningTaskInfoPackageName(runningTaskInfo: RunningTaskInfo): String? {
@@ -105,8 +105,8 @@ class AppStateLayout @JvmOverloads constructor(
     private fun topTask(runningTaskInfo: RunningTaskInfo, skipIgnoreCheck: Boolean = false) {
         val packageName = getRunningTaskInfoPackageName(runningTaskInfo)
         if (!skipIgnoreCheck && shouldIgnoreTopTask(runningTaskInfo.topActivity)) {
-            mAdapter!!.setTopTaskId(-1)
-            mAdapter.notifyDataSetChanged()
+            taskAdapter!!.setTopTaskId(-1)
+            taskAdapter.notifyDataSetChanged()
             return
         }
         val taskInfo = TaskInfo()
@@ -114,9 +114,9 @@ class AppStateLayout @JvmOverloads constructor(
         taskInfo.setBaseActivityComponentName(runningTaskInfo.baseActivity)
         taskInfo.setRealActivityComponentName(runningTaskInfo.topActivity)
         taskInfo.packageName = packageName
-        val userHandles = mUserManager.userProfiles
+        val userHandles = userManager.userProfiles
         for (userHandle in userHandles) {
-            val infoList = mLaunchApps.getActivityList(packageName, userHandle)
+            val infoList = launchApps.getActivityList(packageName, userHandle)
             if (infoList.size > 0 && infoList[0] != null) {
                 taskInfo.icon = infoList[0]!!.getIcon(0)
                 break
@@ -130,13 +130,13 @@ class AppStateLayout @JvmOverloads constructor(
             Log.e(TAG, "$packageName's icon is null, context $context")
         }
         taskInfo.icon = icon
-        val index = mTasks.indexOf(taskInfo)
-        mTasks.remove(taskInfo)
-        mTasks.add(if (index >= 0) index else mTasks.size, taskInfo)
-        mAdapter!!.setData(mTasks)
-        mAdapter.setTopTaskId(taskInfo.id)
+        val index = tasks.indexOf(taskInfo)
+        tasks.remove(taskInfo)
+        tasks.add(if (index >= 0) index else tasks.size, taskInfo)
+        taskAdapter!!.setData(tasks)
+        taskAdapter.setTopTaskId(taskInfo.id)
         Log.d(TAG, "Top task $taskInfo")
-        mAdapter.notifyDataSetChanged()
+        taskAdapter.notifyDataSetChanged()
     }
 
     private fun isSpecialLauncher(packageName: String?): Boolean {
@@ -173,7 +173,7 @@ class AppStateLayout @JvmOverloads constructor(
     }
 
     fun reloadActivityManager(context: Context?) {
-        mAdapter?.reloadActivityManager(context)
+        taskAdapter?.reloadActivityManager(context)
     }
 
     private inner class AppStateListener : TaskStackChangeListener() {
@@ -209,32 +209,32 @@ class AppStateLayout @JvmOverloads constructor(
         }
     }
 
-    private class TaskAdapter(private val mContext: Context, dragCloseThreshold: Int) :
+    private class TaskAdapter(private val context: Context, dragCloseThreshold: Int) :
         Adapter<TaskAdapter.ViewHolder>() {
-        private val mTasks: MutableList<TaskInfo> = ArrayList()
-        private var mSystemUIActivityManager: ActivityManager
-        private val mPackageManager: PackageManager
-        private var mTopTaskId = -1
-        private val mDragCloseThreshold: Int
+        private val tasks: MutableList<TaskInfo> = ArrayList()
+        private var systemUIActivityManager: ActivityManager
+        private val packageManager: PackageManager
+        private var topTaskId = -1
+        private val dragCloseThreshold: Int
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val taskInfoLayout = LayoutInflater.from(mContext)
+            val taskInfoLayout = LayoutInflater.from(context)
                 .inflate(R.layout.layout_task_info, parent, false) as ViewGroup
             return ViewHolder(taskInfoLayout)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val taskInfo = mTasks[position]
+            val taskInfo = tasks[position]
             val packageName = taskInfo.packageName
             holder.iconIV.setImageDrawable(taskInfo.icon)
-            if (taskInfo.id == mTopTaskId) {
+            if (taskInfo.id == topTaskId) {
                 holder.highLightLineTV.setImageResource(R.drawable.line_long)
             } else {
                 holder.highLightLineTV.setImageResource(R.drawable.line_short)
             }
             var label: CharSequence? = packageName
             try {
-                label = mPackageManager.getApplicationLabel(
-                    mPackageManager.getApplicationInfo(packageName!!, PackageManager.GET_META_DATA)
+                label = packageManager.getApplicationLabel(
+                    packageManager.getApplicationInfo(packageName!!, PackageManager.GET_META_DATA)
                 )
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.e(TAG, "Failed to get label for $packageName")
@@ -242,8 +242,8 @@ class AppStateLayout @JvmOverloads constructor(
             holder.iconIV.tag = taskInfo.id
             holder.iconIV.tooltipText = label
             holder.iconIV.setOnClickListener {
-                mSystemUIActivityManager.moveTaskToFront(taskInfo.id, 0)
-                mContext.sendBroadcast(
+                systemUIActivityManager.moveTaskToFront(taskInfo.id, 0)
+                context.sendBroadcast(
                     Intent("com.boringdroid.systemui.CLOSE_RECENTS")
                 )
             }
@@ -253,8 +253,8 @@ class AppStateLayout @JvmOverloads constructor(
                 val shadow: DragShadowBuilder = DragDropShadowBuilder(v)
                 holder.iconIV.setOnDragListener(
                     DragDropCloseListener(
-                        mDragCloseThreshold,
-                        mDragCloseThreshold
+                        dragCloseThreshold,
+                        dragCloseThreshold
                     ) { taskId: Int? ->
                         AM_WRAPPER.removeTask(
                             taskId!!
@@ -266,20 +266,20 @@ class AppStateLayout @JvmOverloads constructor(
         }
 
         override fun getItemCount(): Int {
-            return mTasks.size
+            return tasks.size
         }
 
         fun setData(tasks: List<TaskInfo>?) {
-            mTasks.clear()
-            mTasks.addAll(tasks!!)
+            this.tasks.clear()
+            this.tasks.addAll(tasks!!)
         }
 
         fun setTopTaskId(id: Int) {
-            mTopTaskId = id
+            topTaskId = id
         }
 
         fun reloadActivityManager(context: Context?) {
-            mSystemUIActivityManager =
+            systemUIActivityManager =
                 context!!.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         }
 
@@ -296,37 +296,37 @@ class AppStateLayout @JvmOverloads constructor(
         init {
             // We will use reloadActivityManager to update mSystemUIActivityManager with
             // systemui context.
-            mSystemUIActivityManager =
-                mContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            mPackageManager = mContext.packageManager
-            mDragCloseThreshold = dragCloseThreshold
+            systemUIActivityManager =
+                context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            packageManager = context.packageManager
+            this.dragCloseThreshold = dragCloseThreshold
         }
     }
 
     private class DragDropCloseListener(
-        private val mWidth: Int,
-        private val mHeight: Int,
-        private val mEndCallback: Consumer<Int?>?
+        private val width: Int,
+        private val height: Int,
+        private val endcallback: Consumer<Int?>?
     ) : OnDragListener {
-        private var mStartX = 0f
-        private var mStartY = 0f
+        private var startX = 0f
+        private var startY = 0f
         override fun onDrag(v: View, event: DragEvent): Boolean {
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
                     val locations = IntArray(2)
                     v.getLocationOnScreen(locations)
-                    mStartX = locations[0].toFloat()
-                    mStartY = locations[1].toFloat()
+                    startX = locations[0].toFloat()
+                    startY = locations[1].toFloat()
                 }
                 DragEvent.ACTION_DRAG_ENDED -> {
                     val x = event.x
                     val y = event.y
-                    if (abs(x - mStartX) < mWidth && abs(y - mStartY) < mHeight) {
+                    if (abs(x - startX) < width && abs(y - startY) < height) {
                         // Do nothing
                     } else {
                         v.setOnDragListener(null)
-                        if (mEndCallback != null && v.tag is Int) {
-                            mEndCallback.accept(v.tag as Int)
+                        if (endcallback != null && v.tag is Int) {
+                            endcallback.accept(v.tag as Int)
                         }
                     }
                 }
@@ -339,21 +339,21 @@ class AppStateLayout @JvmOverloads constructor(
         override fun onProvideShadowMetrics(size: Point, touch: Point) {
             val width = view.width
             val height = view.height
-            mShadow.setBounds(0, 0, width, height)
+            shadow.setBounds(0, 0, width, height)
             size[width] = height
             touch[width / 2] = height / 2
         }
 
         override fun onDrawShadow(canvas: Canvas) {
-            mShadow.draw(canvas)
+            shadow.draw(canvas)
         }
 
         companion object {
-            private lateinit var mShadow: Drawable
+            private lateinit var shadow: Drawable
         }
 
         init {
-            mShadow = if (v is ImageView && v.drawable != null) {
+            shadow = if (v is ImageView && v.drawable != null) {
                 v.drawable.mutate().constantState!!.newDrawable()
             } else {
                 ColorDrawable(Color.LTGRAY)
@@ -368,14 +368,14 @@ class AppStateLayout @JvmOverloads constructor(
     }
 
     init {
-        mActivityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        mLaunchApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-        mUserManager = context.getSystemService(Context.USER_SERVICE) as UserManager
+        activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        launchApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
         val manager = LinearLayoutManager(context, HORIZONTAL, false)
         layoutManager = manager
         setHasFixedSize(true)
         val appInfoIconWidth = context.resources.getDimensionPixelSize(R.dimen.app_info_icon_width)
-        mAdapter = TaskAdapter(context, (appInfoIconWidth * 5))
-        adapter = mAdapter
+        taskAdapter = TaskAdapter(context, (appInfoIconWidth * 5))
+        adapter = taskAdapter
     }
 }

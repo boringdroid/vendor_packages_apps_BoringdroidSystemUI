@@ -5,16 +5,16 @@ import android.graphics.drawable.Drawable
 
 class TaskInfo {
     var id = 0
-    private var mBaseActivityComponentName: ComponentName? = null
-    private var mRealActivityComponentName: ComponentName? = null
+    private var baseActivityComponentName: ComponentName? = null
+    private var realActivityComponentName: ComponentName? = null
     var packageName: String? = null
     var icon: Drawable? = null
     fun setBaseActivityComponentName(baseActivityComponentName: ComponentName?) {
-        mBaseActivityComponentName = baseActivityComponentName
+        this.baseActivityComponentName = baseActivityComponentName
     }
 
     fun setRealActivityComponentName(realActivityComponentName: ComponentName?) {
-        mRealActivityComponentName = realActivityComponentName
+        this.realActivityComponentName = realActivityComponentName
     }
 
     override fun equals(other: Any?): Boolean {
@@ -33,9 +33,9 @@ class TaskInfo {
         return ("Task id " +
                 id +
                 ", origin " +
-                mBaseActivityComponentName +
+                baseActivityComponentName +
                 ", real " +
-                mRealActivityComponentName +
+                realActivityComponentName +
                 ", package " +
                 packageName)
     }

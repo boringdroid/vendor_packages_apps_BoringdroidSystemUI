@@ -17,13 +17,13 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
         }
     }
 
-    private val sHandler = Handler(WORK_THREAD.looper)
-    private val mContext: WeakReference<Context?>?
-    private val mTarget: WeakReference<Handler?>?
-    private val mAllApps: MutableList<AppData> = ArrayList()
-    private var mStopped = false
+    private val handler = Handler(WORK_THREAD.looper)
+    private val loaderContext: WeakReference<Context?>?
+    private val loaderTarget: WeakReference<Handler?>?
+    private val loaderAllApps: MutableList<AppData> = ArrayList()
+    private var stopped = false
     override fun run() {
-        if (mStopped) {
+        if (stopped) {
             return
         }
         val context = context ?: return
@@ -34,16 +34,16 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
         for (userHandle in userHandles) {
             activityInfoList.addAll(launcherApps.getActivityList(null, userHandle))
         }
-        mAllApps.clear()
+        loaderAllApps.clear()
         for (info in activityInfoList) {
             val appData = AppData()
             appData.name = info.label as String
             appData.componentName = info.componentName
             appData.packageName = info.applicationInfo.packageName
             appData.icon = info.getIcon(0)
-            mAllApps.add(appData)
+            loaderAllApps.add(appData)
         }
-        mAllApps.sortWith { appDataOne: AppData, appDataTwo: AppData ->
+        loaderAllApps.sortWith { appDataOne: AppData, appDataTwo: AppData ->
             appDataOne.name!!.compareTo(
                 appDataTwo.name!!
             )
@@ -54,26 +54,26 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
 
     @Synchronized
     fun start() {
-        mStopped = false
-        sHandler.post(this)
+        stopped = false
+        handler.post(this)
     }
 
     @Synchronized
     fun stop() {
-        mStopped = true
+        stopped = true
         // Could we remove notify() from kotlin
         // notify()
     }
 
     val allApps: List<AppData>
-        get() = ArrayList(mAllApps)
+        get() = ArrayList(loaderAllApps)
     private val target: Handler?
-        get() = if (mTarget?.get() != null) mTarget.get() else null
+        get() = if (loaderTarget?.get() != null) loaderTarget.get() else null
     private val context: Context?
-        get() = if (mContext?.get() != null) mContext.get() else null
+        get() = if (loaderContext?.get() != null) loaderContext.get() else null
 
     init {
-        mContext = WeakReference(context)
-        mTarget = WeakReference(target)
+        loaderContext = WeakReference(context)
+        loaderTarget = WeakReference(target)
     }
 }

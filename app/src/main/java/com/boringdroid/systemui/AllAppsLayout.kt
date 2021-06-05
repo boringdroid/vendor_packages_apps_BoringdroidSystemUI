@@ -17,37 +17,37 @@ class AllAppsLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : RecyclerView(context, attrs, defStyle) {
-    private val mAdapter: AppListAdapter
+    private val appListAdapter: AppListAdapter
     fun setData(apps: List<AppData?>?) {
-        mAdapter.setData(apps)
-        mAdapter.notifyDataSetChanged()
+        appListAdapter.setData(apps)
+        appListAdapter.notifyDataSetChanged()
     }
 
     fun setHandler(handler: Handler?) {
-        mAdapter.setHandler(handler)
+        appListAdapter.setHandler(handler)
     }
 
-    private class AppListAdapter(private val mContext: Context) :
+    private class AppListAdapter(private val context: Context) :
         Adapter<AppListAdapter.ViewHolder>() {
-        private val mApps: MutableList<AppData?> = ArrayList()
-        private var mHandler: Handler? = null
+        private val apps: MutableList<AppData?> = ArrayList()
+        private var handler: Handler? = null
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val appInfoLayout = LayoutInflater.from(mContext)
+            val appInfoLayout = LayoutInflater.from(context)
                 .inflate(R.layout.layout_app_info, parent, false) as ViewGroup
             return ViewHolder(appInfoLayout)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val appData = mApps[position]
+            val appData = apps[position]
             holder.iconIV.setImageDrawable(appData!!.icon)
             holder.nameTV.text = appData.name
             holder.appInfoLayout.setOnClickListener {
                 val intent = Intent()
                 intent.component = appData.componentName
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                mContext.startActivity(intent)
-                if (mHandler != null) {
-                    mHandler!!.sendEmptyMessage(HandlerConstant.H_DISMISS_ALL_APPS_WINDOW)
+                context.startActivity(intent)
+                if (handler != null) {
+                    handler!!.sendEmptyMessage(HandlerConstant.H_DISMISS_ALL_APPS_WINDOW)
                 } else {
                     Log.e(TAG, "Won't send dismiss event because of handler is null")
                 }
@@ -55,16 +55,16 @@ class AllAppsLayout @JvmOverloads constructor(
         }
 
         override fun getItemCount(): Int {
-            return mApps.size
+            return apps.size
         }
 
         fun setData(apps: List<AppData?>?) {
-            mApps.clear()
-            mApps.addAll(apps!!)
+            this.apps.clear()
+            this.apps.addAll(apps!!)
         }
 
         fun setHandler(handler: Handler?) {
-            mHandler = handler
+            this.handler = handler
         }
 
         private class ViewHolder(val appInfoLayout: ViewGroup) : RecyclerView.ViewHolder(
@@ -86,7 +86,7 @@ class AllAppsLayout @JvmOverloads constructor(
     init {
         val layoutManager = GridLayoutManager(context, NUMBER_OF_COLUMNS)
         setLayoutManager(layoutManager)
-        mAdapter = AppListAdapter(context)
-        adapter = mAdapter
+        appListAdapter = AppListAdapter(context)
+        adapter = appListAdapter
     }
 }
