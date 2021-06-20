@@ -15,6 +15,26 @@ Both `Android.bp` and `build.gradle` use jars of above library to remove system 
 built this project directly and separately. The jars are built from system, so we should update them
 when we upgrade AOSP.
 
+## Test
+
+### Instrumentation tests
+
+This project has some instrumentation tests, and you should use the below command to check
+tests before you push changes to the repository for reviewing:
+
+```shell
+./gradlew connectedAndroidTest
+```
+
+### Unit tests
+
+This project also has some unit tests, you should use the below command to check tests before
+you push changes to the repository for reviewing:
+
+```shell
+./gradlew test
+```
+
 ## Spotless
 
 This project uses [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle) to
