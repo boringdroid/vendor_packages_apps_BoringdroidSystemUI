@@ -145,15 +145,17 @@ public class SystemUIOverlay implements OverlayPlugin {
         if (mResolver != null) {
             mResolver.unregisterContentObserver(mTunerKeyObserver);
         }
-        mBtAllAppsGroup.post(
-                () -> {
-                    mBtAllAppsGroup.setOnClickListener(null);
-                    mBtAllApps.setOnClickListener(null);
-                    if (mNavBarButtonGroup instanceof ViewGroup) {
-                        ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
-                        ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
-                    }
-                });
+        if (mBtAllAppsGroup != null) {
+            mBtAllAppsGroup.post(
+                    () -> {
+                        mBtAllAppsGroup.setOnClickListener(null);
+                        mBtAllApps.setOnClickListener(null);
+                        if (mNavBarButtonGroup instanceof ViewGroup) {
+                            ((ViewGroup) mNavBarButtonGroup).removeView(mBtAllAppsGroup);
+                            ((ViewGroup) mNavBarButtonGroup).removeView(mAppStateLayout);
+                        }
+                    });
+        }
         mPluginContext = null;
     }
 

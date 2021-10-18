@@ -100,10 +100,12 @@ public class AllAppsWindow implements View.OnClickListener {
     }
 
     void dismiss() {
-        try {
-            mWindowManager.removeViewImmediate(mWindowContentView);
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "Catch exception when remove all apps window", e);
+        if (mWindowContentView != null) {
+            try {
+                mWindowManager.removeViewImmediate(mWindowContentView);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Catch exception when remove all apps window", e);
+            }
         }
         mWindowContentView = null;
         mShown = false;
