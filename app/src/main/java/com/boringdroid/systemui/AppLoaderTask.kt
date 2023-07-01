@@ -45,7 +45,7 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
         }
         loaderAllApps.sortWith { appDataOne: AppData, appDataTwo: AppData ->
             appDataOne.name!!.compareTo(
-                appDataTwo.name!!
+                appDataTwo.name!!,
             )
         }
         val target = target

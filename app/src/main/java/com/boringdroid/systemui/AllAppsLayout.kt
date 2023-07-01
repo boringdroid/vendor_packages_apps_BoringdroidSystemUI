@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 class AllAppsLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyle: Int = 0
+    defStyle: Int = 0,
 ) : RecyclerView(context, attrs, defStyle) {
     private val appListAdapter: AppListAdapter
     fun setData(apps: List<AppData?>?) {
@@ -68,7 +68,7 @@ class AllAppsLayout @JvmOverloads constructor(
         }
 
         private class ViewHolder(val appInfoLayout: ViewGroup) : RecyclerView.ViewHolder(
-            appInfoLayout
+            appInfoLayout,
         ) {
             val iconIV: ImageView = appInfoLayout.findViewById(R.id.app_info_icon)
             val nameTV: TextView = appInfoLayout.findViewById(R.id.app_info_name)
