@@ -1,8 +1,8 @@
 plugins {
 	id "com.diffplug.spotless" version "6.19.0"
 	id 'com.android.application'
+	id 'kotlin-android'
 }
-apply plugin: 'kotlin-android'
 
 spotless {
 	format 'misc', {
