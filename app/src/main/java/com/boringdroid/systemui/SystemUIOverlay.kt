@@ -60,7 +60,7 @@ class SystemUIOverlay : OverlayPlugin {
                 // bar view.
                 val layoutParams = FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
+                    FrameLayout.LayoutParams.MATCH_PARENT,
                 )
                 val oldBtAllAppsGroup = buttonGroup.findViewWithTag<View>(TAG_ALL_APPS_GROUP)
                 if (oldBtAllAppsGroup != null) {
@@ -134,7 +134,7 @@ class SystemUIOverlay : OverlayPlugin {
     @SuppressLint("PrivateApi")
     private fun initializeTuningServiceSettingKeys(
         resolver: ContentResolver?,
-        observer: ContentObserver
+        observer: ContentObserver,
     ) {
         try {
             val systemPropertiesClass = Class.forName("android.os.SystemProperties")
@@ -174,7 +174,7 @@ class SystemUIOverlay : OverlayPlugin {
     @SuppressLint("InflateParams")
     private fun initializeAppStateLayout(
         context: Context?,
-        appStateLayout: AppStateLayout?
+        appStateLayout: AppStateLayout?,
     ): AppStateLayout {
         return appStateLayout
             ?: LayoutInflater.from(context)

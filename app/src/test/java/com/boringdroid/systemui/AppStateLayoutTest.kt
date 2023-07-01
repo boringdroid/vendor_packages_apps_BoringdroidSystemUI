@@ -25,8 +25,8 @@ class AppStateLayoutTest {
     fun shouldIgnoreTopTask_TrueForTaskbar() {
         Truth.assertThat(
             mLayout!!.shouldIgnoreTopTask(
-                ComponentName("com.farmerbb.taskbar", TEST_CLASS_NAME)
-            )
+                ComponentName("com.farmerbb.taskbar", TEST_CLASS_NAME),
+            ),
         )
             .isTrue()
     }
@@ -35,8 +35,8 @@ class AppStateLayoutTest {
     fun shouldIgnoreTopTask_TrueForTeslaLauncher() {
         Truth.assertThat(
             mLayout!!.shouldIgnoreTopTask(
-                ComponentName("com.teslacoilsw.launcher", TEST_CLASS_NAME)
-            )
+                ComponentName("com.teslacoilsw.launcher", TEST_CLASS_NAME),
+            ),
         )
             .isTrue()
     }
@@ -46,9 +46,10 @@ class AppStateLayoutTest {
         Truth.assertThat(
             mLayout!!.shouldIgnoreTopTask(
                 ComponentName(
-                    "ch.deletescape.lawnchair.plah", TEST_CLASS_NAME
-                )
-            )
+                    "ch.deletescape.lawnchair.plah",
+                    TEST_CLASS_NAME,
+                ),
+            ),
         )
             .isTrue()
     }
@@ -57,8 +58,8 @@ class AppStateLayoutTest {
     fun shouldIgnoreTopTask_TrueForSelf() {
         Truth.assertThat(
             mLayout!!.shouldIgnoreTopTask(
-                ComponentName(mContext!!.packageName, TEST_CLASS_NAME)
-            )
+                ComponentName(mContext!!.packageName, TEST_CLASS_NAME),
+            ),
         )
             .isTrue()
     }
@@ -73,8 +74,8 @@ class AppStateLayoutTest {
     fun shouldIgnoreTopTask_TrueForSystemUI() {
         Truth.assertThat(
             mLayout!!.shouldIgnoreTopTask(
-                ComponentName("com.android.systemui", TEST_CLASS_NAME)
-            )
+                ComponentName("com.android.systemui", TEST_CLASS_NAME),
+            ),
         )
             .isTrue()
     }
@@ -89,8 +90,8 @@ class AppStateLayoutTest {
     fun shouldIgnoreTopTask_FalseForOtherPackages() {
         Truth.assertThat(
             mLayout!!.shouldIgnoreTopTask(
-                ComponentName(TEST_PACKAGE_NAME, TEST_CLASS_NAME)
-            )
+                ComponentName(TEST_PACKAGE_NAME, TEST_CLASS_NAME),
+            ),
         )
             .isFalse()
     }

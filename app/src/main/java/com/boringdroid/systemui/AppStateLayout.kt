@@ -32,7 +32,7 @@ import kotlin.math.abs
 class AppStateLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : RecyclerView(context, attrs, defStyleAttr) {
     private val activityManager: ActivityManager
     private val appStateListener = AppStateListener()
@@ -68,7 +68,9 @@ class AppStateLayout @JvmOverloads constructor(
     }
 
     private fun getRunningTaskInfoPackageName(runningTaskInfo: RunningTaskInfo): String? {
-        return if (runningTaskInfo.baseActivity == null) null else
+        return if (runningTaskInfo.baseActivity == null) {
+            null
+        } else
             runningTaskInfo.baseActivity!!.packageName
     }
 
@@ -124,8 +126,11 @@ class AppStateLayout @JvmOverloads constructor(
         }
         var icon = taskInfo.icon
         icon =
-            if (icon == null && context != null)
-                context.getDrawable(R.mipmap.default_icon_round) else icon
+            if (icon == null && context != null) {
+                context.getDrawable(R.mipmap.default_icon_round)
+            } else {
+                icon
+            }
         if (icon == null) {
             Log.e(TAG, "$packageName's icon is null, context $context")
         }
@@ -234,7 +239,7 @@ class AppStateLayout @JvmOverloads constructor(
             var label: CharSequence? = packageName
             try {
                 label = packageManager.getApplicationLabel(
-                    packageManager.getApplicationInfo(packageName!!, PackageManager.GET_META_DATA)
+                    packageManager.getApplicationInfo(packageName!!, PackageManager.GET_META_DATA),
                 )
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.e(TAG, "Failed to get label for $packageName")
@@ -244,7 +249,7 @@ class AppStateLayout @JvmOverloads constructor(
             holder.iconIV.setOnClickListener {
                 systemUIActivityManager.moveTaskToFront(taskInfo.id, 0)
                 context.sendBroadcast(
-                    Intent("com.boringdroid.systemui.CLOSE_RECENTS")
+                    Intent("com.boringdroid.systemui.CLOSE_RECENTS"),
                 )
             }
             holder.iconIV.setOnLongClickListener { v: View ->
@@ -254,12 +259,13 @@ class AppStateLayout @JvmOverloads constructor(
                 holder.iconIV.setOnDragListener(
                     DragDropCloseListener(
                         dragCloseThreshold,
-                        dragCloseThreshold
+                        dragCloseThreshold,
                     ) { taskId: Int? ->
                         AM_WRAPPER.removeTask(
-                            taskId!!
+                            taskId!!,
                         )
-                    })
+                    },
+                )
                 v.startDragAndDrop(dragData, shadow, null, DRAG_FLAG_GLOBAL)
                 true
             }
@@ -306,7 +312,7 @@ class AppStateLayout @JvmOverloads constructor(
     private class DragDropCloseListener(
         private val width: Int,
         private val height: Int,
-        private val endcallback: Consumer<Int?>?
+        private val endcallback: Consumer<Int?>?,
     ) : OnDragListener {
         private var startX = 0f
         private var startY = 0f

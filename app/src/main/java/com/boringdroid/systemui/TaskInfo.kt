@@ -30,13 +30,15 @@ class TaskInfo {
     }
 
     override fun toString(): String {
-        return ("Task id " +
+        return (
+            "Task id " +
                 id +
                 ", origin " +
                 baseActivityComponentName +
                 ", real " +
                 realActivityComponentName +
                 ", package " +
-                packageName)
+                packageName
+            )
     }
 }

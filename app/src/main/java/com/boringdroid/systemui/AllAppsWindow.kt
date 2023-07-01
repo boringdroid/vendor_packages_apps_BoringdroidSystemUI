@@ -24,6 +24,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
     private var shown = false
     private val appLoaderTask: AppLoaderTask
     private val handler = H(this)
+
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onClick(v: View) {
         if (shown) {
@@ -56,7 +57,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
 
     private fun generateLayoutParams(
         context: Context?,
-        windowManager: WindowManager
+        windowManager: WindowManager,
     ): WindowManager.LayoutParams {
         val resources = context!!.resources
         val windowWidth = resources.getDimension(R.dimen.all_apps_window_width).toInt()
@@ -66,9 +67,9 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
             windowHeight,
             WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-                    or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-                    or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.RGB_565
+                or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+                or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.RGB_565,
         )
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -111,14 +112,14 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
                         override fun run(allAppsWindow: AllAppsWindow?) {
                             allAppsWindow!!.notifyLoadSucceed()
                         }
-                    }
+                    },
                 )
                 HandlerConstant.H_DISMISS_ALL_APPS_WINDOW -> runMethodSafely(
                     object : RunAllAppsWindowMethod {
                         override fun run(allAppsWindow: AllAppsWindow?) {
                             allAppsWindow!!.dismiss()
                         }
-                    }
+                    },
                 )
                 else -> {
                     // Do nothing
