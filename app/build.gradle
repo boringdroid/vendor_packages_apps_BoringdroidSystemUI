@@ -21,14 +21,14 @@ spotless {
 }
 
 android {
-	compileSdkVersion 30
+	compileSdk 33
 
 	defaultConfig {
 		applicationId "com.boringdroid.systemui"
 		minSdkVersion 28
-		targetSdkVersion 30
-		versionCode 100
-		versionName "100"
+		targetSdkVersion 33
+		versionCode 130
+		versionName "130"
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 	}
