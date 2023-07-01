@@ -11,6 +11,7 @@
             android:name=".DebugActivity"
             android:label="@string/system_ui_debug_name"
             android:largeHeap="true"
+            android:exported="true"
             android:supportsRtl="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
