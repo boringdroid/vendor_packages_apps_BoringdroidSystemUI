@@ -49,11 +49,8 @@ android {
 		}
 	}
 
-	lintOptions {
-		abortOnError false
-	}
 
-	testOptions {
+    testOptions {
 		unitTests {
 			all {
 				testLogging {
@@ -76,6 +73,10 @@ android {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
+    namespace 'com.boringdroid.systemui'
+    lint {
+        abortOnError false
+    }
 }
 
 dependencies {
