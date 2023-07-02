@@ -12,10 +12,14 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
 import com.android.systemui.plugins.OverlayPlugin
 import com.android.systemui.plugins.annotations.Requires
 import java.lang.reflect.InvocationTargetException
@@ -29,6 +33,7 @@ class SystemUIOverlay : OverlayPlugin {
     private var systemUIContext: Context? = null
     private var navBarButtonGroup: View? = null
     private var btAllAppsGroup: ViewGroup? = null
+    private var clockAndStatus: ViewGroup? = null
     private var appStateLayout: AppStateLayout? = null
     private var btAllApps: View? = null
     private var allAppsWindow: AllAppsWindow? = null
@@ -76,8 +81,26 @@ class SystemUIOverlay : OverlayPlugin {
                 // The first item is all apps group.
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
-                buttonGroup.addView(appStateLayout, 4, layoutParams)
+                buttonGroup.addView(appStateLayout, 3, layoutParams)
                 appStateLayout!!.initTasks()
+                val oldClockAndStatus = buttonGroup.findViewWithTag<View>(TAG_CLOCK_AND_STATUS_GROUP)
+                if (oldClockAndStatus != null) {
+                    buttonGroup.removeView(oldClockAndStatus)
+                }
+                clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
+                val layoutParams1 = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+                layoutParams1.gravity = Gravity.END
+                layoutParams1.width = FrameLayout.LayoutParams.WRAP_CONTENT
+                layoutParams1.height = FrameLayout.LayoutParams.MATCH_PARENT
+                clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
+                clockAndStatus!!.layoutParams = layoutParams1
+                buttonGroup.addView(clockAndStatus)
+                val clockTextView = buttonGroup.findViewById<TextView>(R.id.clock)
+                val batteryBar = buttonGroup.findViewById<ProgressBar>(R.id.progressBar)
+                val wifiBar = buttonGroup.findViewById<ImageView>(R.id.progressBarWifi)
+                val batteryText = buttonGroup.findViewById<TextView>(R.id.textViewBatteryPercent)
+                val clockAndStatus = this.pluginContext?.let { ClockAndStatus(clockTextView, batteryBar, batteryText, wifiBar, it) }
+                clockAndStatus?.startUpdatingTimeAndStatus()
             }
         }
     }
@@ -97,6 +120,7 @@ class SystemUIOverlay : OverlayPlugin {
             .resources
             .getIdentifier("ends_group", "id", "com.android.systemui")
         btAllAppsGroup = initializeAllAppsButton(this.pluginContext, btAllAppsGroup)
+        clockAndStatus = initializeClockAndStatus(this.pluginContext, clockAndStatus)
         appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
         appStateLayout!!.reloadActivityManager(systemUIContext)
         btAllApps = btAllAppsGroup!!.findViewById(R.id.bt_all_apps)
@@ -172,6 +196,13 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     @SuppressLint("InflateParams")
+    private fun initializeClockAndStatus(context: Context?, clockAndStatus: ViewGroup?): ViewGroup {
+        return clockAndStatus
+            ?: LayoutInflater.from(context)
+                .inflate(R.layout.layout_clock_and_status, null) as ViewGroup
+    }
+
+    @SuppressLint("InflateParams")
     private fun initializeAppStateLayout(
         context: Context?,
         appStateLayout: AppStateLayout?,
@@ -205,6 +236,7 @@ class SystemUIOverlay : OverlayPlugin {
         // Copied from systemui source code, please keep it update to source code.
         private const val ACTION_PLUGIN_CHANGED = "com.android.systemui.action.PLUGIN_CHANGED"
         private const val TAG_ALL_APPS_GROUP = "tag-bt-all-apps-group"
+        private const val TAG_CLOCK_AND_STATUS_GROUP = "tag-clock-and-status-group"
         private const val TAG_APP_STATE_LAYOUT = "tag-app-state-layout"
     }
 }
