@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
+import com.android.systemui.shared.system.TaskStackChangeListeners
 import java.util.function.Consumer
 import kotlin.math.abs
 
@@ -42,11 +43,11 @@ class AppStateLayout @JvmOverloads constructor(
     private val taskAdapter: TaskAdapter?
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        AM_WRAPPER.registerTaskStackListener(appStateListener)
+        TC_WRAPPER.registerTaskStackListener(appStateListener)
     }
 
     override fun onDetachedFromWindow() {
-        AM_WRAPPER.unregisterTaskStackListener(appStateListener)
+        TC_WRAPPER.unregisterTaskStackListener(appStateListener)
         super.onDetachedFromWindow()
     }
 
@@ -181,7 +182,7 @@ class AppStateLayout @JvmOverloads constructor(
         taskAdapter?.reloadActivityManager(context)
     }
 
-    private inner class AppStateListener : TaskStackChangeListener() {
+    private inner class AppStateListener : TaskStackChangeListener {
         override fun onTaskCreated(taskId: Int, componentName: ComponentName?) {
             super.onTaskCreated(taskId, componentName)
             Log.d(TAG, "onTaskCreated $taskId, cm $componentName")
@@ -370,6 +371,7 @@ class AppStateLayout @JvmOverloads constructor(
     companion object {
         private const val TAG = "AppStateLayout"
         private val AM_WRAPPER = ActivityManagerWrapper.getInstance()
+        private val TC_WRAPPER = TaskStackChangeListeners.getInstance()
         private const val MAX_RUNNING_TASKS = 50
     }
 
