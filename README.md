@@ -81,3 +81,5 @@ The `BoringdroidSystemUI` is released with apk, and you can use the following co
 
 And copy the `app/build/outputs/apk/release/app-release-unsigned.apk` as the released apk to the 
 release repository.
+
+Also, we can download latest build APK from GitHub Action's artifacts.
