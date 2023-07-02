@@ -12,7 +12,8 @@
             android:label="@string/system_ui_debug_name"
             android:largeHeap="true"
             android:exported="true"
-            android:supportsRtl="false">
+            android:supportsRtl="false"
+            tools:ignore="RtlEnabled">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

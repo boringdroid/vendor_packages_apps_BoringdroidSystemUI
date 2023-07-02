@@ -20,12 +20,8 @@ spotless {
 	}
 }
 
-repositories {
-	mavenCentral()
-	google()
-}
-
 android {
+	namespace 'com.boringdroid.systemui'
 	compileSdk 33
 
 	defaultConfig {
@@ -36,6 +32,10 @@ android {
 		versionName "130"
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+	}
+
+	sourceSets {
+		main.resources.srcDirs += "src/main/SystemUISharedRes"
 	}
 
 	buildTypes {
@@ -82,7 +82,7 @@ android {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
-	namespace 'com.boringdroid.systemui'
+
 	lint {
 		abortOnError false
 	}
