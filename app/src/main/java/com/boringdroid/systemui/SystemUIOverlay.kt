@@ -54,9 +54,9 @@ class SystemUIOverlay : OverlayPlugin {
         }
     }
 
-    override fun setup(statusBar: View, navBar: View) {
+    override fun setup(statusBar: View, navBar: View?) {
         Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
-        if (navBarButtonGroupId > 0) {
+        if (navBarButtonGroupId > 0 && navBar != null) {
             val buttonGroup = navBar.findViewById<View>(navBarButtonGroupId)
             if (buttonGroup is ViewGroup) {
                 navBarButtonGroup = buttonGroup
