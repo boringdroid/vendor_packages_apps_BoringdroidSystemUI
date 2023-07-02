@@ -81,7 +81,7 @@ class SystemUIOverlay : OverlayPlugin {
                 // The first item is all apps group.
                 // The next three item is back button, home button, recents button.
                 // So we should add app state layout to the 5th, index 4.
-                buttonGroup.addView(appStateLayout, 3, layoutParams)
+                buttonGroup.addView(appStateLayout, 4, layoutParams)
                 appStateLayout!!.initTasks()
                 val oldClockAndStatus = buttonGroup.findViewWithTag<View>(TAG_CLOCK_AND_STATUS_GROUP)
                 if (oldClockAndStatus != null) {
