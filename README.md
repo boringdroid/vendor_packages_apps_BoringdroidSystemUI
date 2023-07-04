@@ -68,8 +68,7 @@ manually, because the Spotless based formatter can't fix all errors.
 
 ## JDK Requirement
 
-The google java format used by [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle)
-needs `JDK 11`, so you should setup `JDK 11` to build and run `spotlessCheck` and `spotlessApply`.
+JDK 17 as BoringdroidSystemUI uses AGP 8.x+.
 
 ## Release
 
