@@ -28,7 +28,7 @@ jobs:
       run: ./gradlew spotlessCheck
     - name: Run unit tests
       run: ./gradlew test
-    - name: Update Release APK
+    - name: Upload Release APK
       uses: actions/upload-artifact@v3
       with:
         name: release-apk
