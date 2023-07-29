@@ -71,8 +71,9 @@ class AppStateLayout @JvmOverloads constructor(
     private fun getRunningTaskInfoPackageName(runningTaskInfo: RunningTaskInfo): String? {
         return if (runningTaskInfo.baseActivity == null) {
             null
-        } else
+        } else {
             runningTaskInfo.baseActivity!!.packageName
+        }
     }
 
     fun shouldIgnoreTopTask(componentName: ComponentName?): Boolean {
