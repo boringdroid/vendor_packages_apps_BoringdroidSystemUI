@@ -29,29 +29,38 @@ class ClockAndStatus(
 ) {
     private val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val handler = Handler(Looper.getMainLooper())
-    private val updateRunnable = object : Runnable {
-        override fun run() {
-            updateTimeAndBattery()
-            updateWifiStrength()
-            handler.postDelayed(this, 1000) // Update every 1 second
-        }
-    }
-
-    private val batteryReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
-                updateBatteryLevel(intent)
-            }
-        }
-    }
-
-    private val wifiReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == WifiManager.RSSI_CHANGED_ACTION) {
+    private val updateRunnable =
+        object : Runnable {
+            override fun run() {
+                updateTimeAndBattery()
                 updateWifiStrength()
+                handler.postDelayed(this, 1000) // Update every 1 second
             }
         }
-    }
+
+    private val batteryReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+                    updateBatteryLevel(intent)
+                }
+            }
+        }
+
+    private val wifiReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                if (intent.action == WifiManager.RSSI_CHANGED_ACTION) {
+                    updateWifiStrength()
+                }
+            }
+        }
 
     fun startUpdatingTimeAndStatus() {
         handler.post(updateRunnable)
@@ -128,12 +137,13 @@ class ClockAndStatus(
     }
 
     private fun getWifiStrengthDrawable(wifiLevel: Int): Drawable? {
-        val wifiLevelResourceId = when {
-            wifiLevel >= 75 -> R.drawable.ic_wifi_signal_4
-            wifiLevel >= 50 -> R.drawable.ic_wifi_signal_3
-            wifiLevel >= 25 -> R.drawable.ic_wifi_signal_2
-            else -> R.drawable.ic_wifi_signal_1
-        }
+        val wifiLevelResourceId =
+            when {
+                wifiLevel >= 75 -> R.drawable.ic_wifi_signal_4
+                wifiLevel >= 50 -> R.drawable.ic_wifi_signal_3
+                wifiLevel >= 25 -> R.drawable.ic_wifi_signal_2
+                else -> R.drawable.ic_wifi_signal_1
+            }
         val drawable = ContextCompat.getDrawable(context, wifiLevelResourceId)
         drawable?.setColorFilter(ContextCompat.getColor(context, R.color.wifi_strength_color), PorterDuff.Mode.SRC_IN)
         return drawable

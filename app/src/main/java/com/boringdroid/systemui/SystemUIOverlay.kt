@@ -41,20 +41,27 @@ class SystemUIOverlay : OverlayPlugin {
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
     private val tunerKeyObserver: ContentObserver = TunerKeyObserver()
-    private val closeSystemDialogsReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            Log.d(TAG, "receive intent $intent")
-            if (allAppsWindow == null) {
-                return
+    private val closeSystemDialogsReceiver: BroadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                Log.d(TAG, "receive intent $intent")
+                if (allAppsWindow == null) {
+                    return
+                }
+                if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) {
+                    return
+                }
+                allAppsWindow!!.dismiss()
             }
-            if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) {
-                return
-            }
-            allAppsWindow!!.dismiss()
         }
-    }
 
-    override fun setup(statusBar: View, navBar: View?) {
+    override fun setup(
+        statusBar: View,
+        navBar: View?,
+    ) {
         Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
         if (navBarButtonGroupId > 0 && navBar != null) {
             val buttonGroup = navBar.findViewById<View>(navBarButtonGroupId)
@@ -63,10 +70,11 @@ class SystemUIOverlay : OverlayPlugin {
                 // We must set the height to match parent programmatically
                 // to let all apps button group be center of navigation
                 // bar view.
-                val layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                )
+                val layoutParams =
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                    )
                 val oldBtAllAppsGroup = buttonGroup.findViewWithTag<View>(TAG_ALL_APPS_GROUP)
                 if (oldBtAllAppsGroup != null) {
                     buttonGroup.removeView(oldBtAllAppsGroup)
@@ -113,12 +121,16 @@ class SystemUIOverlay : OverlayPlugin {
         // Do nothing
     }
 
-    override fun onCreate(sysUIContext: Context, pluginContext: Context) {
+    override fun onCreate(
+        sysUIContext: Context,
+        pluginContext: Context,
+    ) {
         systemUIContext = sysUIContext
         this.pluginContext = pluginContext
-        navBarButtonGroupId = sysUIContext
-            .resources
-            .getIdentifier("ends_group", "id", "com.android.systemui")
+        navBarButtonGroupId =
+            sysUIContext
+                .resources
+                .getIdentifier("ends_group", "id", "com.android.systemui")
         btAllAppsGroup = initializeAllAppsButton(this.pluginContext, btAllAppsGroup)
         clockAndStatus = initializeClockAndStatus(this.pluginContext, clockAndStatus)
         appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
@@ -166,10 +178,11 @@ class SystemUIOverlay : OverlayPlugin {
                 systemPropertiesClass.getMethod("get", String::class.java, String::class.java)
             val tunerKeys = getMethod.invoke(null, "persist.sys.bd.tunerkeys", "") as String
             Log.d(TAG, "Got tuner keys $tunerKeys")
-            val tunerKeyList = Arrays.stream(tunerKeys.split("--").toTypedArray())
-                .map { obj: String -> obj.trim { it <= ' ' } }
-                .filter { key: String -> !key.isEmpty() }
-                .collect(Collectors.toList())
+            val tunerKeyList =
+                Arrays.stream(tunerKeys.split("--").toTypedArray())
+                    .map { obj: String -> obj.trim { it <= ' ' } }
+                    .filter { key: String -> !key.isEmpty() }
+                    .collect(Collectors.toList())
             this.tunerKeys.clear()
             this.tunerKeys.addAll(tunerKeyList)
             for (key in this.tunerKeys) {
@@ -189,14 +202,20 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     @SuppressLint("InflateParams")
-    private fun initializeAllAppsButton(context: Context?, btAllAppsGroup: ViewGroup?): ViewGroup {
+    private fun initializeAllAppsButton(
+        context: Context?,
+        btAllAppsGroup: ViewGroup?,
+    ): ViewGroup {
         return btAllAppsGroup
             ?: LayoutInflater.from(context)
                 .inflate(R.layout.layout_bt_all_apps, null) as ViewGroup
     }
 
     @SuppressLint("InflateParams")
-    private fun initializeClockAndStatus(context: Context?, clockAndStatus: ViewGroup?): ViewGroup {
+    private fun initializeClockAndStatus(
+        context: Context?,
+        clockAndStatus: ViewGroup?,
+    ): ViewGroup {
         return clockAndStatus
             ?: LayoutInflater.from(context)
                 .inflate(R.layout.layout_clock_and_status, null) as ViewGroup
@@ -223,7 +242,10 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     private inner class TunerKeyObserver : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(selfChange: Boolean, uri: Uri?) {
+        override fun onChange(
+            selfChange: Boolean,
+            uri: Uri?,
+        ) {
             super.onChange(selfChange, uri)
             Log.d(TAG, "TunerKeyChanged $uri, self changed $selfChange")
             onTunerChange(uri!!)

@@ -44,11 +44,15 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
             false
         }
         val cornerRadius = mContext.resources.getDimension(R.dimen.all_apps_corner_radius)
-        windowContentView!!.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+        windowContentView!!.outlineProvider =
+            object : ViewOutlineProvider() {
+                override fun getOutline(
+                    view: View,
+                    outline: Outline,
+                ) {
+                    outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+                }
             }
-        }
         windowContentView!!.clipToOutline = true
         windowManager.addView(windowContentView, layoutParams)
         appLoaderTask.start()
@@ -62,23 +66,26 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         val resources = context!!.resources
         val windowWidth = resources.getDimension(R.dimen.all_apps_window_width).toInt()
         val windowHeight = resources.getDimension(R.dimen.all_apps_window_height).toInt()
-        val layoutParams = WindowManager.LayoutParams(
-            windowWidth,
-            windowHeight,
-            WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
-            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-                or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-                or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.RGB_565,
-        )
+        val layoutParams =
+            WindowManager.LayoutParams(
+                windowWidth,
+                windowHeight,
+                WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+                    or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+                    or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.RGB_565,
+            )
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val size = Point()
         windowManager.defaultDisplay.getRealSize(size)
-        val marginStart = resources.getDimension(R.dimen.all_apps_window_margin_horizontal)
-            .toInt()
-        val marginVertical = resources.getDimension(R.dimen.all_apps_window_margin_vertical)
-            .toInt()
+        val marginStart =
+            resources.getDimension(R.dimen.all_apps_window_margin_horizontal)
+                .toInt()
+        val marginVertical =
+            resources.getDimension(R.dimen.all_apps_window_margin_vertical)
+                .toInt()
         layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.x = marginStart
         // TODO: Looks like the heightPixels is incorrect, so we use multi margin to
@@ -105,22 +112,25 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
 
     private class H(allAppsWindow: AllAppsWindow?) : Handler() {
         private val allAppsWindow: WeakReference<AllAppsWindow?>
+
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                HandlerConstant.H_LOAD_SUCCEED -> runMethodSafely(
-                    object : RunAllAppsWindowMethod {
-                        override fun run(allAppsWindow: AllAppsWindow?) {
-                            allAppsWindow!!.notifyLoadSucceed()
-                        }
-                    },
-                )
-                HandlerConstant.H_DISMISS_ALL_APPS_WINDOW -> runMethodSafely(
-                    object : RunAllAppsWindowMethod {
-                        override fun run(allAppsWindow: AllAppsWindow?) {
-                            allAppsWindow!!.dismiss()
-                        }
-                    },
-                )
+                HandlerConstant.H_LOAD_SUCCEED ->
+                    runMethodSafely(
+                        object : RunAllAppsWindowMethod {
+                            override fun run(allAppsWindow: AllAppsWindow?) {
+                                allAppsWindow!!.notifyLoadSucceed()
+                            }
+                        },
+                    )
+                HandlerConstant.H_DISMISS_ALL_APPS_WINDOW ->
+                    runMethodSafely(
+                        object : RunAllAppsWindowMethod {
+                            override fun run(allAppsWindow: AllAppsWindow?) {
+                                allAppsWindow!!.dismiss()
+                            }
+                        },
+                    )
                 else -> {
                     // Do nothing
                 }
