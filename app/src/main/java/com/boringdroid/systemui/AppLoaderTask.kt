@@ -22,6 +22,7 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
     private val loaderTarget: WeakReference<Handler?>?
     private val loaderAllApps: MutableList<AppData> = ArrayList()
     private var stopped = false
+
     override fun run() {
         if (stopped) {
             return
