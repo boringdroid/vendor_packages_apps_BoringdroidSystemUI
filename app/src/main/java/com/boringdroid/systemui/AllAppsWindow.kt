@@ -71,21 +71,17 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
                 windowWidth,
                 windowHeight,
                 WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-                    or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-                    or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.RGB_565,
             )
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val size = Point()
         windowManager.defaultDisplay.getRealSize(size)
-        val marginStart =
-            resources.getDimension(R.dimen.all_apps_window_margin_horizontal)
-                .toInt()
-        val marginVertical =
-            resources.getDimension(R.dimen.all_apps_window_margin_vertical)
-                .toInt()
+        val marginStart = resources.getDimension(R.dimen.all_apps_window_margin_horizontal).toInt()
+        val marginVertical = resources.getDimension(R.dimen.all_apps_window_margin_vertical).toInt()
         layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.x = marginStart
         // TODO: Looks like the heightPixels is incorrect, so we use multi margin to
