@@ -68,8 +68,10 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
 
     val allApps: List<AppData>
         get() = ArrayList(loaderAllApps)
+
     private val target: Handler?
         get() = if (loaderTarget?.get() != null) loaderTarget.get() else null
+
     private val context: Context?
         get() = if (loaderContext?.get() != null) loaderContext.get() else null
 
