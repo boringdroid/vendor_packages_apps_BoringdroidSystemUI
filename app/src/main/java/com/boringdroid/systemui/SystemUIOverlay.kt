@@ -91,12 +91,17 @@ class SystemUIOverlay : OverlayPlugin {
                 // So we should add app state layout to the 5th, index 4.
                 buttonGroup.addView(appStateLayout, 4, layoutParams)
                 appStateLayout!!.initTasks()
-                val oldClockAndStatus = buttonGroup.findViewWithTag<View>(TAG_CLOCK_AND_STATUS_GROUP)
+                val oldClockAndStatus =
+                    buttonGroup.findViewWithTag<View>(TAG_CLOCK_AND_STATUS_GROUP)
                 if (oldClockAndStatus != null) {
                     buttonGroup.removeView(oldClockAndStatus)
                 }
                 clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
-                val layoutParams1 = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+                val layoutParams1 =
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT
+                    )
                 layoutParams1.gravity = Gravity.END
                 layoutParams1.width = FrameLayout.LayoutParams.WRAP_CONTENT
                 layoutParams1.height = FrameLayout.LayoutParams.MATCH_PARENT
@@ -107,7 +112,10 @@ class SystemUIOverlay : OverlayPlugin {
                 val batteryBar = buttonGroup.findViewById<ProgressBar>(R.id.progressBar)
                 val wifiBar = buttonGroup.findViewById<ImageView>(R.id.progressBarWifi)
                 val batteryText = buttonGroup.findViewById<TextView>(R.id.textViewBatteryPercent)
-                val clockAndStatus = this.pluginContext?.let { ClockAndStatus(clockTextView, batteryBar, batteryText, wifiBar, it) }
+                val clockAndStatus =
+                    this.pluginContext?.let {
+                        ClockAndStatus(clockTextView, batteryBar, batteryText, wifiBar, it)
+                    }
                 clockAndStatus?.startUpdatingTimeAndStatus()
             }
         }
@@ -128,9 +136,7 @@ class SystemUIOverlay : OverlayPlugin {
         systemUIContext = sysUIContext
         this.pluginContext = pluginContext
         navBarButtonGroupId =
-            sysUIContext
-                .resources
-                .getIdentifier("ends_group", "id", "com.android.systemui")
+            sysUIContext.resources.getIdentifier("ends_group", "id", "com.android.systemui")
         btAllAppsGroup = initializeAllAppsButton(this.pluginContext, btAllAppsGroup)
         clockAndStatus = initializeClockAndStatus(this.pluginContext, clockAndStatus)
         appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
@@ -207,8 +213,7 @@ class SystemUIOverlay : OverlayPlugin {
         btAllAppsGroup: ViewGroup?,
     ): ViewGroup {
         return btAllAppsGroup
-            ?: LayoutInflater.from(context)
-                .inflate(R.layout.layout_bt_all_apps, null) as ViewGroup
+            ?: LayoutInflater.from(context).inflate(R.layout.layout_bt_all_apps, null) as ViewGroup
     }
 
     @SuppressLint("InflateParams")
@@ -217,8 +222,8 @@ class SystemUIOverlay : OverlayPlugin {
         clockAndStatus: ViewGroup?,
     ): ViewGroup {
         return clockAndStatus
-            ?: LayoutInflater.from(context)
-                .inflate(R.layout.layout_clock_and_status, null) as ViewGroup
+            ?: LayoutInflater.from(context).inflate(R.layout.layout_clock_and_status, null)
+                as ViewGroup
     }
 
     @SuppressLint("InflateParams")
@@ -227,8 +232,8 @@ class SystemUIOverlay : OverlayPlugin {
         appStateLayout: AppStateLayout?,
     ): AppStateLayout {
         return appStateLayout
-            ?: LayoutInflater.from(context)
-                .inflate(R.layout.layout_app_state, null) as AppStateLayout
+            ?: LayoutInflater.from(context).inflate(R.layout.layout_app_state, null)
+                as AppStateLayout
     }
 
     private fun onTunerChange(uri: Uri) {
