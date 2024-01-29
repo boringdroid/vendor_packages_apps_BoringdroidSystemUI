@@ -111,7 +111,7 @@ dependencies {
 	}
 
 	implementation files('libs/SystemUISharedLib.jar')
-	implementation('androidx.recyclerview:recyclerview:1.3.0')
+	implementation('androidx.recyclerview:recyclerview:1.3.2')
 
 	testImplementation 'androidx.test:core:1.5.0'
 	testImplementation 'junit:junit:4.13.2'
