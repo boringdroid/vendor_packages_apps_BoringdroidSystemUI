@@ -43,10 +43,7 @@ class SystemUIOverlay : OverlayPlugin {
     private val tunerKeyObserver: ContentObserver = TunerKeyObserver()
     private val closeSystemDialogsReceiver: BroadcastReceiver =
         object : BroadcastReceiver() {
-            override fun onReceive(
-                context: Context,
-                intent: Intent,
-            ) {
+            override fun onReceive(context: Context, intent: Intent) {
                 Log.d(TAG, "receive intent $intent")
                 if (allAppsWindow == null) {
                     return
@@ -58,10 +55,7 @@ class SystemUIOverlay : OverlayPlugin {
             }
         }
 
-    override fun setup(
-        statusBar: View,
-        navBar: View?,
-    ) {
+    override fun setup(statusBar: View, navBar: View?) {
         Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
         if (navBarButtonGroupId > 0 && navBar != null) {
             val buttonGroup = navBar.findViewById<View>(navBarButtonGroupId)
@@ -100,7 +94,7 @@ class SystemUIOverlay : OverlayPlugin {
                 val layoutParams1 =
                     FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
                     )
                 layoutParams1.gravity = Gravity.END
                 layoutParams1.width = FrameLayout.LayoutParams.WRAP_CONTENT
@@ -129,10 +123,7 @@ class SystemUIOverlay : OverlayPlugin {
         // Do nothing
     }
 
-    override fun onCreate(
-        sysUIContext: Context,
-        pluginContext: Context,
-    ) {
+    override fun onCreate(sysUIContext: Context, pluginContext: Context) {
         systemUIContext = sysUIContext
         this.pluginContext = pluginContext
         navBarButtonGroupId =
@@ -208,19 +199,13 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     @SuppressLint("InflateParams")
-    private fun initializeAllAppsButton(
-        context: Context?,
-        btAllAppsGroup: ViewGroup?,
-    ): ViewGroup {
+    private fun initializeAllAppsButton(context: Context?, btAllAppsGroup: ViewGroup?): ViewGroup {
         return btAllAppsGroup
             ?: LayoutInflater.from(context).inflate(R.layout.layout_bt_all_apps, null) as ViewGroup
     }
 
     @SuppressLint("InflateParams")
-    private fun initializeClockAndStatus(
-        context: Context?,
-        clockAndStatus: ViewGroup?,
-    ): ViewGroup {
+    private fun initializeClockAndStatus(context: Context?, clockAndStatus: ViewGroup?): ViewGroup {
         return clockAndStatus
             ?: LayoutInflater.from(context).inflate(R.layout.layout_clock_and_status, null)
                 as ViewGroup
@@ -247,10 +232,7 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     private inner class TunerKeyObserver : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(
-            selfChange: Boolean,
-            uri: Uri?,
-        ) {
+        override fun onChange(selfChange: Boolean, uri: Uri?) {
             super.onChange(selfChange, uri)
             Log.d(TAG, "TunerKeyChanged $uri, self changed $selfChange")
             onTunerChange(uri!!)

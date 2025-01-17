@@ -32,11 +32,8 @@ import kotlin.math.abs
 
 class AppStateLayout
 @JvmOverloads
-constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
-) : RecyclerView(context, attrs, defStyleAttr) {
+constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    RecyclerView(context, attrs, defStyleAttr) {
     private val activityManager: ActivityManager
     private val appStateListener = AppStateListener()
     private val launchApps: LauncherApps
@@ -109,10 +106,7 @@ constructor(
         return false
     }
 
-    private fun topTask(
-        runningTaskInfo: RunningTaskInfo,
-        skipIgnoreCheck: Boolean = false,
-    ) {
+    private fun topTask(runningTaskInfo: RunningTaskInfo, skipIgnoreCheck: Boolean = false) {
         val packageName = getRunningTaskInfoPackageName(runningTaskInfo)
         if (!skipIgnoreCheck && shouldIgnoreTopTask(runningTaskInfo.topActivity)) {
             taskAdapter!!.setTopTaskId(-1)
@@ -163,10 +157,7 @@ constructor(
     }
 
     @VisibleForTesting
-    fun isLauncher(
-        context: Context,
-        componentName: ComponentName?,
-    ): Boolean {
+    fun isLauncher(context: Context, componentName: ComponentName?): Boolean {
         if (componentName == null) {
             return false
         }
@@ -193,10 +184,7 @@ constructor(
     }
 
     private inner class AppStateListener : TaskStackChangeListener {
-        override fun onTaskCreated(
-            taskId: Int,
-            componentName: ComponentName?,
-        ) {
+        override fun onTaskCreated(taskId: Int, componentName: ComponentName?) {
             super.onTaskCreated(taskId, componentName)
             Log.d(TAG, "onTaskCreated $taskId, cm $componentName")
             onTaskStackChanged()
@@ -236,20 +224,14 @@ constructor(
         private var topTaskId = -1
         private val dragCloseThreshold: Int
 
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int,
-        ): ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val taskInfoLayout =
                 LayoutInflater.from(context).inflate(R.layout.layout_task_info, parent, false)
                     as ViewGroup
             return ViewHolder(taskInfoLayout)
         }
 
-        override fun onBindViewHolder(
-            holder: ViewHolder,
-            position: Int,
-        ) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val taskInfo = tasks[position]
             val packageName = taskInfo.packageName
             holder.iconIV.setImageDrawable(taskInfo.icon)
@@ -264,8 +246,8 @@ constructor(
                     packageManager.getApplicationLabel(
                         packageManager.getApplicationInfo(
                             packageName!!,
-                            PackageManager.GET_META_DATA
-                        ),
+                            PackageManager.GET_META_DATA,
+                        )
                     )
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.e(TAG, "Failed to get label for $packageName")
@@ -274,23 +256,16 @@ constructor(
             holder.iconIV.tooltipText = label
             holder.iconIV.setOnClickListener {
                 systemUIActivityManager.moveTaskToFront(taskInfo.id, 0)
-                context.sendBroadcast(
-                    Intent("com.boringdroid.systemui.CLOSE_RECENTS"),
-                )
+                context.sendBroadcast(Intent("com.boringdroid.systemui.CLOSE_RECENTS"))
             }
             holder.iconIV.setOnLongClickListener { v: View ->
                 val item = ClipData.Item(TAG_TASK_ICON)
                 val dragData = ClipData(TAG_TASK_ICON, arrayOf("unknown"), item)
                 val shadow: DragShadowBuilder = DragDropShadowBuilder(v)
                 holder.iconIV.setOnDragListener(
-                    DragDropCloseListener(
-                        dragCloseThreshold,
-                        dragCloseThreshold,
-                    ) { taskId: Int? ->
-                        AM_WRAPPER.removeTask(
-                            taskId!!,
-                        )
-                    },
+                    DragDropCloseListener(dragCloseThreshold, dragCloseThreshold) { taskId: Int? ->
+                        AM_WRAPPER.removeTask(taskId!!)
+                    }
                 )
                 v.startDragAndDrop(dragData, shadow, null, DRAG_FLAG_GLOBAL)
                 true
@@ -343,10 +318,7 @@ constructor(
         private var startX = 0f
         private var startY = 0f
 
-        override fun onDrag(
-            v: View,
-            event: DragEvent,
-        ): Boolean {
+        override fun onDrag(v: View, event: DragEvent): Boolean {
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> {
                     val locations = IntArray(2)
@@ -372,10 +344,7 @@ constructor(
     }
 
     private class DragDropShadowBuilder(v: View?) : DragShadowBuilder(v) {
-        override fun onProvideShadowMetrics(
-            size: Point,
-            touch: Point,
-        ) {
+        override fun onProvideShadowMetrics(size: Point, touch: Point) {
             val width = view.width
             val height = view.height
             shadow.setBounds(0, 0, width, height)
