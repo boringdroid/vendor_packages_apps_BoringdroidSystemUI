@@ -46,10 +46,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         val cornerRadius = mContext.resources.getDimension(R.dimen.all_apps_corner_radius)
         windowContentView!!.outlineProvider =
             object : ViewOutlineProvider() {
-                override fun getOutline(
-                    view: View,
-                    outline: Outline,
-                ) {
+                override fun getOutline(view: View, outline: Outline) {
                     outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
                 }
             }
@@ -117,7 +114,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
                             override fun run(allAppsWindow: AllAppsWindow?) {
                                 allAppsWindow!!.notifyLoadSucceed()
                             }
-                        },
+                        }
                     )
                 HandlerConstant.H_DISMISS_ALL_APPS_WINDOW ->
                     runMethodSafely(
@@ -125,7 +122,7 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
                             override fun run(allAppsWindow: AllAppsWindow?) {
                                 allAppsWindow!!.dismiss()
                             }
-                        },
+                        }
                     )
                 else -> {
                     // Do nothing

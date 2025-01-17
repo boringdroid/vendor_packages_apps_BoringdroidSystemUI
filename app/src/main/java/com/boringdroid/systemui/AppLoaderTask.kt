@@ -45,9 +45,7 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
             loaderAllApps.add(appData)
         }
         loaderAllApps.sortWith { appDataOne: AppData, appDataTwo: AppData ->
-            appDataOne.name!!.compareTo(
-                appDataTwo.name!!,
-            )
+            appDataOne.name!!.compareTo(appDataTwo.name!!)
         }
         val target = target
         target?.sendEmptyMessage(HandlerConstant.H_LOAD_SUCCEED)

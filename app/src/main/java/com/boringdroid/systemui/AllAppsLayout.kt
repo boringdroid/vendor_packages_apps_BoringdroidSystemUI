@@ -14,11 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class AllAppsLayout
 @JvmOverloads
-constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = 0,
-) : RecyclerView(context, attrs, defStyle) {
+constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
+    RecyclerView(context, attrs, defStyle) {
     private val appListAdapter: AppListAdapter
 
     fun setData(apps: List<AppData?>?) {
@@ -35,20 +32,14 @@ constructor(
         private val apps: MutableList<AppData?> = ArrayList()
         private var handler: Handler? = null
 
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int,
-        ): ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val appInfoLayout =
                 LayoutInflater.from(context).inflate(R.layout.layout_app_info, parent, false)
                     as ViewGroup
             return ViewHolder(appInfoLayout)
         }
 
-        override fun onBindViewHolder(
-            holder: ViewHolder,
-            position: Int,
-        ) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val appData = apps[position]
             holder.iconIV.setImageDrawable(appData!!.icon)
             holder.nameTV.text = appData.name
@@ -79,9 +70,7 @@ constructor(
         }
 
         private class ViewHolder(val appInfoLayout: ViewGroup) :
-            RecyclerView.ViewHolder(
-                appInfoLayout,
-            ) {
+            RecyclerView.ViewHolder(appInfoLayout) {
             val iconIV: ImageView = appInfoLayout.findViewById(R.id.app_info_icon)
             val nameTV: TextView = appInfoLayout.findViewById(R.id.app_info_name)
         }
