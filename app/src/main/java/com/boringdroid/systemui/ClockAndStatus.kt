@@ -40,10 +40,7 @@ class ClockAndStatus(
 
     private val batteryReceiver =
         object : BroadcastReceiver() {
-            override fun onReceive(
-                context: Context,
-                intent: Intent,
-            ) {
+            override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
                     updateBatteryLevel(intent)
                 }
@@ -52,10 +49,7 @@ class ClockAndStatus(
 
     private val wifiReceiver =
         object : BroadcastReceiver() {
-            override fun onReceive(
-                context: Context,
-                intent: Intent,
-            ) {
+            override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == WifiManager.RSSI_CHANGED_ACTION) {
                     updateWifiStrength()
                 }
@@ -150,7 +144,7 @@ class ClockAndStatus(
         val drawable = ContextCompat.getDrawable(context, wifiLevelResourceId)
         drawable?.setColorFilter(
             ContextCompat.getColor(context, R.color.wifi_strength_color),
-            PorterDuff.Mode.SRC_IN
+            PorterDuff.Mode.SRC_IN,
         )
         return drawable
     }
