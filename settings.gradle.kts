@@ -1,3 +1,5 @@
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -14,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-include ':app'
+include(":app")
 rootProject.name = "BoringdroidSystemUI"

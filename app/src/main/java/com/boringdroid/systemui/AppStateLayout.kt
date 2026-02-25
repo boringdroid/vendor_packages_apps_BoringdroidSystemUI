@@ -77,33 +77,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     }
 
     fun shouldIgnoreTopTask(componentName: ComponentName?): Boolean {
-        if (componentName == null) {
-            Log.d(TAG, "Ignore invalid component name")
-            return true
-        }
-        val packageName = componentName.packageName
-        if ("android" == packageName) {
-            Log.d(TAG, "Ignore android")
-            return true
-        }
-        if (isSpecialLauncher(packageName)) {
-            Log.d(TAG, "Ignore launcher $packageName")
-            return true
-        }
-        if (context != null && packageName.startsWith(context.packageName)) {
-            Log.d(TAG, "Ignore self $packageName")
-            return true
-        }
-        if (isLauncher(context, componentName)) {
-            Log.d(TAG, "Ignore launcher $componentName")
-            return true
-        }
-        if (packageName.startsWith("com.android.systemui")) {
-            Log.d(TAG, "Ignore systemui $packageName")
-            return true
-        }
-        Log.d(TAG, "Don't ignore top task $packageName")
-        return false
+        return shouldIgnoreTopTask(context, componentName)
+    }
+
+    private fun isSpecialLauncher(packageName: String?): Boolean {
+        return isSpecialLauncherPackage(packageName)
+    }
+
+    @VisibleForTesting
+    fun isLauncher(context: Context, componentName: ComponentName?): Boolean {
+        return isLauncherComponent(context, componentName)
     }
 
     private fun topTask(runningTaskInfo: RunningTaskInfo, skipIgnoreCheck: Boolean = false) {
@@ -146,37 +129,75 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         taskAdapter.notifyDataSetChanged()
     }
 
-    private fun isSpecialLauncher(packageName: String?): Boolean {
-        if ("com.farmerbb.taskbar" == packageName) {
-            return true
-        }
-        if ("com.teslacoilsw.launcher" == packageName) {
-            return true
-        }
-        return "ch.deletescape.lawnchair.plah" == packageName
-    }
+    companion object {
+        private const val TAG = "AppStateLayout"
+        private val AM_WRAPPER = ActivityManagerWrapper.getInstance()
+        private val TC_WRAPPER = TaskStackChangeListeners.getInstance()
+        private const val MAX_RUNNING_TASKS = 50
 
-    @VisibleForTesting
-    fun isLauncher(context: Context, componentName: ComponentName?): Boolean {
-        if (componentName == null) {
-            return false
-        }
-        val packageName = componentName.packageName
-        val className = componentName.className
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_HOME)
-        val resolveInfos = context.packageManager.queryIntentActivities(intent, 0)
-        for (resolveInfo in resolveInfos) {
-            Log.d(TAG, "Found launcher $resolveInfo")
-            if (resolveInfo?.activityInfo == null) {
-                continue
-            }
-            val activityInfo = resolveInfo.activityInfo
-            if (packageName == activityInfo.packageName && className == activityInfo.name) {
+        @VisibleForTesting
+        fun shouldIgnoreTopTask(context: Context?, componentName: ComponentName?): Boolean {
+            if (componentName == null) {
+                Log.d(TAG, "Ignore invalid component name")
                 return true
             }
+            val packageName = componentName.packageName
+            if ("android" == packageName) {
+                Log.d(TAG, "Ignore android")
+                return true
+            }
+            if (isSpecialLauncherPackage(packageName)) {
+                Log.d(TAG, "Ignore launcher $packageName")
+                return true
+            }
+            if (context != null && packageName.startsWith(context.packageName)) {
+                Log.d(TAG, "Ignore self $packageName")
+                return true
+            }
+            if (context != null && isLauncherComponent(context, componentName)) {
+                Log.d(TAG, "Ignore launcher $componentName")
+                return true
+            }
+            if (packageName.startsWith("com.android.systemui")) {
+                Log.d(TAG, "Ignore systemui $packageName")
+                return true
+            }
+            Log.d(TAG, "Don't ignore top task $packageName")
+            return false
         }
-        return false
+
+        private fun isSpecialLauncherPackage(packageName: String?): Boolean {
+            if ("com.farmerbb.taskbar" == packageName) {
+                return true
+            }
+            if ("com.teslacoilsw.launcher" == packageName) {
+                return true
+            }
+            return "ch.deletescape.lawnchair.plah" == packageName
+        }
+
+        @VisibleForTesting
+        fun isLauncherComponent(context: Context, componentName: ComponentName?): Boolean {
+            if (componentName == null) {
+                return false
+            }
+            val packageName = componentName.packageName
+            val className = componentName.className
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.addCategory(Intent.CATEGORY_HOME)
+            val resolveInfos = context.packageManager.queryIntentActivities(intent, 0)
+            for (resolveInfo in resolveInfos) {
+                Log.d(TAG, "Found launcher $resolveInfo")
+                if (resolveInfo?.activityInfo == null) {
+                    continue
+                }
+                val activityInfo = resolveInfo.activityInfo
+                if (packageName == activityInfo.packageName && className == activityInfo.name) {
+                    return true
+                }
+            }
+            return false
+        }
     }
 
     fun reloadActivityManager(context: Context?) {
@@ -368,13 +389,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                     ColorDrawable(Color.LTGRAY)
                 }
         }
-    }
-
-    companion object {
-        private const val TAG = "AppStateLayout"
-        private val AM_WRAPPER = ActivityManagerWrapper.getInstance()
-        private val TC_WRAPPER = TaskStackChangeListeners.getInstance()
-        private const val MAX_RUNNING_TASKS = 50
     }
 
     init {
