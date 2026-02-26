@@ -95,7 +95,14 @@ configurations.named("implementation") {
 }
 
 dependencies {
-    implementation(files("libs/SystemUISharedLib.jar"))
+    // region @boringdroid
+    // SystemUISharedLib.jar is provided by the SystemUI host process at runtime;
+    // using compileOnly avoids bundling its classes (e.g. PoolingContainer with
+    // uninitialized non-final R.id statics) into the plugin APK, which previously
+    // caused View.setTag() to throw "The key must be an application-specific resource id."
+    // implementation(files("libs/SystemUISharedLib.jar"))
+    compileOnly(files("libs/SystemUISharedLib.jar"))
+    // endregion
     implementation("androidx.compose.ui:ui:1.7.8")
     implementation("androidx.compose.foundation:foundation:1.7.8")
     implementation("androidx.compose.material3:material3:1.3.1")
