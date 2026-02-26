@@ -27,7 +27,7 @@ java_import {
 }
 
 android_app {
-    name: "BoringdroidSystemUIApk",
+    name: "BoringdroidSystemUI",
 
     srcs: ["app/src/main/java/**/*.kt"],
 
