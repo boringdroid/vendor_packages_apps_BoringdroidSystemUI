@@ -5,6 +5,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 plugins {
     id("com.diffplug.spotless")
     id("com.android.application")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 spotless {
@@ -27,7 +28,7 @@ spotless {
 
 android {
     namespace = "com.boringdroid.systemui"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.boringdroid.systemui"
@@ -67,6 +68,8 @@ android {
     }
 
     lint { abortOnError = false }
+
+    buildFeatures { compose = true }
 }
 
 configurations.named("implementation") {
@@ -80,10 +83,23 @@ configurations.named("implementation") {
     exclude(group = "androidx.core")
     exclude(group = "androidx.annotation")
     exclude(group = "androidx.collection")
+    exclude(group = "androidx.concurrent")
+    exclude(group = "androidx.arch.core")
+    exclude(group = "androidx.customview")
+    exclude(group = "androidx.lifecycle")
+    exclude(group = "androidx.profileinstaller")
+    exclude(group = "androidx.startup")
+    exclude(group = "androidx.tracing")
+    exclude(group = "com.google.guava")
+    exclude(group = "org.jetbrains.kotlinx")
 }
 
 dependencies {
     implementation(files("libs/SystemUISharedLib.jar"))
+    implementation("androidx.compose.ui:ui:1.7.8")
+    implementation("androidx.compose.foundation:foundation:1.7.8")
+    implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
 
     testImplementation("androidx.test:core:1.6.1")
     testImplementation("junit:junit:4.13.2")
@@ -96,6 +112,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.7.8")
 }
 
 tasks.withType<Test>().configureEach {

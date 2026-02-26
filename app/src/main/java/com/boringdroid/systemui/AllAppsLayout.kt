@@ -7,87 +7,85 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.viewinterop.AndroidView
 
 class AllAppsLayout
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
-    RecyclerView(context, attrs, defStyle) {
-    private val appListAdapter: AppListAdapter
+    FrameLayout(context, attrs, defStyle) {
+    private var apps: List<AppData> by mutableStateOf(emptyList())
+    private var handler: Handler? = null
+    private val composeView: ComposeView = ComposeView(context)
 
     fun setData(apps: List<AppData?>?) {
-        appListAdapter.setData(apps)
-        appListAdapter.notifyDataSetChanged()
+        this.apps = apps.orEmpty().filterNotNull()
     }
 
     fun setHandler(handler: Handler?) {
-        appListAdapter.setHandler(handler)
+        this.handler = handler
     }
 
-    private class AppListAdapter(private val context: Context) :
-        Adapter<AppListAdapter.ViewHolder>() {
-        private val apps: MutableList<AppData?> = ArrayList()
-        private var handler: Handler? = null
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val appInfoLayout =
-                LayoutInflater.from(context).inflate(R.layout.layout_app_info, parent, false)
-                    as ViewGroup
-            return ViewHolder(appInfoLayout)
+    private fun launchApp(appData: AppData) {
+        val componentName = appData.componentName ?: return
+        val intent = Intent()
+        intent.component = componentName
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
+        if (handler != null) {
+            handler!!.sendEmptyMessage(HandlerConstant.H_DISMISS_ALL_APPS_WINDOW)
+        } else {
+            Log.e(TAG, "Won't send dismiss event because of handler is null")
         }
+    }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val appData = apps[position]
-            holder.iconIV.setImageDrawable(appData!!.icon)
-            holder.nameTV.text = appData.name
-            holder.appInfoLayout.setOnClickListener {
-                val intent = Intent()
-                intent.component = appData.componentName
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(intent)
-                if (handler != null) {
-                    handler!!.sendEmptyMessage(HandlerConstant.H_DISMISS_ALL_APPS_WINDOW)
-                } else {
-                    Log.e(TAG, "Won't send dismiss event because of handler is null")
-                }
+    init {
+        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+        composeView.layoutParams =
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        composeView.setContent { AllAppsGrid(apps, ::launchApp) }
+        addView(composeView)
+    }
+
+    @Composable
+    private fun AllAppsGrid(apps: List<AppData>, onAppClick: (AppData) -> Unit) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(NUMBER_OF_COLUMNS),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(apps) { appData ->
+                AndroidView(
+                    factory = { context ->
+                        LayoutInflater.from(context).inflate(R.layout.layout_app_info, null)
+                            as ViewGroup
+                    },
+                    update = { appInfoLayout ->
+                        val iconIV: ImageView = appInfoLayout.findViewById(R.id.app_info_icon)
+                        val nameTV: TextView = appInfoLayout.findViewById(R.id.app_info_name)
+                        iconIV.setImageDrawable(appData.icon)
+                        nameTV.text = appData.name
+                        appInfoLayout.setOnClickListener { onAppClick(appData) }
+                    },
+                )
             }
-        }
-
-        override fun getItemCount(): Int {
-            return apps.size
-        }
-
-        fun setData(apps: List<AppData?>?) {
-            this.apps.clear()
-            this.apps.addAll(apps!!)
-        }
-
-        fun setHandler(handler: Handler?) {
-            this.handler = handler
-        }
-
-        private class ViewHolder(val appInfoLayout: ViewGroup) :
-            RecyclerView.ViewHolder(appInfoLayout) {
-            val iconIV: ImageView = appInfoLayout.findViewById(R.id.app_info_icon)
-            val nameTV: TextView = appInfoLayout.findViewById(R.id.app_info_name)
-        }
-
-        companion object {
-            private const val TAG = "AppListAdapter"
         }
     }
 
     companion object {
+        private const val TAG = "AllAppsLayout"
         private const val NUMBER_OF_COLUMNS = 5
-    }
-
-    init {
-        val layoutManager = GridLayoutManager(context, NUMBER_OF_COLUMNS)
-        setLayoutManager(layoutManager)
-        appListAdapter = AppListAdapter(context)
-        adapter = appListAdapter
     }
 }
