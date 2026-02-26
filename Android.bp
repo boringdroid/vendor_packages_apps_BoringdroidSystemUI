@@ -16,16 +16,6 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-// Compile-time stub for SystemUI shared APIs (ActivityManagerWrapper,
-// TaskStackChangeListeners, etc.) that are provided by the SystemUI host
-// process classloader at runtime.  Using a java_import avoids the AAPT2
-// "can't include static library" error that occurs when an android_library
-// is listed in the libs of an android_app.
-java_import {
-    name: "BoringdroidSystemUISharedLibStub",
-    jars: ["app/libs/SystemUISharedLib.jar"],
-}
-
 android_app {
     name: "BoringdroidSystemUI",
 
@@ -39,23 +29,19 @@ android_app {
 
     manifest: "app/src/main/AndroidManifest.xml",
 
-    // All libs entries are compile-time only (not bundled in the APK).
-    // SystemUI provides them at runtime via the plugin classloader chain.
-    // Only java_library / java_import modules (no Android resources) can be
-    // listed here; android_library modules cause an AAPT2 "can't include
-    // static library" error.
+    // Plugin interfaces (OverlayPlugin, @Requires, etc.) – compile-time only,
+    // provided by the SystemUI host process at runtime.
     libs: [
-        // Plugin interfaces (OverlayPlugin, @Requires, etc.) and shared utilities.
         "SystemUIPluginLib",
-        // SystemUI shared system APIs: ActivityManagerWrapper, TaskStackChangeListeners, etc.
-        "BoringdroidSystemUISharedLibStub",
     ],
 
-    // Compose and other dependencies not provided by the SystemUI host process.
-    // RecyclerView is bundled here (android_library cannot go in libs); the
-    // Android.bp build generates proper final int R.id constants so the
-    // PoolingContainer issue does not occur.
+    // SystemUISharedLib is bundled as static_libs so that ActivityManagerWrapper,
+    // TaskStackChangeListeners, etc. are available in the plugin APK.  When compiled
+    // via Android.bp the R.id fields are generated as proper final int constants
+    // (unlike the pre-built JAR which has non-final fields that stay 0 at runtime
+    // and caused the View.setTag IllegalArgumentException in PoolingContainer).
     static_libs: [
+        "SystemUISharedLib",
         "androidx.annotation_annotation",
         "androidx.compose.foundation_foundation",
         "androidx.compose.runtime_runtime",
