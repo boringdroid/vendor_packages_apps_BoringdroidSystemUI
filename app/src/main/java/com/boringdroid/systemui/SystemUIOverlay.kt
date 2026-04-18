@@ -139,7 +139,14 @@ class SystemUIOverlay : OverlayPlugin {
         initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-        systemUIContext!!.registerReceiver(closeSystemDialogsReceiver, filter)
+        // Android 14 (API 34) requires an explicit export flag for receivers registered
+        // for non-protected broadcasts. ACTION_CLOSE_SYSTEM_DIALOGS is only delivered to
+        // this plugin from the host SystemUI process, so NOT_EXPORTED is correct.
+        systemUIContext!!.registerReceiver(
+            closeSystemDialogsReceiver,
+            filter,
+            Context.RECEIVER_NOT_EXPORTED,
+        )
     }
 
     override fun onDestroy() {
@@ -211,14 +218,16 @@ class SystemUIOverlay : OverlayPlugin {
                 as ViewGroup
     }
 
-    @SuppressLint("InflateParams")
     private fun initializeAppStateLayout(
         context: Context?,
         appStateLayout: AppStateLayout?,
     ): AppStateLayout {
-        return appStateLayout
-            ?: LayoutInflater.from(context).inflate(R.layout.layout_app_state, null)
-                as AppStateLayout
+        // Inflating layout_app_state.xml via the host (SystemUI) LayoutInflater causes
+        // a ClassCastException: the XML names <com.boringdroid.systemui.AppStateLayout>,
+        // which the inflater resolves through SystemUI's classloader — yielding a different
+        // Class object than the one the plugin's classloader holds for the same FQCN.
+        // Instantiate directly through the plugin classloader so both references agree.
+        return appStateLayout ?: AppStateLayout(context!!)
     }
 
     private fun onTunerChange(uri: Uri) {
