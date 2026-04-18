@@ -12,12 +12,11 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.android.systemui.plugins.OverlayPlugin
@@ -31,13 +30,12 @@ import kotlin.collections.ArrayList
 class SystemUIOverlay : OverlayPlugin {
     private var pluginContext: Context? = null
     private var systemUIContext: Context? = null
-    private var navBarButtonGroup: View? = null
     private var btAllAppsGroup: ViewGroup? = null
     private var clockAndStatus: ViewGroup? = null
     private var appStateLayout: AppStateLayout? = null
     private var btAllApps: View? = null
     private var allAppsWindow: AllAppsWindow? = null
-    private var navBarButtonGroupId = -1
+    private var taskbarWindow: TaskbarWindow? = null
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
     private val tunerKeyObserver: ContentObserver = TunerKeyObserver()
@@ -56,63 +54,52 @@ class SystemUIOverlay : OverlayPlugin {
         }
 
     override fun setup(statusBar: View, navBar: View?) {
-        Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
-        if (navBarButtonGroupId > 0 && navBar != null) {
-            val buttonGroup = navBar.findViewById<View>(navBarButtonGroupId)
-            if (buttonGroup is ViewGroup) {
-                navBarButtonGroup = buttonGroup
-                // We must set the height to match parent programmatically
-                // to let all apps button group be center of navigation
-                // bar view.
-                val layoutParams =
-                    FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-                val oldBtAllAppsGroup = buttonGroup.findViewWithTag<View>(TAG_ALL_APPS_GROUP)
-                if (oldBtAllAppsGroup != null) {
-                    buttonGroup.removeView(oldBtAllAppsGroup)
-                }
-                btAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
-                buttonGroup.addView(btAllAppsGroup, 0, layoutParams)
-                val oldAppStateLayout = buttonGroup.findViewWithTag<View>(TAG_APP_STATE_LAYOUT)
-                if (oldAppStateLayout != null) {
-                    buttonGroup.removeView(oldAppStateLayout)
-                }
-                appStateLayout!!.tag = TAG_APP_STATE_LAYOUT
-                // The first item is all apps group.
-                // The next three item is back button, home button, recents button.
-                // So we should add app state layout to the 5th, index 4.
-                buttonGroup.addView(appStateLayout, 4, layoutParams)
-                appStateLayout!!.initTasks()
-                val oldClockAndStatus =
-                    buttonGroup.findViewWithTag<View>(TAG_CLOCK_AND_STATUS_GROUP)
-                if (oldClockAndStatus != null) {
-                    buttonGroup.removeView(oldClockAndStatus)
-                }
-                clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
-                val layoutParams1 =
-                    FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                    )
-                layoutParams1.gravity = Gravity.END
-                layoutParams1.width = FrameLayout.LayoutParams.WRAP_CONTENT
-                layoutParams1.height = FrameLayout.LayoutParams.MATCH_PARENT
-                clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
-                clockAndStatus!!.layoutParams = layoutParams1
-                buttonGroup.addView(clockAndStatus)
-                val clockTextView = buttonGroup.findViewById<TextView>(R.id.clock)
-                val batteryBar = buttonGroup.findViewById<ProgressBar>(R.id.progressBar)
-                val wifiBar = buttonGroup.findViewById<ImageView>(R.id.progressBarWifi)
-                val batteryText = buttonGroup.findViewById<TextView>(R.id.textViewBatteryPercent)
-                val clockAndStatus =
-                    this.pluginContext?.let {
-                        ClockAndStatus(clockTextView, batteryBar, batteryText, wifiBar, it)
-                    }
-                clockAndStatus?.startUpdatingTimeAndStatus()
+        Log.d(TAG, "setup status bar $statusBar, nav bar $navBar (unused post-M1)")
+        val root =
+            taskbarWindow?.getRoot() ?: run {
+                Log.w(TAG, "setup called before taskbar window was shown; skipping")
+                return
             }
-        }
+        // Detach any existing children so setup() is idempotent across SystemUI restarts.
+        (btAllAppsGroup?.parent as? ViewGroup)?.removeView(btAllAppsGroup)
+        (appStateLayout?.parent as? ViewGroup)?.removeView(appStateLayout)
+        (clockAndStatus?.parent as? ViewGroup)?.removeView(clockAndStatus)
+        root.removeAllViews()
+
+        btAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
+        root.addView(
+            btAllAppsGroup,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+            ),
+        )
+
+        appStateLayout!!.tag = TAG_APP_STATE_LAYOUT
+        // App-state takes the middle with weight=1 so the clock is pushed to the end,
+        // mirroring the original FrameLayout END-gravity placement.
+        root.addView(
+            appStateLayout,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f),
+        )
+        appStateLayout!!.initTasks()
+
+        clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
+        root.addView(
+            clockAndStatus,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+            ),
+        )
+
+        val clockTextView = clockAndStatus!!.findViewById<TextView>(R.id.clock)
+        val batteryBar = clockAndStatus!!.findViewById<ProgressBar>(R.id.progressBar)
+        val wifiBar = clockAndStatus!!.findViewById<ImageView>(R.id.progressBarWifi)
+        val batteryText = clockAndStatus!!.findViewById<TextView>(R.id.textViewBatteryPercent)
+        this.pluginContext
+            ?.let { ClockAndStatus(clockTextView, batteryBar, batteryText, wifiBar, it) }
+            ?.startUpdatingTimeAndStatus()
     }
 
     override fun holdStatusBarOpen(): Boolean {
@@ -126,8 +113,6 @@ class SystemUIOverlay : OverlayPlugin {
     override fun onCreate(sysUIContext: Context, pluginContext: Context) {
         systemUIContext = sysUIContext
         this.pluginContext = pluginContext
-        navBarButtonGroupId =
-            sysUIContext.resources.getIdentifier("ends_group", "id", "com.android.systemui")
         btAllAppsGroup = initializeAllAppsButton(this.pluginContext, btAllAppsGroup)
         clockAndStatus = initializeClockAndStatus(this.pluginContext, clockAndStatus)
         appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
@@ -135,6 +120,7 @@ class SystemUIOverlay : OverlayPlugin {
         btAllApps = btAllAppsGroup!!.findViewById(R.id.bt_all_apps)
         allAppsWindow = AllAppsWindow(this.pluginContext, sysUIContext)
         btAllApps!!.setOnClickListener(allAppsWindow)
+        taskbarWindow = TaskbarWindow(pluginContext, sysUIContext).also { it.show() }
         resolver = sysUIContext.contentResolver
         initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)
         val filter = IntentFilter()
@@ -163,11 +149,9 @@ class SystemUIOverlay : OverlayPlugin {
         btAllAppsGroup!!.post {
             btAllAppsGroup!!.setOnClickListener(null)
             btAllApps!!.setOnClickListener(null)
-            if (navBarButtonGroup is ViewGroup) {
-                (navBarButtonGroup as ViewGroup).removeView(btAllAppsGroup)
-                (navBarButtonGroup as ViewGroup).removeView(appStateLayout)
-            }
         }
+        taskbarWindow?.hide()
+        taskbarWindow = null
         pluginContext = null
     }
 

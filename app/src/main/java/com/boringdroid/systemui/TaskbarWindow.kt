@@ -27,11 +27,13 @@ class TaskbarWindow(
         val view = inflater.inflate(R.layout.layout_taskbar, null) as ViewGroup
         val heightPx =
             pluginContext.resources.getDimensionPixelSize(R.dimen.taskbar_window_height)
+        // TYPE_NAVIGATION_BAR_PANEL lets multiple instances coexist; TYPE_NAVIGATION_BAR
+        // collides with the stock NavigationBar0 until the RRO suppresses it (Task 4+).
         val lp =
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 heightPx,
-                WindowManager.LayoutParams.TYPE_NAVIGATION_BAR,
+                WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
