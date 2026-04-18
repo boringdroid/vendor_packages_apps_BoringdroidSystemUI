@@ -133,7 +133,7 @@ class SystemUIOverlay : OverlayPlugin {
         appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
         appStateLayout!!.reloadActivityManager(systemUIContext)
         btAllApps = btAllAppsGroup!!.findViewById(R.id.bt_all_apps)
-        allAppsWindow = AllAppsWindow(this.pluginContext)
+        allAppsWindow = AllAppsWindow(this.pluginContext, sysUIContext)
         btAllApps!!.setOnClickListener(allAppsWindow)
         resolver = sysUIContext.contentResolver
         initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)

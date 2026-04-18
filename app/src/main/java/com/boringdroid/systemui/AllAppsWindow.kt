@@ -1,6 +1,7 @@
 package com.boringdroid.systemui
 
 import android.annotation.SuppressLint
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
@@ -17,6 +18,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import androidx.lifecycle.Lifecycle
@@ -29,7 +31,8 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.lang.ref.WeakReference
 
-class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
+class AllAppsWindow(private val mContext: Context?, private val hostContext: Context? = null) :
+    View.OnClickListener {
     private val windowManager: WindowManager
     private var windowContentView: View? = null
     private var allAppsLayout: AllAppsLayout? = null
@@ -55,16 +58,31 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
         // when the plugin-classloader's Class for the same FQCN diverges from
         // the host one. See the same mitigation in SystemUIOverlay.kt for
         // AppStateLayout.
-        // Compose's WindowRecomposer calls view.context.applicationContext.getContentResolver()
-        // to watch the animation-scale setting. Plugin contexts obtained via
-        // PluginManager#getContext routinely return null from getApplicationContext(),
-        // which NPEs onAttachedToWindow. Wrap so applicationContext is always non-null.
-        val ctx =
-            if (mContext!!.applicationContext != null) mContext
-            else
+        // The plugin context is correct for resources/classloader/theme, but its
+        // ContextWrapper chain doesn't support application-level APIs that Compose
+        // invokes on getApplicationContext():
+        //   * WindowRecomposer calls applicationContext.getContentResolver()
+        //   * AndroidCompositionLocals calls applicationContext.registerComponentCallbacks
+        // The host SystemUI context IS a real Application, so we delegate just those
+        // surfaces to it while keeping everything else (resources, layouts, theme,
+        // classloader, package name for UiAutomator id resolution) on the plugin.
+        val ctx: Context =
+            if (hostContext != null) {
+                val hostApp = hostContext.applicationContext ?: hostContext
                 object : ContextWrapper(mContext) {
-                    override fun getApplicationContext(): Context = this
+                    override fun getApplicationContext(): Context = hostApp
+
+                    override fun registerComponentCallbacks(cb: ComponentCallbacks) {
+                        hostApp.registerComponentCallbacks(cb)
+                    }
+
+                    override fun unregisterComponentCallbacks(cb: ComponentCallbacks) {
+                        hostApp.unregisterComponentCallbacks(cb)
+                    }
                 }
+            } else {
+                mContext!!
+            }
         val wrapper = RelativeLayout(ctx)
         wrapper.layoutParams =
             ViewGroup.LayoutParams(
