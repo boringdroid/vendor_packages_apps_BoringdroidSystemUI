@@ -2,6 +2,8 @@ package com.boringdroid.systemui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.PixelFormat
 import android.graphics.Point
@@ -9,12 +11,22 @@ import android.os.Handler
 import android.os.Message
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
+import android.widget.RelativeLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.lang.ref.WeakReference
 
 class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
@@ -24,6 +36,11 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
     private var shown = false
     private val appLoaderTask: AppLoaderTask
     private val handler = H(this)
+    // Compose's AbstractComposeView#onAttachedToWindow requires a LifecycleOwner
+    // and SavedStateRegistryOwner attached to the view tree. Plugin-owned windows
+    // added via WindowManager.addView have no Activity to provide them, so we
+    // ship our own.
+    private val pluginLifecycle = PluginLifecycleOwner()
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onClick(v: View) {
@@ -32,8 +49,51 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
             return
         }
         val layoutParams = generateLayoutParams(mContext, windowManager)
-        windowContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_all_apps, null)
-        allAppsLayout = windowContentView!!.findViewById(R.id.all_apps_layout)
+        // Build the popup hierarchy programmatically. Inflating layout_all_apps.xml
+        // would route <com.boringdroid.systemui.AllAppsLayout> through the host
+        // SystemUI classloader, producing a ClassCastException on findViewById
+        // when the plugin-classloader's Class for the same FQCN diverges from
+        // the host one. See the same mitigation in SystemUIOverlay.kt for
+        // AppStateLayout.
+        // Compose's WindowRecomposer calls view.context.applicationContext.getContentResolver()
+        // to watch the animation-scale setting. Plugin contexts obtained via
+        // PluginManager#getContext routinely return null from getApplicationContext(),
+        // which NPEs onAttachedToWindow. Wrap so applicationContext is always non-null.
+        val ctx =
+            if (mContext!!.applicationContext != null) mContext
+            else
+                object : ContextWrapper(mContext) {
+                    override fun getApplicationContext(): Context = this
+                }
+        val wrapper = RelativeLayout(ctx)
+        wrapper.layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+        val colorAttr = TypedValue()
+        wrapper.setBackgroundColor(
+            if (ctx.theme.resolveAttribute(android.R.attr.colorPrimaryDark, colorAttr, true))
+                colorAttr.data
+            else Color.BLACK
+        )
+        val inner = AllAppsLayout(ctx)
+        inner.id = R.id.all_apps_layout
+        val marginH = ctx.resources.getDimensionPixelSize(R.dimen.all_apps_margin_horizontal)
+        val marginV = ctx.resources.getDimensionPixelSize(R.dimen.all_apps_margin_vertical)
+        val innerLp =
+            RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+        innerLp.setMargins(marginH, marginV, marginH, marginV)
+        wrapper.addView(inner, innerLp)
+        // Install lifecycle + saved-state owners so Compose can build a recomposer.
+        pluginLifecycle.moveToResumed()
+        wrapper.setViewTreeLifecycleOwner(pluginLifecycle)
+        wrapper.setViewTreeSavedStateRegistryOwner(pluginLifecycle)
+        windowContentView = wrapper
+        allAppsLayout = inner
         allAppsLayout!!.handler = handler
         val elevation = mContext!!.resources.getInteger(R.integer.all_apps_elevation)
         windowContentView!!.elevation = elevation.toFloat()
@@ -90,13 +150,48 @@ class AllAppsWindow(private val mContext: Context?) : View.OnClickListener {
     }
 
     fun dismiss() {
+        // CLOSE_SYSTEM_DIALOGS is broadcast for many reasons unrelated to us
+        // (home press, power menu, volume dialog). Without this guard every
+        // boot would call removeViewImmediate(null) and then try to drive the
+        // untouched LifecycleRegistry from INITIALIZED → DESTROYED, which is
+        // not a legal transition.
+        if (!shown) return
         try {
             windowManager.removeViewImmediate(windowContentView)
         } catch (e: IllegalArgumentException) {
             Log.e(TAG, "Catch exception when remove all apps window", e)
         }
+        pluginLifecycle.moveToDestroyed()
         windowContentView = null
         shown = false
+    }
+
+    /**
+     * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's WindowManager-attached
+     * popup. Compose requires both on the view tree; there's no Activity to provide them here, so
+     * we hand-drive the lifecycle to RESUMED while the window is shown and to DESTROYED on
+     * dismiss.
+     */
+    private class PluginLifecycleOwner : LifecycleOwner, SavedStateRegistryOwner {
+        private val registry = LifecycleRegistry(this)
+        private val savedState = SavedStateRegistryController.create(this)
+
+        override val lifecycle: Lifecycle
+            get() = registry
+
+        override val savedStateRegistry: SavedStateRegistry
+            get() = savedState.savedStateRegistry
+
+        fun moveToResumed() {
+            if (registry.currentState == Lifecycle.State.INITIALIZED) {
+                savedState.performRestore(null)
+            }
+            registry.currentState = Lifecycle.State.RESUMED
+        }
+
+        fun moveToDestroyed() {
+            registry.currentState = Lifecycle.State.DESTROYED
+        }
     }
 
     private fun notifyLoadSucceed() {

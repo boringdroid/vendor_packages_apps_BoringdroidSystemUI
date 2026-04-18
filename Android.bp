@@ -47,6 +47,12 @@ android_app {
         "androidx.compose.runtime_runtime",
         "androidx.compose.ui_ui",
         "androidx.core_core-ktx",
+        // Needed because the AllAppsLayout uses ComposeView inside a window
+        // attached via WindowManager.addView — without a LifecycleOwner on
+        // the view tree, AbstractComposeView.onAttachedToWindow throws
+        // IllegalStateException "ViewTreeLifecycleOwner not found".
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.savedstate_savedstate",
         "androidx.recyclerview_recyclerview",
     ],
 
@@ -61,4 +67,37 @@ android_app {
     optimize: {
         enabled: false,
     },
+}
+
+// UiAutomator-based instrumentation tests. Build with `m BoringdroidSystemUITests`
+// and run with .claude/scripts/run-boringdroid-tests.sh.
+android_test {
+    name: "BoringdroidSystemUITests",
+
+    srcs: ["app/src/androidTest/java/**/*.kt"],
+
+    manifest: "app/src/androidTest/AndroidManifest.xml",
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "androidx.test.runner",
+        "androidx.test.uiautomator_uiautomator",
+        "junit",
+        "truth-prebuilt",
+        // BoringdroidSystemUI inherits an InitializationProvider <provider>
+        // from its recyclerview transitive manifest merge, but does not ship
+        // the class (it's a SystemUI plugin — the provider is never actually
+        // instantiated in production). `am instrument` tries to instantiate
+        // it at ActivityThread#handleBindApplication, so ship the class from
+        // the test APK which sits on the same dex path at instrumentation time.
+        "androidx.startup_startup-runtime",
+    ],
+
+    // Matches BoringdroidSystemUI — we use the same platform certificate so the
+    // test APK can signal platform-protected broadcasts if a test needs to.
+    platform_apis: true,
+    certificate: "platform",
+
+    test_suites: ["general-tests"],
 }

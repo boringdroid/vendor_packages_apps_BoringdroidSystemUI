@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.boringdroid.systemui.test">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application android:debuggable="true">
+        <!--
+          androidx.test.* deps merge an androidx.startup.InitializationProvider
+          <provider> into the test APK's manifest, but its implementation class
+          lives in androidx.startup:startup-runtime which is not on the test
+          APK's classpath (we don't pull it as a static_lib). On process start
+          ActivityThread#installContentProviders would ClassNotFoundException
+          and crash the test before any @Test runs. Strip the merged provider.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+    </application>
+
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.boringdroid.systemui"
+        android:label="BoringdroidSystemUI UiAutomator tests" />
+
+</manifest>
