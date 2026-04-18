@@ -24,4 +24,5 @@
     <dimen name="task_info_item_padding_horizontal">5dp</dimen>
     <dimen name="all_apps_padding_vertical">5dp</dimen>
     <dimen name="all_apps_padding_horizontal">5dp</dimen>
+    <dimen name="taskbar_window_height">64dp</dimen>
 </resources>
