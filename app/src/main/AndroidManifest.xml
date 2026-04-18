@@ -8,6 +8,25 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="com.android.systemui.permission.PLUGIN" />
+    <!-- BoringdroidOverviewService runs as a plain Service in the plugin's
+         own process (outside the SystemUI host) and drives a WindowManager
+         window of TYPE_APPLICATION_OVERLAY. Auto-granted for preinstalled
+         platform-signed apps. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- ActivityManagerWrapper.getTaskThumbnail routes through
+         ActivityTaskManagerService.getTaskSnapshot, which enforces
+         READ_FRAME_BUFFER. Signature-level, auto-granted for platform-signed
+         apps. -->
+    <uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
+    <!-- TaskStackChangeListeners.registerTaskStackListener enforces
+         MANAGE_ACTIVITY_TASKS (signature|recents). Used to repaint overview
+         cards when the system publishes a fresh TaskSnapshot while the
+         overview is visible. -->
+    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS" />
+    <!-- OverviewCardAdapter's click handler calls
+         ActivityManagerWrapper.startActivityFromRecents, which enforces
+         START_TASKS_FROM_RECENTS (signature|privileged|recents). -->
+    <uses-permission android:name="android.permission.START_TASKS_FROM_RECENTS" />
 
     <application tools:ignore="AllowBackup,MissingApplicationIcon">
         <service
@@ -19,6 +38,18 @@
             tools:ignore="ExportedService,Instantiatable">
             <intent-filter>
                 <action android:name="com.android.systemui.action.PLUGIN_OVERLAY" />
+            </intent-filter>
+        </service>
+
+        <!-- Overview proxy bound by SystemUI once config_recentsComponentName
+             points at this package. -->
+        <service
+            android:name="com.boringdroid.systemui.overview.BoringdroidOverviewService"
+            android:permission="android.permission.STATUS_BAR_SERVICE"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKSTEP_SERVICE" />
             </intent-filter>
         </service>
     </application>

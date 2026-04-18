@@ -54,7 +54,9 @@ class SystemUIOverlay : OverlayPlugin {
         }
 
     override fun setup(statusBar: View, navBar: View?) {
-        Log.d(TAG, "setup status bar $statusBar, nav bar $navBar (unused post-M1)")
+        // navBar is unused — the plugin renders into its own TaskbarWindow,
+        // not the stock NavigationBarView. See TaskbarWindow.kt.
+        Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
         val root =
             taskbarWindow?.getRoot() ?: run {
                 Log.w(TAG, "setup called before taskbar window was shown; skipping")

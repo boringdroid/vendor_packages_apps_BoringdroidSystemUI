@@ -2,4 +2,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="system_ui_overlay_name" translatable="false">Boringdroid SystemUI overlay</string>
     <string name="system_ui_debug_name">BoringdroidSystemUIDebug</string>
+    <string name="overview_launch_failed">Couldn\'t launch that task</string>
 </resources>
