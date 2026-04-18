@@ -11,8 +11,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Post-M1: the plugin creates its own WindowManager window instead of
- * adopting SystemUI's NavigationBar. These tests lock that in.
+ * The plugin creates its own WindowManager window instead of adopting SystemUI's
+ * NavigationBar. These tests lock that in.
  */
 @RunWith(AndroidJUnit4::class)
 class TaskbarWindowTest {
