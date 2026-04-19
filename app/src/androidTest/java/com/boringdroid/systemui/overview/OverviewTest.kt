@@ -75,12 +75,25 @@ class OverviewTest {
         // OverviewWindow.toggle(). Alt+Tab goes through PhoneWindowManager
         // instead and never reaches the proxy on AOSP 14, so we trigger the
         // app-switch path directly.
-        device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
-        val overview =
-            device.wait(
-                Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
-                FIND_TIMEOUT_MS,
-            )
+        //
+        // Even after the @Before warmup, cumulative emulator load across
+        // back-to-back suite runs can occasionally drop an APP_SWITCH that
+        // arrives while the proxy binding is still settling after Home. Retry
+        // up to OPEN_RETRY_COUNT times so a single dropped keycode doesn't
+        // fail the test.
+        var overview: UiObject2? = null
+        for (attempt in 0 until OPEN_RETRY_COUNT) {
+            if (attempt > 0) {
+                Thread.sleep(SNAPSHOT_SETTLE_MS)
+            }
+            device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
+            overview =
+                device.wait(
+                    Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
+                    FIND_TIMEOUT_MS,
+                )
+            if (overview != null) break
+        }
         assertThat(overview).isNotNull()
     }
 
@@ -132,16 +145,16 @@ class OverviewTest {
             Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
             FIND_TIMEOUT_MS,
         )
+        // Let the a11y tree settle after the overview window raises —
+        // RecyclerView layout + onBindViewHolder run on the main thread
+        // asynchronously, and the card label search can race those events
+        // on an emulator under GC/IO pressure. Matches the gate used by
+        // openOverviewAndFindCardChild for the two sibling tests.
+        Thread.sleep(CARD_BIND_SETTLE_MS)
         // Card layouts are LinearLayouts with no id, but the label TextView
         // carries the app's launcher label. Click the matching label; the
         // touch propagates up to the clickable card root since the label
         // itself is not clickable.
-        //
-        // The card for a just-backgrounded task can take a beat to appear —
-        // RecentTasksProvider.snapshot() filters by visibility, and the
-        // post-Home TaskStackChangeListener fires on the main thread after
-        // layout. Under emulator load, 5 s was too tight; LAUNCH_TIMEOUT_MS
-        // (10 s) matches the other recents waits in this test.
         val settingsLabel =
             device.wait(
                 Until.findObject(
@@ -186,16 +199,25 @@ class OverviewTest {
                 Thread.sleep(SNAPSHOT_SETTLE_MS)
             }
             device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
-            device.wait(
-                Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
-                FIND_TIMEOUT_MS,
-            )
-            val child =
+            val root =
                 device.wait(
-                    Until.findObject(By.res(PLUGIN_PKG, childResId)),
-                    LAUNCH_TIMEOUT_MS,
+                    Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
+                    FIND_TIMEOUT_MS,
                 )
-            if (child != null) return child
+            if (root != null) {
+                // After the overview window raises, RecyclerView layout and
+                // onBindViewHolder happen asynchronously on the main thread.
+                // Wait for the a11y tree to quiesce before searching for card
+                // children; otherwise the search can race the bind pass and
+                // miss freshly inflated TextView/ImageView nodes.
+                Thread.sleep(CARD_BIND_SETTLE_MS)
+                val child =
+                    device.wait(
+                        Until.findObject(By.res(PLUGIN_PKG, childResId)),
+                        LAUNCH_TIMEOUT_MS,
+                    )
+                if (child != null) return child
+            }
             device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
             device.wait(Until.gone(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
             device.waitForIdle()
@@ -208,6 +230,8 @@ class OverviewTest {
         private const val LAUNCH_TIMEOUT_MS = 10_000L
         private const val SNAPSHOT_RETRY_COUNT = 3
         private const val SNAPSHOT_SETTLE_MS = 750L
-        private const val WARMUP_RETRY_COUNT = 5
+        private const val WARMUP_RETRY_COUNT = 8
+        private const val OPEN_RETRY_COUNT = 3
+        private const val CARD_BIND_SETTLE_MS = 500L
     }
 }

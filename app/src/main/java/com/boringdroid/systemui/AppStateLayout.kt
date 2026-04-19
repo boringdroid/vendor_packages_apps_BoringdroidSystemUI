@@ -204,23 +204,31 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         taskAdapter?.reloadActivityManager(context)
     }
 
+    private fun findTaskById(id: Int): RunningTaskInfo? {
+        return activityManager.getRunningTasks(MAX_RUNNING_TASKS).firstOrNull { it.id == id }
+    }
+
     private inner class AppStateListener : TaskStackChangeListener {
         override fun onTaskCreated(taskId: Int, componentName: ComponentName?) {
             super.onTaskCreated(taskId, componentName)
             Log.d(TAG, "onTaskCreated $taskId, cm $componentName")
-            onTaskStackChanged()
+            // Resolve the task by its id instead of re-querying the currently
+            // foregrounded task: a quick pressHome following a launch can enqueue a
+            // later onTaskStackChanged that makes getRunningTask(false) return the
+            // launcher, causing this callback to swallow the newly-created task.
+            findTaskById(taskId)?.let { topTask(it) }
         }
 
         override fun onTaskMovedToFront(taskId: Int) {
             super.onTaskMovedToFront(taskId)
             Log.d(TAG, "onTaskMoveToFront taskId $taskId")
-            onTaskStackChanged()
+            findTaskById(taskId)?.let { topTask(it) }
         }
 
         override fun onTaskMovedToFront(taskInfo: RunningTaskInfo) {
             super.onTaskMovedToFront(taskInfo)
             Log.d(TAG, "onTaskMovedToFront $taskInfo")
-            onTaskStackChanged()
+            topTask(taskInfo)
         }
 
         override fun onTaskStackChanged() {

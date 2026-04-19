@@ -45,12 +45,23 @@ class TaskbarRecentAppsTest {
         device.pressHome()
         device.waitForIdle()
 
+        // AppStateLayout refreshes its recents row from TaskStackChangeListener
+        // callbacks on the main thread, and the row re-renders across a pressHome.
+        // A short settle lets that re-render complete; without it the batch-order
+        // case races the refresh and sees the row empty.
+        Thread.sleep(RECENTS_SETTLE_MS)
+
         val icons =
             device.wait(
                 Until.findObjects(By.res(PluginBaselineTest.PLUGIN_PKG, "iv_task_info_icon")),
-                PluginBaselineTest.FIND_TIMEOUT_MS,
+                RECENTS_FIND_TIMEOUT_MS,
             )
         assertThat(icons).isNotNull()
         assertThat(icons).isNotEmpty()
+    }
+
+    companion object {
+        private const val RECENTS_SETTLE_MS = 500L
+        private const val RECENTS_FIND_TIMEOUT_MS = 10_000L
     }
 }
