@@ -27,10 +27,13 @@
          cards when the system publishes a fresh TaskSnapshot while the
          overview is visible. -->
     <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS" />
-    <!-- OverviewCardAdapter's click handler calls
+    <!-- Overview card click handler calls
          ActivityManagerWrapper.startActivityFromRecents, which enforces
          START_TASKS_FROM_RECENTS (signature|privileged|recents). -->
     <uses-permission android:name="android.permission.START_TASKS_FROM_RECENTS" />
+    <!-- Overview card close ("×") button calls ActivityManagerWrapper.removeTask,
+         which enforces REMOVE_TASKS (signature|privileged|recents). -->
+    <uses-permission android:name="android.permission.REMOVE_TASKS" />
     <!-- The Calendar & Clock panel queries CalendarContract.Instances to render
          the "Today's agenda" list. The plugin runs in the SystemUI process
          (uid=1000), which holds READ_CALENDAR by signature on userdebug. -->

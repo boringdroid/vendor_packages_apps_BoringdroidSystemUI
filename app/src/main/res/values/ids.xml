@@ -10,4 +10,8 @@
     <item name="start_menu_lock" type="id" />
     <item name="start_menu_signout" type="id" />
     <item name="start_menu_power" type="id" />
+    <item name="overview_card_label" type="id" />
+    <item name="overview_card_thumbnail" type="id" />
+    <item name="overview_card_icon" type="id" />
+    <item name="overview_card_close" type="id" />
 </resources>

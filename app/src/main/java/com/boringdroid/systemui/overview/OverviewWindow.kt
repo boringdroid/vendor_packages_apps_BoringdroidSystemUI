@@ -16,11 +16,18 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.android.systemui.shared.recents.model.ThumbnailData
+import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
 import com.android.systemui.shared.system.TaskStackChangeListeners
 import com.boringdroid.systemui.R
@@ -28,33 +35,33 @@ import com.boringdroid.systemui.R
 /**
  * Owns the boringdroid Overview window.
  *
- * Binds a single fullscreen system window with a root whose id is `@+id/overview_root` — the anchor
- * the `OverviewTest` UiAutomator selector looks for. The window hosts a `RecyclerView` of
- * recent-task cards populated by [OverviewCardAdapter] and [RecentTasksProvider].
+ * Binds a single fullscreen system window whose root is the Compose-hosting
+ * [OverviewLayout] — the `overview_root` anchor the `OverviewTest` UiAutomator selector looks for.
  *
  * Runs in the BoringdroidSystemUI process (bound via [BoringdroidOverviewService]), so it uses its
- * own package context for WindowManager — unlike [TaskbarWindow], which piggybacks on the host
+ * own package context for WindowManager — unlike `TaskbarWindow`, which piggybacks on the host
  * SystemUI context.
  */
 class OverviewWindow(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private var root: ViewGroup? = null
-    private var adapter: OverviewCardAdapter? = null
+    private var root: OverviewLayout? = null
+    // Compose's AbstractComposeView#onAttachedToWindow requires a LifecycleOwner and
+    // SavedStateRegistryOwner on the view tree. The window is added via WindowManager and has no
+    // Activity to provide them, so we ship our own and hand-drive the lifecycle.
+    private val pluginLifecycle = PluginLifecycleOwner()
 
     // Keep the overview's thumbnails fresh while it's visible.
-    // onTaskSnapshotChanged fires on the main thread (dispatched via
-    // TaskStackChangeListeners' Handler), so calling
-    // RecyclerView.Adapter.notifyItemChanged directly is safe. We do NOT
-    // consume the snapshot bitmap here (return false) — onBindViewHolder
-    // re-calls ActivityManagerWrapper.getTaskThumbnail.
+    // onTaskSnapshotChanged fires on the main thread (dispatched via TaskStackChangeListeners'
+    // Handler), so bumping the Compose state directly is safe. We do NOT consume the snapshot
+    // bitmap here (return false) — the Compose card re-calls ActivityManagerWrapper.getTaskThumbnail
+    // when the snapshotVersion key invalidates.
     private val taskStackListener =
         object : TaskStackChangeListener {
             override fun onTaskSnapshotChanged(taskId: Int, snapshot: ThumbnailData?): Boolean {
-                val a = adapter ?: return false
-                val pos = a.positionOfTaskId(taskId)
-                if (pos >= 0) {
-                    a.notifyItemChanged(pos)
-                    Log.d(TAG, "onTaskSnapshotChanged: repaint taskId=$taskId pos=$pos")
+                val layout = root ?: return false
+                if (layout.positionOfTaskId(taskId) >= 0) {
+                    layout.bumpSnapshotVersion()
+                    if (DEBUG) Log.d(TAG, "onTaskSnapshotChanged: repaint taskId=$taskId")
                 } else if (DEBUG) {
                     Log.d(TAG, "onTaskSnapshotChanged: taskId=$taskId not in overview")
                 }
@@ -67,9 +74,10 @@ class OverviewWindow(private val context: Context) {
             if (DEBUG) Log.d(TAG, "show: already visible")
             return
         }
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_overview, null) as ViewGroup
-        // TYPE_APPLICATION_OVERLAY is auto-granted for /system apps; no
-        // SYSTEM_ALERT_WINDOW runtime permission dance needed.
+        val view =
+            LayoutInflater.from(context).inflate(R.layout.layout_overview, null) as OverviewLayout
+        // TYPE_APPLICATION_OVERLAY is auto-granted for /system apps; no SYSTEM_ALERT_WINDOW
+        // runtime permission dance needed.
         val lp =
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -105,17 +113,17 @@ class OverviewWindow(private val context: Context) {
                 false
             }
         }
+        // Install lifecycle + saved-state owners so Compose can build a recomposer.
+        pluginLifecycle.moveToResumed()
+        view.setViewTreeLifecycleOwner(pluginLifecycle)
+        view.setViewTreeSavedStateRegistryOwner(pluginLifecycle)
+        view.setCallbacks(onCardClick = ::onCardClick, onCardClose = ::onCardClose)
+        val tasks = RecentTasksProvider.getRecentTasks(context)
+        view.setData(tasks)
         windowManager.addView(view, lp)
         view.requestFocus()
         root = view
-        val tasks = RecentTasksProvider.getRecentTasks(context)
-        val cards = view.findViewById<RecyclerView>(R.id.overview_cards)
-        cards.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        val a = OverviewCardAdapter(context, tasks) { hide() }
-        cards.adapter = a
-        adapter = a
-        // Register only while visible — snapshot churn outside the overview
-        // is irrelevant to us.
+        // Register only while visible — snapshot churn outside the overview is irrelevant to us.
         TaskStackChangeListeners.getInstance().registerTaskStackListener(taskStackListener)
         Log.i(
             TAG,
@@ -130,15 +138,15 @@ class OverviewWindow(private val context: Context) {
             if (DEBUG) Log.d(TAG, "hide: not visible")
             return
         }
-        // Unregister before tearing down the adapter so a late-dispatched
-        // snapshot callback can't touch a stale RecyclerView.
+        // Unregister before tearing down the layout so a late-dispatched snapshot callback can't
+        // touch a stale Compose state.
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(taskStackListener)
         try {
             windowManager.removeViewImmediate(v)
         } catch (e: IllegalArgumentException) {
             Log.e(TAG, "hide: removeViewImmediate threw", e)
         }
-        adapter = null
+        pluginLifecycle.moveToDestroyed()
         root = null
         Log.i(TAG, "hide: overview window removed")
     }
@@ -148,6 +156,55 @@ class OverviewWindow(private val context: Context) {
     }
 
     fun isShowing(): Boolean = root != null
+
+    private fun onCardClick(task: RecentAppTask) {
+        val ok = ActivityManagerWrapper.getInstance().startActivityFromRecents(task.taskId, null)
+        Log.i(TAG, "onCardClick: startActivityFromRecents taskId=${task.taskId} ok=$ok")
+        if (ok) {
+            hide()
+        } else {
+            // Leave the overview on screen so other cards stay tappable, and surface the failure so
+            // the user isn't left wondering why the tap "did nothing". Expected triggers: the task
+            // was killed between RecentTasksProvider.snapshot() and this click, or a future
+            // manifest regression that drops START_TASKS_FROM_RECENTS.
+            Toast.makeText(context, R.string.overview_launch_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun onCardClose(task: RecentAppTask) {
+        try {
+            ActivityManagerWrapper.getInstance().removeTask(task.taskId)
+            Log.i(TAG, "onCardClose: removeTask taskId=${task.taskId}")
+        } catch (e: SecurityException) {
+            Log.w(TAG, "onCardClose: removeTask denied taskId=${task.taskId}", e)
+        }
+        val layout = root ?: return
+        val remaining = RecentTasksProvider.getRecentTasks(context)
+        layout.setData(remaining)
+        if (remaining.isEmpty()) hide()
+    }
+
+    private class PluginLifecycleOwner : LifecycleOwner, SavedStateRegistryOwner {
+        private val registry = LifecycleRegistry(this)
+        private val savedState = SavedStateRegistryController.create(this)
+
+        override val lifecycle: Lifecycle
+            get() = registry
+
+        override val savedStateRegistry: SavedStateRegistry
+            get() = savedState.savedStateRegistry
+
+        fun moveToResumed() {
+            if (registry.currentState == Lifecycle.State.INITIALIZED) {
+                savedState.performRestore(null)
+            }
+            registry.currentState = Lifecycle.State.RESUMED
+        }
+
+        fun moveToDestroyed() {
+            registry.currentState = Lifecycle.State.DESTROYED
+        }
+    }
 
     companion object {
         private const val TAG = "BoringdroidOverview"

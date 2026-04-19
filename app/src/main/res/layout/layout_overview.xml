@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The `overview_root` id is the UiAutomator anchor used by OverviewTest. -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- The `overview_root` id is the UiAutomator anchor used by OverviewTest. The root class is a
+     Compose-hosting FrameLayout subclass; content is a full-screen scrim + head + LazyRow of
+     recent-task cards rendered by `OverviewLayout`. -->
+<com.boringdroid.systemui.overview.OverviewLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/overview_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#CC000000">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/overview_cards"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:clipToPadding="false"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp" />
-</FrameLayout>
+    android:layout_height="match_parent" />
