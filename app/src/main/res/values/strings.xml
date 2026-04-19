@@ -3,4 +3,5 @@
     <string name="system_ui_overlay_name" translatable="false">Boringdroid SystemUI overlay</string>
     <string name="system_ui_debug_name">BoringdroidSystemUIDebug</string>
     <string name="overview_launch_failed">Couldn\'t launch that task</string>
+    <string name="action_center_bell_description">Open action center</string>
 </resources>

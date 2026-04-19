@@ -21,6 +21,11 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.android.systemui.plugins.OverlayPlugin
 import com.android.systemui.plugins.annotations.Requires
+import com.boringdroid.systemui.actioncenter.ActionCenterWindow
+import com.boringdroid.systemui.actioncenter.NotificationFeed
+import com.boringdroid.systemui.actioncenter.NotificationFeedIpc
+import com.boringdroid.systemui.actioncenter.QsController
+import com.boringdroid.systemui.actioncenter.SbnSummary
 import java.lang.reflect.InvocationTargetException
 import java.util.Arrays
 import java.util.stream.Collectors
@@ -36,6 +41,10 @@ class SystemUIOverlay : OverlayPlugin {
     private var btAllApps: View? = null
     private var allAppsWindow: AllAppsWindow? = null
     private var taskbarWindow: TaskbarWindow? = null
+    private var actionCenterBellGroup: ViewGroup? = null
+    private var actionCenterBell: View? = null
+    private var actionCenterWindow: ActionCenterWindow? = null
+    private var qsController: QsController? = null
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
     private val tunerKeyObserver: ContentObserver = TunerKeyObserver()
@@ -43,13 +52,72 @@ class SystemUIOverlay : OverlayPlugin {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 Log.d(TAG, "receive intent $intent")
-                if (allAppsWindow == null) {
-                    return
-                }
                 if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) {
                     return
                 }
-                allAppsWindow!!.dismiss()
+                allAppsWindow?.dismiss()
+                actionCenterWindow?.dismiss()
+            }
+        }
+
+    // The mirror service lives in com.boringdroid.systemui's own process (uid 10094)
+    // while this plugin runs in SystemUI (uid 1000). NotificationFeed is a per-process
+    // singleton; bridge writes from the mirror into this process's copy via broadcasts.
+    private val notificationFeedReceiver: BroadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (Log.isLoggable(BRIDGE_TAG, Log.VERBOSE)) {
+                    Log.v(
+                        BRIDGE_TAG,
+                        "onReceive action=${intent.action} " +
+                            "key=${intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY)} " +
+                            "title=${intent.getStringExtra(NotificationFeedIpc.EXTRA_TITLE)}",
+                    )
+                }
+                when (intent.action) {
+                    NotificationFeedIpc.ACTION_FEED_RESET,
+                    NotificationFeedIpc.ACTION_FEED_CLEAR -> NotificationFeed.clear()
+                    NotificationFeedIpc.ACTION_NOTIFICATION_POSTED -> {
+                        val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY)
+                            ?: return
+                        val pkg = intent.getStringExtra(NotificationFeedIpc.EXTRA_PACKAGE_NAME)
+                            ?: return
+                        NotificationFeed.upsert(
+                            SbnSummary(
+                                key = key,
+                                packageName = pkg,
+                                title = intent.getStringExtra(NotificationFeedIpc.EXTRA_TITLE),
+                                body = intent.getStringExtra(NotificationFeedIpc.EXTRA_BODY),
+                                postTime = intent.getLongExtra(
+                                    NotificationFeedIpc.EXTRA_POST_TIME,
+                                    0L,
+                                ),
+                                smallIcon = null,
+                                contentIntent = null,
+                                isOngoing = intent.getBooleanExtra(
+                                    NotificationFeedIpc.EXTRA_IS_ONGOING,
+                                    false,
+                                ),
+                            )
+                        )
+                        if (Log.isLoggable(BRIDGE_TAG, Log.VERBOSE)) {
+                            val feed = NotificationFeed.flow.value
+                            Log.v(
+                                BRIDGE_TAG,
+                                "upsert key=$key postTime=${
+                                    intent.getLongExtra(NotificationFeedIpc.EXTRA_POST_TIME, 0L)
+                                } feedSize=${feed.size} top3=${
+                                    feed.take(3).joinToString { "[${it.title}@${it.postTime}]" }
+                                }",
+                            )
+                        }
+                    }
+                    NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED -> {
+                        val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY)
+                            ?: return
+                        NotificationFeed.remove(key)
+                    }
+                }
             }
         }
 
@@ -66,6 +134,7 @@ class SystemUIOverlay : OverlayPlugin {
         (btAllAppsGroup?.parent as? ViewGroup)?.removeView(btAllAppsGroup)
         (appStateLayout?.parent as? ViewGroup)?.removeView(appStateLayout)
         (clockAndStatus?.parent as? ViewGroup)?.removeView(clockAndStatus)
+        (actionCenterBellGroup?.parent as? ViewGroup)?.removeView(actionCenterBellGroup)
         root.removeAllViews()
 
         btAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
@@ -89,6 +158,15 @@ class SystemUIOverlay : OverlayPlugin {
         clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
         root.addView(
             clockAndStatus,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+            ),
+        )
+
+        actionCenterBellGroup!!.tag = TAG_ACTION_CENTER_BELL_GROUP
+        root.addView(
+            actionCenterBellGroup,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -122,6 +200,11 @@ class SystemUIOverlay : OverlayPlugin {
         btAllApps = btAllAppsGroup!!.findViewById(R.id.bt_all_apps)
         allAppsWindow = AllAppsWindow(this.pluginContext, sysUIContext)
         btAllApps!!.setOnClickListener(allAppsWindow)
+        actionCenterBellGroup =
+            initializeActionCenterBell(this.pluginContext, actionCenterBellGroup)
+        actionCenterBell = actionCenterBellGroup!!.findViewById(R.id.action_center_bell)
+        actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
+        actionCenterBell!!.setOnClickListener { actionCenterWindow?.toggle() }
         taskbarWindow = TaskbarWindow(pluginContext, sysUIContext).also { it.show() }
         resolver = sysUIContext.contentResolver
         initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)
@@ -135,6 +218,20 @@ class SystemUIOverlay : OverlayPlugin {
             filter,
             Context.RECEIVER_NOT_EXPORTED,
         )
+        val feedFilter = IntentFilter().apply {
+            addAction(NotificationFeedIpc.ACTION_FEED_RESET)
+            addAction(NotificationFeedIpc.ACTION_FEED_CLEAR)
+            addAction(NotificationFeedIpc.ACTION_NOTIFICATION_POSTED)
+            addAction(NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED)
+        }
+        // Sender (mirror) runs in a different UID, so the receiver must be exported.
+        // Adding a signature-level custom permission to gate it is future hardening.
+        systemUIContext!!.registerReceiver(
+            notificationFeedReceiver,
+            feedFilter,
+            Context.RECEIVER_EXPORTED,
+        )
+        qsController = QsController(systemUIContext!!).also { it.start() }
     }
 
     override fun onDestroy() {
@@ -144,6 +241,11 @@ class SystemUIOverlay : OverlayPlugin {
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, "Try to unregister close system dialogs receiver without registering")
             }
+            try {
+                systemUIContext!!.unregisterReceiver(notificationFeedReceiver)
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "Try to unregister notification feed receiver without registering")
+            }
         }
         if (resolver != null) {
             resolver!!.unregisterContentObserver(tunerKeyObserver)
@@ -151,9 +253,13 @@ class SystemUIOverlay : OverlayPlugin {
         btAllAppsGroup!!.post {
             btAllAppsGroup!!.setOnClickListener(null)
             btAllApps!!.setOnClickListener(null)
+            actionCenterBell?.setOnClickListener(null)
         }
+        qsController?.stop()
+        qsController = null
         taskbarWindow?.hide()
         taskbarWindow = null
+        actionCenterWindow = null
         pluginContext = null
     }
 
@@ -198,6 +304,16 @@ class SystemUIOverlay : OverlayPlugin {
     }
 
     @SuppressLint("InflateParams")
+    private fun initializeActionCenterBell(
+        context: Context?,
+        actionCenterBellGroup: ViewGroup?,
+    ): ViewGroup {
+        return actionCenterBellGroup
+            ?: LayoutInflater.from(context)
+                .inflate(R.layout.layout_action_center_bell, null) as ViewGroup
+    }
+
+    @SuppressLint("InflateParams")
     private fun initializeClockAndStatus(context: Context?, clockAndStatus: ViewGroup?): ViewGroup {
         return clockAndStatus
             ?: LayoutInflater.from(context).inflate(R.layout.layout_clock_and_status, null)
@@ -236,11 +352,13 @@ class SystemUIOverlay : OverlayPlugin {
 
     companion object {
         private const val TAG = "SystemUIOverlay"
+        private const val BRIDGE_TAG = "BdNotifBridge"
 
         // Copied from systemui source code, please keep it update to source code.
         private const val ACTION_PLUGIN_CHANGED = "com.android.systemui.action.PLUGIN_CHANGED"
         private const val TAG_ALL_APPS_GROUP = "tag-bt-all-apps-group"
         private const val TAG_CLOCK_AND_STATUS_GROUP = "tag-clock-and-status-group"
         private const val TAG_APP_STATE_LAYOUT = "tag-app-state-layout"
+        private const val TAG_ACTION_CENTER_BELL_GROUP = "tag-action-center-bell-group"
     }
 }

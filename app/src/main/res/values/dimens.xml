@@ -25,4 +25,17 @@
     <dimen name="all_apps_padding_vertical">5dp</dimen>
     <dimen name="all_apps_padding_horizontal">5dp</dimen>
     <dimen name="taskbar_window_height">64dp</dimen>
+    <dimen name="action_center_window_width">320dp</dimen>
+    <dimen name="action_center_window_height">500dp</dimen>
+    <dimen name="action_center_window_margin_end">10dp</dimen>
+    <dimen name="action_center_window_margin_bottom">80dp</dimen>
+    <dimen name="action_center_corner_radius">12dp</dimen>
+    <dimen name="notification_row_padding_horizontal">12dp</dimen>
+    <dimen name="notification_row_padding_vertical">8dp</dimen>
+    <dimen name="notification_title_text_size">14sp</dimen>
+    <dimen name="notification_body_text_size">12sp</dimen>
+    <dimen name="qs_tile_size">64dp</dimen>
+    <dimen name="qs_tile_padding">8dp</dimen>
+    <dimen name="qs_tile_text_size">12sp</dimen>
+    <dimen name="qs_row_padding">12dp</dimen>
 </resources>

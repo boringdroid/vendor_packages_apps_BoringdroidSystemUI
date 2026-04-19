@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="action_center_root" type="id" />
+    <item name="qs_wifi" type="id" />
+    <item name="qs_bluetooth" type="id" />
+    <item name="qs_dnd" type="id" />
+</resources>
