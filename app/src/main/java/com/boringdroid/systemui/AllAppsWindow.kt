@@ -97,14 +97,14 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
         )
         val inner = AllAppsLayout(ctx)
         inner.id = R.id.all_apps_layout
-        val marginH = ctx.resources.getDimensionPixelSize(R.dimen.all_apps_margin_horizontal)
-        val marginV = ctx.resources.getDimensionPixelSize(R.dimen.all_apps_margin_vertical)
+        // The Compose panel inside [AllAppsLayout] paints its own M3 surface
+        // background and internal padding, so make it fill the rounded wrapper
+        // exactly — no outer margin strip in the legacy colorPrimaryDark tint.
         val innerLp =
             RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT,
             )
-        innerLp.setMargins(marginH, marginV, marginH, marginV)
         wrapper.addView(inner, innerLp)
         // Install lifecycle + saved-state owners so Compose can build a recomposer.
         pluginLifecycle.moveToResumed()
