@@ -6,4 +6,8 @@
     <item name="qs_dnd" type="id" />
     <item name="all_apps_layout" type="id" />
     <item name="calendar_clock_root" type="id" />
+    <item name="start_menu_user_rail" type="id" />
+    <item name="start_menu_lock" type="id" />
+    <item name="start_menu_signout" type="id" />
+    <item name="start_menu_power" type="id" />
 </resources>

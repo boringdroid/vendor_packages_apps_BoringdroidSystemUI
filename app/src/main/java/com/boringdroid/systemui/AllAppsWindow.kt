@@ -111,7 +111,7 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
         wrapper.setViewTreeSavedStateRegistryOwner(pluginLifecycle)
         windowContentView = wrapper
         allAppsLayout = inner
-        allAppsLayout!!.handler = handler
+        allAppsLayout!!.setDispatchHandler(handler)
         val elevation = mContext!!.resources.getInteger(R.integer.all_apps_elevation)
         windowContentView!!.elevation = elevation.toFloat()
         windowContentView!!.setOnTouchListener { _: View?, event: MotionEvent ->

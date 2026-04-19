@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="nav_button_size">30dp</dimen>
-    <dimen name="all_apps_window_width">500dp</dimen>
-    <dimen name="all_apps_window_height">400dp</dimen>
-    <dimen name="all_apps_corner_radius">8dp</dimen>
+    <dimen name="all_apps_window_width">720dp</dimen>
+    <dimen name="all_apps_window_height">560dp</dimen>
+    <dimen name="all_apps_corner_radius">28dp</dimen>
     <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_vertical">10dp</dimen>
     <dimen name="task_info_icon_size">26dp</dimen>
