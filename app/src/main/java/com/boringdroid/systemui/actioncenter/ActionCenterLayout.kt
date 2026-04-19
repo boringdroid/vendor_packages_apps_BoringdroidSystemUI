@@ -37,7 +37,6 @@ import androidx.compose.material.icons.filled.AirplanemodeActive
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.DoNotDisturb
-import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.Pause
@@ -135,6 +134,10 @@ private fun ActionCenterPanel() {
             TimeHeader()
             QsGrid()
             MediaCard()
+            // weight(1f) anchors the notification list to the remaining panel space so the
+            // "Clear all" button at its bottom edge is always on-screen — UiAutomator finds
+            // nodes by a11y tree but filters on visibleToUser, so an off-screen button is
+            // effectively unreachable.
             NotificationList(modifier = Modifier.weight(1f))
         }
     }
@@ -178,9 +181,9 @@ private fun TimeHeader() {
 }
 
 /**
- * The nine [QsTile]s that form the 3x3 Expressive grid. Only Wi-Fi, Bluetooth, and Do Not Disturb
- * are wired to real radios via [QsController]; the rest are visual placeholders whose toggles log
- * and no-op until the follow-up milestone lands their system bindings.
+ * The eight [QsTile]s that form the Expressive grid. Only Wi-Fi, Bluetooth, and Do Not Disturb are
+ * wired to real radios via [QsController]; the rest are visual placeholders whose toggles log and
+ * no-op until the follow-up milestone lands their system bindings.
  */
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
@@ -188,7 +191,6 @@ private fun QsGrid() {
     val wifi by QsTileStore.wifi.collectAsState()
     val bt by QsTileStore.bluetooth.collectAsState()
     val dnd by QsTileStore.dnd.collectAsState()
-    val flashlight by QsTileStore.flashlight.collectAsState()
     val autoRotate by QsTileStore.autoRotate.collectAsState()
     val airplane by QsTileStore.airplane.collectAsState()
     val batterySaver by QsTileStore.batterySaver.collectAsState()
@@ -200,7 +202,7 @@ private fun QsGrid() {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier =
-            Modifier.fillMaxWidth().height(220.dp).semantics {
+            Modifier.fillMaxWidth().height(300.dp).semantics {
                 testTagsAsResourceId = true
                 testTag = ID + "qs_grid"
             },
@@ -220,11 +222,6 @@ private fun QsGrid() {
         item {
             QsTile("qs_dnd", Icons.Filled.DoNotDisturb, "DND", dnd) {
                 QsController.instance?.toggleDnd()
-            }
-        }
-        item {
-            QsTile("qs_flashlight", Icons.Filled.FlashlightOn, "Flashlight", flashlight) {
-                QsController.instance?.toggleFlashlight()
             }
         }
         item {

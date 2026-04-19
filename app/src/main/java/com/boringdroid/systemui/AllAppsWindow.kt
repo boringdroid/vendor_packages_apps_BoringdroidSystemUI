@@ -171,10 +171,10 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
         val marginVertical = resources.getDimension(R.dimen.all_apps_window_margin_vertical).toInt()
         layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.x = marginStart
-        // TODO: Looks like the heightPixels is incorrect, so we use multi margin to
-        //  achieve looks-fine vertical margin of window. Figure out the real reason
-        //  of this problem, and fix it.
-        layoutParams.y = displayMetrics.heightPixels - windowHeight - marginVertical * 3
+        // Subtract the taskbar height so the panel sits above it rather than clipping under it.
+        val taskbarHeight = resources.getDimension(R.dimen.taskbar_window_height).toInt()
+        layoutParams.y =
+            displayMetrics.heightPixels - windowHeight - taskbarHeight - marginVertical * 2
         Log.d(TAG, "All apps window location (" + layoutParams.x + ", " + layoutParams.y + ")")
         return layoutParams
     }

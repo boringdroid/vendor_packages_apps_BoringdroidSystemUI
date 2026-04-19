@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BatteryStd
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Wifi
@@ -75,6 +76,7 @@ data class TaskbarCallbacks(
     val onSearchClick: () -> Unit,
     val onBellClick: () -> Unit,
     val onClockClick: () -> Unit,
+    val onOverviewClick: () -> Unit,
     val onTaskClick: (BdTaskInfo) -> Unit,
 )
 
@@ -125,6 +127,7 @@ fun Taskbar(state: TaskbarState, callbacks: TaskbarCallbacks) {
                     state = state,
                     onBellClick = callbacks.onBellClick,
                     onClockClick = callbacks.onClockClick,
+                    onOverviewClick = callbacks.onOverviewClick,
                 )
             }
         }
@@ -300,7 +303,12 @@ private fun TaskIcon(drawable: Drawable?, contentDescription: String) {
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun Tray(state: TaskbarState, onBellClick: () -> Unit, onClockClick: () -> Unit) {
+private fun Tray(
+    state: TaskbarState,
+    onBellClick: () -> Unit,
+    onClockClick: () -> Unit,
+    onOverviewClick: () -> Unit,
+) {
     val time by state.time.collectAsState()
     val date by state.date.collectAsState()
     val battery by state.batteryPercent.collectAsState()
@@ -344,6 +352,24 @@ private fun Tray(state: TaskbarState, onBellClick: () -> Unit, onClockClick: () 
                 text = "$battery%",
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.onSurface,
+            )
+        }
+        Box(
+            modifier =
+                Modifier.size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable(onClick = onOverviewClick)
+                    .semantics {
+                        testTagsAsResourceId = true
+                        testTag = ID + "taskbar_recents"
+                    },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.GridView,
+                contentDescription = "recents",
+                tint = colors.onSurface,
+                modifier = Modifier.size(20.dp),
             )
         }
         Box(

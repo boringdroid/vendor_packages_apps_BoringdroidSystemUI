@@ -44,7 +44,6 @@ object QsTileStore {
     const val LABEL_WIFI = "wifi"
     const val LABEL_BLUETOOTH = "bluetooth"
     const val LABEL_DND = "dnd"
-    const val LABEL_FLASHLIGHT = "flashlight"
     const val LABEL_AUTO_ROTATE = "auto-rotate"
     const val LABEL_AIRPLANE = "airplane mode"
     const val LABEL_BATTERY_SAVER = "battery saver"
@@ -60,12 +59,9 @@ object QsTileStore {
     private val _dnd = MutableStateFlow(QsState(LABEL_DND, false))
     val dnd: StateFlow<QsState> = _dnd.asStateFlow()
 
-    // The next six tiles fill out the 3x3 Expressive grid. Their radio-level bindings are
-    // staged post-M5.4 (toggles in [QsController] are placeholders that log and no-op).
-    // Seeding them as "off" keeps the grid visually consistent until the controller lands.
-    private val _flashlight = MutableStateFlow(QsState(LABEL_FLASHLIGHT, false))
-    val flashlight: StateFlow<QsState> = _flashlight.asStateFlow()
-
+    // Remaining tiles fill out the Expressive grid. Their radio-level bindings are staged
+    // post-M5.4 (toggles in [QsController] are placeholders that log and no-op). Seeding as
+    // "off" keeps the grid visually consistent until the controller lands.
     private val _autoRotate = MutableStateFlow(QsState(LABEL_AUTO_ROTATE, false))
     val autoRotate: StateFlow<QsState> = _autoRotate.asStateFlow()
 
@@ -91,10 +87,6 @@ object QsTileStore {
 
     fun setDnd(isOn: Boolean) {
         _dnd.value = QsState(LABEL_DND, isOn)
-    }
-
-    fun setFlashlight(isOn: Boolean) {
-        _flashlight.value = QsState(LABEL_FLASHLIGHT, isOn)
     }
 
     fun setAutoRotate(isOn: Boolean) {
@@ -224,19 +216,15 @@ class QsController(private val hostContext: Context) {
     }
 
     /**
-     * Flip flashlight, auto-rotate, airplane mode, battery saver, night light, and hotspot.
+     * Flip auto-rotate, airplane mode, battery saver, night light, and hotspot.
      *
-     * These six toggles exist to complete the 3x3 Expressive grid. The underlying system writes
-     * (`CameraManager.setTorchMode`, `Settings.System.ACCELEROMETER_ROTATION`,
-     * `ConnectivityManager.setAirplaneMode`, `PowerManager.setPowerSaveModeEnabled`, the color-mode
-     * night-light binder API, and `WifiManager.startTethering`) each require separate permissions
-     * and signature access paths. They land in a follow-up; for now each stub logs and no-ops so the
-     * UI still renders active/inactive tiles without a crash if a user taps one.
+     * These toggles exist to complete the Expressive grid. The underlying system writes
+     * (`Settings.System.ACCELEROMETER_ROTATION`, `ConnectivityManager.setAirplaneMode`,
+     * `PowerManager.setPowerSaveModeEnabled`, the color-mode night-light binder API, and
+     * `WifiManager.startTethering`) each require separate permissions and signature access paths.
+     * They land in a follow-up; for now each stub logs and no-ops so the UI still renders
+     * active/inactive tiles without a crash if a user taps one.
      */
-    fun toggleFlashlight() {
-        Log.i(TAG, "toggleFlashlight: not yet implemented")
-    }
-
     fun toggleAutoRotate() {
         Log.i(TAG, "toggleAutoRotate: not yet implemented")
     }

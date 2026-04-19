@@ -93,9 +93,6 @@ private const val ID = "com.boringdroid.systemui:id/"
 /** First N apps from the alphabetical list act as the "Pinned" row of the M3 Expressive design. */
 private const val PINNED_COUNT = 12
 
-/** Apps shown in the "Recommended" row directly under the pinned grid. */
-private const val RECOMMENDED_COUNT = 6
-
 class AllAppsLayout
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
@@ -213,8 +210,6 @@ private fun StartMenuContent(
             else apps.filter { (it.name ?: "").contains(trimmedQuery, ignoreCase = true) }
         }
     val pinned = remember(apps) { apps.take(PINNED_COUNT) }
-    val recommended =
-        remember(apps) { apps.drop(PINNED_COUNT).take(RECOMMENDED_COUNT) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {
@@ -245,9 +240,6 @@ private fun StartMenuContent(
                 ) {
                     SectionBlock(title = "Pinned", linkText = "All apps") {
                         PinnedGrid(apps = pinned, onAppClick = onAppClick)
-                    }
-                    SectionBlock(title = "Recommended", linkText = "More") {
-                        RecommendedGrid(apps = recommended, onAppClick = onAppClick)
                     }
                 }
             }
@@ -395,19 +387,6 @@ private fun PinnedGrid(apps: List<AppData>, onAppClick: (AppData) -> Unit) {
 }
 
 @Composable
-private fun RecommendedGrid(apps: List<AppData>, onAppClick: (AppData) -> Unit) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxWidth().height(160.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        userScrollEnabled = false,
-    ) {
-        items(items = apps, key = { tileKey(it) }) { app -> RecommendedRow(app, onClick = { onAppClick(app) }) }
-    }
-}
-
-@Composable
 @OptIn(ExperimentalComposeUiApi::class)
 private fun FilteredAppsGrid(apps: List<AppData>, onAppClick: (AppData) -> Unit) {
     LazyVerticalGrid(
@@ -458,54 +437,6 @@ private fun AppTile(appData: AppData, onClick: () -> Unit) {
                     text = AnnotatedString(label)
                 },
         )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalComposeUiApi::class)
-private fun RecommendedRow(appData: AppData, onClick: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    val label = appData.name ?: ""
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .clickable(onClick = onClick)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Box(
-            modifier =
-                Modifier.size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(colors.surfaceContainerHigh),
-            contentAlignment = Alignment.Center,
-        ) {
-            AppIcon(appData.icon, contentDescription = label, sizeDp = 20)
-        }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier =
-                    Modifier.semantics {
-                        testTagsAsResourceId = true
-                        testTag = ID + "app_info_name"
-                        text = AnnotatedString(label)
-                    },
-            )
-            Text(
-                text = "Recently used",
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
     }
 }
 

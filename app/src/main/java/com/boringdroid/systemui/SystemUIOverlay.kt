@@ -21,6 +21,7 @@ import com.boringdroid.systemui.actioncenter.NotificationFeedIpc
 import com.boringdroid.systemui.actioncenter.QsController
 import com.boringdroid.systemui.actioncenter.SbnSummary
 import com.boringdroid.systemui.calendar.CalendarClockWindow
+import com.boringdroid.systemui.overview.OverviewWindow
 import com.boringdroid.systemui.taskbar.BdTaskInfo
 import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
@@ -38,6 +39,7 @@ class SystemUIOverlay : OverlayPlugin {
     private var taskbarState: TaskbarState? = null
     private var actionCenterWindow: ActionCenterWindow? = null
     private var calendarClockWindow: CalendarClockWindow? = null
+    private var overviewWindow: OverviewWindow? = null
     private var qsController: QsController? = null
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
@@ -50,6 +52,7 @@ class SystemUIOverlay : OverlayPlugin {
                 allAppsWindow?.dismiss()
                 actionCenterWindow?.dismiss()
                 calendarClockWindow?.dismiss()
+                overviewWindow?.hide()
             }
         }
 
@@ -132,6 +135,7 @@ class SystemUIOverlay : OverlayPlugin {
         allAppsWindow = AllAppsWindow(pluginContext, sysUIContext)
         actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
         calendarClockWindow = CalendarClockWindow(pluginContext, sysUIContext)
+        overviewWindow = OverviewWindow(pluginContext)
         val state = TaskbarState(pluginContext, sysUIContext).also { it.start() }
         taskbarState = state
         val window = TaskbarWindow(pluginContext, sysUIContext)
@@ -145,13 +149,20 @@ class SystemUIOverlay : OverlayPlugin {
                 },
                 onSearchClick = { allAppsWindow?.onClick(View(pluginContext)) },
                 onBellClick = {
-                    // Calendar & Action Center are mutually exclusive surfaces.
+                    // Calendar, Overview, and Action Center are mutually exclusive surfaces.
                     calendarClockWindow?.dismiss()
+                    overviewWindow?.hide()
                     actionCenterWindow?.toggle()
                 },
                 onClockClick = {
                     actionCenterWindow?.dismiss()
+                    overviewWindow?.hide()
                     calendarClockWindow?.toggle()
+                },
+                onOverviewClick = {
+                    actionCenterWindow?.dismiss()
+                    calendarClockWindow?.dismiss()
+                    overviewWindow?.toggle()
                 },
                 onTaskClick = { task: BdTaskInfo -> state.bringTaskToFront(task.id) },
             )
@@ -209,6 +220,8 @@ class SystemUIOverlay : OverlayPlugin {
         actionCenterWindow = null
         calendarClockWindow?.dismiss()
         calendarClockWindow = null
+        overviewWindow?.hide()
+        overviewWindow = null
         pluginContext = null
     }
 
