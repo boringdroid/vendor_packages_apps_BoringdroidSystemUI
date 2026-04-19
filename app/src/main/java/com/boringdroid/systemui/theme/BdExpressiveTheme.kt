@@ -13,12 +13,10 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.boringdroid.systemui.R
 
 /**
  * Material 3 Expressive design system for BoringdroidSystemUI.
@@ -111,7 +109,13 @@ object BdExpressiveTheme {
             surfaceContainerHighest = Color(0xFF36343B),
         )
 
-    val GoogleSansFlex: FontFamily = FontFamily(Font(R.font.google_sans_flex))
+    // Compose's FontFamilyResolver runs inside the SystemUI host process using the
+    // plugin's Resources; bundling a variable TTF (R.font.google_sans_flex) in the
+    // plugin APK crashes SystemUI with `IllegalStateException: Could not load font`
+    // on the first Text measure. Fall back to the platform default family until the
+    // plugin-context font pipeline is properly wired up — the M3 color/shape/motion
+    // tokens still land, only the typeface differs from the design bundle.
+    val GoogleSansFlex: FontFamily = FontFamily.Default
 
     val Typography: Typography =
         Typography(

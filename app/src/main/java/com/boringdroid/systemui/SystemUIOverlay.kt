@@ -12,13 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
 import com.android.systemui.plugins.OverlayPlugin
 import com.android.systemui.plugins.annotations.Requires
 import com.boringdroid.systemui.actioncenter.ActionCenterWindow
@@ -26,6 +20,9 @@ import com.boringdroid.systemui.actioncenter.NotificationFeed
 import com.boringdroid.systemui.actioncenter.NotificationFeedIpc
 import com.boringdroid.systemui.actioncenter.QsController
 import com.boringdroid.systemui.actioncenter.SbnSummary
+import com.boringdroid.systemui.taskbar.BdTaskInfo
+import com.boringdroid.systemui.taskbar.TaskbarCallbacks
+import com.boringdroid.systemui.taskbar.TaskbarState
 import java.lang.reflect.InvocationTargetException
 import java.util.Arrays
 import java.util.stream.Collectors
@@ -35,14 +32,9 @@ import kotlin.collections.ArrayList
 class SystemUIOverlay : OverlayPlugin {
     private var pluginContext: Context? = null
     private var systemUIContext: Context? = null
-    private var btAllAppsGroup: ViewGroup? = null
-    private var clockAndStatus: ViewGroup? = null
-    private var appStateLayout: AppStateLayout? = null
-    private var btAllApps: View? = null
     private var allAppsWindow: AllAppsWindow? = null
     private var taskbarWindow: TaskbarWindow? = null
-    private var actionCenterBellGroup: ViewGroup? = null
-    private var actionCenterBell: View? = null
+    private var taskbarState: TaskbarState? = null
     private var actionCenterWindow: ActionCenterWindow? = null
     private var qsController: QsController? = null
     private var resolver: ContentResolver? = null
@@ -52,9 +44,7 @@ class SystemUIOverlay : OverlayPlugin {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 Log.d(TAG, "receive intent $intent")
-                if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) {
-                    return
-                }
+                if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) return
                 allAppsWindow?.dismiss()
                 actionCenterWindow?.dismiss()
             }
@@ -78,26 +68,29 @@ class SystemUIOverlay : OverlayPlugin {
                     NotificationFeedIpc.ACTION_FEED_RESET,
                     NotificationFeedIpc.ACTION_FEED_CLEAR -> NotificationFeed.clear()
                     NotificationFeedIpc.ACTION_NOTIFICATION_POSTED -> {
-                        val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY)
-                            ?: return
-                        val pkg = intent.getStringExtra(NotificationFeedIpc.EXTRA_PACKAGE_NAME)
-                            ?: return
+                        val key =
+                            intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
+                        val pkg =
+                            intent.getStringExtra(NotificationFeedIpc.EXTRA_PACKAGE_NAME)
+                                ?: return
                         NotificationFeed.upsert(
                             SbnSummary(
                                 key = key,
                                 packageName = pkg,
                                 title = intent.getStringExtra(NotificationFeedIpc.EXTRA_TITLE),
                                 body = intent.getStringExtra(NotificationFeedIpc.EXTRA_BODY),
-                                postTime = intent.getLongExtra(
-                                    NotificationFeedIpc.EXTRA_POST_TIME,
-                                    0L,
-                                ),
+                                postTime =
+                                    intent.getLongExtra(
+                                        NotificationFeedIpc.EXTRA_POST_TIME,
+                                        0L,
+                                    ),
                                 smallIcon = null,
                                 contentIntent = null,
-                                isOngoing = intent.getBooleanExtra(
-                                    NotificationFeedIpc.EXTRA_IS_ONGOING,
-                                    false,
-                                ),
+                                isOngoing =
+                                    intent.getBooleanExtra(
+                                        NotificationFeedIpc.EXTRA_IS_ONGOING,
+                                        false,
+                                    ),
                             )
                         )
                         if (Log.isLoggable(BRIDGE_TAG, Log.VERBOSE)) {
@@ -113,8 +106,8 @@ class SystemUIOverlay : OverlayPlugin {
                         }
                     }
                     NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED -> {
-                        val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY)
-                            ?: return
+                        val key =
+                            intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
                         NotificationFeed.remove(key)
                     }
                 }
@@ -122,69 +115,14 @@ class SystemUIOverlay : OverlayPlugin {
         }
 
     override fun setup(statusBar: View, navBar: View?) {
-        // navBar is unused — the plugin renders into its own TaskbarWindow,
-        // not the stock NavigationBarView. See TaskbarWindow.kt.
+        // navBar is unused — the plugin renders into its own TaskbarWindow, not the
+        // stock NavigationBarView. See TaskbarWindow.kt.
         Log.d(TAG, "setup status bar $statusBar, nav bar $navBar")
-        val root =
-            taskbarWindow?.getRoot() ?: run {
-                Log.w(TAG, "setup called before taskbar window was shown; skipping")
-                return
-            }
-        // Detach any existing children so setup() is idempotent across SystemUI restarts.
-        (btAllAppsGroup?.parent as? ViewGroup)?.removeView(btAllAppsGroup)
-        (appStateLayout?.parent as? ViewGroup)?.removeView(appStateLayout)
-        (clockAndStatus?.parent as? ViewGroup)?.removeView(clockAndStatus)
-        (actionCenterBellGroup?.parent as? ViewGroup)?.removeView(actionCenterBellGroup)
-        root.removeAllViews()
-
-        btAllAppsGroup!!.tag = TAG_ALL_APPS_GROUP
-        root.addView(
-            btAllAppsGroup,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-            ),
-        )
-
-        appStateLayout!!.tag = TAG_APP_STATE_LAYOUT
-        // App-state takes the middle with weight=1 so the clock is pushed to the end,
-        // mirroring the original FrameLayout END-gravity placement.
-        root.addView(
-            appStateLayout,
-            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f),
-        )
-        appStateLayout!!.initTasks()
-
-        clockAndStatus!!.tag = TAG_CLOCK_AND_STATUS_GROUP
-        root.addView(
-            clockAndStatus,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-            ),
-        )
-
-        actionCenterBellGroup!!.tag = TAG_ACTION_CENTER_BELL_GROUP
-        root.addView(
-            actionCenterBellGroup,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-            ),
-        )
-
-        val clockTextView = clockAndStatus!!.findViewById<TextView>(R.id.clock)
-        val batteryBar = clockAndStatus!!.findViewById<ProgressBar>(R.id.progressBar)
-        val wifiBar = clockAndStatus!!.findViewById<ImageView>(R.id.progressBarWifi)
-        val batteryText = clockAndStatus!!.findViewById<TextView>(R.id.textViewBatteryPercent)
-        this.pluginContext
-            ?.let { ClockAndStatus(clockTextView, batteryBar, batteryText, wifiBar, it) }
-            ?.startUpdatingTimeAndStatus()
+        // The taskbar state + window were created and shown in onCreate. Nothing
+        // extra to assemble here.
     }
 
-    override fun holdStatusBarOpen(): Boolean {
-        return false
-    }
+    override fun holdStatusBarOpen(): Boolean = false
 
     override fun setCollapseDesired(collapseDesired: Boolean) {
         // Do nothing
@@ -193,37 +131,47 @@ class SystemUIOverlay : OverlayPlugin {
     override fun onCreate(sysUIContext: Context, pluginContext: Context) {
         systemUIContext = sysUIContext
         this.pluginContext = pluginContext
-        btAllAppsGroup = initializeAllAppsButton(this.pluginContext, btAllAppsGroup)
-        clockAndStatus = initializeClockAndStatus(this.pluginContext, clockAndStatus)
-        appStateLayout = initializeAppStateLayout(this.pluginContext, appStateLayout)
-        appStateLayout!!.reloadActivityManager(systemUIContext)
-        btAllApps = btAllAppsGroup!!.findViewById(R.id.bt_all_apps)
-        allAppsWindow = AllAppsWindow(this.pluginContext, sysUIContext)
-        btAllApps!!.setOnClickListener(allAppsWindow)
-        actionCenterBellGroup =
-            initializeActionCenterBell(this.pluginContext, actionCenterBellGroup)
-        actionCenterBell = actionCenterBellGroup!!.findViewById(R.id.action_center_bell)
+        allAppsWindow = AllAppsWindow(pluginContext, sysUIContext)
         actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
-        actionCenterBell!!.setOnClickListener { actionCenterWindow?.toggle() }
-        taskbarWindow = TaskbarWindow(pluginContext, sysUIContext).also { it.show() }
+        val state = TaskbarState(pluginContext, sysUIContext).also { it.start() }
+        taskbarState = state
+        val window = TaskbarWindow(pluginContext, sysUIContext)
+        window.callbacks =
+            TaskbarCallbacks(
+                onStartClick = {
+                    // AllAppsWindow was designed as a click toggle against the original
+                    // View-based "bt_all_apps" button; toggling dismissal works the same
+                    // here — we just fire an onClick against a dummy View to reuse it.
+                    allAppsWindow?.onClick(View(pluginContext))
+                },
+                onSearchClick = { allAppsWindow?.onClick(View(pluginContext)) },
+                onBellClick = { actionCenterWindow?.toggle() },
+                onClockClick = {
+                    // Calendar panel lands in M5.5 — for now the click is a no-op
+                    // placeholder that keeps the clock area focusable/testable.
+                },
+                onTaskClick = { task: BdTaskInfo -> state.bringTaskToFront(task.id) },
+            )
+        window.show(state)
+        taskbarWindow = window
         resolver = sysUIContext.contentResolver
         initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)
-        val filter = IntentFilter()
-        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+        val filter = IntentFilter().apply { addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) }
         // Android 14 (API 34) requires an explicit export flag for receivers registered
-        // for non-protected broadcasts. ACTION_CLOSE_SYSTEM_DIALOGS is only delivered to
-        // this plugin from the host SystemUI process, so NOT_EXPORTED is correct.
+        // for non-protected broadcasts. ACTION_CLOSE_SYSTEM_DIALOGS is only delivered
+        // to this plugin from the host SystemUI process, so NOT_EXPORTED is correct.
         systemUIContext!!.registerReceiver(
             closeSystemDialogsReceiver,
             filter,
             Context.RECEIVER_NOT_EXPORTED,
         )
-        val feedFilter = IntentFilter().apply {
-            addAction(NotificationFeedIpc.ACTION_FEED_RESET)
-            addAction(NotificationFeedIpc.ACTION_FEED_CLEAR)
-            addAction(NotificationFeedIpc.ACTION_NOTIFICATION_POSTED)
-            addAction(NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED)
-        }
+        val feedFilter =
+            IntentFilter().apply {
+                addAction(NotificationFeedIpc.ACTION_FEED_RESET)
+                addAction(NotificationFeedIpc.ACTION_FEED_CLEAR)
+                addAction(NotificationFeedIpc.ACTION_NOTIFICATION_POSTED)
+                addAction(NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED)
+            }
         // Sender (mirror) runs in a different UID, so the receiver must be exported.
         // Adding a signature-level custom permission to gate it is future hardening.
         systemUIContext!!.registerReceiver(
@@ -247,18 +195,13 @@ class SystemUIOverlay : OverlayPlugin {
                 Log.e(TAG, "Try to unregister notification feed receiver without registering")
             }
         }
-        if (resolver != null) {
-            resolver!!.unregisterContentObserver(tunerKeyObserver)
-        }
-        btAllAppsGroup!!.post {
-            btAllAppsGroup!!.setOnClickListener(null)
-            btAllApps!!.setOnClickListener(null)
-            actionCenterBell?.setOnClickListener(null)
-        }
+        resolver?.unregisterContentObserver(tunerKeyObserver)
         qsController?.stop()
         qsController = null
         taskbarWindow?.hide()
         taskbarWindow = null
+        taskbarState?.stop()
+        taskbarState = null
         actionCenterWindow = null
         pluginContext = null
     }
@@ -272,7 +215,8 @@ class SystemUIOverlay : OverlayPlugin {
             val systemPropertiesClass = Class.forName("android.os.SystemProperties")
             val getMethod =
                 systemPropertiesClass.getMethod("get", String::class.java, String::class.java)
-            val tunerKeys = getMethod.invoke(null, "persist.sys.bd.tunerkeys", "") as String
+            val tunerKeys =
+                getMethod.invoke(null, "persist.sys.bd.tunerkeys", "") as String
             Log.d(TAG, "Got tuner keys $tunerKeys")
             val tunerKeyList =
                 Arrays.stream(tunerKeys.split("--").toTypedArray())
@@ -295,41 +239,6 @@ class SystemUIOverlay : OverlayPlugin {
         } catch (e: InvocationTargetException) {
             Log.e(TAG, "Failed to get tuner keys from properties, so fallback to default")
         }
-    }
-
-    @SuppressLint("InflateParams")
-    private fun initializeAllAppsButton(context: Context?, btAllAppsGroup: ViewGroup?): ViewGroup {
-        return btAllAppsGroup
-            ?: LayoutInflater.from(context).inflate(R.layout.layout_bt_all_apps, null) as ViewGroup
-    }
-
-    @SuppressLint("InflateParams")
-    private fun initializeActionCenterBell(
-        context: Context?,
-        actionCenterBellGroup: ViewGroup?,
-    ): ViewGroup {
-        return actionCenterBellGroup
-            ?: LayoutInflater.from(context)
-                .inflate(R.layout.layout_action_center_bell, null) as ViewGroup
-    }
-
-    @SuppressLint("InflateParams")
-    private fun initializeClockAndStatus(context: Context?, clockAndStatus: ViewGroup?): ViewGroup {
-        return clockAndStatus
-            ?: LayoutInflater.from(context).inflate(R.layout.layout_clock_and_status, null)
-                as ViewGroup
-    }
-
-    private fun initializeAppStateLayout(
-        context: Context?,
-        appStateLayout: AppStateLayout?,
-    ): AppStateLayout {
-        // Inflating layout_app_state.xml via the host (SystemUI) LayoutInflater causes
-        // a ClassCastException: the XML names <com.boringdroid.systemui.AppStateLayout>,
-        // which the inflater resolves through SystemUI's classloader — yielding a different
-        // Class object than the one the plugin's classloader holds for the same FQCN.
-        // Instantiate directly through the plugin classloader so both references agree.
-        return appStateLayout ?: AppStateLayout(context!!)
     }
 
     private fun onTunerChange(uri: Uri) {
@@ -356,9 +265,5 @@ class SystemUIOverlay : OverlayPlugin {
 
         // Copied from systemui source code, please keep it update to source code.
         private const val ACTION_PLUGIN_CHANGED = "com.android.systemui.action.PLUGIN_CHANGED"
-        private const val TAG_ALL_APPS_GROUP = "tag-bt-all-apps-group"
-        private const val TAG_CLOCK_AND_STATUS_GROUP = "tag-clock-and-status-group"
-        private const val TAG_APP_STATE_LAYOUT = "tag-app-state-layout"
-        private const val TAG_ACTION_CENTER_BELL_GROUP = "tag-action-center-bell-group"
     }
 }

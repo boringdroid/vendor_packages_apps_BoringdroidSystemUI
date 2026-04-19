@@ -1,17 +1,44 @@
 package com.boringdroid.systemui
 
+import android.content.ComponentCallbacks
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.PixelFormat
 import android.os.Binder
 import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.ViewGroup
+import android.view.View
 import android.view.WindowManager
+import android.widget.FrameLayout
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.boringdroid.systemui.taskbar.Taskbar
+import com.boringdroid.systemui.taskbar.TaskbarCallbacks
+import com.boringdroid.systemui.taskbar.TaskbarState
 
 /**
- * Owns a boringdroid-managed window pinned to the bottom of the display. Replaces the previous
- * approach of injecting views into SystemUI's NavigationBarView — the plugin no longer depends
- * on a NavigationBar existing at all.
+ * Owns a boringdroid-managed window pinned to the bottom of the display that
+ * hosts the Compose [Taskbar]. The window replaces the NavigationBar on
+ * boringdroid builds; SystemUI's native NavigationBarView is suppressed via
+ * the RRO shipped alongside this plugin.
+ *
+ * The ComposeView needs a `LifecycleOwner` + `SavedStateRegistryOwner` on the
+ * view tree — attached here because the plugin's `WindowManager.addView`
+ * target has no hosting Activity. The same pattern is used in
+ * [AllAppsWindow] and [com.boringdroid.systemui.actioncenter.ActionCenterWindow].
+ *
+ * The plugin context carries resources/classloader/theme, but Compose's
+ * `WindowRecomposer` and `AndroidCompositionLocals` reach for
+ * `applicationContext.getContentResolver` / `registerComponentCallbacks`
+ * surfaces the plugin ContextWrapper chain doesn't satisfy — a delegating
+ * wrapper routes just those calls to the host SystemUI application.
  */
 class TaskbarWindow(
     private val pluginContext: Context,
@@ -19,16 +46,34 @@ class TaskbarWindow(
 ) {
     private val windowManager =
         hostContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private var root: ViewGroup? = null
+    private var root: FrameLayout? = null
+    private val pluginLifecycle = PluginLifecycleOwner()
 
-    fun show() {
+    var callbacks: TaskbarCallbacks? = null
+
+    fun show(state: TaskbarState) {
         if (root != null) return
-        val inflater = LayoutInflater.from(pluginContext)
-        val view = inflater.inflate(R.layout.layout_taskbar, null) as ViewGroup
+        val ctx: Context = buildComposeContext()
+        val frame = FrameLayout(ctx)
+        val compose = ComposeView(ctx)
+        compose.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+        compose.setContent {
+            val active = callbacks ?: return@setContent
+            Taskbar(state = state, callbacks = active)
+        }
+        frame.addView(
+            compose,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            ),
+        )
+        pluginLifecycle.moveToResumed()
+        frame.setViewTreeLifecycleOwner(pluginLifecycle)
+        frame.setViewTreeSavedStateRegistryOwner(pluginLifecycle)
+
         val heightPx =
             pluginContext.resources.getDimensionPixelSize(R.dimen.taskbar_window_height)
-        // TYPE_NAVIGATION_BAR_PANEL lets multiple instances coexist; TYPE_NAVIGATION_BAR
-        // collides with the stock NavigationBar0 until the RRO suppresses it (Task 4+).
         val lp =
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -42,14 +87,71 @@ class TaskbarWindow(
         lp.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         lp.token = Binder()
         lp.title = "BoringdroidTaskbar"
-        windowManager.addView(view, lp)
-        root = view
+        windowManager.addView(frame, lp)
+        root = frame
     }
 
     fun hide() {
-        root?.let { windowManager.removeViewImmediate(it) }
+        root?.let { view ->
+            try {
+                windowManager.removeViewImmediate(view)
+            } catch (e: IllegalArgumentException) {
+                // View was never attached or already detached — nothing to do.
+            }
+        }
+        pluginLifecycle.moveToDestroyed()
         root = null
     }
 
-    fun getRoot(): ViewGroup? = root
+    /**
+     * Back-compat: some callers still want to query the root view (e.g. for
+     * test-driven attachment assertions). Returns the frame hosting the
+     * [ComposeView], or null while the window is hidden.
+     */
+    fun getRoot(): View? = root
+
+    private fun buildComposeContext(): Context {
+        val hostApp = hostContext.applicationContext ?: hostContext
+        return object : ContextWrapper(pluginContext) {
+            override fun getApplicationContext(): Context = hostApp
+
+            override fun registerComponentCallbacks(cb: ComponentCallbacks) {
+                hostApp.registerComponentCallbacks(cb)
+            }
+
+            override fun unregisterComponentCallbacks(cb: ComponentCallbacks) {
+                hostApp.unregisterComponentCallbacks(cb)
+            }
+        }
+    }
+
+    /**
+     * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's
+     * WindowManager-attached taskbar. Compose needs both on the view tree;
+     * no Activity exists to provide them so we hand-drive the lifecycle to
+     * RESUMED on show and DESTROYED on hide.
+     */
+    private class PluginLifecycleOwner : LifecycleOwner, SavedStateRegistryOwner {
+        private val registry = LifecycleRegistry(this)
+        private val savedState = SavedStateRegistryController.create(this)
+
+        override val lifecycle: Lifecycle
+            get() = registry
+
+        override val savedStateRegistry: SavedStateRegistry
+            get() = savedState.savedStateRegistry
+
+        fun moveToResumed() {
+            if (registry.currentState == Lifecycle.State.INITIALIZED) {
+                savedState.performRestore(null)
+            }
+            registry.currentState = Lifecycle.State.RESUMED
+        }
+
+        fun moveToDestroyed() {
+            if (registry.currentState != Lifecycle.State.DESTROYED) {
+                registry.currentState = Lifecycle.State.DESTROYED
+            }
+        }
+    }
 }

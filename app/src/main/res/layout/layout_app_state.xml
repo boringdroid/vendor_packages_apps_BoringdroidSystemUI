@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.boringdroid.systemui.AppStateLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
-    android:layout_height="match_parent"
-    android:orientation="horizontal">
-
-</com.boringdroid.systemui.AppStateLayout>
