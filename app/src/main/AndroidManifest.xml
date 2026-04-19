@@ -52,6 +52,19 @@
                 <action android:name="android.intent.action.QUICKSTEP_SERVICE" />
             </intent-filter>
         </service>
+
+        <!-- Mirrors every active StatusBarNotification into NotificationFeed so the
+             action center window can render them. Bound by system_server when the
+             user (or `cmd notification allow_listener ...` on userdebug) grants
+             notification-listener access. -->
+        <service
+            android:name="com.boringdroid.systemui.actioncenter.BoringdroidNotificationMirror"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

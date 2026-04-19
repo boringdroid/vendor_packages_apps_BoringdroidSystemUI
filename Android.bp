@@ -54,6 +54,10 @@ android_app {
         "androidx.lifecycle_lifecycle-runtime-ktx",
         "androidx.savedstate_savedstate",
         "androidx.recyclerview_recyclerview",
+        // NotificationFeed exposes a kotlinx.coroutines.flow.StateFlow so the
+        // action center UI can observe NotificationListenerService callbacks
+        // without a binder hop.
+        "kotlinx_coroutines_android",
     ],
 
     // Required to access platform APIs used via SystemUISharedLib
