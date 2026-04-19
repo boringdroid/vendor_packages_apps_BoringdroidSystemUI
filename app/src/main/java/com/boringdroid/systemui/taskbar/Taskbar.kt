@@ -188,11 +188,6 @@ private fun StartCluster(onStartClick: () -> Unit, onSearchClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant,
             )
-            Text(
-                text = "Super",
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurfaceVariant,
-            )
         }
     }
 }
