@@ -63,9 +63,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     }
 
     private fun removeTask(taskId: Int) {
+        val before = tasks.size
         tasks.removeIf { taskInfo: TaskInfo -> taskInfo.id == taskId }
         taskAdapter!!.setData(tasks)
         taskAdapter.notifyDataSetChanged()
+        logTaskMutation("remove", taskId, before)
     }
 
     private fun getRunningTaskInfoPackageName(runningTaskInfo: RunningTaskInfo): String? {
@@ -120,6 +122,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             Log.e(TAG, "$packageName's icon is null, context $context")
         }
         taskInfo.icon = icon
+        val before = tasks.size
         val index = tasks.indexOf(taskInfo)
         tasks.remove(taskInfo)
         tasks.add(if (index >= 0) index else tasks.size, taskInfo)
@@ -127,10 +130,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         taskAdapter.setTopTaskId(taskInfo.id)
         Log.d(TAG, "Top task $taskInfo")
         taskAdapter.notifyDataSetChanged()
+        logTaskMutation(if (index >= 0) "reorder" else "add", taskInfo.id, before)
+    }
+
+    private fun logTaskMutation(action: String, taskId: Int, before: Int) {
+        // Off by default; enable at runtime with:
+        //   adb shell setprop log.tag.AppStateLayoutObs VERBOSE
+        // Lets operators correlate taskbar-state with a flake without rebuilding.
+        if (!Log.isLoggable(OBS_TAG, Log.VERBOSE)) return
+        val ids = tasks.map { it.id }
+        Log.v(OBS_TAG, "mutation action=$action taskId=$taskId before=$before after=${tasks.size} ids=$ids")
     }
 
     companion object {
         private const val TAG = "AppStateLayout"
+        private const val OBS_TAG = "AppStateLayoutObs"
         private val AM_WRAPPER = ActivityManagerWrapper.getInstance()
         private val TC_WRAPPER = TaskStackChangeListeners.getInstance()
         private const val MAX_RUNNING_TASKS = 50
