@@ -31,6 +31,10 @@
          ActivityManagerWrapper.startActivityFromRecents, which enforces
          START_TASKS_FROM_RECENTS (signature|privileged|recents). -->
     <uses-permission android:name="android.permission.START_TASKS_FROM_RECENTS" />
+    <!-- The Calendar & Clock panel queries CalendarContract.Instances to render
+         the "Today's agenda" list. The plugin runs in the SystemUI process
+         (uid=1000), which holds READ_CALENDAR by signature on userdebug. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <application tools:ignore="AllowBackup,MissingApplicationIcon">
         <service

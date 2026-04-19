@@ -5,4 +5,5 @@
     <item name="qs_bluetooth" type="id" />
     <item name="qs_dnd" type="id" />
     <item name="all_apps_layout" type="id" />
+    <item name="calendar_clock_root" type="id" />
 </resources>

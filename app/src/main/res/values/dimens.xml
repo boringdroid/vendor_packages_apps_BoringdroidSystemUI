@@ -27,4 +27,9 @@
     <dimen name="qs_tile_padding">8dp</dimen>
     <dimen name="qs_tile_text_size">12sp</dimen>
     <dimen name="qs_row_padding">12dp</dimen>
+    <dimen name="calendar_clock_window_width">360dp</dimen>
+    <dimen name="calendar_clock_window_height">540dp</dimen>
+    <dimen name="calendar_clock_window_margin_end">10dp</dimen>
+    <dimen name="calendar_clock_window_margin_bottom">80dp</dimen>
+    <dimen name="calendar_clock_corner_radius">12dp</dimen>
 </resources>

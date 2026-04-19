@@ -20,6 +20,7 @@ import com.boringdroid.systemui.actioncenter.NotificationFeed
 import com.boringdroid.systemui.actioncenter.NotificationFeedIpc
 import com.boringdroid.systemui.actioncenter.QsController
 import com.boringdroid.systemui.actioncenter.SbnSummary
+import com.boringdroid.systemui.calendar.CalendarClockWindow
 import com.boringdroid.systemui.taskbar.BdTaskInfo
 import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
@@ -36,6 +37,7 @@ class SystemUIOverlay : OverlayPlugin {
     private var taskbarWindow: TaskbarWindow? = null
     private var taskbarState: TaskbarState? = null
     private var actionCenterWindow: ActionCenterWindow? = null
+    private var calendarClockWindow: CalendarClockWindow? = null
     private var qsController: QsController? = null
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
@@ -47,6 +49,7 @@ class SystemUIOverlay : OverlayPlugin {
                 if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS != intent.action) return
                 allAppsWindow?.dismiss()
                 actionCenterWindow?.dismiss()
+                calendarClockWindow?.dismiss()
             }
         }
 
@@ -128,6 +131,7 @@ class SystemUIOverlay : OverlayPlugin {
         this.pluginContext = pluginContext
         allAppsWindow = AllAppsWindow(pluginContext, sysUIContext)
         actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
+        calendarClockWindow = CalendarClockWindow(pluginContext, sysUIContext)
         val state = TaskbarState(pluginContext, sysUIContext).also { it.start() }
         taskbarState = state
         val window = TaskbarWindow(pluginContext, sysUIContext)
@@ -140,10 +144,14 @@ class SystemUIOverlay : OverlayPlugin {
                     allAppsWindow?.onClick(View(pluginContext))
                 },
                 onSearchClick = { allAppsWindow?.onClick(View(pluginContext)) },
-                onBellClick = { actionCenterWindow?.toggle() },
+                onBellClick = {
+                    // Calendar & Action Center are mutually exclusive surfaces.
+                    calendarClockWindow?.dismiss()
+                    actionCenterWindow?.toggle()
+                },
                 onClockClick = {
-                    // Calendar panel lands in M5.5 — for now the click is a no-op
-                    // placeholder that keeps the clock area focusable/testable.
+                    actionCenterWindow?.dismiss()
+                    calendarClockWindow?.toggle()
                 },
                 onTaskClick = { task: BdTaskInfo -> state.bringTaskToFront(task.id) },
             )
@@ -199,6 +207,8 @@ class SystemUIOverlay : OverlayPlugin {
         taskbarState?.stop()
         taskbarState = null
         actionCenterWindow = null
+        calendarClockWindow?.dismiss()
+        calendarClockWindow = null
         pluginContext = null
     }
 
