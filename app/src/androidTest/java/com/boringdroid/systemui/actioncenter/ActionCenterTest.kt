@@ -273,6 +273,40 @@ class ActionCenterTest {
     }
 
     /**
+     * The "Clear all" button clears the UI feed and broadcasts
+     * [NotificationFeedIpc.ACTION_CLEAR_ALL]. The plugin-side receiver listens to the same action
+     * and calls [NotificationFeed.clear], mirroring the listener-disconnect reset path.
+     *
+     * Verified via close-reopen polling because the LazyColumn recomposes on the empty flow
+     * promptly, but UiAutomator's accessibility cache keeps the detached rows addressable for
+     * several seconds after the feed empties.
+     */
+    @Test
+    fun clearAllButton_emptiesNotificationList() {
+        device.executeShellCommand(
+            "cmd notification post -S bigtext -t bdClearAllTitle bdClearAllTag body"
+        )
+        device
+            .wait(Until.findObject(By.res(PLUGIN_PKG, "action_center_bell")), FIND_TIMEOUT_MS)
+            .click()
+        device.wait(Until.findObject(By.res(PLUGIN_PKG, "action_center_root")), FIND_TIMEOUT_MS)
+        val seeded = pollForMatchingTitles("bdClearAllTitle", expectedSize = 1)
+        assertThat(seeded).hasSize(1)
+
+        val clearButton =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "clear_all_button")),
+                FIND_TIMEOUT_MS,
+            )
+        assertThat(clearButton).isNotNull()
+        clearButton.click()
+
+        val afterClear =
+            pollForMatchingTitles("bdClearAllTitle", expectedSize = 0, timeoutMs = 5_000L)
+        assertThat(afterClear).isEmpty()
+    }
+
+    /**
      * Cross-surface coherence: when the notification shade loses its view on a notification (the
      * listener service disconnects), the action center must follow. Re-binding the listener
      * re-seeds active notifications and the action center repopulates.

@@ -25,6 +25,14 @@ object NotificationFeedIpc {
     const val ACTION_NOTIFICATION_REMOVED = "com.boringdroid.systemui.action.NOTIFICATION_REMOVED"
     const val ACTION_FEED_CLEAR = "com.boringdroid.systemui.action.NOTIFICATION_FEED_CLEAR"
 
+    /**
+     * Fired by the action-center "Clear all" button (plugin → listener). The plugin-side receiver
+     * clears the local [NotificationFeed]; the mirror side can listen to drop any per-process caches
+     * and, in a future revision, cancel the underlying notifications via
+     * [android.service.notification.NotificationListenerService.cancelAllNotifications].
+     */
+    const val ACTION_CLEAR_ALL = "com.boringdroid.systemui.action.CLEAR_ALL"
+
     const val EXTRA_KEY = "com.boringdroid.systemui.extra.KEY"
     const val EXTRA_PACKAGE_NAME = "com.boringdroid.systemui.extra.PACKAGE_NAME"
     const val EXTRA_TITLE = "com.boringdroid.systemui.extra.TITLE"

@@ -44,6 +44,12 @@ object QsTileStore {
     const val LABEL_WIFI = "wifi"
     const val LABEL_BLUETOOTH = "bluetooth"
     const val LABEL_DND = "dnd"
+    const val LABEL_FLASHLIGHT = "flashlight"
+    const val LABEL_AUTO_ROTATE = "auto-rotate"
+    const val LABEL_AIRPLANE = "airplane mode"
+    const val LABEL_BATTERY_SAVER = "battery saver"
+    const val LABEL_NIGHT_LIGHT = "night light"
+    const val LABEL_HOTSPOT = "hotspot"
 
     private val _wifi = MutableStateFlow(QsState(LABEL_WIFI, false))
     val wifi: StateFlow<QsState> = _wifi.asStateFlow()
@@ -53,6 +59,27 @@ object QsTileStore {
 
     private val _dnd = MutableStateFlow(QsState(LABEL_DND, false))
     val dnd: StateFlow<QsState> = _dnd.asStateFlow()
+
+    // The next six tiles fill out the 3x3 Expressive grid. Their radio-level bindings are
+    // staged post-M5.4 (toggles in [QsController] are placeholders that log and no-op).
+    // Seeding them as "off" keeps the grid visually consistent until the controller lands.
+    private val _flashlight = MutableStateFlow(QsState(LABEL_FLASHLIGHT, false))
+    val flashlight: StateFlow<QsState> = _flashlight.asStateFlow()
+
+    private val _autoRotate = MutableStateFlow(QsState(LABEL_AUTO_ROTATE, false))
+    val autoRotate: StateFlow<QsState> = _autoRotate.asStateFlow()
+
+    private val _airplane = MutableStateFlow(QsState(LABEL_AIRPLANE, false))
+    val airplane: StateFlow<QsState> = _airplane.asStateFlow()
+
+    private val _batterySaver = MutableStateFlow(QsState(LABEL_BATTERY_SAVER, false))
+    val batterySaver: StateFlow<QsState> = _batterySaver.asStateFlow()
+
+    private val _nightLight = MutableStateFlow(QsState(LABEL_NIGHT_LIGHT, false))
+    val nightLight: StateFlow<QsState> = _nightLight.asStateFlow()
+
+    private val _hotspot = MutableStateFlow(QsState(LABEL_HOTSPOT, false))
+    val hotspot: StateFlow<QsState> = _hotspot.asStateFlow()
 
     fun setWifi(isOn: Boolean) {
         _wifi.value = QsState(LABEL_WIFI, isOn)
@@ -65,7 +92,40 @@ object QsTileStore {
     fun setDnd(isOn: Boolean) {
         _dnd.value = QsState(LABEL_DND, isOn)
     }
+
+    fun setFlashlight(isOn: Boolean) {
+        _flashlight.value = QsState(LABEL_FLASHLIGHT, isOn)
+    }
+
+    fun setAutoRotate(isOn: Boolean) {
+        _autoRotate.value = QsState(LABEL_AUTO_ROTATE, isOn)
+    }
+
+    fun setAirplane(isOn: Boolean) {
+        _airplane.value = QsState(LABEL_AIRPLANE, isOn)
+    }
+
+    fun setBatterySaver(isOn: Boolean) {
+        _batterySaver.value = QsState(LABEL_BATTERY_SAVER, isOn)
+    }
+
+    fun setNightLight(isOn: Boolean) {
+        _nightLight.value = QsState(LABEL_NIGHT_LIGHT, isOn)
+    }
+
+    fun setHotspot(isOn: Boolean) {
+        _hotspot.value = QsState(LABEL_HOTSPOT, isOn)
+    }
 }
+
+/**
+ * Now-playing snapshot surfaced by [QsController.mediaSession] to the action-center media card.
+ *
+ * Independent from Android's [android.media.session.MediaSession] because the card is
+ * presentation-only — the mirror-side wiring that listens to the active `MediaController` and fills
+ * this in lands in a follow-up. For M5.4 the flow emits `null` so the card renders nothing.
+ */
+data class MediaInfo(val title: String, val artist: String?, val isPlaying: Boolean)
 
 /**
  * Binds [QsTileStore] to the relevant system broadcasts and seeds initial state. Instantiated with
@@ -164,6 +224,40 @@ class QsController(private val hostContext: Context) {
     }
 
     /**
+     * Flip flashlight, auto-rotate, airplane mode, battery saver, night light, and hotspot.
+     *
+     * These six toggles exist to complete the 3x3 Expressive grid. The underlying system writes
+     * (`CameraManager.setTorchMode`, `Settings.System.ACCELEROMETER_ROTATION`,
+     * `ConnectivityManager.setAirplaneMode`, `PowerManager.setPowerSaveModeEnabled`, the color-mode
+     * night-light binder API, and `WifiManager.startTethering`) each require separate permissions
+     * and signature access paths. They land in a follow-up; for now each stub logs and no-ops so the
+     * UI still renders active/inactive tiles without a crash if a user taps one.
+     */
+    fun toggleFlashlight() {
+        Log.i(TAG, "toggleFlashlight: not yet implemented")
+    }
+
+    fun toggleAutoRotate() {
+        Log.i(TAG, "toggleAutoRotate: not yet implemented")
+    }
+
+    fun toggleAirplane() {
+        Log.i(TAG, "toggleAirplane: not yet implemented")
+    }
+
+    fun toggleBatterySaver() {
+        Log.i(TAG, "toggleBatterySaver: not yet implemented")
+    }
+
+    fun toggleNightLight() {
+        Log.i(TAG, "toggleNightLight: not yet implemented")
+    }
+
+    fun toggleHotspot() {
+        Log.i(TAG, "toggleHotspot: not yet implemented")
+    }
+
+    /**
      * Flip DND between "allow all" and "priority only". SystemUI holds
      * `ACCESS_NOTIFICATION_POLICY`, so the setter is callable directly.
      */
@@ -199,5 +293,17 @@ class QsController(private val hostContext: Context) {
         @Volatile
         var instance: QsController? = null
             private set
+
+        private val _mediaSession = MutableStateFlow<MediaInfo?>(null)
+
+        /**
+         * Current now-playing snapshot, or `null` when nothing is playing. Observed by the
+         * action-center media card; when `null` the card is hidden.
+         */
+        val mediaSession: StateFlow<MediaInfo?> = _mediaSession.asStateFlow()
+
+        fun setMediaSession(info: MediaInfo?) {
+            _mediaSession.value = info
+        }
     }
 }

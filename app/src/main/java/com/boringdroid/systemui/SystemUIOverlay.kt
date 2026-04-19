@@ -66,7 +66,8 @@ class SystemUIOverlay : OverlayPlugin {
                 }
                 when (intent.action) {
                     NotificationFeedIpc.ACTION_FEED_RESET,
-                    NotificationFeedIpc.ACTION_FEED_CLEAR -> NotificationFeed.clear()
+                    NotificationFeedIpc.ACTION_FEED_CLEAR,
+                    NotificationFeedIpc.ACTION_CLEAR_ALL -> NotificationFeed.clear()
                     NotificationFeedIpc.ACTION_NOTIFICATION_POSTED -> {
                         val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
                         val pkg =
@@ -163,6 +164,7 @@ class SystemUIOverlay : OverlayPlugin {
             IntentFilter().apply {
                 addAction(NotificationFeedIpc.ACTION_FEED_RESET)
                 addAction(NotificationFeedIpc.ACTION_FEED_CLEAR)
+                addAction(NotificationFeedIpc.ACTION_CLEAR_ALL)
                 addAction(NotificationFeedIpc.ACTION_NOTIFICATION_POSTED)
                 addAction(NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED)
             }
