@@ -195,9 +195,13 @@ class ActionCenterTest {
     /**
      * Polls [findObjects] for `notification_title` rows whose text equals [text] until
      * `expectedSize` matches are found or the timeout expires. Closing and re-opening the
-     * action center between polls forces a fresh Compose composition that re-snapshots
-     * `NotificationFeed.flow.value` — works around the suite-run staleness where a
-     * post-open upsert sometimes fails to recompose the LazyColumn.
+     * action center between polls both forces a fresh Compose composition and flushes
+     * UiAutomator's accessibility cache — the LazyColumn recomposes to the correct row
+     * count on every `NotificationFeed.flow` emission, but the a11y snapshot that
+     * `findObjects` reads from can retain stale rows for several seconds after rows are
+     * detached. Close-reopen resolves both the recomposition and the cache lag, so the
+     * same helper works for presence (`expectedSize > 0`) and absence (`expectedSize = 0`)
+     * assertions.
      */
     private fun pollForMatchingTitles(
         text: String,
@@ -223,6 +227,61 @@ class ActionCenterTest {
             )
         }
         return matches
+    }
+
+    /**
+     * Per-key removal path (mirror→plugin half of the dismiss-from-action-center flow).
+     *
+     * When the notification-listener framework delivers [onNotificationRemoved] for a
+     * specific key — e.g. a user-dismiss in the stock shade, a system-side snooze, or
+     * an app-initiated cancel — [BoringdroidNotificationMirror] broadcasts
+     * [NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED] carrying that key, and the
+     * plugin-side receiver drops just that one row from [NotificationFeed], leaving
+     * any other rows untouched.
+     *
+     * This complements [listenerReset_clearsAndRehydratesActionCenter] (which exercises
+     * the clear-all path via listener disconnect) and locks down the remove-one-row
+     * path. A future UI-initiated dismiss affordance (handoff-34 Priority 3) will ride
+     * on the same IPC with an added `ACTION_REQUEST_DISMISS` going plugin→mirror; this
+     * test covers the mirror→plugin half so that side can regress independently.
+     *
+     * `cmd notification snooze --for <ms> <key>` is the only in-tree shell mechanism
+     * to trigger a per-key onNotificationRemoved without a custom posting app — the
+     * `cmd notification` subcommand table lacks a `cancel <key>` form as of AOSP-14.
+     */
+    @Test
+    fun externallyRemovedNotification_isRemovedFromActionCenter() {
+        device.executeShellCommand(
+            "cmd notification post -S bigtext -t bdDismissTitleZ bdDismissTag body"
+        )
+        device.wait(Until.findObject(By.res(PLUGIN_PKG, "action_center_bell")), FIND_TIMEOUT_MS)
+            .click()
+        device.wait(Until.findObject(By.res(PLUGIN_PKG, "action_center_root")), FIND_TIMEOUT_MS)
+        val seeded = pollForMatchingTitles("bdDismissTitleZ", expectedSize = 1)
+        assertThat(seeded).hasSize(1)
+
+        // Find the notification-key to snooze. `cmd notification list` prints one row
+        // per active notification as `user|pkg|id|tag|uid`. The key returned by the
+        // listener is the same first-field form (see StatusBarNotification#getKey).
+        val listOut = device.executeShellCommand("cmd notification list")
+        val key = listOut.lineSequence()
+            .firstOrNull { it.contains("bdDismissTag") }
+            ?.trim()
+            ?: error("bdDismissTag not present in cmd notification list output:\n$listOut")
+        // UiAutomation.executeShellCommand argv-splits on whitespace without a shell
+        // (Runtime.exec path), so '|' inside $key is a harmless literal and single
+        // quotes would become part of the token — must NOT be quoted.
+        device.executeShellCommand("cmd notification snooze --for 60000 $key")
+
+        // Same close-reopen flush for absence as listenerReset — the row is removed from
+        // the feed promptly but the a11y cache keeps it addressable until the overlay is
+        // re-composed.
+        val afterDismiss = pollForMatchingTitles(
+            "bdDismissTitleZ",
+            expectedSize = 0,
+            timeoutMs = 10_000L,
+        )
+        assertThat(afterDismiss).isEmpty()
     }
 
     /**
@@ -257,19 +316,34 @@ class ActionCenterTest {
         assertThat(seededMatches).hasSize(1)
 
         device.executeShellCommand("cmd notification disallow_listener $MIRROR_COMPONENT")
-        assertThat(
-            device.wait(
-                Until.gone(By.res(PLUGIN_PKG, "notification_title").text("bdReseedTitle")),
-                5_000L,
-            )
-        ).isTrue()
+        // Close-reopen polling for absence: LazyColumn recomposes on the empty flow
+        // immediately, but UiAutomator's a11y cache keeps the detached rows addressable
+        // for several seconds.
+        val afterDisallow = pollForMatchingTitles(
+            "bdReseedTitle",
+            expectedSize = 0,
+            timeoutMs = 5_000L,
+        )
+        assertThat(afterDisallow).isEmpty()
 
         device.executeShellCommand("cmd notification allow_listener $MIRROR_COMPONENT")
-        assertThat(
-            device.wait(
-                Until.hasObject(By.res(PLUGIN_PKG, "notification_title").text("bdReseedTitle")),
-                10_000L,
-            )
-        ).isTrue()
+        // Rehydration is async: framework rebinds the listener → onListenerConnected
+        // queries activeNotifications → mirror broadcasts ACTION_FEED_RESET then per-item
+        // ACTION_NOTIFICATION_POSTED. Under suite-run the rebind can take several seconds.
+        // Reuse pollForMatchingTitles so we get the same close-reopen recomposition kick
+        // the seed step uses — a raw Until.hasObject can't force Compose to snapshot a
+        // post-open StateFlow update.
+        val rehydrated = pollForMatchingTitles(
+            "bdReseedTitle",
+            expectedSize = 1,
+            timeoutMs = 15_000L,
+        )
+        Log.v(
+            "BdDiag",
+            "listenerReset rehydrate: matches=${rehydrated.size} " +
+                "allTitles=${device.findObjects(By.res(PLUGIN_PKG, "notification_title"))
+                    .joinToString("|") { "[" + (it.text ?: "null") + "]" }}",
+        )
+        assertThat(rehydrated).hasSize(1)
     }
 }

@@ -32,6 +32,38 @@ to replace `SystemUIPluginLib.jar`. And then updating `src/main/SystemUISharedRe
 
 The `SystemUISharedLib` is a new all-in-one library.
 
+## Framework dependency: one surviving `frameworks/base` patch
+
+BoringdroidSystemUI is *almost* pure plugin. On AOSP-14 it still depends on
+**one** four-line edit inside the stock framework:
+
+- File: `frameworks/base/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarController.java`
+- What it does: early-returns from `createNavigationBar(Display)` when
+  `SystemProperties.getBoolean("persist.sys.systemuiplugin.enabled", false)`
+  is true (the prop is set by `vendor/boringdroid/boringdroid.mk`).
+- Why it has to exist: BoringdroidSystemUI renders its own
+  `TYPE_NAVIGATION_BAR_PANEL` taskbar window. Without this guard, AOSP
+  *also* creates its own NavigationBar on `displayId=0`, producing
+  double-bar visual collisions and inset-accounting bugs.
+- Why it can't be an overlay: there is no product-overlay or RRO mechanism
+  in AOSP-14 that suppresses NavigationBar creation per-display from
+  outside the framework. `config_showNavigationBar` is read by WMS at
+  `DisplayPolicy` construction time — before product overlays are
+  guaranteed to be applied — so flipping it via overlay is unreliable
+  for our use case. A `WindowManager`-side suppression hook would itself
+  be a forked-AOSP patch, and strictly larger than the current one.
+- Maintainer note: **do not delete this patch as part of a
+  "framework-patch-free" cleanup.** It is intentionally the smallest
+  survivable diff. The edit is wrapped in `// region boringdroid` /
+  `// endregion` so it's trivial to locate. If a future AOSP release
+  adds a per-display NavigationBar suppression hook (or makes
+  `config_showNavigationBar` overlay-honoring at the right lifecycle
+  point), this patch can be retired — until then, keep it.
+
+Full rationale and the broader "what stays AOSP vs. what we fork"
+decision lives in
+`docs/superpowers/specs/2026-04-19-systemui-state.md` §3.1.
+
 ## Test
 
 ### Instrumentation tests

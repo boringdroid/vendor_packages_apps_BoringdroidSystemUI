@@ -66,7 +66,7 @@ object NotificationFeed {
         _flow.value = current.filterNot { it.key == key }
     }
 
-    /** Test-only: drop everything. */
+    /** Drop every entry (listener disconnect / test reset). */
     fun clear() {
         _flow.value = emptyList()
     }
