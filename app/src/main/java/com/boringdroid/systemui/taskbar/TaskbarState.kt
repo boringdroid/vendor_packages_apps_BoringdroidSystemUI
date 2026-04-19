@@ -33,9 +33,9 @@ import kotlinx.coroutines.launch
 /**
  * Snapshot of a running task surfaced by the taskbar app rail.
  *
- * `id` is the `ActivityManager.RunningTaskInfo#id` (stable across the task's
- * lifetime); `icon` is resolved from LauncherApps at observation time so the
- * composable doesn't block on PackageManager while rendering.
+ * `id` is the `ActivityManager.RunningTaskInfo#id` (stable across the task's lifetime); `icon` is
+ * resolved from LauncherApps at observation time so the composable doesn't block on PackageManager
+ * while rendering.
  */
 data class BdTaskInfo(
     val id: Int,
@@ -46,23 +46,19 @@ data class BdTaskInfo(
 )
 
 /**
- * Single source of truth for taskbar-rendered state. Collects task-stack,
- * clock, battery and wifi updates into [StateFlow]s so the Compose taskbar
- * can observe them without threading or receiver plumbing of its own.
+ * Single source of truth for taskbar-rendered state. Collects task-stack, clock, battery and wifi
+ * updates into [StateFlow]s so the Compose taskbar can observe them without threading or receiver
+ * plumbing of its own.
  *
- * Lifecycle: call [start] after construction (the plugin calls this from
- * SystemUIOverlay.onCreate); call [stop] on plugin tear-down. Idempotent.
+ * Lifecycle: call [start] after construction (the plugin calls this from SystemUIOverlay.onCreate);
+ * call [stop] on plugin tear-down. Idempotent.
  */
-class TaskbarState(
-    private val pluginContext: Context,
-    private val hostContext: Context,
-) {
+class TaskbarState(private val pluginContext: Context, private val hostContext: Context) {
     private val activityManager =
         pluginContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val launcherApps =
         pluginContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    private val userManager =
-        pluginContext.getSystemService(Context.USER_SERVICE) as UserManager
+    private val userManager = pluginContext.getSystemService(Context.USER_SERVICE) as UserManager
     private val hostActivityManager =
         hostContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
@@ -116,14 +112,8 @@ class TaskbarState(
         started = true
         taskStackListeners.registerTaskStackListener(taskStackListener)
         refreshRunningTasks(initial = true)
-        hostContext.registerReceiver(
-            batteryReceiver,
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED),
-        )
-        hostContext.registerReceiver(
-            wifiReceiver,
-            IntentFilter(WifiManager.RSSI_CHANGED_ACTION),
-        )
+        hostContext.registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        hostContext.registerReceiver(wifiReceiver, IntentFilter(WifiManager.RSSI_CHANGED_ACTION))
         // Seed battery from the sticky broadcast so the taskbar has a value
         // before the first ACTION_BATTERY_CHANGED fires.
         hostContext.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))?.let {
@@ -160,9 +150,8 @@ class TaskbarState(
     }
 
     /**
-     * Request the host ActivityManager to bring the task with the given id to
-     * the front. Runs on the SystemUI process so the foreground-promotion
-     * permission check passes.
+     * Request the host ActivityManager to bring the task with the given id to the front. Runs on
+     * the SystemUI process so the foreground-promotion permission check passes.
      */
     fun bringTaskToFront(taskId: Int) {
         hostActivityManager.moveTaskToFront(taskId, 0)
@@ -229,8 +218,7 @@ class TaskbarState(
         _wifiLevel.value = level.coerceIn(0, 100)
     }
 
-    private fun formatTime(): String =
-        SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+    private fun formatTime(): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 
     private fun formatDate(): String =
         SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(Date())

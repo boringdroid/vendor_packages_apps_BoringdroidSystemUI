@@ -29,7 +29,8 @@ class PluginBaselineTest {
 
     @Test
     fun allAppsButton_isVisibleInNavBar() {
-        val button = device.wait(Until.findObject(By.res(PLUGIN_PKG, "bt_all_apps")), FIND_TIMEOUT_MS)
+        val button =
+            device.wait(Until.findObject(By.res(PLUGIN_PKG, "bt_all_apps")), FIND_TIMEOUT_MS)
         assertThat(button).isNotNull()
     }
 

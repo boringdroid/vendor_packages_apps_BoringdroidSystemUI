@@ -12,10 +12,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * Unit tests for the taskbar's task-filter predicate. The predicate used to
- * live on `AppStateLayout` — it was relocated to [TaskFilter] when the
- * View-based layout was replaced by a Compose surface, but the behavior
- * (and therefore the assertions here) is unchanged.
+ * Unit tests for the taskbar's task-filter predicate. The predicate used to live on
+ * `AppStateLayout` — it was relocated to [TaskFilter] when the View-based layout was replaced by a
+ * Compose surface, but the behavior (and therefore the assertions here) is unchanged.
  */
 @RunWith(RobolectricTestRunner::class)
 class AppStateLayoutTest {

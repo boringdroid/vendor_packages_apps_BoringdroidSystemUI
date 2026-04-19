@@ -15,18 +15,15 @@ import android.view.SurfaceControl
 import com.android.systemui.shared.recents.IOverviewProxy
 
 /**
- * IOverviewProxy implementation. AIDL methods are `oneway`, invoked on the
- * Binder thread — show/hide post to the service's main looper handler since
- * `WindowManager.addView` must run on the UI thread.
+ * IOverviewProxy implementation. AIDL methods are `oneway`, invoked on the Binder thread —
+ * show/hide post to the service's main looper handler since `WindowManager.addView` must run on the
+ * UI thread.
  *
- * `onOverviewShown` / `onOverviewHidden` / `onOverviewToggle` drive the
- * [OverviewWindow]. Other callbacks (system-UI state, nav bar, etc.) remain
- * logging no-ops.
+ * `onOverviewShown` / `onOverviewHidden` / `onOverviewToggle` drive the [OverviewWindow]. Other
+ * callbacks (system-UI state, nav bar, etc.) remain logging no-ops.
  */
-class OverviewProxyImpl(
-    private val window: OverviewWindow,
-    private val mainHandler: Handler,
-) : IOverviewProxy.Stub() {
+class OverviewProxyImpl(private val window: OverviewWindow, private val mainHandler: Handler) :
+    IOverviewProxy.Stub() {
 
     override fun onActiveNavBarRegionChanges(activeRegion: Region?) {
         if (DEBUG) Log.d(TAG, "onActiveNavBarRegionChanges $activeRegion")
@@ -47,7 +44,8 @@ class OverviewProxyImpl(
     }
 
     override fun onOverviewHidden(triggeredFromAltTab: Boolean, triggeredFromHomeKey: Boolean) {
-        if (DEBUG) Log.d(TAG, "onOverviewHidden altTab=$triggeredFromAltTab home=$triggeredFromHomeKey")
+        if (DEBUG)
+            Log.d(TAG, "onOverviewHidden altTab=$triggeredFromAltTab home=$triggeredFromHomeKey")
         mainHandler.post { window.hide() }
     }
 

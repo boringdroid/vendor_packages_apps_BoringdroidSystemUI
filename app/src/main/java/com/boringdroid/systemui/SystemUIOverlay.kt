@@ -68,11 +68,9 @@ class SystemUIOverlay : OverlayPlugin {
                     NotificationFeedIpc.ACTION_FEED_RESET,
                     NotificationFeedIpc.ACTION_FEED_CLEAR -> NotificationFeed.clear()
                     NotificationFeedIpc.ACTION_NOTIFICATION_POSTED -> {
-                        val key =
-                            intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
+                        val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
                         val pkg =
-                            intent.getStringExtra(NotificationFeedIpc.EXTRA_PACKAGE_NAME)
-                                ?: return
+                            intent.getStringExtra(NotificationFeedIpc.EXTRA_PACKAGE_NAME) ?: return
                         NotificationFeed.upsert(
                             SbnSummary(
                                 key = key,
@@ -80,10 +78,7 @@ class SystemUIOverlay : OverlayPlugin {
                                 title = intent.getStringExtra(NotificationFeedIpc.EXTRA_TITLE),
                                 body = intent.getStringExtra(NotificationFeedIpc.EXTRA_BODY),
                                 postTime =
-                                    intent.getLongExtra(
-                                        NotificationFeedIpc.EXTRA_POST_TIME,
-                                        0L,
-                                    ),
+                                    intent.getLongExtra(NotificationFeedIpc.EXTRA_POST_TIME, 0L),
                                 smallIcon = null,
                                 contentIntent = null,
                                 isOngoing =
@@ -106,8 +101,7 @@ class SystemUIOverlay : OverlayPlugin {
                         }
                     }
                     NotificationFeedIpc.ACTION_NOTIFICATION_REMOVED -> {
-                        val key =
-                            intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
+                        val key = intent.getStringExtra(NotificationFeedIpc.EXTRA_KEY) ?: return
                         NotificationFeed.remove(key)
                     }
                 }
@@ -215,8 +209,7 @@ class SystemUIOverlay : OverlayPlugin {
             val systemPropertiesClass = Class.forName("android.os.SystemProperties")
             val getMethod =
                 systemPropertiesClass.getMethod("get", String::class.java, String::class.java)
-            val tunerKeys =
-                getMethod.invoke(null, "persist.sys.bd.tunerkeys", "") as String
+            val tunerKeys = getMethod.invoke(null, "persist.sys.bd.tunerkeys", "") as String
             Log.d(TAG, "Got tuner keys $tunerKeys")
             val tunerKeyList =
                 Arrays.stream(tunerKeys.split("--").toTypedArray())

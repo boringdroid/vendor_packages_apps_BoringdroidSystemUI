@@ -24,26 +24,21 @@ import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
 
 /**
- * Owns a boringdroid-managed window pinned to the bottom of the display that
- * hosts the Compose [Taskbar]. The window replaces the NavigationBar on
- * boringdroid builds; SystemUI's native NavigationBarView is suppressed via
- * the RRO shipped alongside this plugin.
+ * Owns a boringdroid-managed window pinned to the bottom of the display that hosts the Compose
+ * [Taskbar]. The window replaces the NavigationBar on boringdroid builds; SystemUI's native
+ * NavigationBarView is suppressed via the RRO shipped alongside this plugin.
  *
- * The ComposeView needs a `LifecycleOwner` + `SavedStateRegistryOwner` on the
- * view tree — attached here because the plugin's `WindowManager.addView`
- * target has no hosting Activity. The same pattern is used in
- * [AllAppsWindow] and [com.boringdroid.systemui.actioncenter.ActionCenterWindow].
+ * The ComposeView needs a `LifecycleOwner` + `SavedStateRegistryOwner` on the view tree — attached
+ * here because the plugin's `WindowManager.addView` target has no hosting Activity. The same
+ * pattern is used in [AllAppsWindow] and
+ * [com.boringdroid.systemui.actioncenter.ActionCenterWindow].
  *
- * The plugin context carries resources/classloader/theme, but Compose's
- * `WindowRecomposer` and `AndroidCompositionLocals` reach for
- * `applicationContext.getContentResolver` / `registerComponentCallbacks`
- * surfaces the plugin ContextWrapper chain doesn't satisfy — a delegating
- * wrapper routes just those calls to the host SystemUI application.
+ * The plugin context carries resources/classloader/theme, but Compose's `WindowRecomposer` and
+ * `AndroidCompositionLocals` reach for `applicationContext.getContentResolver` /
+ * `registerComponentCallbacks` surfaces the plugin ContextWrapper chain doesn't satisfy — a
+ * delegating wrapper routes just those calls to the host SystemUI application.
  */
-class TaskbarWindow(
-    private val pluginContext: Context,
-    private val hostContext: Context,
-) {
+class TaskbarWindow(private val pluginContext: Context, private val hostContext: Context) {
     private val windowManager =
         hostContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var root: FrameLayout? = null
@@ -72,8 +67,7 @@ class TaskbarWindow(
         frame.setViewTreeLifecycleOwner(pluginLifecycle)
         frame.setViewTreeSavedStateRegistryOwner(pluginLifecycle)
 
-        val heightPx =
-            pluginContext.resources.getDimensionPixelSize(R.dimen.taskbar_window_height)
+        val heightPx = pluginContext.resources.getDimensionPixelSize(R.dimen.taskbar_window_height)
         val lp =
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -104,9 +98,8 @@ class TaskbarWindow(
     }
 
     /**
-     * Back-compat: some callers still want to query the root view (e.g. for
-     * test-driven attachment assertions). Returns the frame hosting the
-     * [ComposeView], or null while the window is hidden.
+     * Back-compat: some callers still want to query the root view (e.g. for test-driven attachment
+     * assertions). Returns the frame hosting the [ComposeView], or null while the window is hidden.
      */
     fun getRoot(): View? = root
 
@@ -126,10 +119,9 @@ class TaskbarWindow(
     }
 
     /**
-     * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's
-     * WindowManager-attached taskbar. Compose needs both on the view tree;
-     * no Activity exists to provide them so we hand-drive the lifecycle to
-     * RESUMED on show and DESTROYED on hide.
+     * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's WindowManager-attached
+     * taskbar. Compose needs both on the view tree; no Activity exists to provide them so we
+     * hand-drive the lifecycle to RESUMED on show and DESTROYED on hide.
      */
     private class PluginLifecycleOwner : LifecycleOwner, SavedStateRegistryOwner {
         private val registry = LifecycleRegistry(this)

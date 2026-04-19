@@ -17,8 +17,8 @@ import android.util.Log
  * Service bound by SystemUI's OverviewProxyService once the RRO points
  * `config_recentsComponentName` at com.boringdroid.systemui.
  *
- * onBind() returns an IOverviewProxy.Stub implementation that drives an
- * [OverviewWindow] in response to overview callbacks.
+ * onBind() returns an IOverviewProxy.Stub implementation that drives an [OverviewWindow] in
+ * response to overview callbacks.
  */
 class BoringdroidOverviewService : Service() {
 

@@ -15,11 +15,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Immutable snapshot of a [StatusBarNotification], suitable for binding into the
- * Compose-driven action center UI. Held by [NotificationFeed].
+ * Immutable snapshot of a [StatusBarNotification], suitable for binding into the Compose-driven
+ * action center UI. Held by [NotificationFeed].
  *
- * `key` matches [StatusBarNotification.getKey] and is used as the row identity:
- * a re-post with the same key replaces the existing entry.
+ * `key` matches [StatusBarNotification.getKey] and is used as the row identity: a re-post with the
+ * same key replaces the existing entry.
  */
 data class SbnSummary(
     val key: String,
@@ -33,13 +33,12 @@ data class SbnSummary(
 )
 
 /**
- * Process-wide store of every [SbnSummary] currently posted to the system,
- * mirrored from [BoringdroidNotificationMirror]. The action center UI observes
- * [flow] and re-renders on change.
+ * Process-wide store of every [SbnSummary] currently posted to the system, mirrored from
+ * [BoringdroidNotificationMirror]. The action center UI observes [flow] and re-renders on change.
  *
- * Keeping this as an `object` (rather than a bound-service interface) lets the
- * UI subscribe without a binder hop — the listener service and the action
- * center window both live in the BoringdroidSystemUI plugin process.
+ * Keeping this as an `object` (rather than a bound-service interface) lets the UI subscribe without
+ * a binder hop — the listener service and the action center window both live in the
+ * BoringdroidSystemUI plugin process.
  */
 object NotificationFeed {
     private val _flow = MutableStateFlow<List<SbnSummary>>(emptyList())

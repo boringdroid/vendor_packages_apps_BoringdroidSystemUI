@@ -38,8 +38,7 @@ class TaskbarRecentAppsTest {
         context.startActivity(intent)
 
         // Wait for Settings to actually come up — otherwise the task event hasn't propagated yet.
-        val settingsUp =
-            device.wait(Until.hasObject(By.pkg("com.android.settings")), 8_000L)
+        val settingsUp = device.wait(Until.hasObject(By.pkg("com.android.settings")), 8_000L)
         assertThat(settingsUp).isTrue()
 
         device.pressHome()

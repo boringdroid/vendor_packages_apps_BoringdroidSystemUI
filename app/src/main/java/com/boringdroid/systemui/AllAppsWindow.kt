@@ -18,7 +18,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
-import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import androidx.lifecycle.Lifecycle
@@ -148,9 +147,22 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
                 WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    // `SOFT_INPUT_STATE_*` only governs the initial show/hide of the IME.
+                    // Once the user taps a focusable text field, the IME comes up regardless,
+                    // and on this small plugin window it covers the trailing clear icon at the
+                    // right edge of the search field. Boringdroid assumes a HW keyboard, so we
+                    // want the IME suppressed for the whole lifetime of this window.
+                    // `FLAG_ALT_FOCUSABLE_IM`, combined with a focusable window, inverts the
+                    // default behavior: the window still takes input focus (so Compose's
+                    // `focusRequester` works and HW keystrokes route to the focused field) but
+                    // the IME is treated as if the window weren't focusable — so it never
+                    // shows. Same effect as an Activity with `android:windowSoftInputMode` of
+                    // `stateAlwaysHidden` combined with the input method being "detached".
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM,
                 PixelFormat.RGB_565,
             )
+        layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val size = Point()
@@ -187,8 +199,7 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
     /**
      * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's WindowManager-attached
      * popup. Compose requires both on the view tree; there's no Activity to provide them here, so
-     * we hand-drive the lifecycle to RESUMED while the window is shown and to DESTROYED on
-     * dismiss.
+     * we hand-drive the lifecycle to RESUMED while the window is shown and to DESTROYED on dismiss.
      */
     private class PluginLifecycleOwner : LifecycleOwner, SavedStateRegistryOwner {
         private val registry = LifecycleRegistry(this)

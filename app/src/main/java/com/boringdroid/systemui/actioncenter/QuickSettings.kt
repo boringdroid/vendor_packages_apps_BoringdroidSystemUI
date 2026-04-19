@@ -21,29 +21,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Immutable snapshot of a quick-setting tile. Rendered by [ActionCenterLayout]
- * and observed via [QsTileStore]'s [StateFlow]s.
+ * Immutable snapshot of a quick-setting tile. Rendered by [ActionCenterLayout] and observed via
+ * [QsTileStore]'s [StateFlow]s.
  *
- * The [contentDescription] convention — "<label> on" / "<label> off" — is the
- * surface UiAutomator addresses: `By.res(..., "qs_wifi").descContains("off")`
- * is how external state changes are validated without leaning on drawable
- * identity.
+ * The [contentDescription] convention — "<label> on" / "<label> off" — is the surface UiAutomator
+ * addresses: `By.res(..., "qs_wifi").descContains("off")` is how external state changes are
+ * validated without leaning on drawable identity.
  */
-data class QsState(
-    val label: String,
-    val isOn: Boolean,
-) {
+data class QsState(val label: String, val isOn: Boolean) {
     val contentDescription: String
         get() = if (isOn) "$label on" else "$label off"
 }
 
 /**
- * Process-wide store of quick-settings state. Updated by [QsController] in
- * response to system broadcasts; observed by the action center UI.
+ * Process-wide store of quick-settings state. Updated by [QsController] in response to system
+ * broadcasts; observed by the action center UI.
  *
- * Kept parallel to [NotificationFeed] so the overlay can bind both without a
- * binder hop. Receivers live in the plugin process (uid 1000) alongside the
- * UI, so no cross-process bridge is required.
+ * Kept parallel to [NotificationFeed] so the overlay can bind both without a binder hop. Receivers
+ * live in the plugin process (uid 1000) alongside the UI, so no cross-process bridge is required.
  */
 object QsTileStore {
     const val LABEL_WIFI = "wifi"
@@ -73,59 +68,62 @@ object QsTileStore {
 }
 
 /**
- * Binds [QsTileStore] to the relevant system broadcasts and seeds initial
- * state. Instantiated with the host SystemUI [Context] because the plugin
- * context chain does not own the broadcast-receiver registration and its
- * lifetime is tied to the plugin's onCreate / onDestroy.
+ * Binds [QsTileStore] to the relevant system broadcasts and seeds initial state. Instantiated with
+ * the host SystemUI [Context] because the plugin context chain does not own the broadcast-receiver
+ * registration and its lifetime is tied to the plugin's onCreate / onDestroy.
  *
- * The controller also exposes [toggleWifi] / [toggleBluetooth] / [toggleDnd]
- * write-paths. Views reach it via [QsController.instance] — set in [start],
- * cleared in [stop] — so the composable tile doesn't need to be parameterized
- * on the controller.
+ * The controller also exposes [toggleWifi] / [toggleBluetooth] / [toggleDnd] write-paths. Views
+ * reach it via [QsController.instance] — set in [start], cleared in [stop] — so the composable tile
+ * doesn't need to be parameterized on the controller.
  */
 class QsController(private val hostContext: Context) {
     private val wifiManager: WifiManager? =
         hostContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
     private val bluetoothAdapter: BluetoothAdapter? =
         (hostContext.applicationContext.getSystemService(Context.BLUETOOTH_SERVICE)
-            as? BluetoothManager)?.adapter
+                as? BluetoothManager)
+            ?.adapter
     private val notificationManager: NotificationManager? =
         hostContext.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE)
             as? NotificationManager
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
-                WifiManager.WIFI_STATE_CHANGED_ACTION -> {
-                    val state = intent.getIntExtra(
-                        WifiManager.EXTRA_WIFI_STATE,
-                        WifiManager.WIFI_STATE_UNKNOWN,
-                    )
-                    QsTileStore.setWifi(state == WifiManager.WIFI_STATE_ENABLED)
-                }
-                BluetoothAdapter.ACTION_STATE_CHANGED -> {
-                    val state = intent.getIntExtra(
-                        BluetoothAdapter.EXTRA_STATE,
-                        BluetoothAdapter.STATE_OFF,
-                    )
-                    QsTileStore.setBluetooth(state == BluetoothAdapter.STATE_ON)
-                }
-                NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED -> {
-                    val filter = notificationManager?.currentInterruptionFilter
-                    QsTileStore.setDnd(
-                        filter != null && filter != NotificationManager.INTERRUPTION_FILTER_ALL,
-                    )
+    private val receiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                when (intent.action) {
+                    WifiManager.WIFI_STATE_CHANGED_ACTION -> {
+                        val state =
+                            intent.getIntExtra(
+                                WifiManager.EXTRA_WIFI_STATE,
+                                WifiManager.WIFI_STATE_UNKNOWN,
+                            )
+                        QsTileStore.setWifi(state == WifiManager.WIFI_STATE_ENABLED)
+                    }
+                    BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                        val state =
+                            intent.getIntExtra(
+                                BluetoothAdapter.EXTRA_STATE,
+                                BluetoothAdapter.STATE_OFF,
+                            )
+                        QsTileStore.setBluetooth(state == BluetoothAdapter.STATE_ON)
+                    }
+                    NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED -> {
+                        val filter = notificationManager?.currentInterruptionFilter
+                        QsTileStore.setDnd(
+                            filter != null && filter != NotificationManager.INTERRUPTION_FILTER_ALL
+                        )
+                    }
                 }
             }
         }
-    }
 
     fun start() {
-        val filter = IntentFilter().apply {
-            addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
-            addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
-            addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
-        }
+        val filter =
+            IntentFilter().apply {
+                addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
+                addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+                addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+            }
         hostContext.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
         seedState()
         instance = this
@@ -141,11 +139,10 @@ class QsController(private val hostContext: Context) {
     }
 
     /**
-     * Flip the Wi-Fi radio. SystemUI (uid 1000) holds
-     * `android.permission.NETWORK_SETTINGS`, so the deprecated
-     * [WifiManager.setWifiEnabled] is still callable here — the API-29+
-     * restriction targets third-party callers. Broadcast receiver will
-     * propagate the new state back into [QsTileStore].
+     * Flip the Wi-Fi radio. SystemUI (uid 1000) holds `android.permission.NETWORK_SETTINGS`, so the
+     * deprecated [WifiManager.setWifiEnabled] is still callable here — the API-29+ restriction
+     * targets third-party callers. Broadcast receiver will propagate the new state back into
+     * [QsTileStore].
      */
     fun toggleWifi() {
         val wm = wifiManager ?: return
@@ -179,7 +176,7 @@ class QsController(private val hostContext: Context) {
                     NotificationManager.INTERRUPTION_FILTER_PRIORITY
                 } else {
                     NotificationManager.INTERRUPTION_FILTER_ALL
-                },
+                }
             )
         } catch (e: SecurityException) {
             Log.e(TAG, "toggleDnd denied", e)
@@ -187,13 +184,11 @@ class QsController(private val hostContext: Context) {
     }
 
     private fun seedState() {
-        wifiManager?.let {
-            QsTileStore.setWifi(it.wifiState == WifiManager.WIFI_STATE_ENABLED)
-        }
+        wifiManager?.let { QsTileStore.setWifi(it.wifiState == WifiManager.WIFI_STATE_ENABLED) }
         bluetoothAdapter?.let { QsTileStore.setBluetooth(it.isEnabled) }
         notificationManager?.let {
             QsTileStore.setDnd(
-                it.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL,
+                it.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL
             )
         }
     }

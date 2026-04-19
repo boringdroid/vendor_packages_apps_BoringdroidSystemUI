@@ -36,18 +36,15 @@ import com.boringdroid.systemui.R
 /**
  * Owns the boringdroid-managed action-center overlay window.
  *
- * Mirrors [com.boringdroid.systemui.AllAppsWindow]'s mixed-context pattern:
- * the plugin context carries resources/classloader/theme, but Compose's
+ * Mirrors [com.boringdroid.systemui.AllAppsWindow]'s mixed-context pattern: the plugin context
+ * carries resources/classloader/theme, but Compose's
  * [androidx.compose.ui.platform.WindowRecomposer] and
- * [androidx.compose.ui.platform.AndroidCompositionLocals] invoke
- * Application-level APIs (`getContentResolver`, `registerComponentCallbacks`)
- * that the plugin ContextWrapper chain does not satisfy. A delegating
- * [ContextWrapper] routes just those surfaces to the host SystemUI application.
+ * [androidx.compose.ui.platform.AndroidCompositionLocals] invoke Application-level APIs
+ * (`getContentResolver`, `registerComponentCallbacks`) that the plugin ContextWrapper chain does
+ * not satisfy. A delegating [ContextWrapper] routes just those surfaces to the host SystemUI
+ * application.
  */
-class ActionCenterWindow(
-    private val pluginContext: Context,
-    private val hostContext: Context,
-) {
+class ActionCenterWindow(private val pluginContext: Context, private val hostContext: Context) {
     private val windowManager: WindowManager =
         pluginContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var windowContentView: View? = null
@@ -68,12 +65,7 @@ class ActionCenterWindow(
         root.id = R.id.action_center_root
         val colorAttr = TypedValue()
         root.setBackgroundColor(
-            if (ctx.theme.resolveAttribute(
-                    android.R.attr.colorPrimaryDark,
-                    colorAttr,
-                    true,
-                )
-            ) {
+            if (ctx.theme.resolveAttribute(android.R.attr.colorPrimaryDark, colorAttr, true)) {
                 colorAttr.data
             } else {
                 Color.BLACK
@@ -91,8 +83,7 @@ class ActionCenterWindow(
         pluginLifecycle = owner
         root.setViewTreeLifecycleOwner(owner)
         root.setViewTreeSavedStateRegistryOwner(owner)
-        val cornerRadius =
-            pluginContext.resources.getDimension(R.dimen.action_center_corner_radius)
+        val cornerRadius = pluginContext.resources.getDimension(R.dimen.action_center_corner_radius)
         root.outlineProvider =
             object : ViewOutlineProvider() {
                 override fun getOutline(view: View, outline: Outline) {
@@ -142,12 +133,9 @@ class ActionCenterWindow(
 
     private fun generateLayoutParams(): WindowManager.LayoutParams {
         val resources = pluginContext.resources
-        val windowWidth =
-            resources.getDimension(R.dimen.action_center_window_width).toInt()
-        val windowHeight =
-            resources.getDimension(R.dimen.action_center_window_height).toInt()
-        val marginEnd =
-            resources.getDimension(R.dimen.action_center_window_margin_end).toInt()
+        val windowWidth = resources.getDimension(R.dimen.action_center_window_width).toInt()
+        val windowHeight = resources.getDimension(R.dimen.action_center_window_height).toInt()
+        val marginEnd = resources.getDimension(R.dimen.action_center_window_margin_end).toInt()
         val marginBottom =
             resources.getDimension(R.dimen.action_center_window_margin_bottom).toInt()
         val params =
@@ -167,10 +155,9 @@ class ActionCenterWindow(
     }
 
     /**
-     * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's
-     * WindowManager-attached overlay. Compose requires both on the view tree;
-     * without an Activity to provide them we hand-drive RESUMED on show and
-     * DESTROYED on dismiss.
+     * Minimal [LifecycleOwner] + [SavedStateRegistryOwner] for the plugin's WindowManager-attached
+     * overlay. Compose requires both on the view tree; without an Activity to provide them we
+     * hand-drive RESUMED on show and DESTROYED on dismiss.
      */
     private class PluginLifecycleOwner : LifecycleOwner, SavedStateRegistryOwner {
         private val registry = LifecycleRegistry(this)

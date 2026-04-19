@@ -39,10 +39,7 @@ class OverviewTest {
             }
             device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
             val opened =
-                device.wait(
-                    Until.hasObject(By.res(PLUGIN_PKG, "overview_root")),
-                    FIND_TIMEOUT_MS,
-                )
+                device.wait(Until.hasObject(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
             if (opened) {
                 device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
                 device.wait(Until.gone(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
@@ -88,10 +85,7 @@ class OverviewTest {
             }
             device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
             overview =
-                device.wait(
-                    Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
-                    FIND_TIMEOUT_MS,
-                )
+                device.wait(Until.findObject(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
             if (overview != null) break
         }
         assertThat(overview).isNotNull()
@@ -141,10 +135,7 @@ class OverviewTest {
         device.pressHome()
         device.waitForIdle()
         device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
-        device.wait(
-            Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
-            FIND_TIMEOUT_MS,
-        )
+        device.wait(Until.findObject(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
         // Let the a11y tree settle after the overview window raises —
         // RecyclerView layout + onBindViewHolder run on the main thread
         // asynchronously, and the card label search can race those events
@@ -158,7 +149,7 @@ class OverviewTest {
         val settingsLabel =
             device.wait(
                 Until.findObject(
-                    By.res(PLUGIN_PKG, "overview_card_label").textContains("Settings"),
+                    By.res(PLUGIN_PKG, "overview_card_label").textContains("Settings")
                 ),
                 LAUNCH_TIMEOUT_MS,
             )
@@ -171,27 +162,20 @@ class OverviewTest {
         assertThat(launched).isTrue()
         // (b) Overview window gone. UiAutomator's accessibility tree reflects
         // TYPE_APPLICATION_OVERLAY removal, so Until.gone is the right probe.
-        val gone =
-            device.wait(
-                Until.gone(By.res(PLUGIN_PKG, "overview_root")),
-                FIND_TIMEOUT_MS,
-            )
+        val gone = device.wait(Until.gone(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
         assertThat(gone).isTrue()
     }
 
     /**
-     * Opens the overview via APP_SWITCH and returns the first descendant whose
-     * resource id matches [childResId], dismiss-and-reopening up to
-     * [SNAPSHOT_RETRY_COUNT] times if the first snapshot yields an empty card
-     * list.
+     * Opens the overview via APP_SWITCH and returns the first descendant whose resource id matches
+     * [childResId], dismiss-and-reopening up to [SNAPSHOT_RETRY_COUNT] times if the first snapshot
+     * yields an empty card list.
      *
-     * `RecentTasksProvider.getRecentTasks()` is invoked synchronously from
-     * `OverviewWindow.show()` and `TaskStackChangeListener` only refreshes
-     * thumbnails, not the list itself. If `ActivityTaskManager.getRecentTasks()`
-     * races a post-Home stack update and returns empty, that empty state
-     * persists until the next show(). A dismiss-reopen cycle with a short
-     * settle pause gives the stack time to publish the just-backgrounded task
-     * before the next snapshot.
+     * `RecentTasksProvider.getRecentTasks()` is invoked synchronously from `OverviewWindow.show()`
+     * and `TaskStackChangeListener` only refreshes thumbnails, not the list itself. If
+     * `ActivityTaskManager.getRecentTasks()` races a post-Home stack update and returns empty, that
+     * empty state persists until the next show(). A dismiss-reopen cycle with a short settle pause
+     * gives the stack time to publish the just-backgrounded task before the next snapshot.
      */
     private fun openOverviewAndFindCardChild(childResId: String): UiObject2? {
         for (attempt in 0 until SNAPSHOT_RETRY_COUNT) {
@@ -200,10 +184,7 @@ class OverviewTest {
             }
             device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")
             val root =
-                device.wait(
-                    Until.findObject(By.res(PLUGIN_PKG, "overview_root")),
-                    FIND_TIMEOUT_MS,
-                )
+                device.wait(Until.findObject(By.res(PLUGIN_PKG, "overview_root")), FIND_TIMEOUT_MS)
             if (root != null) {
                 // After the overview window raises, RecyclerView layout and
                 // onBindViewHolder happen asynchronously on the main thread.
@@ -212,10 +193,7 @@ class OverviewTest {
                 // miss freshly inflated TextView/ImageView nodes.
                 Thread.sleep(CARD_BIND_SETTLE_MS)
                 val child =
-                    device.wait(
-                        Until.findObject(By.res(PLUGIN_PKG, childResId)),
-                        LAUNCH_TIMEOUT_MS,
-                    )
+                    device.wait(Until.findObject(By.res(PLUGIN_PKG, childResId)), LAUNCH_TIMEOUT_MS)
                 if (child != null) return child
             }
             device.executeShellCommand("input keyevent KEYCODE_APP_SWITCH")

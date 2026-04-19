@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -24,20 +25,29 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -50,10 +60,9 @@ import androidx.compose.ui.unit.dp
 import com.boringdroid.systemui.theme.BdExpressiveMaterialTheme
 
 /**
- * See the same comment in [com.boringdroid.systemui.taskbar.Taskbar]: prefix every
- * testTag with `pkg:id/` so UiAutomator's `By.res(pkg, id)` matches the string
- * Compose writes into `AccessibilityNodeInfo.setViewIdResourceName` via
- * `testTagsAsResourceId`.
+ * See the same comment in [com.boringdroid.systemui.taskbar.Taskbar]: prefix every testTag with
+ * `pkg:id/` so UiAutomator's `By.res(pkg, id)` matches the string Compose writes into
+ * `AccessibilityNodeInfo.setViewIdResourceName` via `testTagsAsResourceId`.
  */
 private const val ID = "com.boringdroid.systemui:id/"
 
@@ -91,9 +100,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
         composeView.layoutParams =
             LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        composeView.setContent {
-            BdExpressiveMaterialTheme { AllAppsPanel(apps, ::launchApp) }
-        }
+        composeView.setContent { BdExpressiveMaterialTheme { AllAppsPanel(apps, ::launchApp) } }
         addView(composeView)
     }
 
@@ -104,20 +111,85 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 }
 
 @Composable
+@OptIn(ExperimentalComposeUiApi::class)
 private fun AllAppsPanel(apps: List<AppData>, onAppClick: (AppData) -> Unit) {
     val colors = MaterialTheme.colorScheme
-    Box(
-        modifier = Modifier.fillMaxSize().background(colors.surfaceContainer),
-        contentAlignment = Alignment.TopCenter,
+    var query by remember { mutableStateOf("") }
+    val filtered =
+        remember(apps, query) {
+            val q = query.trim()
+            if (q.isEmpty()) apps
+            else apps.filter { (it.name ?: "").contains(q, ignoreCase = true) }
+        }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(Unit) {
+        // Plugin-owned windows can race Compose vs. WindowManager focus propagation; swallow so
+        // the panel still renders if the field isn't attached yet.
+        try {
+            focusRequester.requestFocus()
+        } catch (_: Throwable) {}
+    }
+    Column(
+        modifier = Modifier.fillMaxSize().background(colors.surfaceContainer).padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier =
+                Modifier.fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    // Boringdroid assumes a HW keyboard; on a touch-only emulator Compose's default
+                    // `SHOW_SOFT_INPUT_BY_INSETS_API` fires on every focus gain and the IME
+                    // occludes the app grid. Suppress it so the panel is immediately usable —
+                    // typing on a HW keyboard still routes via the focused field.
+                    .onFocusChanged { if (it.isFocused) keyboardController?.hide() }
+                    .semantics {
+                        testTagsAsResourceId = true
+                        testTag = ID + "search_field_input"
+                    },
+            placeholder = { Text("Search apps") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "Search",
+                    tint = colors.onSurfaceVariant,
+                )
+            },
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    Box(
+                        modifier =
+                            Modifier.size(40.dp)
+                                .clickable { query = "" }
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                    testTag = ID + "search_field_clear"
+                                },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Clear,
+                            contentDescription = "Clear search",
+                            tint = colors.onSurfaceVariant,
+                        )
+                    }
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(28.dp),
+        )
         LazyVerticalGrid(
             columns = GridCells.Fixed(5),
-            modifier = Modifier.fillMaxSize().padding(8.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            items(items = apps, key = { it.componentName?.flattenToShortString() ?: it.name ?: "" }) {
-                appData ->
+            items(
+                items = filtered,
+                key = { it.componentName?.flattenToShortString() ?: it.name ?: "" },
+            ) { appData ->
                 AppTile(appData, onClick = { onAppClick(appData) })
             }
         }

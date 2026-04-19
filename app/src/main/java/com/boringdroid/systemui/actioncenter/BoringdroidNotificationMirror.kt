@@ -18,15 +18,14 @@ import java.io.PrintWriter
 /**
  * Mirrors every active [StatusBarNotification] into [NotificationFeed].
  *
- * Bound by `system_server` once the user grants notification-listener access
- * (auto-granted on userdebug via
- * `cmd notification allow_listener com.boringdroid.systemui/.actioncenter.BoringdroidNotificationMirror`).
+ * Bound by `system_server` once the user grants notification-listener access (auto-granted on
+ * userdebug via `cmd notification allow_listener
+ * com.boringdroid.systemui/.actioncenter.BoringdroidNotificationMirror`).
  *
- * The service runs in `com.boringdroid.systemui`'s own process while the
- * action-center UI runs inside the host SystemUI process (the plugin is loaded
- * by SystemUI's classloader). [NotificationFeed] is a per-process `object`, so
- * writes here only update THIS process's copy. To keep the UI-side copy in
- * sync we broadcast each change per [NotificationFeedIpc]; the overlay
+ * The service runs in `com.boringdroid.systemui`'s own process while the action-center UI runs
+ * inside the host SystemUI process (the plugin is loaded by SystemUI's classloader).
+ * [NotificationFeed] is a per-process `object`, so writes here only update THIS process's copy. To
+ * keep the UI-side copy in sync we broadcast each change per [NotificationFeedIpc]; the overlay
  * registers a matching receiver in [com.boringdroid.systemui.SystemUIOverlay].
  */
 class BoringdroidNotificationMirror : NotificationListenerService() {

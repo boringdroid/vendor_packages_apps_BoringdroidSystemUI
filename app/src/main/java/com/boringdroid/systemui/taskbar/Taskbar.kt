@@ -59,17 +59,16 @@ import com.boringdroid.systemui.theme.BdExpressiveMaterialTheme
 
 /**
  * Compose's `testTagsAsResourceId=true` writes the raw testTag string into
- * `AccessibilityNodeInfo.setViewIdResourceName`. UiAutomator's
- * `By.res(pkg, id)` matches the exact string `pkg:id/id`, so prefixing every
- * testTag with this constant is what keeps the existing `By.res(PLUGIN_PKG,
- * "…")` test surface working against the Compose taskbar.
+ * `AccessibilityNodeInfo.setViewIdResourceName`. UiAutomator's `By.res(pkg, id)` matches the exact
+ * string `pkg:id/id`, so prefixing every testTag with this constant is what keeps the existing
+ * `By.res(PLUGIN_PKG, "…")` test surface working against the Compose taskbar.
  */
 private const val ID = "com.boringdroid.systemui:id/"
 
 /**
- * Callbacks the [Taskbar] composable needs from the hosting plugin. Hoisted
- * out of the composable so it doesn't directly touch Android service APIs —
- * keeps recomposition hermetic and makes the preview/testing path cheap.
+ * Callbacks the [Taskbar] composable needs from the hosting plugin. Hoisted out of the composable
+ * so it doesn't directly touch Android service APIs — keeps recomposition hermetic and makes the
+ * preview/testing path cheap.
  */
 data class TaskbarCallbacks(
     val onStartClick: () -> Unit,
@@ -80,8 +79,8 @@ data class TaskbarCallbacks(
 )
 
 /**
- * Root taskbar composable. Renders the three-column StartCluster | AppRail |
- * Tray onto a surface-container pill pinned to the bottom of the display by
+ * Root taskbar composable. Renders the three-column StartCluster | AppRail | Tray onto a
+ * surface-container pill pinned to the bottom of the display by
  * [com.boringdroid.systemui.TaskbarWindow].
  */
 @Composable
@@ -91,11 +90,10 @@ fun Taskbar(state: TaskbarState, callbacks: TaskbarCallbacks) {
         val colors = MaterialTheme.colorScheme
         Box(
             modifier =
-                Modifier.fillMaxSize()
-                    .semantics {
-                        testTagsAsResourceId = true
-                        testTag = ID + "taskbar_root"
-                    },
+                Modifier.fillMaxSize().semantics {
+                    testTagsAsResourceId = true
+                    testTag = ID + "taskbar_root"
+                },
             contentAlignment = Alignment.Center,
         ) {
             Row(
@@ -145,9 +143,7 @@ private fun StartCluster(onStartClick: () -> Unit, onSearchClick: () -> Unit) {
             modifier =
                 Modifier.size(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.linearGradient(listOf(colors.primary, colors.tertiary))
-                    )
+                    .background(Brush.linearGradient(listOf(colors.primary, colors.tertiary)))
                     .clickable(onClick = onStartClick)
                     .semantics {
                         testTagsAsResourceId = true
@@ -258,7 +254,7 @@ private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit
                     .width(pillWidth)
                     .height(3.dp)
                     .clip(RoundedCornerShape(100))
-                    .background(colors.primary),
+                    .background(colors.primary)
         )
     }
 }
@@ -390,10 +386,7 @@ private fun Tray(state: TaskbarState, onBellClick: () -> Unit, onClockClick: () 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun ClockStack(time: String, date: String) {
     val colors = MaterialTheme.colorScheme
-    Column(
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Center,
-    ) {
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         Text(
             text = time,
             style = MaterialTheme.typography.titleMedium,

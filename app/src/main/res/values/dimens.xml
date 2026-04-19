@@ -3,16 +3,7 @@
     <dimen name="nav_button_size">30dp</dimen>
     <dimen name="all_apps_window_width">500dp</dimen>
     <dimen name="all_apps_window_height">400dp</dimen>
-    <dimen name="all_apps_item_spacing_horizontal">10dp</dimen>
-    <dimen name="all_apps_item_spacing_vertical">10dp</dimen>
-    <dimen name="all_apps_item_width">70dp</dimen>
-    <dimen name="all_apps_item_height">70dp</dimen>
     <dimen name="all_apps_corner_radius">8dp</dimen>
-    <dimen name="app_info_name_text_size">13sp</dimen>
-    <dimen name="app_info_icon_width">30dp</dimen>
-    <dimen name="app_info_icon_height">30dp</dimen>
-    <dimen name="all_apps_margin_vertical">20dp</dimen>
-    <dimen name="all_apps_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_vertical">10dp</dimen>
     <dimen name="task_info_icon_size">26dp</dimen>
@@ -22,8 +13,6 @@
     <dimen name="line_short_height">2dp</dimen>
     <dimen name="iv_highlight_line_margin_top">5dp</dimen>
     <dimen name="task_info_item_padding_horizontal">5dp</dimen>
-    <dimen name="all_apps_padding_vertical">5dp</dimen>
-    <dimen name="all_apps_padding_horizontal">5dp</dimen>
     <dimen name="taskbar_window_height">64dp</dimen>
     <dimen name="action_center_window_width">320dp</dimen>
     <dimen name="action_center_window_height">500dp</dimen>

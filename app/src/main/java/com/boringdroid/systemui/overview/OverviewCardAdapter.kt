@@ -22,11 +22,10 @@ import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.boringdroid.systemui.R
 
 /**
- * RecyclerView adapter that renders [RecentAppTask] entries as icon + label +
- * thumbnail cards. Tapping a card relaunches the task via
- * `ActivityManagerWrapper.startActivityFromRecents`, then invokes
- * [onTaskLaunched] so the owner can dismiss the overview. The thumbnail is
- * bound from `ActivityManagerWrapper.getTaskThumbnail` at bind time.
+ * RecyclerView adapter that renders [RecentAppTask] entries as icon + label + thumbnail cards.
+ * Tapping a card relaunches the task via `ActivityManagerWrapper.startActivityFromRecents`, then
+ * invokes [onTaskLaunched] so the owner can dismiss the overview. The thumbnail is bound from
+ * `ActivityManagerWrapper.getTaskThumbnail` at bind time.
  */
 class OverviewCardAdapter(
     private val context: Context,
@@ -90,11 +89,7 @@ class OverviewCardAdapter(
                 // killed between RecentTasksProvider.snapshot() and this
                 // click, or a future manifest regression that drops
                 // START_TASKS_FROM_RECENTS.
-                Toast.makeText(
-                    context,
-                    R.string.overview_launch_failed,
-                    Toast.LENGTH_SHORT,
-                ).show()
+                Toast.makeText(context, R.string.overview_launch_failed, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -102,9 +97,8 @@ class OverviewCardAdapter(
     /**
      * Find the adapter position of a given task id.
      *
-     * Used by the owning [OverviewWindow] when a
-     * `TaskStackChangeListener.onTaskSnapshotChanged` fires, so it can call
-     * `notifyItemChanged(position)` and force `onBindViewHolder` to refetch
+     * Used by the owning [OverviewWindow] when a `TaskStackChangeListener.onTaskSnapshotChanged`
+     * fires, so it can call `notifyItemChanged(position)` and force `onBindViewHolder` to refetch
      * the thumbnail. Returns -1 if the task is no longer in the list.
      */
     fun positionOfTaskId(taskId: Int): Int = tasks.indexOfFirst { it.taskId == taskId }

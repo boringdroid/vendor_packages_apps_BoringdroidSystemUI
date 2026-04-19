@@ -21,11 +21,9 @@ import androidx.compose.ui.unit.sp
 /**
  * Material 3 Expressive design system for BoringdroidSystemUI.
  *
- * Token values are exact copies of the design bundle's `tokens.css`
- * (seed #6750A4, purple). Keep this file the single source of truth
- * across the five SystemUI surfaces (taskbar, start menu, action
- * center, calendar panel, overview) so a token tweak in one place
- * lands everywhere.
+ * Token values are exact copies of the design bundle's `tokens.css` (seed #6750A4, purple). Keep
+ * this file the single source of truth across the five SystemUI surfaces (taskbar, start menu,
+ * action center, calendar panel, overview) so a token tweak in one place lands everywhere.
  */
 object BdExpressiveTheme {
 
@@ -246,9 +244,8 @@ object BdExpressiveTheme {
 }
 
 /**
- * Shape tokens beyond what Material3 `Shapes` exposes directly —
- * 2xl (36dp) and `pill` (fully rounded) are used by Action Center
- * cards, the Calendar panel, and the taskbar's Search pill.
+ * Shape tokens beyond what Material3 `Shapes` exposes directly — 2xl (36dp) and `pill` (fully
+ * rounded) are used by Action Center cards, the Calendar panel, and the taskbar's Search pill.
  */
 object BdShape {
     val none = 0.dp
@@ -264,10 +261,9 @@ object BdShape {
 }
 
 /**
- * Motion tokens mirroring `--md-sys-motion-*` in tokens.css. Compose
- * has no first-class spring-path primitive matching the CSS `linear(...)`
- * keyframes exactly; `easingSpringFast` / `easingSpringSlow` use cubic
- * approximations of the dominant phase. Call sites that need the full
+ * Motion tokens mirroring `--md-sys-motion-*` in tokens.css. Compose has no first-class spring-path
+ * primitive matching the CSS `linear(...)` keyframes exactly; `easingSpringFast` /
+ * `easingSpringSlow` use cubic approximations of the dominant phase. Call sites that need the full
  * overshoot use Compose `spring()` with matching stiffness.
  */
 object BdMotion {
@@ -299,10 +295,9 @@ object BdMotion {
 }
 
 /**
- * Apply the Expressive Material3 theme to a subtree. `darkTheme = null`
- * resolves from the system setting; call sites that need to pin a
- * theme explicitly (e.g. the Calendar panel under a dark wallpaper)
- * can pass `darkTheme = true` / `false`.
+ * Apply the Expressive Material3 theme to a subtree. `darkTheme = null` resolves from the system
+ * setting; call sites that need to pin a theme explicitly (e.g. the Calendar panel under a dark
+ * wallpaper) can pass `darkTheme = true` / `false`.
  */
 @Composable
 fun BdExpressiveMaterialTheme(

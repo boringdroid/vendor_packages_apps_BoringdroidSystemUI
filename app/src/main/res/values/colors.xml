@@ -2,7 +2,5 @@
 <resources>
     <color name="all_apps_btn_fill_color">@android:color/holo_blue_light</color>
     <color name="highlight_line_color">@android:color/holo_blue_light</color>
-    <color name="bg_app_info_pressed_color">@android:color/darker_gray</color>
-    <color name="bg_app_info_hovered_color">@android:color/darker_gray</color>
     <color name="wifi_strength_color">#ffffff</color>
 </resources>

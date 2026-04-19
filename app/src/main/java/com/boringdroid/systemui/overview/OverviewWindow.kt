@@ -28,18 +28,16 @@ import com.boringdroid.systemui.R
 /**
  * Owns the boringdroid Overview window.
  *
- * Binds a single fullscreen system window with a root whose id is
- * `@+id/overview_root` — the anchor the `OverviewTest` UiAutomator selector
- * looks for. The window hosts a `RecyclerView` of recent-task cards populated
- * by [OverviewCardAdapter] and [RecentTasksProvider].
+ * Binds a single fullscreen system window with a root whose id is `@+id/overview_root` — the anchor
+ * the `OverviewTest` UiAutomator selector looks for. The window hosts a `RecyclerView` of
+ * recent-task cards populated by [OverviewCardAdapter] and [RecentTasksProvider].
  *
- * Runs in the BoringdroidSystemUI process (bound via [BoringdroidOverviewService]),
- * so it uses its own package context for WindowManager — unlike [TaskbarWindow],
- * which piggybacks on the host SystemUI context.
+ * Runs in the BoringdroidSystemUI process (bound via [BoringdroidOverviewService]), so it uses its
+ * own package context for WindowManager — unlike [TaskbarWindow], which piggybacks on the host
+ * SystemUI context.
  */
 class OverviewWindow(private val context: Context) {
-    private val windowManager =
-        context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var root: ViewGroup? = null
     private var adapter: OverviewCardAdapter? = null
 
@@ -69,8 +67,7 @@ class OverviewWindow(private val context: Context) {
             if (DEBUG) Log.d(TAG, "show: already visible")
             return
         }
-        val view =
-            LayoutInflater.from(context).inflate(R.layout.layout_overview, null) as ViewGroup
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_overview, null) as ViewGroup
         // TYPE_APPLICATION_OVERLAY is auto-granted for /system apps; no
         // SYSTEM_ALERT_WINDOW runtime permission dance needed.
         val lp =
@@ -98,8 +95,9 @@ class OverviewWindow(private val context: Context) {
         view.isFocusable = true
         view.isFocusableInTouchMode = true
         view.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_UP &&
-                (keyCode == KeyEvent.KEYCODE_ESCAPE || keyCode == KeyEvent.KEYCODE_BACK)
+            if (
+                event.action == KeyEvent.ACTION_UP &&
+                    (keyCode == KeyEvent.KEYCODE_ESCAPE || keyCode == KeyEvent.KEYCODE_BACK)
             ) {
                 hide()
                 true

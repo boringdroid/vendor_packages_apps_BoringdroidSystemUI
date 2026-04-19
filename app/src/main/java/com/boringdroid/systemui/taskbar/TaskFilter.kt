@@ -9,10 +9,9 @@ import androidx.annotation.VisibleForTesting
 /**
  * Task-filtering utility for the taskbar's running-app rail.
  *
- * Extracted from the historical AppStateLayout helper so the Compose-based
- * taskbar and its unit tests can share the predicate. Same behavior as the
- * View-based implementation — just relocated to a file whose lifetime is
- * not tied to a RecyclerView.
+ * Extracted from the historical AppStateLayout helper so the Compose-based taskbar and its unit
+ * tests can share the predicate. Same behavior as the View-based implementation — just relocated to
+ * a file whose lifetime is not tied to a RecyclerView.
  */
 object TaskFilter {
 

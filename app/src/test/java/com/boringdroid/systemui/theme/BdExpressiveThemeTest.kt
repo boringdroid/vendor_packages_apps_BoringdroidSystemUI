@@ -9,11 +9,9 @@ import org.robolectric.RobolectricTestRunner
 /**
  * Guards the M3 Expressive seed colors against accidental drift.
  *
- * The SystemUI surfaces ship a hand-transcribed copy of `tokens.css`
- * (see the design bundle under `boringdroid/designs/boringdroid-app-design/`).
- * If the design bundle seed color moves, this test fails loud — the
- * token update should land here at the same time as the rest of the
- * theme.
+ * The SystemUI surfaces ship a hand-transcribed copy of `tokens.css` (see the design bundle under
+ * `boringdroid/designs/boringdroid-app-design/`). If the design bundle seed color moves, this test
+ * fails loud — the token update should land here at the same time as the rest of the theme.
  */
 @RunWith(RobolectricTestRunner::class)
 class BdExpressiveThemeTest {

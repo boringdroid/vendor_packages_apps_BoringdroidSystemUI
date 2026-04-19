@@ -16,16 +16,11 @@ import android.util.Log
 /**
  * Surfaces the list of recent tasks to the overview UI.
  *
- * BoringdroidSystemUI is the declared recents component
- * (`config_recentsComponentName` overlay in device/generic/boringdroid_x86_64),
- * so `ActivityTaskManagerService.isCallerRecents(callingUid)` returns true
- * and `getRecentTasks` does not enforce REAL_GET_TASKS against this package.
+ * BoringdroidSystemUI is the declared recents component (`config_recentsComponentName` overlay in
+ * device/generic/boringdroid_x86_64), so `ActivityTaskManagerService.isCallerRecents(callingUid)`
+ * returns true and `getRecentTasks` does not enforce REAL_GET_TASKS against this package.
  */
-data class RecentAppTask(
-    val taskId: Int,
-    val packageName: String,
-    val component: ComponentName?,
-)
+data class RecentAppTask(val taskId: Int, val packageName: String, val component: ComponentName?)
 
 object RecentTasksProvider {
     private const val TAG = "BoringdroidRecentTasks"
