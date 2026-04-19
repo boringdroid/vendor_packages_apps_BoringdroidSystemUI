@@ -3,10 +3,13 @@ package com.boringdroid.systemui
 import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Insets
 import android.graphics.PixelFormat
 import android.os.Binder
 import android.view.Gravity
+import android.view.InsetsFrameProvider
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.ui.platform.ComposeView
@@ -81,6 +84,16 @@ class TaskbarWindow(private val pluginContext: Context, private val hostContext:
         lp.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         lp.token = Binder()
         lp.title = "BoringdroidTaskbar"
+        // Advertise this window as a navigation-bar insets source so Launcher3 (and any other
+        // full-height app) leaves a 64dp bottom inset for its hotseat/content instead of
+        // drawing under the taskbar. The stock navigation bar is disabled on boringdroid
+        // (config_showNavigationBar=false), so there is no conflicting nav-bar source. Requires
+        // platform_apis — InsetsFrameProvider is @SystemApi.
+        lp.providedInsets =
+            arrayOf(
+                InsetsFrameProvider(lp.token, 0, WindowInsets.Type.navigationBars())
+                    .setInsetsSize(Insets.of(0, 0, 0, heightPx))
+            )
         windowManager.addView(frame, lp)
         root = frame
     }

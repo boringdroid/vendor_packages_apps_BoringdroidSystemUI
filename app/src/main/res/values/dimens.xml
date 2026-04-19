@@ -6,6 +6,8 @@
     <dimen name="all_apps_corner_radius">28dp</dimen>
     <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_vertical">10dp</dimen>
+    <!-- Visible gap between the start menu bottom edge and the taskbar top edge. -->
+    <dimen name="all_apps_window_taskbar_gap">32dp</dimen>
     <dimen name="task_info_icon_size">26dp</dimen>
     <dimen name="line_long_width">30dp</dimen>
     <dimen name="line_long_height">2dp</dimen>

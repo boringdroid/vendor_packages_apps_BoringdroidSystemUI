@@ -35,9 +35,12 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberPlainTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -202,7 +205,10 @@ private fun AppRail(
     LazyRow(
         modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        // Center running-app icons within the rail's expanded weight(1f) slot so the
+        // taskbar reads as [Start ... Apps ... Tray] with the icons anchored at the middle
+        // rather than hugging the left edge.
+        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items(items = tasks, key = { it.id }) { task ->
@@ -216,7 +222,7 @@ private fun AppRail(
 }
 
 @Composable
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val pillWidth by
@@ -225,40 +231,52 @@ private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit
             animationSpec = spring(stiffness = Spring.StiffnessMedium),
             label = "app_rail_pill",
         )
-    Box(
-        modifier =
-            Modifier.size(48.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .then(
-                    if (isActive) {
-                        Modifier.background(colors.primary.copy(alpha = 0.18f))
-                    } else Modifier
-                )
-                .clickable(onClick = onClick)
-                .semantics {
-                    testTagsAsResourceId = true
-                    testTag = ID + "iv_task_info_icon"
-                },
-        contentAlignment = Alignment.Center,
+    val label = task.label?.toString()?.takeIf { it.isNotBlank() } ?: task.packageName
+    val tooltipState = rememberPlainTooltipState()
+    // Material3 PlainTooltipBox drives both mouse-hover and long-press. Boringdroid is
+    // desktop-first so the hover path is the primary one: pointing the mouse at a running-app
+    // icon surfaces the app name in a plain tooltip above the taskbar. AOSP ships material3
+    // 1.2.0-alpha04 which exposes PlainTooltipBox rather than the newer TooltipBox +
+    // PlainTooltip split.
+    PlainTooltipBox(
+        tooltip = { Text(text = label) },
+        tooltipState = tooltipState,
     ) {
         Box(
             modifier =
-                Modifier.size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(colors.surfaceContainerHigh),
+                Modifier.size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .then(
+                        if (isActive) {
+                            Modifier.background(colors.primary.copy(alpha = 0.18f))
+                        } else Modifier
+                    )
+                    .clickable(onClick = onClick)
+                    .semantics {
+                        testTagsAsResourceId = true
+                        testTag = ID + "iv_task_info_icon"
+                    },
             contentAlignment = Alignment.Center,
         ) {
-            TaskIcon(task.icon, contentDescription = task.label?.toString() ?: task.packageName)
+            Box(
+                modifier =
+                    Modifier.size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(colors.surfaceContainerHigh),
+                contentAlignment = Alignment.Center,
+            ) {
+                TaskIcon(task.icon, contentDescription = label)
+            }
+            Box(
+                modifier =
+                    Modifier.align(Alignment.BottomCenter)
+                        .padding(bottom = 2.dp)
+                        .width(pillWidth)
+                        .height(3.dp)
+                        .clip(RoundedCornerShape(100))
+                        .background(colors.primary)
+            )
         }
-        Box(
-            modifier =
-                Modifier.align(Alignment.BottomCenter)
-                    .padding(bottom = 2.dp)
-                    .width(pillWidth)
-                    .height(3.dp)
-                    .clip(RoundedCornerShape(100))
-                    .background(colors.primary)
-        )
     }
 }
 

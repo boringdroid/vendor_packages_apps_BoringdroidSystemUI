@@ -171,10 +171,13 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
         val marginVertical = resources.getDimension(R.dimen.all_apps_window_margin_vertical).toInt()
         layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.x = marginStart
-        // Subtract the taskbar height so the panel sits above it rather than clipping under it.
+        // Sit above the taskbar with a deliberate visual gap; margin_vertical is the top
+        // margin, taskbar_gap is the bottom breathing room between this panel and the taskbar.
         val taskbarHeight = resources.getDimension(R.dimen.taskbar_window_height).toInt()
+        val taskbarGap =
+            resources.getDimension(R.dimen.all_apps_window_taskbar_gap).toInt()
         layoutParams.y =
-            displayMetrics.heightPixels - windowHeight - taskbarHeight - marginVertical * 2
+            displayMetrics.heightPixels - windowHeight - taskbarHeight - taskbarGap
         Log.d(TAG, "All apps window location (" + layoutParams.x + ", " + layoutParams.y + ")")
         return layoutParams
     }
