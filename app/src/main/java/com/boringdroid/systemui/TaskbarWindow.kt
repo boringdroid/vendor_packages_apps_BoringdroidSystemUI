@@ -91,14 +91,18 @@ class TaskbarWindow(private val pluginContext: Context, private val hostContext:
         lp.token = Binder()
         lp.title = "BoringdroidTaskbar"
         // Advertise this window as a navigation-bar insets source so Launcher3 (and any other
-        // full-height app) leaves a 64dp bottom inset for its hotseat/content instead of
-        // drawing under the taskbar. The stock navigation bar is disabled on boringdroid
-        // (config_showNavigationBar=false), so there is no conflicting nav-bar source. Requires
-        // platform_apis — InsetsFrameProvider is @SystemApi.
+        // full-height app) leaves room for the taskbar instead of drawing under it. The
+        // advertised inset is `taskbar_window_height + panel_taskbar_gap` — the visual taskbar
+        // plus the same breathing gap our own panels leave above it. Reporting exactly
+        // `taskbar_window_height` made Launcher3's Hotseat icons sit flush against the top
+        // edge of the taskbar (`hotseatBarBottomSpacePx = mInsets.bottom + minQsbMargin` in
+        // DeviceProfile only adds a minQsbMargin of a couple px), which reads as the taskbar
+        // "overlapping" Launcher content. The extra 8dp restores a visible gap.
+        val insetBottom = heightPx + pluginContext.resources.getDimensionPixelSize(R.dimen.panel_taskbar_gap)
         lp.providedInsets =
             arrayOf(
                 InsetsFrameProvider(lp.token, 0, WindowInsets.Type.navigationBars())
-                    .setInsetsSize(Insets.of(0, 0, 0, heightPx))
+                    .setInsetsSize(Insets.of(0, 0, 0, insetBottom))
             )
         windowManager.addView(frame, lp)
         root = frame
