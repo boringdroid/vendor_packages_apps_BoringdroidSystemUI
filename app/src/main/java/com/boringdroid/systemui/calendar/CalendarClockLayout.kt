@@ -114,7 +114,9 @@ private fun CalendarClockPanel() {
                 testTag = ID + "calendar_clock_panel"
             },
         color = colors.surface,
-        shape = MaterialTheme.shapes.extraLarge,
+        // See ActionCenterLayout: `large` (16dp) aligns the panel's outer edge with the
+        // inner tiles and matches the design's compact panel rounding.
+        shape = MaterialTheme.shapes.large,
         tonalElevation = 3.dp,
     ) {
         Column(

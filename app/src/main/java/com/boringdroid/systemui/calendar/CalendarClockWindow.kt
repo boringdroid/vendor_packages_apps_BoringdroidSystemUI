@@ -146,8 +146,8 @@ class CalendarClockWindow(private val pluginContext: Context, private val hostCo
         val windowWidth = resources.getDimension(R.dimen.calendar_clock_window_width).toInt()
         val windowHeight = resources.getDimension(R.dimen.calendar_clock_window_height).toInt()
         val marginEnd = resources.getDimension(R.dimen.calendar_clock_window_margin_end).toInt()
-        val marginBottom =
-            resources.getDimension(R.dimen.calendar_clock_window_margin_bottom).toInt()
+        // Just the small breathing gap — Gravity.BOTTOM auto-insets above the taskbar.
+        val marginBottom = resources.getDimensionPixelSize(R.dimen.panel_taskbar_gap)
         val params =
             WindowManager.LayoutParams(
                 windowWidth,

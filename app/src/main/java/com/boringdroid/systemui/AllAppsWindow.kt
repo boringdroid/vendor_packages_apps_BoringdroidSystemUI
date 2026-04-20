@@ -7,10 +7,8 @@ import android.content.ContextWrapper
 import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.PixelFormat
-import android.graphics.Point
 import android.os.Handler
 import android.os.Message
-import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
@@ -163,21 +161,14 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
                 PixelFormat.RGB_565,
             )
         layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val size = Point()
-        windowManager.defaultDisplay.getRealSize(size)
         val marginStart = resources.getDimension(R.dimen.all_apps_window_margin_horizontal).toInt()
-        val marginVertical = resources.getDimension(R.dimen.all_apps_window_margin_vertical).toInt()
-        layoutParams.gravity = Gravity.TOP or Gravity.START
+        // Gravity.BOTTOM + y-from-bottom plays nicely with the TYPE_NAVIGATION_BAR taskbar:
+        // WMS auto-insets this window above the taskbar, so y is just the small breathing
+        // gap. Using TOP would require re-adding the taskbar height to the arithmetic and
+        // drifts the moment the taskbar height changes.
+        layoutParams.gravity = Gravity.BOTTOM or Gravity.START
         layoutParams.x = marginStart
-        // Sit above the taskbar with a deliberate visual gap; margin_vertical is the top
-        // margin, taskbar_gap is the bottom breathing room between this panel and the taskbar.
-        val taskbarHeight = resources.getDimension(R.dimen.taskbar_window_height).toInt()
-        val taskbarGap =
-            resources.getDimension(R.dimen.all_apps_window_taskbar_gap).toInt()
-        layoutParams.y =
-            displayMetrics.heightPixels - windowHeight - taskbarHeight - taskbarGap
+        layoutParams.y = resources.getDimensionPixelSize(R.dimen.panel_taskbar_gap)
         Log.d(TAG, "All apps window location (" + layoutParams.x + ", " + layoutParams.y + ")")
         return layoutParams
     }

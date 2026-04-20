@@ -124,7 +124,10 @@ private fun ActionCenterPanel() {
                 testTag = ID + "action_center_panel"
             },
         color = colors.surface,
-        shape = MaterialTheme.shapes.extraLarge,
+        // `extraLarge` defaults to 28dp, which reads as a bubbly, oversized corner on the
+        // compact 320×680 panel. `large` (16dp) matches the design's `.bd-notif-panel`
+        // rounding and keeps the outer edge consistent with the inner QS tiles.
+        shape = MaterialTheme.shapes.large,
         tonalElevation = 3.dp,
     ) {
         Column(
@@ -326,7 +329,7 @@ private fun MediaCard() {
                     testTag = ID + "media_card"
                 },
             color = colors.secondaryContainer,
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = MaterialTheme.shapes.medium,
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(12.dp),

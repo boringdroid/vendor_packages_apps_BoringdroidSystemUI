@@ -136,8 +136,10 @@ class ActionCenterWindow(private val pluginContext: Context, private val hostCon
         val windowWidth = resources.getDimension(R.dimen.action_center_window_width).toInt()
         val windowHeight = resources.getDimension(R.dimen.action_center_window_height).toInt()
         val marginEnd = resources.getDimension(R.dimen.action_center_window_margin_end).toInt()
-        val marginBottom =
-            resources.getDimension(R.dimen.action_center_window_margin_bottom).toInt()
+        // Just the small breathing gap: Gravity.BOTTOM is computed relative to the inset-
+        // adjusted bottom (above the TYPE_NAVIGATION_BAR taskbar), so WMS already leaves room
+        // for the 64dp taskbar. Adding taskbar_window_height here would double-count.
+        val marginBottom = resources.getDimensionPixelSize(R.dimen.panel_taskbar_gap)
         val params =
             WindowManager.LayoutParams(
                 windowWidth,

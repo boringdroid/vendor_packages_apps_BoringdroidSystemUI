@@ -6,8 +6,6 @@
     <dimen name="all_apps_corner_radius">28dp</dimen>
     <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_vertical">10dp</dimen>
-    <!-- Visible gap between the start menu bottom edge and the taskbar top edge. -->
-    <dimen name="all_apps_window_taskbar_gap">12dp</dimen>
     <dimen name="task_info_icon_size">26dp</dimen>
     <dimen name="line_long_width">30dp</dimen>
     <dimen name="line_long_height">2dp</dimen>
@@ -16,13 +14,16 @@
     <dimen name="iv_highlight_line_margin_top">5dp</dimen>
     <dimen name="task_info_item_padding_horizontal">5dp</dimen>
     <dimen name="taskbar_window_height">64dp</dimen>
+    <!-- Single source of truth for the breathing room between every floating panel and the
+         top edge of the taskbar. Panels compute their bottom margin as
+         taskbar_window_height + panel_taskbar_gap at runtime, so changing the taskbar height
+         only needs to happen here. -->
+    <dimen name="panel_taskbar_gap">8dp</dimen>
     <dimen name="action_center_window_width">320dp</dimen>
     <!-- Tall enough to show the full 3x3 QS grid (≈300dp) + time header + media card +
          a couple of notifications without clipping the bottom tile row. -->
     <dimen name="action_center_window_height">680dp</dimen>
     <dimen name="action_center_window_margin_end">10dp</dimen>
-    <!-- Sits above the 64dp taskbar with a 12dp breathing gap. -->
-    <dimen name="action_center_window_margin_bottom">76dp</dimen>
     <dimen name="action_center_corner_radius">12dp</dimen>
     <dimen name="notification_row_padding_horizontal">12dp</dimen>
     <dimen name="notification_row_padding_vertical">8dp</dimen>
@@ -35,7 +36,5 @@
     <dimen name="calendar_clock_window_width">360dp</dimen>
     <dimen name="calendar_clock_window_height">540dp</dimen>
     <dimen name="calendar_clock_window_margin_end">10dp</dimen>
-    <!-- Sits above the 64dp taskbar with a 12dp breathing gap. -->
-    <dimen name="calendar_clock_window_margin_bottom">76dp</dimen>
     <dimen name="calendar_clock_corner_radius">12dp</dimen>
 </resources>
