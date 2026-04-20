@@ -90,6 +90,21 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <!-- Manifest-declared receiver so the taskbar's recents button can reach the
+             Overview window even before BoringdroidOverviewService has been bound by
+             SystemUI's OverviewProxyService. On receipt it starts the service and
+             forwards the action through; the service's own in-process receiver then
+             drives the OverviewWindow. -->
+        <receiver
+            android:name="com.boringdroid.systemui.overview.OverviewToggleReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.boringdroid.systemui.action.TOGGLE_OVERVIEW" />
+                <action android:name="com.boringdroid.systemui.action.HIDE_OVERVIEW" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -7,7 +7,7 @@
     <dimen name="all_apps_window_margin_horizontal">10dp</dimen>
     <dimen name="all_apps_window_margin_vertical">10dp</dimen>
     <!-- Visible gap between the start menu bottom edge and the taskbar top edge. -->
-    <dimen name="all_apps_window_taskbar_gap">32dp</dimen>
+    <dimen name="all_apps_window_taskbar_gap">12dp</dimen>
     <dimen name="task_info_icon_size">26dp</dimen>
     <dimen name="line_long_width">30dp</dimen>
     <dimen name="line_long_height">2dp</dimen>
@@ -21,8 +21,8 @@
          a couple of notifications without clipping the bottom tile row. -->
     <dimen name="action_center_window_height">680dp</dimen>
     <dimen name="action_center_window_margin_end">10dp</dimen>
-    <!-- Sits above the 64dp taskbar with a 24dp breathing gap. -->
-    <dimen name="action_center_window_margin_bottom">88dp</dimen>
+    <!-- Sits above the 64dp taskbar with a 12dp breathing gap. -->
+    <dimen name="action_center_window_margin_bottom">76dp</dimen>
     <dimen name="action_center_corner_radius">12dp</dimen>
     <dimen name="notification_row_padding_horizontal">12dp</dimen>
     <dimen name="notification_row_padding_vertical">8dp</dimen>
@@ -35,7 +35,7 @@
     <dimen name="calendar_clock_window_width">360dp</dimen>
     <dimen name="calendar_clock_window_height">540dp</dimen>
     <dimen name="calendar_clock_window_margin_end">10dp</dimen>
-    <!-- Sits above the 64dp taskbar with a 24dp breathing gap. -->
-    <dimen name="calendar_clock_window_margin_bottom">88dp</dimen>
+    <!-- Sits above the 64dp taskbar with a 12dp breathing gap. -->
+    <dimen name="calendar_clock_window_margin_bottom">76dp</dimen>
     <dimen name="calendar_clock_corner_radius">12dp</dimen>
 </resources>

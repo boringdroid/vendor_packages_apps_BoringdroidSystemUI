@@ -337,7 +337,17 @@ private fun Tray(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(
-            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)),
+            modifier =
+                Modifier.size(32.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    // Clicking the tray Wi-Fi indicator opens the Action Center, whose QS grid
+                    // hosts the actual Wi-Fi toggle tile. Routes through onBellClick so the
+                    // mutual-exclusion with Calendar/Overview stays centralised there.
+                    .clickable(onClick = onBellClick)
+                    .semantics {
+                        testTagsAsResourceId = true
+                        testTag = ID + "taskbar_wifi"
+                    },
             contentAlignment = Alignment.Center,
         ) {
             Icon(

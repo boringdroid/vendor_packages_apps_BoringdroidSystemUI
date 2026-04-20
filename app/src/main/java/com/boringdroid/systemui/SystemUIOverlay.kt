@@ -21,7 +21,7 @@ import com.boringdroid.systemui.actioncenter.NotificationFeedIpc
 import com.boringdroid.systemui.actioncenter.QsController
 import com.boringdroid.systemui.actioncenter.SbnSummary
 import com.boringdroid.systemui.calendar.CalendarClockWindow
-import com.boringdroid.systemui.overview.OverviewWindow
+import com.boringdroid.systemui.overview.BoringdroidOverviewService
 import com.boringdroid.systemui.taskbar.BdTaskInfo
 import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
@@ -39,7 +39,6 @@ class SystemUIOverlay : OverlayPlugin {
     private var taskbarState: TaskbarState? = null
     private var actionCenterWindow: ActionCenterWindow? = null
     private var calendarClockWindow: CalendarClockWindow? = null
-    private var overviewWindow: OverviewWindow? = null
     private var qsController: QsController? = null
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
@@ -52,7 +51,10 @@ class SystemUIOverlay : OverlayPlugin {
                 allAppsWindow?.dismiss()
                 actionCenterWindow?.dismiss()
                 calendarClockWindow?.dismiss()
-                overviewWindow?.hide()
+                context.sendBroadcast(
+                    Intent(BoringdroidOverviewService.ACTION_HIDE_OVERVIEW)
+                        .setPackage(context.packageName)
+                )
             }
         }
 
@@ -135,7 +137,10 @@ class SystemUIOverlay : OverlayPlugin {
         allAppsWindow = AllAppsWindow(pluginContext, sysUIContext)
         actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
         calendarClockWindow = CalendarClockWindow(pluginContext, sysUIContext)
-        overviewWindow = OverviewWindow(pluginContext)
+        // The Overview window lives in BoringdroidOverviewService (plugin process); we drive it
+        // via broadcasts rather than owning a second instance here. A second OverviewWindow in
+        // the SystemUI process would share the class name but not the classloader, triggering a
+        // ClassCastException when LayoutInflater returns the plugin-loaded OverviewLayout.
         val state = TaskbarState(pluginContext, sysUIContext).also { it.start() }
         taskbarState = state
         val window = TaskbarWindow(pluginContext, sysUIContext)
@@ -151,18 +156,28 @@ class SystemUIOverlay : OverlayPlugin {
                 onBellClick = {
                     // Calendar, Overview, and Action Center are mutually exclusive surfaces.
                     calendarClockWindow?.dismiss()
-                    overviewWindow?.hide()
+                    sysUIContext.sendBroadcast(
+                        Intent(BoringdroidOverviewService.ACTION_HIDE_OVERVIEW)
+                            .setPackage(pluginContext.packageName)
+                    )
                     actionCenterWindow?.toggle()
                 },
                 onClockClick = {
                     actionCenterWindow?.dismiss()
-                    overviewWindow?.hide()
+                    sysUIContext.sendBroadcast(
+                        Intent(BoringdroidOverviewService.ACTION_HIDE_OVERVIEW)
+                            .setPackage(pluginContext.packageName)
+                    )
                     calendarClockWindow?.toggle()
                 },
                 onOverviewClick = {
                     actionCenterWindow?.dismiss()
                     calendarClockWindow?.dismiss()
-                    overviewWindow?.toggle()
+                    // Overview lives in the plugin process; talk to it via broadcast.
+                    sysUIContext.sendBroadcast(
+                        Intent(BoringdroidOverviewService.ACTION_TOGGLE_OVERVIEW)
+                            .setPackage(pluginContext.packageName)
+                    )
                 },
                 onTaskClick = { task: BdTaskInfo -> state.bringTaskToFront(task.id) },
             )
@@ -220,8 +235,6 @@ class SystemUIOverlay : OverlayPlugin {
         actionCenterWindow = null
         calendarClockWindow?.dismiss()
         calendarClockWindow = null
-        overviewWindow?.hide()
-        overviewWindow = null
         pluginContext = null
     }
 

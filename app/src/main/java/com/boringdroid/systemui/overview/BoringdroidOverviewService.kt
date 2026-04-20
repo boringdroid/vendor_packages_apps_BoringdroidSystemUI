@@ -19,6 +19,12 @@ import android.util.Log
  *
  * onBind() returns an IOverviewProxy.Stub implementation that drives an [OverviewWindow] in
  * response to overview callbacks.
+ *
+ * Also wakeable via [OverviewToggleReceiver]: when the taskbar's recents button (running in the
+ * SystemUI host process) fires [ACTION_TOGGLE_OVERVIEW], the manifest receiver starts this
+ * service with the action as an extra, and [onStartCommand] drives the window. Going through
+ * the service avoids instantiating [OverviewWindow] in a foreign classloader — doing so directly
+ * from the plugin-in-SystemUI process produced a ClassCastException on LayoutInflater's cast.
  */
 class BoringdroidOverviewService : Service() {
 
@@ -35,6 +41,21 @@ class BoringdroidOverviewService : Service() {
     override fun onBind(intent: Intent?): IBinder {
         Log.i(TAG, "BoringdroidOverviewService onBind $intent")
         return proxy
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val pending = intent?.getStringExtra(OverviewToggleReceiver.EXTRA_PENDING_ACTION)
+        when (pending) {
+            ACTION_TOGGLE_OVERVIEW -> {
+                Log.i(TAG, "onStartCommand: TOGGLE")
+                window.toggle()
+            }
+            ACTION_HIDE_OVERVIEW -> {
+                if (window.isShowing()) window.hide()
+            }
+        }
+        // Not sticky — the manifest receiver re-starts us on every subsequent toggle broadcast.
+        return START_NOT_STICKY
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -55,5 +76,7 @@ class BoringdroidOverviewService : Service() {
 
     companion object {
         private const val TAG = "BoringdroidOverview"
+        const val ACTION_TOGGLE_OVERVIEW = "com.boringdroid.systemui.action.TOGGLE_OVERVIEW"
+        const val ACTION_HIDE_OVERVIEW = "com.boringdroid.systemui.action.HIDE_OVERVIEW"
     }
 }

@@ -75,7 +75,13 @@ class TaskbarWindow(private val pluginContext: Context, private val hostContext:
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 heightPx,
-                WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL,
+                // TYPE_NAVIGATION_BAR (not _PANEL) is the window type whose providedInsets WMS
+                // actually propagates to app windows. NAVIGATION_BAR_PANEL is a supplementary
+                // panel layered over the bar and has its inset advertisement ignored, leaving
+                // Launcher3 and other apps drawing under the taskbar. The stock SystemUI nav bar
+                // is disabled on boringdroid (config_showNavigationBar=false), so there is no
+                // conflicting TYPE_NAVIGATION_BAR window.
+                WindowManager.LayoutParams.TYPE_NAVIGATION_BAR,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
