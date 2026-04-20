@@ -21,6 +21,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +56,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -70,6 +73,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.boringdroid.systemui.theme.BdExpressiveMaterialTheme
@@ -156,12 +160,27 @@ private fun OverviewPanel(
 ) {
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
+    // macOS Mission Control-style backdrop: a darker, near-opaque black with a subtle
+    // vertical gradient fade at the top so the top edge reads as a softer surface rather
+    // than a hard mask.
     Box(
         modifier =
-            Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.75f)).semantics {
-                testTagsAsResourceId = true
-                testTag = ID + "overview_root"
-            }
+            Modifier.fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.82f))
+                .background(
+                    Brush.verticalGradient(
+                        colors =
+                            listOf(
+                                Color.White.copy(alpha = 0.04f),
+                                Color.Transparent,
+                                Color.Transparent,
+                            ),
+                    )
+                )
+                .semantics {
+                    testTagsAsResourceId = true
+                    testTag = ID + "overview_root"
+                }
     ) {
         AnimatedVisibility(
             visible = visible,
@@ -175,7 +194,7 @@ private fun OverviewPanel(
                                 BdMotion.durationMedium2,
                                 easing = BdMotion.easingEmphasizedDecelerate,
                             ),
-                        initialScale = 0.98f,
+                        initialScale = 0.96f,
                     ),
         ) {
             OverviewContent(
@@ -195,16 +214,16 @@ private fun OverviewContent(
     onCardClick: (RecentAppTask) -> Unit,
     onCardClose: (RecentAppTask) -> Unit,
 ) {
+    // No header text — macOS Mission Control leaves the space empty so the thumbnails
+    // do the talking. `overview_root` stays in the backdrop Box above.
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = 48.dp, bottom = 104.dp),
+        modifier = Modifier.fillMaxSize().padding(top = 96.dp, bottom = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        OverviewHead()
-        Spacer(modifier = Modifier.height(28.dp))
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 48.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                contentPadding = PaddingValues(horizontal = 64.dp),
+                horizontalArrangement = Arrangement.spacedBy(28.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 items(items = tasks, key = { it.taskId }) { task ->
@@ -221,23 +240,6 @@ private fun OverviewContent(
 }
 
 @Composable
-private fun OverviewHead() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = "Recents",
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
-            fontWeight = FontWeight.Medium,
-        )
-        Text(
-            text = "Swipe across · Esc to exit",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.7f),
-        )
-    }
-}
-
-@Composable
 @OptIn(ExperimentalComposeUiApi::class)
 private fun RecentCard(
     task: RecentAppTask,
@@ -250,26 +252,50 @@ private fun RecentCard(
     val appEntry = remember(task.packageName, pm) { resolveAppEntry(pm, task.packageName) }
     val thumbnail: Bitmap? =
         remember(task.taskId, snapshotVersion) { loadThumbnail(task.taskId) }
+    // macOS App Expose: each task is a stacked column — thumbnail card on top, then a
+    // centred [icon · label] row below. The card sits on a drop shadow and is bordered
+    // with a 1dp hairline so the edge reads in dark UI. The whole Column is clickable so
+    // tapping the caption activates the task — matches macOS (clicking either thumbnail
+    // or label brings the window to front) and keeps `OverviewTest.cardClick…` passing
+    // (it looks up `overview_card_label` and taps it, expecting the tap to propagate).
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier.width(380.dp).clickable(onClick = onClick),
+    ) {
+        ThumbnailCard(
+            thumbnail = thumbnail,
+            onClose = onClose,
+        )
+        CardCaption(icon = appEntry.icon, label = appEntry.label)
+    }
+}
+
+@Composable
+@OptIn(ExperimentalComposeUiApi::class)
+private fun ThumbnailCard(
+    thumbnail: Bitmap?,
+    onClose: () -> Unit,
+) {
     val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(14.dp)
     Box(
         modifier =
-            Modifier.size(width = 320.dp, height = 200.dp)
-                .clip(RoundedCornerShape(18.dp))
+            Modifier.size(width = 380.dp, height = 240.dp)
+                .shadow(
+                    elevation = 24.dp,
+                    shape = shape,
+                    ambientColor = Color.Black,
+                    spotColor = Color.Black,
+                )
+                .clip(shape)
                 .background(colors.surfaceContainerLow)
-                .clickable(onClick = onClick)
+                .border(width = 1.dp, color = Color.White.copy(alpha = 0.08f), shape = shape)
     ) {
         ThumbnailSurface(bitmap = thumbnail)
         CloseAffordance(
-            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+            modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
             onClose = onClose,
-        )
-        CardFooter(
-            modifier =
-                Modifier.align(Alignment.BottomStart)
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-            icon = appEntry.icon,
-            label = appEntry.label,
         )
     }
 }
@@ -298,13 +324,21 @@ private fun BoxScope.ThumbnailSurface(bitmap: Bitmap?) {
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 private fun CloseAffordance(modifier: Modifier, onClose: () -> Unit) {
+    // Subtle macOS-style close button: small, low-contrast, only pops on hover. We keep
+    // it at a low-alpha default because we don't wire hover detection here; the icon is
+    // still discoverable but doesn't fight the thumbnail for attention.
     IconButton(
         onClick = onClose,
         modifier =
             modifier
-                .size(28.dp)
+                .size(24.dp)
                 .clip(RoundedCornerShape(percent = 50))
-                .background(Color.Black.copy(alpha = 0.4f))
+                .background(Color.Black.copy(alpha = 0.55f))
+                .border(
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.18f),
+                    shape = RoundedCornerShape(percent = 50),
+                )
                 .semantics {
                     testTagsAsResourceId = true
                     testTag = ID + "overview_card_close"
@@ -313,42 +347,35 @@ private fun CloseAffordance(modifier: Modifier, onClose: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.Close,
             contentDescription = "Close",
-            tint = Color.White,
-            modifier = Modifier.size(16.dp),
+            tint = Color.White.copy(alpha = 0.9f),
+            modifier = Modifier.size(14.dp),
         )
     }
 }
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun CardFooter(modifier: Modifier, icon: Drawable?, label: String) {
+private fun CardCaption(icon: Drawable?, label: String) {
+    // Icon + label centred below the thumbnail, the way macOS Mission Control labels
+    // windows. Larger icon (36dp) for prominence, titleMedium text for readability.
     Row(
-        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
     ) {
-        Box(
-            modifier =
-                Modifier.size(28.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.Black.copy(alpha = 0.4f))
-                    .semantics {
-                        testTagsAsResourceId = true
-                        testTag = ID + "overview_card_icon"
-                    },
-            contentAlignment = Alignment.Center,
-        ) {
-            AppIcon(icon, label)
+        Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
+            AppIcon(icon, label, sizeDp = 36)
         }
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.titleMedium,
             color = Color.White,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Medium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Start,
             modifier =
-                Modifier.weight(1f).semantics {
+                Modifier.semantics {
                     testTagsAsResourceId = true
                     testTag = ID + "overview_card_label"
                     text = AnnotatedString(label)
@@ -358,9 +385,8 @@ private fun CardFooter(modifier: Modifier, icon: Drawable?, label: String) {
 }
 
 @Composable
-private fun AppIcon(drawable: Drawable?, contentDescription: String) {
+private fun AppIcon(drawable: Drawable?, contentDescription: String, sizeDp: Int = 18) {
     val density = LocalDensity.current
-    val sizeDp = 18
     if (drawable == null) {
         FallbackAppIcon(Icons.Filled.Apps, contentDescription, sizeDp)
         return
