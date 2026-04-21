@@ -117,8 +117,8 @@ on one four-line edit inside the stock framework:
 
 ## Build
 
-`BoringdroidSystemUI` ships as an AOSP module — the production build is
-Soong, not Gradle. From the AOSP root:
+`BoringdroidSystemUI` ships as an AOSP module — the build is Soong. From
+the AOSP root:
 
 ```shell
 source build/envsetup.sh
@@ -126,29 +126,15 @@ lunch boringdroid_x86_64-userdebug
 m BoringdroidSystemUI BoringdroidSystemUITests
 ```
 
-The Gradle project in `app/` exists solely for IDE iteration (Android
-Studio import, refactoring, autocomplete). Its `build.gradle.kts`
-references jars pulled out of SystemUI's own build (`SystemUIPluginLib.jar`,
-`SystemUISharedRes`) so IntelliJ can resolve platform-API references
-without lunching an AOSP tree. Those artifacts are *not* part of the
-product image — they're local IDE fixtures.
+`Android.bp` declares both the plugin APK and its instrumentation APK
+via the standard `android_app` / `android_test` module types, with
+`platform_apis: true` and `certificate: "platform"` so the plugin loads
+inside SystemUI's UID on the signed image.
 
-### Refreshing SystemUI shared-lib fixtures for a new AOSP release
-
-When the target AOSP changes, the IDE fixtures drift against the new
-platform's `SystemUISharedLib`. Rebuild the shared lib and copy it into
-this project:
-
-```shell
-source build/envsetup.sh
-lunch boringdroid_x86_64-userdebug
-m SystemUISharedLib
-cp out/target/product/boringdroid_x86_64/obj/JAVA_LIBRARIES/SystemUISharedLib_intermediates/javalib.jar \
-   vendor/boringdroid/apps/BoringdroidSystemUI/app/libs/SystemUIPluginLib.jar
-```
-
-Then update `src/main/SystemUISharedRes` against
-[SystemUI SharedLib's Android.bp](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/packages/SystemUI/shared/Android.bp).
+For IDE iteration Android Studio can import the module directly via
+Soong's IntelliJ integration (`idegen`); the in-tree Gradle project
+has been retired — running the full tree build is the source of truth
+for both the plugin APK and its test APK.
 
 ## Tests
 
@@ -165,21 +151,3 @@ The script builds the APKs, installs them against a running
 the plugin, drops adb to shell uid (so `cmd notification post` works),
 restarts Launcher so it re-reads the taskbar's navigation-bar inset,
 and runs every class in `com.boringdroid.systemui.test`.
-
-Unit tests run under Robolectric-free JVM via the IDE-only Gradle
-setup:
-
-```shell
-./gradlew test
-```
-
-## Formatting
-
-Spotless enforces Kotlin and XML formatting. Before committing:
-
-```shell
-./gradlew spotlessApply
-```
-
-If `spotlessApply` can't auto-fix an error, resolve the diff by hand —
-the formatter stops short of behaviour-preserving rewrites.
