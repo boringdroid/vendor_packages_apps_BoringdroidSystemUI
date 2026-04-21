@@ -12,26 +12,27 @@ menu, Action Center, Calendar, Overview.
 
 ```mermaid
 flowchart TB
-    subgraph host["com.android.systemui (AOSP, uid 1000)"]
-        direction TB
-        subgraph overlay["SystemUIOverlay — plugin entry point"]
-            direction TB
-            taskbar["TaskbarWindow<br/>TYPE_NAVIGATION_BAR<br/>providedInsets = 72dp"]
-            allapps["AllAppsWindow<br/>start menu"]
-            action["ActionCenterWindow<br/>notifications + QS"]
-            calendar["CalendarClockWindow<br/>clock + calendar"]
-            a11y["AccessibilityManager.registerSystemAction<br/>GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS<br/>Meta key opens Start menu"]
-        end
+    subgraph Host["com.android.systemui host (AOSP, uid 1000)"]
+        Overlay["SystemUIOverlay (plugin entry point)"]
+        Taskbar["TaskbarWindow<br>TYPE_NAVIGATION_BAR<br>providedInsets = 72dp"]
+        AllApps["AllAppsWindow<br>start menu"]
+        Action["ActionCenterWindow<br>notifications + QS"]
+        Calendar["CalendarClockWindow<br>clock + calendar"]
+        A11y["AccessibilityManager<br>GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS<br>Meta key opens Start menu"]
+        Overlay --- Taskbar
+        Overlay --- AllApps
+        Overlay --- Action
+        Overlay --- Calendar
+        Overlay --- A11y
     end
 
-    subgraph plugin["com.boringdroid.systemui (own process)"]
-        direction TB
-        overview["BoringdroidOverviewService<br/>bound by SystemUI's OverviewProxyService<br/>owns OverviewWindow (TYPE_APPLICATION_OVERLAY)"]
-        mirror["BoringdroidNotificationMirror<br/>mirrors notifications into SystemUI<br/>via NotificationFeedIpc broadcasts"]
+    subgraph Plugin["com.boringdroid.systemui (own process)"]
+        Overview["BoringdroidOverviewService<br>bound by OverviewProxyService<br>owns OverviewWindow (TYPE_APPLICATION_OVERLAY)"]
+        Mirror["BoringdroidNotificationMirror<br>NotificationListenerService"]
     end
 
-    overlay -- "broadcast: ACTION_TOGGLE_OVERVIEW" --> overview
-    mirror -- "broadcast: NotificationFeedIpc" --> action
+    Overlay -- "ACTION_TOGGLE_OVERVIEW broadcast" --> Overview
+    Mirror -- "NotificationFeedIpc broadcast" --> Action
 ```
 
 Two processes are involved:
