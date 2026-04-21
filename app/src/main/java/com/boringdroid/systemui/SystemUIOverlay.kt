@@ -1,18 +1,23 @@
 package com.boringdroid.systemui
 
+import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.app.RemoteAction
 import android.content.BroadcastReceiver
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.database.ContentObserver
+import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.accessibility.AccessibilityManager
 import com.android.systemui.plugins.OverlayPlugin
 import com.android.systemui.plugins.annotations.Requires
 import com.boringdroid.systemui.actioncenter.ActionCenterWindow
@@ -53,8 +58,26 @@ class SystemUIOverlay : OverlayPlugin {
                 calendarClockWindow?.dismiss()
                 context.sendBroadcast(
                     Intent(BoringdroidOverviewService.ACTION_HIDE_OVERVIEW)
-                        .setPackage(context.packageName)
+                        .setPackage("com.boringdroid.systemui")
                 )
+            }
+        }
+
+    // Receiver for PhoneWindowManager's Meta (Windows) key intercept — see the matching
+    // region boringdroid patch in PhoneWindowManager.interceptKeyBeforeDispatching. When the
+    // user taps Meta on its own, PWM fires ACTION_TOGGLE_ALL_APPS targeted at this package,
+    // and we toggle the start menu. Mutually exclusive with the other plugin panels.
+    private val toggleAllAppsReceiver: BroadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (ACTION_TOGGLE_ALL_APPS != intent.action) return
+                actionCenterWindow?.dismiss()
+                calendarClockWindow?.dismiss()
+                context.sendBroadcast(
+                    Intent(BoringdroidOverviewService.ACTION_HIDE_OVERVIEW)
+                        .setPackage("com.boringdroid.systemui")
+                )
+                allAppsWindow?.onClick(View(pluginContext))
             }
         }
 
@@ -194,6 +217,15 @@ class SystemUIOverlay : OverlayPlugin {
             filter,
             Context.RECEIVER_NOT_EXPORTED,
         )
+        // PhoneWindowManager lives in system_server (uid=1000) just like SystemUI, but the
+        // broadcast crosses package boundaries (system → com.android.systemui), so we mark the
+        // receiver EXPORTED. The sender directs the Intent with setPackage + sends as
+        // UserHandle.CURRENT; no third-party app can reach this action.
+        systemUIContext!!.registerReceiver(
+            toggleAllAppsReceiver,
+            IntentFilter().apply { addAction(ACTION_TOGGLE_ALL_APPS) },
+            Context.RECEIVER_EXPORTED,
+        )
         val feedFilter =
             IntentFilter().apply {
                 addAction(NotificationFeedIpc.ACTION_FEED_RESET)
@@ -210,6 +242,51 @@ class SystemUIOverlay : OverlayPlugin {
             Context.RECEIVER_EXPORTED,
         )
         qsController = QsController(systemUIContext!!).also { it.start() }
+        registerMetaKeySystemAction()
+    }
+
+    /**
+     * Claim `GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS` so the Meta (Windows) key — which the
+     * framework's [PhoneWindowManager.launchAllAppsViaA11y] routes through this accessibility
+     * system action — ends up toggling boringdroid's Start menu instead of falling through to
+     * whatever stock launcher's all-apps drawer happens to be installed. Requires the
+     * `MANAGE_ACCESSIBILITY` permission, which this plugin carries via its platform signature.
+     *
+     * Also implicitly supports Alt+Tab — PhoneWindowManager already calls
+     * `StatusBarManager.showRecentApps()` for Alt+Tab, which `OverviewProxyService` dispatches
+     * to our [BoringdroidOverviewService] binder, so no extra wiring is needed.
+     */
+    private fun registerMetaKeySystemAction() {
+        val ctx = systemUIContext ?: return
+        val am =
+            ctx.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager ?: return
+        val intent =
+            Intent(ACTION_TOGGLE_ALL_APPS)
+                .setPackage("com.android.systemui")
+                .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+        val pi =
+            PendingIntent.getBroadcast(
+                ctx,
+                /* requestCode= */ 0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        val action =
+            RemoteAction(
+                Icon.createWithResource(pluginContext!!, R.drawable.bt_all_apps),
+                "All Apps",
+                "Toggle boringdroid start menu",
+                pi,
+            )
+        try {
+            am.registerSystemAction(
+                action,
+                AccessibilityService.GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS,
+            )
+            Log.i(TAG, "registered Meta key system action for ALL_APPS")
+        } catch (e: SecurityException) {
+            Log.w(TAG, "registerSystemAction denied; Meta key will fall back to stock", e)
+        }
     }
 
     override fun onDestroy() {
@@ -223,6 +300,21 @@ class SystemUIOverlay : OverlayPlugin {
                 systemUIContext!!.unregisterReceiver(notificationFeedReceiver)
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, "Try to unregister notification feed receiver without registering")
+            }
+            try {
+                systemUIContext!!.unregisterReceiver(toggleAllAppsReceiver)
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "Try to unregister toggle-all-apps receiver without registering")
+            }
+            val am =
+                systemUIContext!!.getSystemService(Context.ACCESSIBILITY_SERVICE)
+                    as? AccessibilityManager
+            try {
+                am?.unregisterSystemAction(
+                    AccessibilityService.GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS
+                )
+            } catch (e: SecurityException) {
+                Log.w(TAG, "unregisterSystemAction denied", e)
             }
         }
         resolver?.unregisterContentObserver(tunerKeyObserver)
@@ -296,5 +388,14 @@ class SystemUIOverlay : OverlayPlugin {
 
         // Copied from systemui source code, please keep it update to source code.
         private const val ACTION_PLUGIN_CHANGED = "com.android.systemui.action.PLUGIN_CHANGED"
+
+        /**
+         * Broadcast fired when the Meta (Windows) key is tapped — the framework's
+         * `PhoneWindowManager.launchAllAppsViaA11y()` dispatches
+         * `GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS` to the accessibility system, which we claim
+         * via `AccessibilityManager.registerSystemAction()` below so the PendingIntent fires
+         * this broadcast.
+         */
+        const val ACTION_TOGGLE_ALL_APPS = "com.boringdroid.systemui.action.TOGGLE_ALL_APPS"
     }
 }
