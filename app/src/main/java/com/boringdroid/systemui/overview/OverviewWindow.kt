@@ -78,8 +78,6 @@ class OverviewWindow(private val context: Context) {
             LayoutInflater.from(context).inflate(R.layout.layout_overview, null) as OverviewLayout
         // TYPE_APPLICATION_OVERLAY is auto-granted for /system apps; no SYSTEM_ALERT_WINDOW
         // runtime permission dance needed.
-        val taskbarHeight =
-            context.resources.getDimensionPixelSize(R.dimen.taskbar_window_height)
         val lp =
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -90,11 +88,15 @@ class OverviewWindow(private val context: Context) {
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT,
             )
-        // Sit above the 64dp taskbar so its buttons (including the recents toggle) stay clickable.
+        // MATCH_PARENT + fitInsetsTypes = navigationBars() lets WMS shrink this window to sit
+        // above the TYPE_NAVIGATION_BAR taskbar automatically — the taskbar's providedInsets
+        // does the arithmetic. The previous manual `height = displayMetrics.heightPixels -
+        // taskbar_window_height` double-counted the nav-bar inset on modern Android (where
+        // `displayMetrics.heightPixels` already excludes system bars), producing an overlay
+        // too short to cover the hotseat, so Launcher content leaked through below the scrim.
         lp.gravity = Gravity.TOP
-        lp.y = 0
-        lp.verticalMargin = 0f
-        lp.height = context.resources.displayMetrics.heightPixels - taskbarHeight
+        lp.fitInsetsTypes = android.view.WindowInsets.Type.navigationBars()
+        lp.fitInsetsSides = android.view.WindowInsets.Side.BOTTOM
         lp.token = Binder()
         lp.title = "BoringdroidOverview"
         // Outside touch dismisses.
