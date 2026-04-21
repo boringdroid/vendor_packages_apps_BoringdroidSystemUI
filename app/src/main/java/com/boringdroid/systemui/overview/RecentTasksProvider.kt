@@ -11,6 +11,7 @@ import android.app.ActivityManager
 import android.app.ActivityTaskManager
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.Rect
 import android.util.Log
 
 /**
@@ -20,7 +21,20 @@ import android.util.Log
  * device/generic/boringdroid_x86_64), so `ActivityTaskManagerService.isCallerRecents(callingUid)`
  * returns true and `getRecentTasks` does not enforce REAL_GET_TASKS against this package.
  */
-data class RecentAppTask(val taskId: Int, val packageName: String, val component: ComponentName?)
+/**
+ * [windowBounds] carries the task's on-screen bounds in pixels — freeform window rect for
+ * freeform tasks, full-display bounds for maximised ones. The Overview grid uses it to size each
+ * card in proportion to its real window (common scale across the whole row) and as the
+ * start/end anchor for the Mission-Control-style fly-to-grid animation. Null when the framework
+ * didn't expose a valid Configuration.windowConfiguration, in which case the card falls back to
+ * a default 16:10 slot.
+ */
+data class RecentAppTask(
+    val taskId: Int,
+    val packageName: String,
+    val component: ComponentName?,
+    val windowBounds: Rect?,
+)
 
 object RecentTasksProvider {
     private const val TAG = "BoringdroidRecentTasks"
@@ -47,7 +61,13 @@ object RecentTasksProvider {
             val component = info.baseActivity ?: info.topActivity ?: info.realActivity
             val pkg = component?.packageName ?: return@mapNotNull null
             if (pkg in EXCLUDED_PACKAGES) return@mapNotNull null
-            RecentAppTask(info.taskId, pkg, component)
+            // configuration.windowConfiguration.bounds is the task's on-screen rect; it's the
+            // freeform window rect on boringdroid's PC mode, the full display for fullscreen
+            // tasks. Zero-sized bounds fall through as null so the card falls back to default.
+            val rawBounds = info.configuration?.windowConfiguration?.bounds
+            val bounds =
+                rawBounds?.takeIf { !it.isEmpty }?.let { Rect(it) }
+            RecentAppTask(info.taskId, pkg, component, bounds)
         }
     }
 }

@@ -129,6 +129,10 @@ class OverviewWindow(private val context: Context) {
         windowManager.addView(view, lp)
         view.requestFocus()
         root = view
+        // Kick off the fly-from-real-windows-to-grid entrance animation on the next frame
+        // (post to the view handler so the children are measured & laid out first — the
+        // flight reads each card's laid-out grid position at t=0).
+        view.post { view.beginShow() }
         // Register only while visible — snapshot churn outside the overview is irrelevant to us.
         TaskStackChangeListeners.getInstance().registerTaskStackListener(taskStackListener)
         Log.i(
@@ -139,22 +143,26 @@ class OverviewWindow(private val context: Context) {
     }
 
     fun hide() {
-        val v: View? = root
-        if (v == null) {
+        val v: OverviewLayout = root ?: run {
             if (DEBUG) Log.d(TAG, "hide: not visible")
             return
         }
         // Unregister before tearing down the layout so a late-dispatched snapshot callback can't
-        // touch a stale Compose state.
+        // touch a stale Compose state. Defer the actual WindowManager.removeView until the exit
+        // flight animation completes so the user sees cards fly back to their windows before
+        // the overlay disappears.
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(taskStackListener)
-        try {
-            windowManager.removeViewImmediate(v)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "hide: removeViewImmediate threw", e)
+        v.beginHide {
+            val current = root ?: return@beginHide
+            try {
+                windowManager.removeViewImmediate(current)
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "hide: removeViewImmediate threw", e)
+            }
+            pluginLifecycle.moveToDestroyed()
+            root = null
+            Log.i(TAG, "hide: overview window removed")
         }
-        pluginLifecycle.moveToDestroyed()
-        root = null
-        Log.i(TAG, "hide: overview window removed")
     }
 
     fun toggle() {

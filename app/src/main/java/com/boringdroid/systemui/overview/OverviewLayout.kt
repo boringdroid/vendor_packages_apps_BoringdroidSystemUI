@@ -15,10 +15,8 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,8 +34,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
@@ -57,10 +55,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -102,6 +105,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private var cardCloseListener: ((RecentAppTask) -> Unit)? = null
     private val composeView: ComposeView = ComposeView(context)
 
+    /**
+     * Drives the Mission-Control-style expo animation. `true` → cards animate from their
+     * source window bounds to the grid; `false` → cards animate back to their source bounds,
+     * and [exitCompleteCallback] fires once the flight is done so [OverviewWindow] can
+     * `removeView` only after the pixels have left the screen.
+     */
+    private var expanded: Boolean by mutableStateOf(false)
+    private var exitCompleteCallback: (() -> Unit)? = null
+
     fun setData(newTasks: List<RecentAppTask>) {
         tasks = newTasks
     }
@@ -120,6 +132,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     fun positionOfTaskId(taskId: Int): Int = tasks.indexOfFirst { it.taskId == taskId }
 
+    /** Trigger the entrance animation — cards fly from their real windows to the grid. */
+    fun beginShow() {
+        exitCompleteCallback = null
+        expanded = true
+    }
+
+    /**
+     * Trigger the exit animation — cards fly back to their source window positions, then
+     * [onComplete] fires once the animation lands so the attaching window can be removed.
+     */
+    fun beginHide(onComplete: () -> Unit) {
+        exitCompleteCallback = onComplete
+        expanded = false
+    }
+
     private fun onCardClick(task: RecentAppTask) {
         cardClickListener?.invoke(task)
     }
@@ -137,6 +164,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 OverviewPanel(
                     tasks = tasks,
                     snapshotVersion = snapshotVersion,
+                    expanded = expanded,
+                    onExitAnimationComplete = {
+                        exitCompleteCallback?.invoke()
+                        exitCompleteCallback = null
+                    },
                     onCardClick = ::onCardClick,
                     onCardClose = ::onCardClose,
                 )
@@ -155,23 +187,40 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 private fun OverviewPanel(
     tasks: List<RecentAppTask>,
     snapshotVersion: Int,
+    expanded: Boolean,
+    onExitAnimationComplete: () -> Unit,
     onCardClick: (RecentAppTask) -> Unit,
     onCardClose: (RecentAppTask) -> Unit,
 ) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
+    // Drives the enter/exit animation. 0f = cards sit at their real window rect; 1f =
+    // cards sit at their grid position. The backdrop alpha follows the same value so the
+    // dim lifts in sync with the windows flying into place.
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(expanded) {
+        val target = if (expanded) 1f else 0f
+        progress.animateTo(
+            targetValue = target,
+            animationSpec =
+                tween(
+                    durationMillis = if (expanded) 360 else 280,
+                    easing = BdMotion.easingEmphasizedDecelerate,
+                ),
+        )
+        if (!expanded) onExitAnimationComplete()
+    }
     // macOS Mission Control-style backdrop: a darker, near-opaque black with a subtle
     // vertical gradient fade at the top so the top edge reads as a softer surface rather
-    // than a hard mask.
+    // than a hard mask. The dim scales with `progress` so the desktop fades under the
+    // cards as they fly in (and reappears as they fly back out).
     Box(
         modifier =
             Modifier.fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.82f))
+                .background(Color.Black.copy(alpha = 0.82f * progress.value))
                 .background(
                     Brush.verticalGradient(
                         colors =
                             listOf(
-                                Color.White.copy(alpha = 0.04f),
+                                Color.White.copy(alpha = 0.04f * progress.value),
                                 Color.Transparent,
                                 Color.Transparent,
                             ),
@@ -182,27 +231,57 @@ private fun OverviewPanel(
                     testTag = ID + "overview_root"
                 }
     ) {
-        AnimatedVisibility(
-            visible = visible,
-            enter =
-                fadeIn(
-                    animationSpec = tween(BdMotion.durationShort4, easing = BdMotion.easingStandard)
-                ) +
-                    scaleIn(
-                        animationSpec =
-                            tween(
-                                BdMotion.durationMedium2,
-                                easing = BdMotion.easingEmphasizedDecelerate,
-                            ),
-                        initialScale = 0.96f,
-                    ),
-        ) {
-            OverviewContent(
-                tasks = tasks,
-                snapshotVersion = snapshotVersion,
-                onCardClick = onCardClick,
-                onCardClose = onCardClose,
-            )
+        OverviewContent(
+            tasks = tasks,
+            snapshotVersion = snapshotVersion,
+            progress = progress.value,
+            onCardClick = onCardClick,
+            onCardClose = onCardClose,
+        )
+    }
+}
+
+/**
+ * Pixel dimensions for a single grid card, given a task's real window bounds and the
+ * common scale used across the whole row. `realWidth` / `realHeight` are the task's
+ * on-screen window size; we shrink both by [scale] so narrow windows stay narrow and
+ * wide windows stay wide — the Mission-Control "common scale" effect. A null window
+ * bounds falls back to a default 16:10 landscape card.
+ */
+private data class CardSize(val widthDp: Float, val heightDp: Float)
+
+private fun computeCommonScaleCardSizes(
+    tasks: List<RecentAppTask>,
+    densityPxPerDp: Float,
+    maxCardWidthDp: Float,
+    maxCardHeightDp: Float,
+): Map<Int, CardSize> {
+    if (tasks.isEmpty()) return emptyMap()
+    // Find the biggest real window across the row and scale everything by the same factor
+    // so portrait and landscape neighbours stay in proportion.
+    var maxW = 0
+    var maxH = 0
+    tasks.forEach { t ->
+        t.windowBounds?.let {
+            if (it.width() > maxW) maxW = it.width()
+            if (it.height() > maxH) maxH = it.height()
+        }
+    }
+    if (maxW == 0 || maxH == 0) {
+        // No bounds info at all — fall back to the old fixed 380×240 card.
+        return tasks.associate { it.taskId to CardSize(380f, 240f) }
+    }
+    val maxWDp = maxW / densityPxPerDp
+    val maxHDp = maxH / densityPxPerDp
+    val scale = minOf(maxCardWidthDp / maxWDp, maxCardHeightDp / maxHDp).coerceAtMost(1f)
+    return tasks.associate { t ->
+        val bounds = t.windowBounds
+        if (bounds == null) {
+            t.taskId to CardSize(maxCardWidthDp, maxCardWidthDp * 10f / 16f)
+        } else {
+            val wDp = bounds.width() / densityPxPerDp
+            val hDp = bounds.height() / densityPxPerDp
+            t.taskId to CardSize(wDp * scale, hDp * scale)
         }
     }
 }
@@ -211,25 +290,45 @@ private fun OverviewPanel(
 private fun OverviewContent(
     tasks: List<RecentAppTask>,
     snapshotVersion: Int,
+    progress: Float,
     onCardClick: (RecentAppTask) -> Unit,
     onCardClose: (RecentAppTask) -> Unit,
 ) {
+    val density = LocalDensity.current
+    val cardSizes =
+        remember(tasks) {
+            computeCommonScaleCardSizes(
+                tasks = tasks,
+                densityPxPerDp = density.density,
+                maxCardWidthDp = 420f,
+                maxCardHeightDp = 260f,
+            )
+        }
     // No header text — macOS Mission Control leaves the space empty so the thumbnails
-    // do the talking. `overview_root` stays in the backdrop Box above.
+    // do the talking. `overview_root` stays on the backdrop Box above.
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 96.dp, bottom = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 64.dp),
+            // Regular Row (not LazyRow) so each card can have a per-task width without
+            // fighting the LazyRow's caching, and so every card is composed on the first
+            // frame — the flight animation reads each card's grid position on first layout.
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 64.dp),
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                items(items = tasks, key = { it.taskId }) { task ->
+                tasks.forEach { task ->
+                    val size = cardSizes[task.taskId] ?: CardSize(380f, 240f)
                     RecentCard(
                         task = task,
                         snapshotVersion = snapshotVersion,
+                        gridSize = size,
+                        progress = progress,
                         onClick = { onCardClick(task) },
                         onClose = { onCardClose(task) },
                     )
@@ -244,6 +343,8 @@ private fun OverviewContent(
 private fun RecentCard(
     task: RecentAppTask,
     snapshotVersion: Int,
+    gridSize: CardSize,
+    progress: Float,
     onClick: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -252,36 +353,99 @@ private fun RecentCard(
     val appEntry = remember(task.packageName, pm) { resolveAppEntry(pm, task.packageName) }
     val thumbnail: Bitmap? =
         remember(task.taskId, snapshotVersion) { loadThumbnail(task.taskId) }
-    // macOS App Expose: each task is a stacked column — thumbnail card on top, then a
-    // centred [icon · label] row below. The card sits on a drop shadow and is bordered
-    // with a 1dp hairline so the edge reads in dark UI. The whole Column is clickable so
-    // tapping the caption activates the task — matches macOS (clicking either thumbnail
-    // or label brings the window to front) and keeps `OverviewTest.cardClick…` passing
-    // (it looks up `overview_card_label` and taps it, expecting the tap to propagate).
+    val density = LocalDensity.current
+    val densityPx = density.density
+
+    // Remember where our thumbnail card lands in the window so we can drive the flight
+    // transform from the laid-out position. `positionInWindow` matches on-screen coords
+    // because the Overview window is pinned at Gravity.TOP / y=0, full-width.
+    var thumbTopLeftPx by remember { mutableStateOf(Offset.Zero) }
+
+    // Real window bounds (source of the flight). If the task didn't report bounds, skip
+    // the flight — the card just fades in/out instead.
+    val realBoundsPx = task.windowBounds
+    val gridWidthPx = gridSize.widthDp * densityPx
+    val gridHeightPx = gridSize.heightDp * densityPx
+
+    val (scaleX, scaleY, translationX, translationY) =
+        if (realBoundsPx != null && gridWidthPx > 0f && gridHeightPx > 0f) {
+            val realScaleX = realBoundsPx.width() / gridWidthPx
+            val realScaleY = realBoundsPx.height() / gridHeightPx
+            val realTx = realBoundsPx.left - thumbTopLeftPx.x
+            val realTy = realBoundsPx.top - thumbTopLeftPx.y
+            CardTransform(
+                scaleX = lerpF(realScaleX, 1f, progress),
+                scaleY = lerpF(realScaleY, 1f, progress),
+                translationX = lerpF(realTx, 0f, progress),
+                translationY = lerpF(realTy, 0f, progress),
+            )
+        } else {
+            // No bounds: just a gentle scale-in from 96%.
+            val s = lerpF(0.96f, 1f, progress)
+            CardTransform(scaleX = s, scaleY = s, translationX = 0f, translationY = 0f)
+        }
+
+    // macOS App Expose: stacked column — thumbnail on top, [icon · label] centred below.
+    // Column is clickable so tapping either the thumbnail or the caption brings the task
+    // to front (keeps `OverviewTest.cardClick…` passing — that test taps the label and
+    // expects it to propagate).
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(14.dp),
-        modifier = Modifier.width(380.dp).clickable(onClick = onClick),
+        modifier =
+            Modifier.width(gridSize.widthDp.dp).clickable(onClick = onClick),
     ) {
         ThumbnailCard(
             thumbnail = thumbnail,
+            widthDp = gridSize.widthDp,
+            heightDp = gridSize.heightDp,
             onClose = onClose,
+            modifier =
+                Modifier.graphicsLayer {
+                    transformOrigin = TransformOrigin(0f, 0f)
+                    this.scaleX = scaleX
+                    this.scaleY = scaleY
+                    this.translationX = translationX
+                    this.translationY = translationY
+                }
+                    .onGloballyPositioned { coords ->
+                        thumbTopLeftPx = coords.positionInWindow()
+                    },
         )
-        CardCaption(icon = appEntry.icon, label = appEntry.label)
+        // Caption fades in after the card has flown most of the way into the grid — it
+        // doesn't exist in the source window state, so it would look wrong at progress=0.
+        CardCaption(
+            icon = appEntry.icon,
+            label = appEntry.label,
+            alpha = ((progress - 0.55f) / 0.45f).coerceIn(0f, 1f),
+        )
     }
 }
+
+private data class CardTransform(
+    val scaleX: Float,
+    val scaleY: Float,
+    val translationX: Float,
+    val translationY: Float,
+)
+
+private fun lerpF(start: Float, stop: Float, t: Float): Float = start + (stop - start) * t
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 private fun ThumbnailCard(
     thumbnail: Bitmap?,
+    widthDp: Float,
+    heightDp: Float,
     onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(14.dp)
     Box(
         modifier =
-            Modifier.size(width = 380.dp, height = 240.dp)
+            modifier
+                .size(width = widthDp.dp, height = heightDp.dp)
                 .shadow(
                     elevation = 24.dp,
                     shape = shape,
@@ -355,13 +519,15 @@ private fun CloseAffordance(modifier: Modifier, onClose: () -> Unit) {
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun CardCaption(icon: Drawable?, label: String) {
+private fun CardCaption(icon: Drawable?, label: String, alpha: Float = 1f) {
     // Icon + label centred below the thumbnail, the way macOS Mission Control labels
-    // windows. Larger icon (36dp) for prominence, titleMedium text for readability.
+    // windows. Larger icon (36dp) for prominence, titleMedium text for readability. Alpha
+    // is driven by the flight progress — the caption doesn't belong at progress=0 where
+    // the "card" is overlapping the actual window.
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.padding(horizontal = 8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp).graphicsLayer { this.alpha = alpha },
     ) {
         Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
             AppIcon(icon, label, sizeDp = 36)
