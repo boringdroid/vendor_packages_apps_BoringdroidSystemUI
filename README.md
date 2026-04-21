@@ -10,37 +10,28 @@ menu, Action Center, Calendar, Overview.
 
 ## Architecture
 
-```
-            ┌─────────────────────────────────────────────┐
-            │ com.android.systemui (AOSP, uid 1000)       │
-            │                                             │
-            │  ┌─────────────── SystemUIOverlay ────────┐ │
-            │  │   plugin entry point                   │ │
-            │  │                                        │ │
-            │  │   TaskbarWindow   ─── TYPE_NAVIGATION_BAR
-            │  │       └ providedInsets = 72dp         │ │
-            │  │   AllAppsWindow   ─── start menu       │ │
-            │  │   ActionCenterWindow ─── notif + QS    │ │
-            │  │   CalendarClockWindow ─── clock + cal  │ │
-            │  │                                        │ │
-            │  │   AccessibilityManager.registerSystemAction
-            │  │       └ GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS
-            │  │       → Meta key opens Start menu      │ │
-            │  └────────────────────────────────────────┘ │
-            └─────────────────────────────────────────────┘
-                              │ broadcast (TOGGLE_OVERVIEW)
-                              ▼
-            ┌─────────────────────────────────────────────┐
-            │ com.boringdroid.systemui (own process)      │
-            │                                             │
-            │   BoringdroidOverviewService ── bound by    │
-            │     SystemUI's OverviewProxyService;        │
-            │     owns the OverviewWindow (TYPE_APPLICATION_OVERLAY)
-            │                                             │
-            │   BoringdroidNotificationMirror ── mirrors  │
-            │     notifications into SystemUI via         │
-            │     NotificationFeedIpc broadcasts         │
-            └─────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph host["com.android.systemui (AOSP, uid 1000)"]
+        direction TB
+        subgraph overlay["SystemUIOverlay — plugin entry point"]
+            direction TB
+            taskbar["TaskbarWindow<br/>TYPE_NAVIGATION_BAR<br/>providedInsets = 72dp"]
+            allapps["AllAppsWindow<br/>start menu"]
+            action["ActionCenterWindow<br/>notifications + QS"]
+            calendar["CalendarClockWindow<br/>clock + calendar"]
+            a11y["AccessibilityManager.registerSystemAction<br/>GLOBAL_ACTION_ACCESSIBILITY_ALL_APPS<br/>Meta key opens Start menu"]
+        end
+    end
+
+    subgraph plugin["com.boringdroid.systemui (own process)"]
+        direction TB
+        overview["BoringdroidOverviewService<br/>bound by SystemUI's OverviewProxyService<br/>owns OverviewWindow (TYPE_APPLICATION_OVERLAY)"]
+        mirror["BoringdroidNotificationMirror<br/>mirrors notifications into SystemUI<br/>via NotificationFeedIpc broadcasts"]
+    end
+
+    overlay -- "broadcast: ACTION_TOGGLE_OVERVIEW" --> overview
+    mirror -- "broadcast: NotificationFeedIpc" --> action
 ```
 
 Two processes are involved:
