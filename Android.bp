@@ -68,6 +68,17 @@ android_app {
 
     certificate: "platform",
 
+    // Privileged so FORCE_STOP_PACKAGES (signature|privileged), declared in
+    // AndroidManifest.xml, gets granted via the matching allowlist at
+    // /system/etc/permissions/. The plugin joins
+    // sharedUserId="android.uid.systemui" so that grant reaches the SystemUI
+    // process — see SystemUIOverlay.refreshHomeLauncherForNewInsets.
+    //
+    // Lives in /system/priv-app (not /product/priv-app) because platform_apis
+    // is incompatible with product_specific under PRODUCT_ENFORCE_PRODUCT_
+    // PARTITION_INTERFACE — the plugin needs internal SystemUI hooks.
+    privileged: true,
+
     kotlincflags: ["-Xjvm-default=enable"],
 
     optimize: {

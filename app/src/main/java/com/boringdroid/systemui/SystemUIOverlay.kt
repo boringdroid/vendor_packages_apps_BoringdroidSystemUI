@@ -2,9 +2,11 @@ package com.boringdroid.systemui
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.app.RemoteAction
 import android.content.BroadcastReceiver
+import android.content.pm.PackageManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -206,6 +208,7 @@ class SystemUIOverlay : OverlayPlugin {
             )
         window.show(state)
         taskbarWindow = window
+        refreshHomeLauncherForNewInsets(sysUIContext)
         resolver = sysUIContext.contentResolver
         initializeTuningServiceSettingKeys(resolver, tunerKeyObserver)
         val filter = IntentFilter().apply { addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) }
@@ -364,6 +367,67 @@ class SystemUIOverlay : OverlayPlugin {
         }
     }
 
+    /**
+     * Force-stop the current home launcher so it respawns with our [TaskbarWindow]'s nav-bar
+     * inset already advertised.
+     *
+     * The launcher app caches its DeviceProfile (specifically the hotseat's bottom space, computed
+     * as `mInsets.bottom + minQsbMargin`) from the [android.view.WindowInsets] it sees at first
+     * onAttach. At boot — and after a SystemUI restart — the launcher's home activity typically
+     * attaches BEFORE this plugin runs, so its cached profile has the nav-bar inset zeroed and
+     * the Hotseat icons end up drawn under the taskbar's visual region. The RRO at
+     * `vendor/boringdroid/rro/BoringdroidLauncher3Overlay/` neutralises Launcher3QuickStep's
+     * tablet-mode inset normalisation, but cannot retroactively fix an already-cached
+     * DeviceProfile.
+     *
+     * Resolves the home package dynamically (via `Intent.CATEGORY_HOME`) so any launcher the user
+     * has chosen as default — not just stock Launcher3 — gets the same treatment. Restarting the
+     * launcher is cheap: it only re-runs when the user navigates Home, and the cold start is
+     * sub-second.
+     */
+    private fun refreshHomeLauncherForNewInsets(sysUIContext: Context) {
+        val homePkg = resolveHomeLauncherPackage(sysUIContext)
+        if (homePkg == null) {
+            Log.w(TAG, "No home launcher resolved; skipping inset-race workaround")
+            return
+        }
+        val am =
+            sysUIContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                ?: return
+        // Defer the kill: `windowManager.addView` queues the TaskbarWindow's providedInsets
+        // change, and WMS may not have propagated the new InsetsState to apps by the time we
+        // return from `show()`. If we force-stop immediately, the relaunched launcher reads stale
+        // insets and re-caches the wrong DeviceProfile (observed empirically: immediate stop
+        // leaves Hotseat at [0,980]; deferred stop fixes it to [0,940]). 750ms is comfortably
+        // above the single-digit-ms inset propagation latency we've measured without being long
+        // enough for the user to notice the launcher flash.
+        Handler(Looper.getMainLooper()).postDelayed(
+            {
+                try {
+                    am.forceStopPackage(homePkg)
+                    Log.i(TAG, "Force-stopped home launcher $homePkg to refresh its DeviceProfile")
+                } catch (e: SecurityException) {
+                    // SystemUI declares FORCE_STOP_PACKAGES via the boringdroid manifest patch;
+                    // this only fires on builds missing that patch. Log and continue — the user
+                    // will see the overlap until they manually swipe Home.
+                    Log.w(TAG, "Could not force-stop $homePkg to refresh its DeviceProfile", e)
+                }
+            },
+            LAUNCHER_REFRESH_DELAY_MS,
+        )
+    }
+
+    private fun resolveHomeLauncherPackage(context: Context): String? {
+        val pm = context.packageManager
+        val homeIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        val info = pm.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        // Avoid restarting our own host SystemUI process if it somehow registers itself as home
+        // (defensive — shouldn't happen in stock boringdroid).
+        val pkg = info?.activityInfo?.packageName ?: return null
+        if (pkg == "com.android.systemui") return null
+        return pkg
+    }
+
     private fun onTunerChange(uri: Uri) {
         val keyName = uri.lastPathSegment
         val value = Settings.Secure.getString(resolver, keyName)
@@ -385,6 +449,7 @@ class SystemUIOverlay : OverlayPlugin {
     companion object {
         private const val TAG = "SystemUIOverlay"
         private const val BRIDGE_TAG = "BdNotifBridge"
+        private const val LAUNCHER_REFRESH_DELAY_MS = 750L
 
         // Copied from systemui source code, please keep it update to source code.
         private const val ACTION_PLUGIN_CHANGED = "com.android.systemui.action.PLUGIN_CHANGED"

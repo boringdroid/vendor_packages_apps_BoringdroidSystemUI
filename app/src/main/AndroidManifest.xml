@@ -2,10 +2,20 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.boringdroid.systemui">
+    package="com.boringdroid.systemui"
+    android:sharedUserId="android.uid.systemui">
 
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <!-- SystemUI's process needs FORCE_STOP_PACKAGES so the plugin's
+         `SystemUIOverlay.refreshHomeLauncherForNewInsets` can kick the home
+         launcher after attaching the taskbar window — Launcher3 caches its
+         DeviceProfile from the WindowInsets at first onAttach, so without a
+         restart the Hotseat icons end up drawn under the taskbar. The grant
+         reaches the SystemUI process because this APK joins
+         `sharedUserId="android.uid.systemui"`; the matching privapp-permissions
+         allowlist lives at vendor/boringdroid/permissions/. Signature|privileged. -->
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <!-- PluginEnableReceiver re-enables the SystemUIOverlay component
          after a SystemUI crash auto-disables it (and after dev `adb install -r`
