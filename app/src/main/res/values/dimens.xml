@@ -37,4 +37,5 @@
     <dimen name="calendar_clock_window_height">540dp</dimen>
     <dimen name="calendar_clock_window_margin_end">10dp</dimen>
     <dimen name="calendar_clock_corner_radius">12dp</dimen>
+    <dimen name="peek_panel_height">40dp</dimen>
 </resources>

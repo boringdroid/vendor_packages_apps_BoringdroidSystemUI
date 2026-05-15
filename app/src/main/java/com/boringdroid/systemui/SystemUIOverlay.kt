@@ -29,6 +29,7 @@ import com.boringdroid.systemui.actioncenter.QsController
 import com.boringdroid.systemui.actioncenter.SbnSummary
 import com.boringdroid.systemui.calendar.CalendarClockWindow
 import com.boringdroid.systemui.overview.BoringdroidOverviewService
+import com.boringdroid.systemui.peek.PeekCaptionController
 import com.boringdroid.systemui.taskbar.BdTaskInfo
 import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
@@ -46,6 +47,7 @@ class SystemUIOverlay : OverlayPlugin {
     private var taskbarState: TaskbarState? = null
     private var actionCenterWindow: ActionCenterWindow? = null
     private var calendarClockWindow: CalendarClockWindow? = null
+    private var peekCaption: PeekCaptionController? = null
     private var qsController: QsController? = null
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
@@ -245,6 +247,8 @@ class SystemUIOverlay : OverlayPlugin {
             Context.RECEIVER_EXPORTED,
         )
         qsController = QsController(systemUIContext!!).also { it.start() }
+        peekCaption =
+            PeekCaptionController(pluginContext, sysUIContext).also { it.start() }
         registerMetaKeySystemAction()
     }
 
@@ -323,6 +327,8 @@ class SystemUIOverlay : OverlayPlugin {
         resolver?.unregisterContentObserver(tunerKeyObserver)
         qsController?.stop()
         qsController = null
+        peekCaption?.stop()
+        peekCaption = null
         taskbarWindow?.hide()
         taskbarWindow = null
         taskbarState?.stop()
