@@ -45,12 +45,12 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.WifiOff
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberPlainTooltipState
 import androidx.compose.runtime.Composable
@@ -75,8 +75,16 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import com.boringdroid.systemui.theme.BdExpressiveMaterialTheme
 
 /**
@@ -307,6 +315,13 @@ private fun AppRailItem(
     val label = task.label?.toString()?.takeIf { it.isNotBlank() } ?: task.packageName
     val tooltipState = rememberPlainTooltipState()
     var menuExpanded by remember(task.id) { mutableStateOf(false) }
+    // Capture the icon's on-screen bounds so the context menu can anchor explicitly above it.
+    // Material3's DropdownMenu auto-flip is unreliable inside our TYPE_NAVIGATION_BAR_PANEL
+    // overlay window — it sometimes leaves the menu overlapping the icon or the taskbar pill.
+    // Using onGloballyPositioned + a custom PopupPositionProvider gives us deterministic
+    // "centered above the icon with an 8dp gap" placement regardless of where the icon ends
+    // up in the rail.
+    var iconBoundsPx by remember(task.id) { mutableStateOf<IntRect?>(null) }
     // Material3 PlainTooltipBox drives both mouse-hover and long-press. Boringdroid is
     // desktop-first so the hover path is the primary one: pointing the mouse at a running-app
     // icon surfaces the app name in a plain tooltip above the taskbar. AOSP ships material3
@@ -325,6 +340,16 @@ private fun AppRailItem(
                             Modifier.background(colors.primary.copy(alpha = 0.18f))
                         } else Modifier
                     )
+                    .onGloballyPositioned { coords ->
+                        val origin = coords.positionInWindow()
+                        iconBoundsPx =
+                            IntRect(
+                                left = origin.x.toInt(),
+                                top = origin.y.toInt(),
+                                right = (origin.x + coords.size.width).toInt(),
+                                bottom = (origin.y + coords.size.height).toInt(),
+                            )
+                    }
                     .combinedClickable(
                         onClick = onClick,
                         // Long-press is the only trigger for the context menu. We previously
@@ -373,6 +398,7 @@ private fun AppRailItem(
             )
             TaskbarContextMenu(
                 expanded = menuExpanded,
+                anchorBounds = iconBoundsPx,
                 onDismissRequest = { menuExpanded = false },
                 isFullscreen = task.mode == WindowConfiguration.WINDOWING_MODE_FULLSCREEN,
                 hasToken = task.token != null,
@@ -393,10 +419,42 @@ private fun AppRailItem(
     }
 }
 
+/**
+ * Anchors a popup centred horizontally on a target rect (the taskbar icon's window-space
+ * bounds) with its bottom edge `verticalGapPx` above the target's top edge. The taskbar
+ * lives at the bottom of the display so we always want the menu above. If the popup would
+ * extend off the left or right edge of the window it's clamped to the visible area. If
+ * there's somehow no room above (shouldn't happen on a bottom-anchored taskbar) we fall
+ * back to anchoring just below the target.
+ */
+private class AboveTaskbarIconPositionProvider(
+    private val targetBoundsPx: IntRect,
+    private val verticalGapPx: Int,
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val targetCentreX = targetBoundsPx.left + targetBoundsPx.width / 2
+        val rawX = targetCentreX - popupContentSize.width / 2
+        val maxX = (windowSize.width - popupContentSize.width).coerceAtLeast(0)
+        val x = rawX.coerceIn(0, maxX)
+        val above = targetBoundsPx.top - verticalGapPx - popupContentSize.height
+        val y =
+            if (above >= 0) above
+            else (targetBoundsPx.bottom + verticalGapPx)
+                .coerceAtMost((windowSize.height - popupContentSize.height).coerceAtLeast(0))
+        return IntOffset(x, y)
+    }
+}
+
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 private fun TaskbarContextMenu(
     expanded: Boolean,
+    anchorBounds: IntRect?,
     onDismissRequest: () -> Unit,
     isFullscreen: Boolean,
     hasToken: Boolean,
@@ -404,49 +462,64 @@ private fun TaskbarContextMenu(
     onMinimize: () -> Unit,
     onMaximize: () -> Unit,
 ) {
-    // The taskbar lives at the bottom of the display, so DropdownMenu's auto-flip places the
-    // menu above the icon (no room below). The default horizontal anchor is the icon's
-    // start-edge; that pushes a ~180dp menu off the right side of the screen on a 48dp icon.
-    // Half-icon (24dp) minus half the typical menu width (~90dp) shifts the menu's centre
-    // over the icon's centre. Vertical -8dp adds a 8dp gap above the icon.
-    DropdownMenu(
-        expanded = expanded,
+    if (!expanded || anchorBounds == null) return
+    val gapPx = with(LocalDensity.current) { 8.dp.roundToPx() }
+    val positionProvider =
+        remember(anchorBounds, gapPx) {
+            AboveTaskbarIconPositionProvider(anchorBounds, gapPx)
+        }
+    Popup(
+        popupPositionProvider = positionProvider,
         onDismissRequest = onDismissRequest,
-        offset = DpOffset(x = (-66).dp, y = (-8).dp),
-        modifier = Modifier.semantics { testTagsAsResourceId = true },
+        properties = PopupProperties(focusable = true),
     ) {
-        DropdownMenuItem(
-            text = { Text(if (isFullscreen) "Restore" else "Maximize") },
-            leadingIcon = {
-                Icon(
-                    imageVector =
-                        if (isFullscreen) Icons.Filled.CloseFullscreen
-                        else Icons.Filled.OpenInFull,
-                    contentDescription = null,
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shadowElevation = 8.dp,
+            modifier =
+                Modifier
+                    // Constrain the popup to a Material-style menu width. Without this the
+                    // Popup gives unbounded width constraints and the inner Surface stretches
+                    // to fill the screen, throwing off the PopupPositionProvider's centring.
+                    .width(220.dp)
+                    .semantics { testTagsAsResourceId = true },
+        ) {
+            Column {
+                DropdownMenuItem(
+                    text = { Text(if (isFullscreen) "Restore" else "Maximize") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector =
+                                if (isFullscreen) Icons.Filled.CloseFullscreen
+                                else Icons.Filled.OpenInFull,
+                            contentDescription = null,
+                        )
+                    },
+                    enabled = hasToken,
+                    onClick = onMaximize,
+                    modifier = Modifier.semantics { testTag = ID + "taskbar_menu_maximize" },
                 )
-            },
-            enabled = hasToken,
-            onClick = onMaximize,
-            modifier = Modifier.semantics { testTag = ID + "taskbar_menu_maximize" },
-        )
-        DropdownMenuItem(
-            text = { Text("Minimize") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Filled.Remove, contentDescription = null)
-            },
-            enabled = hasToken,
-            onClick = onMinimize,
-            modifier = Modifier.semantics { testTag = ID + "taskbar_menu_minimize" },
-        )
-        DropdownMenuItem(
-            text = { Text("Close") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Filled.Close, contentDescription = null)
-            },
-            enabled = hasToken,
-            onClick = onClose,
-            modifier = Modifier.semantics { testTag = ID + "taskbar_menu_close" },
-        )
+                DropdownMenuItem(
+                    text = { Text("Minimize") },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Filled.Remove, contentDescription = null)
+                    },
+                    enabled = hasToken,
+                    onClick = onMinimize,
+                    modifier = Modifier.semantics { testTag = ID + "taskbar_menu_minimize" },
+                )
+                DropdownMenuItem(
+                    text = { Text("Close") },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Filled.Close, contentDescription = null)
+                    },
+                    enabled = hasToken,
+                    onClick = onClose,
+                    modifier = Modifier.semantics { testTag = ID + "taskbar_menu_close" },
+                )
+            }
+        }
     }
 }
 

@@ -30,6 +30,7 @@ data class PeekTarget(
     val label: CharSequence?,
     val currentMode: Int,
     val currentBounds: Rect,
+    val displayMode: Int,
 )
 
 /**
@@ -128,6 +129,7 @@ class TaskFullscreenMonitor(private val pluginContext: Context) {
             label = label,
             currentMode = info.configuration.windowConfiguration.windowingMode,
             currentBounds = Rect(info.configuration.windowConfiguration.bounds),
+            displayMode = info.configuration.windowConfiguration.displayWindowingMode,
         )
     }
 

@@ -48,6 +48,14 @@ data class BdTaskInfo(
     val token: WindowContainerToken?,
     val mode: Int,
     val bounds: Rect,
+    /**
+     * The display's windowing mode the task lives on (typically [WINDOWING_MODE_FULLSCREEN]).
+     * [com.boringdroid.systemui.wm.TaskActions.toggleMaximize] needs it to decide whether to
+     * set the task's mode to [WINDOWING_MODE_UNDEFINED] (inherit from display) versus an
+     * explicit mode override — the former is what AOSP's `TaskOperations.maximizeTask` does
+     * and is required for the fullscreen surface re-parent to settle cleanly.
+     */
+    val displayMode: Int,
 )
 
 /**
@@ -194,6 +202,8 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
                     token = info.token,
                     mode = info.configuration.windowConfiguration.windowingMode,
                     bounds = Rect(info.configuration.windowConfiguration.bounds),
+                    displayMode =
+                        info.configuration.windowConfiguration.displayWindowingMode,
                 )
             if (filtered.none { it.id == snapshot.id }) {
                 filtered.add(snapshot)

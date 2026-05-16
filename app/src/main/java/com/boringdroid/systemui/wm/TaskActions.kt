@@ -72,6 +72,7 @@ class TaskActions(
         token: WindowContainerToken,
         currentMode: Int,
         currentBounds: Rect,
+        displayMode: Int,
     ) {
         val wct = WindowContainerTransaction()
         if (isDesktopModeEnabled()) {
@@ -82,13 +83,25 @@ class TaskActions(
                 wct.setBounds(token, stable)
             }
         } else {
+            // Mirror AOSP's `TaskOperations.maximizeTask` (frameworks/base/libs/WindowManager/
+            // Shell/.../windowdecor/TaskOperations.java) exactly. When the target mode equals
+            // the display's mode (usually FULLSCREEN -> FULLSCREEN), submitting
+            // `setWindowingMode(target)` leaves the task with an explicit mode override that
+            // duplicates the display state — WMS doesn't reparent the surface to the display
+            // root, so the task's freeform surface stays in place and shows a black underlay
+            // where the fullscreen bounds extend past the old freeform rect. The fix is
+            // `setWindowingMode(UNDEFINED)`, which tells WMS "inherit from parent" and
+            // triggers the surface re-parent / bounds-inherit path.
             val target =
                 if (currentMode == WindowConfiguration.WINDOWING_MODE_FULLSCREEN) {
                     WindowConfiguration.WINDOWING_MODE_FREEFORM
                 } else {
                     WindowConfiguration.WINDOWING_MODE_FULLSCREEN
                 }
-            wct.setWindowingMode(token, target)
+            val effectiveTarget =
+                if (target == displayMode) WindowConfiguration.WINDOWING_MODE_UNDEFINED
+                else target
+            wct.setWindowingMode(token, effectiveTarget)
             if (target == WindowConfiguration.WINDOWING_MODE_FULLSCREEN) {
                 wct.setBounds(token, null)
             }

@@ -217,7 +217,14 @@ class SystemUIOverlay : OverlayPlugin {
                     task.token?.let { taskActions.minimize(it) }
                 },
                 onTaskMaximize = { task: BdTaskInfo ->
-                    task.token?.let { taskActions.toggleMaximize(it, task.mode, task.bounds) }
+                    task.token?.let {
+                        taskActions.toggleMaximize(
+                            token = it,
+                            currentMode = task.mode,
+                            currentBounds = task.bounds,
+                            displayMode = task.displayMode,
+                        )
+                    }
                 },
             )
         window.show(state)

@@ -84,7 +84,12 @@ class PeekCaptionController(
     override fun onRestore(taskId: Int) {
         val target = currentTarget ?: return
         if (target.taskId != taskId) return
-        actions.toggleMaximize(target.token, target.currentMode, target.currentBounds)
+        actions.toggleMaximize(
+            token = target.token,
+            currentMode = target.currentMode,
+            currentBounds = target.currentBounds,
+            displayMode = target.displayMode,
+        )
         panel.hide()
     }
 

@@ -38,6 +38,19 @@ class TaskbarContextMenuTest {
         device.pressBack()
     }
 
+    /** Holds the menu open ~15s for a manual screencap. Not part of the regular suite. */
+    @Test
+    fun holdMenuForScreenshot() {
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        icon.longClick()
+        device.wait(
+            Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_close")),
+            FIND_TIMEOUT_MS,
+        ) ?: throw AssertionError("menu never opened")
+        SystemClock.sleep(15_000L)
+    }
+
     @Test
     fun longPress_opensMenu() {
         launchSettingsFreeform()
