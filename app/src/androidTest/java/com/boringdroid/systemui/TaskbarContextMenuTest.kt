@@ -6,8 +6,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Rect
 import android.os.SystemClock
-import android.view.InputDevice
-import android.view.MotionEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -23,7 +21,6 @@ import org.junit.runner.RunWith
 class TaskbarContextMenuTest {
 
     private lateinit var device: UiDevice
-    private val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
     @Before
     fun setUp() {
@@ -46,20 +43,6 @@ class TaskbarContextMenuTest {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
         icon.longClick()
-
-        val close =
-            device.wait(
-                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_close")),
-                FIND_TIMEOUT_MS,
-            )
-        assertThat(close).isNotNull()
-    }
-
-    @Test
-    fun rightClick_opensMenu() {
-        launchSettingsFreeform()
-        val icon = waitForTaskbarIcon()
-        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
 
         val close =
             device.wait(
@@ -125,7 +108,7 @@ class TaskbarContextMenuTest {
     fun menuClose_removesTask() {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
-        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+        icon.longClick()
 
         val closeItem =
             device.wait(
@@ -147,7 +130,7 @@ class TaskbarContextMenuTest {
     fun menuMinimize_sendsTaskToBack() {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
-        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+        icon.longClick()
 
         val minimizeItem =
             device.wait(
@@ -174,7 +157,7 @@ class TaskbarContextMenuTest {
     fun menuMaximize_togglesWindowingMode() {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
-        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+        icon.longClick()
 
         val maximizeItem =
             device.wait(
@@ -187,10 +170,7 @@ class TaskbarContextMenuTest {
 
         // Re-open the menu; now the middle row reads "Restore".
         val iconAgain = waitForTaskbarIcon()
-        rightClick(
-            iconAgain.visibleBounds.centerX().toFloat(),
-            iconAgain.visibleBounds.centerY().toFloat(),
-        )
+        iconAgain.longClick()
         val restoreItem =
             device.wait(
                 Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_maximize")),
@@ -280,44 +260,6 @@ class TaskbarContextMenuTest {
             Until.findObject(By.res(PLUGIN_PKG, "iv_task_info_icon__$pkg")),
             FIND_TIMEOUT_MS,
         ) ?: throw AssertionError("taskbar running-app icon for $pkg never appeared")
-
-    protected fun rightClick(x: Float, y: Float) {
-        val downTime = SystemClock.uptimeMillis()
-        val props = MotionEvent.PointerProperties().apply {
-            id = 0
-            toolType = MotionEvent.TOOL_TYPE_MOUSE
-        }
-        val coords = MotionEvent.PointerCoords().apply {
-            this.x = x
-            this.y = y
-            pressure = 1f
-            size = 1f
-        }
-        val down =
-            MotionEvent.obtain(
-                downTime, downTime, MotionEvent.ACTION_DOWN,
-                /* pointerCount= */ 1,
-                arrayOf(props), arrayOf(coords),
-                /* metaState= */ 0, MotionEvent.BUTTON_SECONDARY,
-                /* xPrecision= */ 1f, /* yPrecision= */ 1f,
-                /* deviceId= */ 0, /* edgeFlags= */ 0,
-                InputDevice.SOURCE_MOUSE, /* flags= */ 0,
-            )
-        automation.injectInputEvent(down, /* sync= */ true)
-        val up =
-            MotionEvent.obtain(
-                downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP,
-                /* pointerCount= */ 1,
-                arrayOf(props), arrayOf(coords),
-                /* metaState= */ 0, /* buttonState= */ 0,
-                /* xPrecision= */ 1f, /* yPrecision= */ 1f,
-                /* deviceId= */ 0, /* edgeFlags= */ 0,
-                InputDevice.SOURCE_MOUSE, /* flags= */ 0,
-            )
-        automation.injectInputEvent(up, /* sync= */ true)
-        down.recycle()
-        up.recycle()
-    }
 
     companion object {
         const val PLUGIN_PKG = "com.boringdroid.systemui"

@@ -66,8 +66,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import android.view.MotionEvent
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
@@ -329,31 +327,16 @@ private fun AppRailItem(
                     )
                     .combinedClickable(
                         onClick = onClick,
+                        // Long-press is the only trigger for the context menu. We previously
+                        // also bridged a real-mouse right-click via pointerInteropFilter, but
+                        // the Android Emulator never dispatches BUTTON_SECONDARY to the guest
+                        // (its goldfish kernel only enumerates touchscreens + qwerty2 — no
+                        // mouse device, and there is no path to add one via AVD config or
+                        // -qemu passthrough). On real x86 hardware where a USB mouse IS
+                        // enumerated, long-press still works for touch input and right-click
+                        // can be re-added later behind a build flag if needed.
                         onLongClick = { menuExpanded = true },
                     )
-                    .pointerInteropFilter { motion ->
-                        // Right-click handler bridged to the legacy MotionEvent API. Compose's
-                        // pointer-event abstraction in 1.6.0-alpha02 routes synthetic
-                        // ACTION_DOWN+BUTTON_SECONDARY events as PointerEventType.Press, but
-                        // real-mouse right-click while the cursor is already hovering
-                        // dispatches as ACTION_BUTTON_PRESS (button-state change, no
-                        // pointer-down transition) — which never surfaces as Press in this
-                        // Compose version. pointerInteropFilter gives us the raw MotionEvent
-                        // so we can match both paths and short-circuit before combinedClickable
-                        // sees them.
-                        val isSecondaryDown =
-                            motion.actionMasked == MotionEvent.ACTION_DOWN &&
-                                (motion.buttonState and MotionEvent.BUTTON_SECONDARY) != 0
-                        val isSecondaryButtonPress =
-                            motion.actionMasked == MotionEvent.ACTION_BUTTON_PRESS &&
-                                (motion.actionButton and MotionEvent.BUTTON_SECONDARY) != 0
-                        if (isSecondaryDown || isSecondaryButtonPress) {
-                            menuExpanded = true
-                            true
-                        } else {
-                            false
-                        }
-                    }
                     .semantics {
                         testTagsAsResourceId = true
                         // Per-package testTag so instrumentation tests can target a specific
