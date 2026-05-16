@@ -5,6 +5,8 @@ import android.app.WindowConfiguration
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowInsets
@@ -30,8 +32,22 @@ import android.window.WindowOrganizer
 class TaskActions(
     private val pluginContext: Context,
     private val hostContext: Context,
+    /**
+     * Called shortly (~150ms) after [toggleMaximize] applies its WCT, on the main thread. The
+     * WCT-only path bypasses WMShell's shell-transition wrapper, so
+     * `TaskStackChangeListener.onTaskStackChanged` does NOT fire for in-place windowing-mode
+     * flips or bounds changes. Callers that observe task state through that listener need this
+     * hook to re-poll once AMS has committed the change. The 150ms delay is grounded in
+     * observed WMShell-handler latency between WCT submission and the resulting task-info
+     * update being visible via `ActivityManager.getRunningTasks`.
+     *
+     * [close] and [minimize] don't need this — task removal and home-to-front naturally
+     * trigger `onTaskRemoved` / `onTaskMovedToFront` callbacks.
+     */
+    private val onWctApplied: () -> Unit = {},
 ) {
     private val windowOrganizer = WindowOrganizer()
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     fun close(token: WindowContainerToken) {
         val wct = WindowContainerTransaction().removeTask(token)
@@ -78,6 +94,7 @@ class TaskActions(
             }
         }
         apply(wct, "toggleMaximize")
+        mainHandler.postDelayed(onWctApplied, WCT_OBSERVE_DELAY_MS)
     }
 
     private fun stableDisplayBounds(): Rect {
@@ -139,5 +156,8 @@ class TaskActions(
         // Same constants as wm/shell/desktopmode/DesktopTasksController.kt.
         private const val DESKTOP_MODE_DEFAULT_WIDTH_DP = 840
         private const val DESKTOP_MODE_DEFAULT_HEIGHT_DP = 630
+        // Empirically: ~50ms minimum observed between WCT submission and AMS having the new
+        // task-info; 150ms is a comfortable cushion that's still imperceptible to the user.
+        private const val WCT_OBSERVE_DELAY_MS = 150L
     }
 }

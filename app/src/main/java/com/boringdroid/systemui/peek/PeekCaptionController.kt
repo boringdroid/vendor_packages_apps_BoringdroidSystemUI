@@ -29,7 +29,8 @@ class PeekCaptionController(
 ) : PeekPanelWindow.Callbacks {
 
     private val monitor = TaskFullscreenMonitor(pluginContext)
-    private val actions = TaskActions(pluginContext, hostContext)
+    private val actions =
+        TaskActions(pluginContext, hostContext, onWctApplied = { monitor.refresh() })
     private val edge = HoverEdgeWindow(hostContext) { onEdgeHover() }
     private val panel = PeekPanelWindow(pluginContext, hostContext, this)
     private val scope: CoroutineScope = MainScope()

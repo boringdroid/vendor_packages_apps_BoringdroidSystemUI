@@ -14,7 +14,9 @@ import android.window.WindowContainerTransaction
 import android.window.WindowOrganizer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -95,6 +97,26 @@ class PeekCaptionTest {
 
         waitForWindow(PEEK_PANEL_TITLE, present = true)
         assertThat(windowExists(PEEK_PANEL_TITLE)).isTrue()
+    }
+
+    @Test
+    fun peekPanelRestore_dismissesHoverEdge() {
+        launchSettingsAndDriveToFreeform()
+        tapMaximizeButton()
+        waitForWindow(HOVER_EDGE_TITLE, present = true)
+        injectMouseHover(100f, 0f)
+        waitForWindow(PEEK_PANEL_TITLE, present = true)
+
+        val restore =
+            device.wait(Until.findObject(By.desc("Restore")), LONG_TIMEOUT_MS)
+                ?: throw AssertionError("peek panel Restore button never appeared")
+        restore.click()
+
+        // After Restore, the task returns to freeform — TaskActions.onWctApplied calls
+        // TaskFullscreenMonitor.refresh, which observes the new mode and retracts the peek
+        // target. Without that hook the hover edge would stay armed against a freeform task.
+        waitForWindow(HOVER_EDGE_TITLE, present = false)
+        assertThat(windowExists(HOVER_EDGE_TITLE)).isFalse()
     }
 
     /**

@@ -76,7 +76,14 @@ class TaskFullscreenMonitor(private val pluginContext: Context) {
         _peekTarget.value = null
     }
 
-    private fun refresh() {
+    /**
+     * Re-poll the running-task stack and recompute [peekTarget]. Exposed so [TaskActions]'
+     * post-WCT hook can force a refresh after an in-place windowing-mode flip — the WCT path
+     * bypasses WMShell's shell-transition wrapper, so `TaskStackChangeListener.onTaskStackChanged`
+     * does NOT fire. Without this call, a peek-driven Restore would leave the hover edge armed
+     * against a now-freeform task.
+     */
+    fun refresh() {
         val running = activityManager.getRunningTasks(MAX_TASKS)
         val seenIds = HashSet<Int>(running.size)
         for (info in running) {
