@@ -14,8 +14,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +66,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.rememberCoroutineScope
@@ -334,17 +333,26 @@ private fun AppRailItem(
                         onLongClick = { menuExpanded = true },
                     )
                     .pointerInput(task.id) {
-                        awaitEachGesture {
-                            val down = awaitFirstDown(requireUnconsumed = false)
-                            // `currentEvent.buttons` reflects the MotionEvent.buttonState that
-                            // the AwaitPointerEventScope is currently dispatching; on a mouse
-                            // right-click the down event has BUTTON_SECONDARY set, which
-                            // PointerButtons.isSecondaryPressed decodes. Inspecting it on the
-                            // PointerEvent (rather than the PointerInputChange) is the API
-                            // exposed by compose-ui 1.6.0-alpha02.
-                            if (currentEvent.buttons.isSecondaryPressed) {
-                                menuExpanded = true
-                                down.consume()
+                        // Right-click handler. Covers two dispatch paths:
+                        //   (1) Synthetic ACTION_DOWN with buttonState=BUTTON_SECONDARY from
+                        //       UiAutomation.injectInputEvent — handled by awaitFirstDown.
+                        //   (2) Real mouse right-click while the cursor is already hovering —
+                        //       InputDispatcher fires ACTION_BUTTON_PRESS without a fresh
+                        //       ACTION_DOWN, so awaitFirstDown alone misses it. We loop on
+                        //       awaitPointerEvent and inspect every Press regardless of
+                        //       whether it's a fresh down or just a button-state change.
+                        // Default Main pass, so combinedClickable's gesture detector sees
+                        // events first and processes left-click without interference; we
+                        // only consume changes when isSecondaryPressed is actually set.
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (event.type == PointerEventType.Press &&
+                                    event.buttons.isSecondaryPressed
+                                ) {
+                                    menuExpanded = true
+                                    event.changes.forEach { it.consume() }
+                                }
                             }
                         }
                     }
