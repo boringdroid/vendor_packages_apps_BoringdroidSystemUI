@@ -66,9 +66,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isSecondaryPressed
-import androidx.compose.ui.input.pointer.pointerInput
+import android.view.MotionEvent
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
@@ -332,28 +331,27 @@ private fun AppRailItem(
                         onClick = onClick,
                         onLongClick = { menuExpanded = true },
                     )
-                    .pointerInput(task.id) {
-                        // Right-click handler. Covers two dispatch paths:
-                        //   (1) Synthetic ACTION_DOWN with buttonState=BUTTON_SECONDARY from
-                        //       UiAutomation.injectInputEvent — handled by awaitFirstDown.
-                        //   (2) Real mouse right-click while the cursor is already hovering —
-                        //       InputDispatcher fires ACTION_BUTTON_PRESS without a fresh
-                        //       ACTION_DOWN, so awaitFirstDown alone misses it. We loop on
-                        //       awaitPointerEvent and inspect every Press regardless of
-                        //       whether it's a fresh down or just a button-state change.
-                        // Default Main pass, so combinedClickable's gesture detector sees
-                        // events first and processes left-click without interference; we
-                        // only consume changes when isSecondaryPressed is actually set.
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                if (event.type == PointerEventType.Press &&
-                                    event.buttons.isSecondaryPressed
-                                ) {
-                                    menuExpanded = true
-                                    event.changes.forEach { it.consume() }
-                                }
-                            }
+                    .pointerInteropFilter { motion ->
+                        // Right-click handler bridged to the legacy MotionEvent API. Compose's
+                        // pointer-event abstraction in 1.6.0-alpha02 routes synthetic
+                        // ACTION_DOWN+BUTTON_SECONDARY events as PointerEventType.Press, but
+                        // real-mouse right-click while the cursor is already hovering
+                        // dispatches as ACTION_BUTTON_PRESS (button-state change, no
+                        // pointer-down transition) — which never surfaces as Press in this
+                        // Compose version. pointerInteropFilter gives us the raw MotionEvent
+                        // so we can match both paths and short-circuit before combinedClickable
+                        // sees them.
+                        val isSecondaryDown =
+                            motion.actionMasked == MotionEvent.ACTION_DOWN &&
+                                (motion.buttonState and MotionEvent.BUTTON_SECONDARY) != 0
+                        val isSecondaryButtonPress =
+                            motion.actionMasked == MotionEvent.ACTION_BUTTON_PRESS &&
+                                (motion.actionButton and MotionEvent.BUTTON_SECONDARY) != 0
+                        if (isSecondaryDown || isSecondaryButtonPress) {
+                            menuExpanded = true
+                            true
+                        } else {
+                            false
                         }
                     }
                     .semantics {
