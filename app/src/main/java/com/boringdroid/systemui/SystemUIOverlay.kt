@@ -215,7 +215,20 @@ class SystemUIOverlay : OverlayPlugin {
                 onTaskMinimize = { task: BdTaskInfo ->
                     task.token?.let { taskActions.minimize(it) }
                 },
-                onTaskMaximize = { /* wired in Task 6 */ },
+                onTaskMaximize = { task: BdTaskInfo ->
+                    task.token?.let {
+                        taskActions.toggleMaximize(it, task.mode, task.bounds)
+                        // The AOSP TaskStackChangeListener does not fire for in-place
+                        // windowing-mode flips, so [BdTaskInfo.mode] in [TaskbarState]
+                        // would otherwise lag the system. Re-poll after the transition
+                        // settles so the menu's "Maximize"/"Restore" label and any other
+                        // mode-derived UI stays in sync.
+                        Handler(Looper.getMainLooper()).postDelayed(
+                            { state.refresh() },
+                            TASKBAR_REFRESH_AFTER_MAXIMIZE_MS,
+                        )
+                    }
+                },
             )
         window.show(state)
         taskbarWindow = window
@@ -465,6 +478,14 @@ class SystemUIOverlay : OverlayPlugin {
         private const val TAG = "SystemUIOverlay"
         private const val BRIDGE_TAG = "BdNotifBridge"
         private const val LAUNCHER_REFRESH_DELAY_MS = 750L
+
+        // Short delay between submitting WCT.toggleMaximize and re-polling running-task
+        // metadata. WindowOrganizer.applyTransaction returns synchronously but the actual
+        // windowing-mode flip is processed on the WMShell handler, so a 0ms post would race
+        // it. 150ms is well above the empirical sub-50ms shell-handler turnaround we've
+        // measured for in-place windowing-mode changes, without being long enough for the
+        // user to perceive the menu label lagging the resize animation.
+        private const val TASKBAR_REFRESH_AFTER_MAXIMIZE_MS = 150L
 
         // Copied from systemui source code, please keep it update to source code.
         private const val ACTION_PLUGIN_CHANGED = "com.android.systemui.action.PLUGIN_CHANGED"

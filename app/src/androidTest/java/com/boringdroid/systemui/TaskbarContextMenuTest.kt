@@ -109,6 +109,62 @@ class TaskbarContextMenuTest {
         throw AssertionError("settings remained the top resumed activity after Minimize")
     }
 
+    @Test
+    fun menuMaximize_togglesWindowingMode() {
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+
+        val maximizeItem =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_maximize")),
+                FIND_TIMEOUT_MS,
+            ) ?: throw AssertionError("maximize menu item never appeared")
+        maximizeItem.click()
+
+        waitForWindowingMode("fullscreen")
+
+        // Re-open the menu; now the middle row reads "Restore".
+        val iconAgain = waitForTaskbarIcon()
+        rightClick(
+            iconAgain.visibleBounds.centerX().toFloat(),
+            iconAgain.visibleBounds.centerY().toFloat(),
+        )
+        val restoreItem =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_maximize")),
+                FIND_TIMEOUT_MS,
+            ) ?: throw AssertionError("restore menu item never appeared")
+        // Material3 DropdownMenuItem wraps `text = { Text("Restore") }` in a descendant Text
+        // node — UiObject2.text on the menu item root returns null. Search the subtree for
+        // the label so the state-aware flip is verifiable through UiAutomator.
+        val restoreLabel =
+            restoreItem.findObject(By.text("Restore"))
+                ?: throw AssertionError(
+                    "Maximize/Restore label did not flip to 'Restore' after fullscreen toggle"
+                )
+        assertThat(restoreLabel.text).isEqualTo("Restore")
+        restoreItem.click()
+
+        waitForWindowingMode("freeform")
+    }
+
+    private fun waitForWindowingMode(expected: String) {
+        val deadline = SystemClock.uptimeMillis() + FIND_TIMEOUT_MS
+        // The brief Task-header line for the settings task encodes the windowing mode as
+        // `mode=fullscreen` / `mode=freeform` (it does not carry `mWindowingMode=` here —
+        // that token only appears later inside mGlobalConfig/mOverrideConfig blocks, well
+        // after the first "Hist" marker). Match on the Task header so this stays unambiguous
+        // even when other settings tasks share the dump.
+        val pattern = Regex("Task\\{[^}]*AboutBoringdroidActivity[^}]*\\bmode=$expected\\b")
+        while (SystemClock.uptimeMillis() < deadline) {
+            val out = device.executeShellCommand("dumpsys activity activities")
+            if (pattern.containsMatchIn(out)) return
+            SystemClock.sleep(POLL_INTERVAL_MS)
+        }
+        throw AssertionError("settings windowingMode did not become $expected")
+    }
+
     protected fun launchSettingsFreeform() {
         val intent =
             Intent()

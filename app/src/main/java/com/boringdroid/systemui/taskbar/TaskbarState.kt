@@ -162,6 +162,17 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
         hostActivityManager.moveTaskToFront(taskId, 0)
     }
 
+    /**
+     * Re-poll [ActivityManager.getRunningTasks] and re-emit [tasks]. Needed after a
+     * [com.boringdroid.systemui.wm.TaskActions.toggleMaximize] call because the AOSP
+     * `TaskStackChangeListener` is not notified for in-place windowing-mode flips, so the
+     * cached [BdTaskInfo.mode] would otherwise lag behind the system until the next foreground
+     * task change.
+     */
+    fun refresh() {
+        refreshRunningTasks()
+    }
+
     private fun refreshRunningTasks(initial: Boolean = false) {
         val running = activityManager.getRunningTasks(MAX_RUNNING_TASKS)
         val ordered = if (initial) running.reversed() else running
