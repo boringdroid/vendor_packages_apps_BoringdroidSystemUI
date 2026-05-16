@@ -442,11 +442,13 @@ private class AboveTaskbarIconPositionProvider(
         val rawX = targetCentreX - popupContentSize.width / 2
         val maxX = (windowSize.width - popupContentSize.width).coerceAtLeast(0)
         val x = rawX.coerceIn(0, maxX)
-        val above = targetBoundsPx.top - verticalGapPx - popupContentSize.height
-        val y =
-            if (above >= 0) above
-            else (targetBoundsPx.bottom + verticalGapPx)
-                .coerceAtMost((windowSize.height - popupContentSize.height).coerceAtLeast(0))
+        // y is measured relative to the parent window's TOP edge in screen coordinates.
+        // For the bottom-pinned TaskbarWindow (parent top is near the bottom of the screen),
+        // a NEGATIVE y is exactly what we want: it lifts the popup above the parent window's
+        // top edge into the empty space where the actual icon visually lives. That's only
+        // possible because we set PopupProperties.clippingEnabled = false (which clears the
+        // WMS sub-window clamp via FLAG_LAYOUT_NO_LIMITS).
+        val y = targetBoundsPx.top - verticalGapPx - popupContentSize.height
         return IntOffset(x, y)
     }
 }
@@ -478,7 +480,11 @@ private fun TaskbarContextMenu(
     Popup(
         popupPositionProvider = positionProvider,
         onDismissRequest = onDismissRequest,
-        properties = PopupProperties(focusable = true),
+        // clippingEnabled = false sets FLAG_LAYOUT_NO_LIMITS on the popup window so WMS
+        // does not pin its bottom to the parent TaskbarWindow's bottom edge. Without that
+        // flag, AOSP's sub-window clamp forces popup_bottom == parent_bottom, parking the
+        // menu on top of the taskbar pill regardless of what the position provider returns.
+        properties = PopupProperties(focusable = true, clippingEnabled = false),
     ) {
         Surface(
             shape = MaterialTheme.shapes.medium,
