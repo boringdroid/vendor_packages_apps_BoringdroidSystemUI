@@ -1,5 +1,6 @@
 package com.boringdroid.systemui.taskbar
 
+import android.app.WindowConfiguration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -10,6 +11,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,11 +33,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BatteryStd
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.OpenInFull
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +53,9 @@ import androidx.compose.material3.rememberPlainTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -51,6 +63,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -58,6 +72,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.boringdroid.systemui.theme.BdExpressiveMaterialTheme
 
@@ -81,6 +96,9 @@ data class TaskbarCallbacks(
     val onClockClick: () -> Unit,
     val onOverviewClick: () -> Unit,
     val onTaskClick: (BdTaskInfo) -> Unit,
+    val onTaskClose: (BdTaskInfo) -> Unit,
+    val onTaskMinimize: (BdTaskInfo) -> Unit,
+    val onTaskMaximize: (BdTaskInfo) -> Unit,
 )
 
 /**
@@ -124,6 +142,9 @@ fun Taskbar(state: TaskbarState, callbacks: TaskbarCallbacks) {
                 AppRail(
                     state = state,
                     onTaskClick = callbacks.onTaskClick,
+                    onTaskClose = callbacks.onTaskClose,
+                    onTaskMinimize = callbacks.onTaskMinimize,
+                    onTaskMaximize = callbacks.onTaskMaximize,
                     modifier = Modifier.weight(1f),
                 )
                 Tray(
@@ -198,6 +219,9 @@ private fun StartCluster(onStartClick: () -> Unit, onSearchClick: () -> Unit) {
 private fun AppRail(
     state: TaskbarState,
     onTaskClick: (BdTaskInfo) -> Unit,
+    onTaskClose: (BdTaskInfo) -> Unit,
+    onTaskMinimize: (BdTaskInfo) -> Unit,
+    onTaskMaximize: (BdTaskInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val tasks by state.tasks.collectAsState()
@@ -216,6 +240,9 @@ private fun AppRail(
                 task = task,
                 isActive = task.id == activeTaskId,
                 onClick = { onTaskClick(task) },
+                onClose = { onTaskClose(task) },
+                onMinimize = { onTaskMinimize(task) },
+                onMaximize = { onTaskMaximize(task) },
             )
         }
     }
@@ -223,7 +250,14 @@ private fun AppRail(
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit) {
+private fun AppRailItem(
+    task: BdTaskInfo,
+    isActive: Boolean,
+    onClick: () -> Unit,
+    onClose: () -> Unit,
+    onMinimize: () -> Unit,
+    onMaximize: () -> Unit,
+) {
     val colors = MaterialTheme.colorScheme
     val pillWidth by
         animateDpAsState(
@@ -233,6 +267,7 @@ private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit
         )
     val label = task.label?.toString()?.takeIf { it.isNotBlank() } ?: task.packageName
     val tooltipState = rememberPlainTooltipState()
+    var menuExpanded by remember(task.id) { mutableStateOf(false) }
     // Material3 PlainTooltipBox drives both mouse-hover and long-press. Boringdroid is
     // desktop-first so the hover path is the primary one: pointing the mouse at a running-app
     // icon surfaces the app name in a plain tooltip above the taskbar. AOSP ships material3
@@ -252,6 +287,22 @@ private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit
                         } else Modifier
                     )
                     .clickable(onClick = onClick)
+                    .pointerInput(task.id) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            // `currentEvent.buttons` reflects the MotionEvent.buttonState that
+                            // the AwaitPointerEventScope is currently dispatching; on a mouse
+                            // right-click the down event has BUTTON_SECONDARY set, which
+                            // PointerButtons.isSecondaryPressed decodes. Inspecting it on the
+                            // PointerEvent (rather than the PointerInputChange) is the API
+                            // exposed by compose-ui 1.6.0-alpha02 — PointerInputChange.buttons
+                            // doesn't exist in that version.
+                            if (currentEvent.buttons.isSecondaryPressed) {
+                                menuExpanded = true
+                                down.consume()
+                            }
+                        }
+                    }
                     .semantics {
                         testTagsAsResourceId = true
                         testTag = ID + "iv_task_info_icon"
@@ -276,7 +327,77 @@ private fun AppRailItem(task: BdTaskInfo, isActive: Boolean, onClick: () -> Unit
                         .clip(RoundedCornerShape(100))
                         .background(colors.primary)
             )
+            TaskbarContextMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false },
+                isFullscreen = task.mode == WindowConfiguration.WINDOWING_MODE_FULLSCREEN,
+                hasToken = task.token != null,
+                onClose = {
+                    menuExpanded = false
+                    onClose()
+                },
+                onMinimize = {
+                    menuExpanded = false
+                    onMinimize()
+                },
+                onMaximize = {
+                    menuExpanded = false
+                    onMaximize()
+                },
+            )
         }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalComposeUiApi::class)
+private fun TaskbarContextMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    isFullscreen: Boolean,
+    hasToken: Boolean,
+    onClose: () -> Unit,
+    onMinimize: () -> Unit,
+    onMaximize: () -> Unit,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        offset = DpOffset(0.dp, (-8).dp),
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
+    ) {
+        DropdownMenuItem(
+            text = { Text(if (isFullscreen) "Restore" else "Maximize") },
+            leadingIcon = {
+                Icon(
+                    imageVector =
+                        if (isFullscreen) Icons.Filled.CloseFullscreen
+                        else Icons.Filled.OpenInFull,
+                    contentDescription = null,
+                )
+            },
+            enabled = hasToken,
+            onClick = onMaximize,
+            modifier = Modifier.semantics { testTag = ID + "taskbar_menu_maximize" },
+        )
+        DropdownMenuItem(
+            text = { Text("Minimize") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Filled.Remove, contentDescription = null)
+            },
+            enabled = hasToken,
+            onClick = onMinimize,
+            modifier = Modifier.semantics { testTag = ID + "taskbar_menu_minimize" },
+        )
+        DropdownMenuItem(
+            text = { Text("Close") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Filled.Close, contentDescription = null)
+            },
+            enabled = hasToken,
+            onClick = onClose,
+            modifier = Modifier.semantics { testTag = ID + "taskbar_menu_close" },
+        )
     }
 }
 

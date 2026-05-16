@@ -1,0 +1,130 @@
+package com.boringdroid.systemui
+
+import android.app.ActivityOptions
+import android.app.WindowConfiguration
+import android.content.ComponentName
+import android.content.Intent
+import android.graphics.Rect
+import android.os.SystemClock
+import android.view.InputDevice
+import android.view.MotionEvent
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
+import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class TaskbarContextMenuTest {
+
+    private lateinit var device: UiDevice
+    private val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+
+    @Before
+    fun setUp() {
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.executeShellCommand("am force-stop $SETTINGS_PKG")
+        device.pressHome()
+        device.waitForIdle()
+    }
+
+    @After
+    fun tearDown() {
+        device.executeShellCommand("am force-stop $SETTINGS_PKG")
+        device.pressBack()
+    }
+
+    @Test
+    fun rightClick_opensMenu() {
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+
+        val close =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_close")),
+                FIND_TIMEOUT_MS,
+            )
+        val minimize =
+            device.findObject(By.res(PLUGIN_PKG, "taskbar_menu_minimize"))
+        val maximize =
+            device.findObject(By.res(PLUGIN_PKG, "taskbar_menu_maximize"))
+
+        assertThat(close).isNotNull()
+        assertThat(minimize).isNotNull()
+        assertThat(maximize).isNotNull()
+    }
+
+    protected fun launchSettingsFreeform() {
+        val intent =
+            Intent()
+                .setComponent(ComponentName(SETTINGS_PKG, "$SETTINGS_PKG.AboutBoringdroidActivity"))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val options =
+            ActivityOptions.makeBasic().apply {
+                launchWindowingMode = WindowConfiguration.WINDOWING_MODE_FREEFORM
+                launchBounds = Rect(200, 200, 1200, 800)
+            }
+        InstrumentationRegistry.getInstrumentation().targetContext.startActivity(
+            intent,
+            options.toBundle(),
+        )
+        SystemClock.sleep(LAUNCH_SETTLE_MS)
+    }
+
+    protected fun waitForTaskbarIcon() =
+        device.wait(
+            Until.findObject(By.res(PLUGIN_PKG, "iv_task_info_icon")),
+            FIND_TIMEOUT_MS,
+        ) ?: throw AssertionError("taskbar running-app icon never appeared")
+
+    protected fun rightClick(x: Float, y: Float) {
+        val downTime = SystemClock.uptimeMillis()
+        val props = MotionEvent.PointerProperties().apply {
+            id = 0
+            toolType = MotionEvent.TOOL_TYPE_MOUSE
+        }
+        val coords = MotionEvent.PointerCoords().apply {
+            this.x = x
+            this.y = y
+            pressure = 1f
+            size = 1f
+        }
+        val down =
+            MotionEvent.obtain(
+                downTime, downTime, MotionEvent.ACTION_DOWN,
+                /* pointerCount= */ 1,
+                arrayOf(props), arrayOf(coords),
+                /* metaState= */ 0, MotionEvent.BUTTON_SECONDARY,
+                /* xPrecision= */ 1f, /* yPrecision= */ 1f,
+                /* deviceId= */ 0, /* edgeFlags= */ 0,
+                InputDevice.SOURCE_MOUSE, /* flags= */ 0,
+            )
+        automation.injectInputEvent(down, /* sync= */ true)
+        val up =
+            MotionEvent.obtain(
+                downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP,
+                /* pointerCount= */ 1,
+                arrayOf(props), arrayOf(coords),
+                /* metaState= */ 0, /* buttonState= */ 0,
+                /* xPrecision= */ 1f, /* yPrecision= */ 1f,
+                /* deviceId= */ 0, /* edgeFlags= */ 0,
+                InputDevice.SOURCE_MOUSE, /* flags= */ 0,
+            )
+        automation.injectInputEvent(up, /* sync= */ true)
+        down.recycle()
+        up.recycle()
+    }
+
+    companion object {
+        const val PLUGIN_PKG = "com.boringdroid.systemui"
+        const val SETTINGS_PKG = "com.boringdroid.settings"
+        const val FIND_TIMEOUT_MS = 5_000L
+        const val LAUNCH_SETTLE_MS = 1_500L
+    }
+}

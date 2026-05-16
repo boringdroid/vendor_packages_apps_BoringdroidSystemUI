@@ -207,6 +207,9 @@ class SystemUIOverlay : OverlayPlugin {
                     )
                 },
                 onTaskClick = { task: BdTaskInfo -> state.bringTaskToFront(task.id) },
+                onTaskClose = { /* wired in Task 4 */ },
+                onTaskMinimize = { /* wired in Task 5 */ },
+                onTaskMaximize = { /* wired in Task 6 */ },
             )
         window.show(state)
         taskbarWindow = window
