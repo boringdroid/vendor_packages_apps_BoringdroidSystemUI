@@ -11,6 +11,18 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * Owns the peek-caption stack: the [TaskFullscreenMonitor] that decides when the foreground task
+ * needs a peek caption, the [HoverEdgeWindow] that arms the trigger, and the [PeekPanelWindow]
+ * that actually shows when the user hovers the top edge. Restore / minimize / close actions
+ * delegate to the shared [TaskActions] helper.
+ *
+ * Gated twice:
+ *   1. `persist.boringdroid.peek_caption` (default true) — kill switch for the feature.
+ *   2. `persist.wm.debug.desktop_mode` / `persist.wm.debug.desktop_mode_2` — if either is true,
+ *      WMShell uses `DesktopModeWindowDecoration` whose maximize stays in freeform and keeps the
+ *      in-window caption visible. Peek would duplicate that caption, so we skip arming.
+ */
 class PeekCaptionController(
     private val pluginContext: Context,
     private val hostContext: Context,
