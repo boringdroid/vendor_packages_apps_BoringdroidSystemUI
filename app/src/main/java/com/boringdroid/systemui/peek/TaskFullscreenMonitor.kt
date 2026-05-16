@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.UserManager
 import android.window.WindowContainerToken
@@ -27,6 +28,8 @@ data class PeekTarget(
     val component: ComponentName?,
     val icon: Drawable?,
     val label: CharSequence?,
+    val currentMode: Int,
+    val currentBounds: Rect,
 )
 
 /**
@@ -116,6 +119,8 @@ class TaskFullscreenMonitor(private val pluginContext: Context) {
             component = info.topActivity,
             icon = icon,
             label = label,
+            currentMode = info.configuration.windowConfiguration.windowingMode,
+            currentBounds = Rect(info.configuration.windowConfiguration.bounds),
         )
     }
 
