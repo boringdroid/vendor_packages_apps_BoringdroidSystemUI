@@ -191,8 +191,19 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
      * front (which calls [bringTaskToFront] and clears the flag).
      */
     fun markMinimized(taskId: Int) {
+        // Do NOT call refreshRunningTasks() here. That would re-poll AM and run the
+        // "if topId in minimizedTaskIds, clear" branch — which is racy against this call.
+        // `TaskActions.minimize(token)` returns immediately while the WCT/reorder is still
+        // in flight, so AM may still report the just-minimized task as the top resumed task
+        // at the moment we re-poll. The clear branch would then wipe the flag we just set.
+        // Instead, re-emit the current task list with isMinimized flipped for this id only —
+        // the menu reads from `tasks` (via collectAsState), so a fresh emission is enough to
+        // trigger recomposition with the new gate value. The natural TaskStackChangeListener
+        // refreshes that follow the AM commit are still responsible for clearing the flag
+        // when the task is genuinely brought back to front by an external path.
         if (minimizedTaskIds.add(taskId)) {
-            refreshRunningTasks()
+            _tasks.value =
+                _tasks.value.map { if (it.id == taskId) it.copy(isMinimized = true) else it }
         }
     }
 
