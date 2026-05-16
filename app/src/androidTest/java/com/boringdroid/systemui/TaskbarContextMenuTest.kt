@@ -40,6 +40,20 @@ class TaskbarContextMenuTest {
     }
 
     @Test
+    fun longPress_opensMenu() {
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        icon.longClick()
+
+        val close =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_close")),
+                FIND_TIMEOUT_MS,
+            )
+        assertThat(close).isNotNull()
+    }
+
+    @Test
     fun rightClick_opensMenu() {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
