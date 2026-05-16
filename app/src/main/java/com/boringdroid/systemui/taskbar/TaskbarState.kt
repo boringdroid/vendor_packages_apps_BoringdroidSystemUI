@@ -7,12 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.LauncherApps
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.UserManager
 import android.util.Log
+import android.window.WindowContainerToken
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
 import com.android.systemui.shared.system.TaskStackChangeListeners
@@ -43,6 +45,9 @@ data class BdTaskInfo(
     val component: ComponentName?,
     val icon: Drawable?,
     val label: CharSequence?,
+    val token: WindowContainerToken?,
+    val mode: Int,
+    val bounds: Rect,
 )
 
 /**
@@ -175,6 +180,9 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
                     component = info.topActivity,
                     icon = icon,
                     label = label,
+                    token = info.token,
+                    mode = info.configuration.windowConfiguration.windowingMode,
+                    bounds = Rect(info.configuration.windowConfiguration.bounds),
                 )
             if (filtered.none { it.id == snapshot.id }) {
                 filtered.add(snapshot)
