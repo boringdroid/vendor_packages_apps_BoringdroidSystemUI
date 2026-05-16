@@ -402,6 +402,7 @@ private fun AppRailItem(
                 onDismissRequest = { menuExpanded = false },
                 isFullscreen = task.mode == WindowConfiguration.WINDOWING_MODE_FULLSCREEN,
                 hasToken = task.token != null,
+                isMinimized = task.isMinimized,
                 onClose = {
                     menuExpanded = false
                     onClose()
@@ -458,6 +459,12 @@ private fun TaskbarContextMenu(
     onDismissRequest: () -> Unit,
     isFullscreen: Boolean,
     hasToken: Boolean,
+    /**
+     * Whether the user explicitly minimized this task via the menu. A minimized task only
+     * offers Close — Maximize/Minimize/Restore have no observable effect until the task is
+     * brought back to the foreground (the icon's onClick path does that).
+     */
+    isMinimized: Boolean,
     onClose: () -> Unit,
     onMinimize: () -> Unit,
     onMaximize: () -> Unit,
@@ -486,29 +493,31 @@ private fun TaskbarContextMenu(
                     .semantics { testTagsAsResourceId = true },
         ) {
             Column {
-                DropdownMenuItem(
-                    text = { Text(if (isFullscreen) "Restore" else "Maximize") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector =
-                                if (isFullscreen) Icons.Filled.CloseFullscreen
-                                else Icons.Filled.OpenInFull,
-                            contentDescription = null,
-                        )
-                    },
-                    enabled = hasToken,
-                    onClick = onMaximize,
-                    modifier = Modifier.semantics { testTag = ID + "taskbar_menu_maximize" },
-                )
-                DropdownMenuItem(
-                    text = { Text("Minimize") },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Filled.Remove, contentDescription = null)
-                    },
-                    enabled = hasToken,
-                    onClick = onMinimize,
-                    modifier = Modifier.semantics { testTag = ID + "taskbar_menu_minimize" },
-                )
+                if (!isMinimized) {
+                    DropdownMenuItem(
+                        text = { Text(if (isFullscreen) "Restore" else "Maximize") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector =
+                                    if (isFullscreen) Icons.Filled.CloseFullscreen
+                                    else Icons.Filled.OpenInFull,
+                                contentDescription = null,
+                            )
+                        },
+                        enabled = hasToken,
+                        onClick = onMaximize,
+                        modifier = Modifier.semantics { testTag = ID + "taskbar_menu_maximize" },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Minimize") },
+                        leadingIcon = {
+                            Icon(imageVector = Icons.Filled.Remove, contentDescription = null)
+                        },
+                        enabled = hasToken,
+                        onClick = onMinimize,
+                        modifier = Modifier.semantics { testTag = ID + "taskbar_menu_minimize" },
+                    )
+                }
                 DropdownMenuItem(
                     text = { Text("Close") },
                     leadingIcon = {

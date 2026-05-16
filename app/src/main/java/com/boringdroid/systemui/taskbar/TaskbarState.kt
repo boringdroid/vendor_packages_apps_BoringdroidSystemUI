@@ -49,13 +49,26 @@ data class BdTaskInfo(
     val mode: Int,
     val bounds: Rect,
     /**
-     * The display's windowing mode the task lives on (typically [WINDOWING_MODE_FULLSCREEN]).
+     * The display's windowing mode the task lives on (typically [WindowConfiguration.WINDOWING_MODE_FULLSCREEN]).
      * [com.boringdroid.systemui.wm.TaskActions.toggleMaximize] needs it to decide whether to
-     * set the task's mode to [WINDOWING_MODE_UNDEFINED] (inherit from display) versus an
-     * explicit mode override — the former is what AOSP's `TaskOperations.maximizeTask` does
-     * and is required for the fullscreen surface re-parent to settle cleanly.
+     * set the task's mode to [WindowConfiguration.WINDOWING_MODE_UNDEFINED] (inherit from
+     * display) versus an explicit mode override — the former is what AOSP's
+     * `TaskOperations.maximizeTask` does and is required for the fullscreen surface
+     * re-parent to settle cleanly.
      */
     val displayMode: Int,
+    /**
+     * Whether the user explicitly minimized this task via the running-app context menu.
+     * Cleared when the task is brought back to front (icon click) or when a fresh task with
+     * the same id appears. We track this ourselves because `ActivityManager.RunningTaskInfo.
+     * isVisible` is unreliable on AOSP 14 — it can return `false` even for a clearly visible
+     * freeform window — so it can't be used to differentiate "user minimized" from "running
+     * but happens to be behind another window".
+     *
+     * Used to gate the context-menu items: a minimized task only offers Close because
+     * Maximize/Minimize/Restore have no observable effect on a non-foreground task.
+     */
+    val isMinimized: Boolean,
 )
 
 /**
@@ -167,8 +180,23 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
      * the SystemUI process so the foreground-promotion permission check passes.
      */
     fun bringTaskToFront(taskId: Int) {
+        minimizedTaskIds.remove(taskId)
+        refreshRunningTasks()
         hostActivityManager.moveTaskToFront(taskId, 0)
     }
+
+    /**
+     * Record that the user explicitly minimized [taskId] via the context menu. The menu's
+     * Maximize/Minimize/Restore items hide for this task until the user brings it back to
+     * front (which calls [bringTaskToFront] and clears the flag).
+     */
+    fun markMinimized(taskId: Int) {
+        if (minimizedTaskIds.add(taskId)) {
+            refreshRunningTasks()
+        }
+    }
+
+    private val minimizedTaskIds = mutableSetOf<Int>()
 
     /**
      * Re-poll [ActivityManager.getRunningTasks] and re-emit [tasks]. Needed after a
@@ -204,6 +232,7 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
                     bounds = Rect(info.configuration.windowConfiguration.bounds),
                     displayMode =
                         info.configuration.windowConfiguration.displayWindowingMode,
+                    isMinimized = info.id in minimizedTaskIds,
                 )
             if (filtered.none { it.id == snapshot.id }) {
                 filtered.add(snapshot)
@@ -216,6 +245,16 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
         // observed payload; new tasks land at the end in launch order.
         _tasks.value = mergeRailOrder(filtered)
         _activeTaskId.value = topId
+        // Drop minimized-tracking ids for tasks no longer running (e.g. force-stopped or
+        // removed via the Close menu). Without this, a new task that happens to reuse an
+        // old id would inherit a stale "minimized" gate.
+        val aliveIds = filtered.mapTo(HashSet()) { it.id }
+        minimizedTaskIds.retainAll(aliveIds)
+        // If the top resumed task is in our minimized set, it was brought back to front
+        // (via direct task switch or another app's intent) — clear the flag.
+        if (topId != -1 && topId in minimizedTaskIds) {
+            minimizedTaskIds.remove(topId)
+        }
     }
 
     private fun mergeRailOrder(fresh: List<BdTaskInfo>): List<BdTaskInfo> {

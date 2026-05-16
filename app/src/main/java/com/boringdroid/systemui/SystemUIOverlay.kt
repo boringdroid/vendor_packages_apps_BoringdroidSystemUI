@@ -214,7 +214,14 @@ class SystemUIOverlay : OverlayPlugin {
                     task.token?.let { taskActions.close(it) }
                 },
                 onTaskMinimize = { task: BdTaskInfo ->
-                    task.token?.let { taskActions.minimize(it) }
+                    task.token?.let {
+                        taskActions.minimize(it)
+                        // Mark UI state so the running-app context menu hides
+                        // Maximize/Minimize/Restore items on the next long-press of this
+                        // icon. Cleared automatically when the task is brought back to
+                        // front (icon tap or any path through state.bringTaskToFront).
+                        state.markMinimized(task.id)
+                    }
                 },
                 onTaskMaximize = { task: BdTaskInfo ->
                     task.token?.let {

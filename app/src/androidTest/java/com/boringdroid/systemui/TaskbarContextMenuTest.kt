@@ -140,6 +140,42 @@ class TaskbarContextMenuTest {
     }
 
     @Test
+    fun menuOnMinimizedTask_showsOnlyClose() {
+        // After Minimize, re-opening the menu should hide Maximize and Minimize since
+        // they have no observable effect on a non-visible task — only Close remains.
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        icon.longClick()
+        val minimizeItem =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_minimize")),
+                FIND_TIMEOUT_MS,
+            ) ?: throw AssertionError("minimize menu item never appeared")
+        minimizeItem.click()
+
+        // Wait for the task to actually go to back. We poll on topResumedActivity to
+        // know AMS has committed; rail order is stable so the icon stays in place.
+        val deadline = SystemClock.uptimeMillis() + FIND_TIMEOUT_MS
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (!currentTopResumedActivity().contains(SETTINGS_PKG)) break
+            SystemClock.sleep(POLL_INTERVAL_MS)
+        }
+
+        val iconAgain = waitForTaskbarIcon()
+        iconAgain.longClick()
+        val close =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_close")),
+                FIND_TIMEOUT_MS,
+            )
+        assertThat(close).isNotNull()
+        val maximize = device.findObject(By.res(PLUGIN_PKG, "taskbar_menu_maximize"))
+        val minimize = device.findObject(By.res(PLUGIN_PKG, "taskbar_menu_minimize"))
+        assertThat(maximize).isNull()
+        assertThat(minimize).isNull()
+    }
+
+    @Test
     fun menuMinimize_sendsTaskToBack() {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
