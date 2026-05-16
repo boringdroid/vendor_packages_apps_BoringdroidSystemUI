@@ -33,6 +33,7 @@ import com.boringdroid.systemui.peek.PeekCaptionController
 import com.boringdroid.systemui.taskbar.BdTaskInfo
 import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
+import com.boringdroid.systemui.wm.TaskActions
 import java.lang.reflect.InvocationTargetException
 import java.util.Arrays
 import java.util.stream.Collectors
@@ -170,6 +171,7 @@ class SystemUIOverlay : OverlayPlugin {
         // ClassCastException when LayoutInflater returns the plugin-loaded OverviewLayout.
         val state = TaskbarState(pluginContext, sysUIContext).also { it.start() }
         taskbarState = state
+        val taskActions = TaskActions(pluginContext, sysUIContext)
         val window = TaskbarWindow(pluginContext, sysUIContext)
         window.callbacks =
             TaskbarCallbacks(
@@ -207,7 +209,9 @@ class SystemUIOverlay : OverlayPlugin {
                     )
                 },
                 onTaskClick = { task: BdTaskInfo -> state.bringTaskToFront(task.id) },
-                onTaskClose = { /* wired in Task 4 */ },
+                onTaskClose = { task: BdTaskInfo ->
+                    task.token?.let { taskActions.close(it) }
+                },
                 onTaskMinimize = { /* wired in Task 5 */ },
                 onTaskMaximize = { /* wired in Task 6 */ },
             )

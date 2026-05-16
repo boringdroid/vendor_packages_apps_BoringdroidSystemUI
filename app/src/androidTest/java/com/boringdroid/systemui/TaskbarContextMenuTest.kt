@@ -60,6 +60,28 @@ class TaskbarContextMenuTest {
         assertThat(maximize).isNotNull()
     }
 
+    @Test
+    fun menuClose_removesTask() {
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+
+        val closeItem =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_close")),
+                FIND_TIMEOUT_MS,
+            ) ?: throw AssertionError("close menu item never appeared")
+        closeItem.click()
+
+        val deadline = SystemClock.uptimeMillis() + FIND_TIMEOUT_MS
+        while (SystemClock.uptimeMillis() < deadline) {
+            val out = device.executeShellCommand("dumpsys activity activities")
+            if (!out.contains("com.boringdroid.settings/.AboutBoringdroidActivity")) return
+            SystemClock.sleep(POLL_INTERVAL_MS)
+        }
+        throw AssertionError("settings task did not close after menu Close")
+    }
+
     protected fun launchSettingsFreeform() {
         val intent =
             Intent()
@@ -126,5 +148,6 @@ class TaskbarContextMenuTest {
         const val SETTINGS_PKG = "com.boringdroid.settings"
         const val FIND_TIMEOUT_MS = 5_000L
         const val LAUNCH_SETTLE_MS = 1_500L
+        const val POLL_INTERVAL_MS = 200L
     }
 }
