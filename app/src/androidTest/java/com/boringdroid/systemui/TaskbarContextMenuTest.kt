@@ -29,6 +29,7 @@ class TaskbarContextMenuTest {
     fun setUp() {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.executeShellCommand("am force-stop $SETTINGS_PKG")
+        device.executeShellCommand("am force-stop $CLOCK_PKG")
         device.pressHome()
         device.waitForIdle()
     }
@@ -36,6 +37,7 @@ class TaskbarContextMenuTest {
     @After
     fun tearDown() {
         device.executeShellCommand("am force-stop $SETTINGS_PKG")
+        device.executeShellCommand("am force-stop $CLOCK_PKG")
         device.pressBack()
     }
 
@@ -72,6 +74,30 @@ class TaskbarContextMenuTest {
         assertThat(close).isNotNull()
         assertThat(minimize).isNotNull()
         assertThat(maximize).isNotNull()
+    }
+
+    @Test
+    fun leftClick_doesNotReorderRail() {
+        // Stable-order regression guard: clicking a taskbar icon brings the task to front
+        // but does NOT shove the icon to the leftmost position. The rail used to follow
+        // ActivityManager's MRU order; that was visually disruptive and broke positional
+        // muscle memory. TaskbarState now keeps the rail order across refreshes.
+        launchSettingsFreeform()
+        waitForTaskbarIcon(SETTINGS_PKG)
+        device.executeShellCommand("am start -n com.android.deskclock/.DeskClock").trim()
+        SystemClock.sleep(LAUNCH_SETTLE_MS)
+        waitForTaskbarIcon(CLOCK_PKG)
+
+        val before = railIconLeftXs()
+        // Click the icon that's currently NOT top so the click is observable as a foreground
+        // change. Either Settings or DeskClock — whichever is not top right now.
+        val targetPkg =
+            if (currentTopResumedActivity().contains(SETTINGS_PKG)) CLOCK_PKG else SETTINGS_PKG
+        waitForTaskbarIcon(targetPkg).click()
+        waitForTopResumedActivity(targetPkg)
+
+        val after = railIconLeftXs()
+        assertThat(after).isEqualTo(before)
     }
 
     @Test
@@ -184,6 +210,13 @@ class TaskbarContextMenuTest {
         waitForWindowingMode("freeform")
     }
 
+    private fun railIconLeftXs(): List<Int> =
+        device.findObjects(
+                By.res(java.util.regex.Pattern.compile(".*iv_task_info_icon__.*"))
+            )
+            .map { it.visibleBounds.left }
+            .sorted()
+
     private fun currentTopResumedActivity(): String {
         val out = device.executeShellCommand("dumpsys activity activities")
         return out.lineSequence()
@@ -242,11 +275,11 @@ class TaskbarContextMenuTest {
         SystemClock.sleep(LAUNCH_SETTLE_MS)
     }
 
-    protected fun waitForTaskbarIcon() =
+    protected fun waitForTaskbarIcon(pkg: String = SETTINGS_PKG) =
         device.wait(
-            Until.findObject(By.res(PLUGIN_PKG, "iv_task_info_icon")),
+            Until.findObject(By.res(PLUGIN_PKG, "iv_task_info_icon__$pkg")),
             FIND_TIMEOUT_MS,
-        ) ?: throw AssertionError("taskbar running-app icon never appeared")
+        ) ?: throw AssertionError("taskbar running-app icon for $pkg never appeared")
 
     protected fun rightClick(x: Float, y: Float) {
         val downTime = SystemClock.uptimeMillis()
@@ -289,6 +322,7 @@ class TaskbarContextMenuTest {
     companion object {
         const val PLUGIN_PKG = "com.boringdroid.systemui"
         const val SETTINGS_PKG = "com.boringdroid.settings"
+        const val CLOCK_PKG = "com.android.deskclock"
         const val FIND_TIMEOUT_MS = 5_000L
         const val LAUNCH_SETTLE_MS = 1_500L
         const val POLL_INTERVAL_MS = 200L

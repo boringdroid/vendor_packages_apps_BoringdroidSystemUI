@@ -50,9 +50,11 @@ class TaskbarRecentAppsTest {
         // case races the refresh and sees the row empty.
         Thread.sleep(RECENTS_SETTLE_MS)
 
+        // testTag is now per-package (iv_task_info_icon__<pkg>) so the resource-id varies;
+        // match by regex so this generic "are there any icons" check stays version-agnostic.
         val icons =
             device.wait(
-                Until.findObjects(By.res(PluginBaselineTest.PLUGIN_PKG, "iv_task_info_icon")),
+                Until.findObjects(By.res(java.util.regex.Pattern.compile(".*iv_task_info_icon__.*"))),
                 RECENTS_FIND_TIMEOUT_MS,
             )
         assertThat(icons).isNotNull()

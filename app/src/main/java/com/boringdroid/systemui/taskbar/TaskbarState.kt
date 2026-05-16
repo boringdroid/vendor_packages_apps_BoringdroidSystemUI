@@ -200,8 +200,26 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
             }
             if (topId == -1) topId = info.id
         }
-        _tasks.value = filtered
+        // Preserve the rail order across refreshes — tasks the user has seen stay where they
+        // are even when `getRunningTasks` reshuffles its MRU order (e.g. after the user taps
+        // an icon to bring a task to front). Existing tasks keep their slot with the freshly
+        // observed payload; new tasks land at the end in launch order.
+        _tasks.value = mergeRailOrder(filtered)
         _activeTaskId.value = topId
+    }
+
+    private fun mergeRailOrder(fresh: List<BdTaskInfo>): List<BdTaskInfo> {
+        val freshById = fresh.associateBy { it.id }
+        val previous = _tasks.value
+        val result = ArrayList<BdTaskInfo>(fresh.size)
+        for (existing in previous) {
+            freshById[existing.id]?.let { result.add(it) }
+        }
+        val keptIds = result.mapTo(HashSet()) { it.id }
+        for (snapshot in fresh) {
+            if (snapshot.id !in keptIds) result.add(snapshot)
+        }
+        return result
     }
 
     private fun resolveIcon(packageName: String): Drawable? {

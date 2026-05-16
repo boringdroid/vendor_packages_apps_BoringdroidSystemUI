@@ -13,8 +13,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,6 +70,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -228,7 +233,10 @@ private fun AppRail(
 ) {
     val tasks by state.tasks.collectAsState()
     val activeTaskId by state.activeTaskId.collectAsState()
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     LazyRow(
+        state = listState,
         modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 4.dp),
         // Center running-app icons within the rail's expanded weight(1f) slot so the
@@ -238,15 +246,44 @@ private fun AppRail(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items(items = tasks, key = { it.id }) { task ->
+            val taskIndex = tasks.indexOfFirst { it.id == task.id }
             AppRailItem(
                 task = task,
                 isActive = task.id == activeTaskId,
-                onClick = { onTaskClick(task) },
+                onClick = {
+                    onTaskClick(task)
+                    if (taskIndex >= 0) {
+                        scope.launch { ensureItemFullyVisible(listState, taskIndex) }
+                    }
+                },
                 onClose = { onTaskClose(task) },
                 onMinimize = { onTaskMinimize(task) },
                 onMaximize = { onTaskMaximize(task) },
             )
         }
+    }
+}
+
+/**
+ * Scroll the LazyRow only when the target item is not already entirely within the viewport. A
+ * fully-visible item is left in place — we don't want clicking a centred icon to shove it to
+ * the leftmost slot. A clipped or off-screen item is brought just inside the visible edge so
+ * the user can see the action they just triggered.
+ */
+private suspend fun ensureItemFullyVisible(state: LazyListState, index: Int) {
+    val info = state.layoutInfo
+    val item = info.visibleItemsInfo.firstOrNull { it.index == index }
+    if (item == null) {
+        state.animateScrollToItem(index)
+        return
+    }
+    val viewportStart = info.viewportStartOffset
+    val viewportEnd = info.viewportEndOffset
+    val itemStart = item.offset
+    val itemEnd = item.offset + item.size
+    when {
+        itemStart < viewportStart -> state.animateScrollBy((itemStart - viewportStart).toFloat())
+        itemEnd > viewportEnd -> state.animateScrollBy((itemEnd - viewportEnd).toFloat())
     }
 }
 
@@ -313,7 +350,17 @@ private fun AppRailItem(
                     }
                     .semantics {
                         testTagsAsResourceId = true
-                        testTag = ID + "iv_task_info_icon"
+                        // Per-package testTag so instrumentation tests can target a specific
+                        // running-app task by package even when the rail contains orphan
+                        // tasks from earlier cases. Compose's `testTagsAsResourceId=true`
+                        // writes this through to AccessibilityNodeInfo.viewIdResourceName,
+                        // so the resource-id is literally "com.boringdroid.systemui:id/
+                        // iv_task_info_icon__<pkg>" — addressable as
+                        // `By.res(PLUGIN_PKG, "iv_task_info_icon__<pkg>")` from UiAutomator.
+                        // The double underscore is a delimiter that can't appear inside a
+                        // legal package name. Tests that don't care about which icon should
+                        // use `By.res(Pattern.compile("iv_task_info_icon__.*"))`.
+                        testTag = ID + "iv_task_info_icon__" + task.packageName
                     },
             contentAlignment = Alignment.Center,
         ) {
@@ -368,10 +415,15 @@ private fun TaskbarContextMenu(
     onMinimize: () -> Unit,
     onMaximize: () -> Unit,
 ) {
+    // The taskbar lives at the bottom of the display, so DropdownMenu's auto-flip places the
+    // menu above the icon (no room below). The default horizontal anchor is the icon's
+    // start-edge; that pushes a ~180dp menu off the right side of the screen on a 48dp icon.
+    // Half-icon (24dp) minus half the typical menu width (~90dp) shifts the menu's centre
+    // over the icon's centre. Vertical -8dp adds a 8dp gap above the icon.
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
-        offset = DpOffset(0.dp, (-8).dp),
+        offset = DpOffset(x = (-66).dp, y = (-8).dp),
         modifier = Modifier.semantics { testTagsAsResourceId = true },
     ) {
         DropdownMenuItem(
