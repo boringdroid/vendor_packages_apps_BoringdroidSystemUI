@@ -212,7 +212,9 @@ class SystemUIOverlay : OverlayPlugin {
                 onTaskClose = { task: BdTaskInfo ->
                     task.token?.let { taskActions.close(it) }
                 },
-                onTaskMinimize = { /* wired in Task 5 */ },
+                onTaskMinimize = { task: BdTaskInfo ->
+                    task.token?.let { taskActions.minimize(it) }
+                },
                 onTaskMaximize = { /* wired in Task 6 */ },
             )
         window.show(state)

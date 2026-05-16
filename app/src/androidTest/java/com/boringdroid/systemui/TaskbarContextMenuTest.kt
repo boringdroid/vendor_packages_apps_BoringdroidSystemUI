@@ -82,6 +82,33 @@ class TaskbarContextMenuTest {
         throw AssertionError("settings task did not close after menu Close")
     }
 
+    @Test
+    fun menuMinimize_sendsTaskToBack() {
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        rightClick(icon.visibleBounds.centerX().toFloat(), icon.visibleBounds.centerY().toFloat())
+
+        val minimizeItem =
+            device.wait(
+                Until.findObject(By.res(PLUGIN_PKG, "taskbar_menu_minimize")),
+                FIND_TIMEOUT_MS,
+            ) ?: throw AssertionError("minimize menu item never appeared")
+        minimizeItem.click()
+
+        val deadline = SystemClock.uptimeMillis() + FIND_TIMEOUT_MS
+        while (SystemClock.uptimeMillis() < deadline) {
+            val out = device.executeShellCommand("dumpsys activity activities")
+            // Top resumed activity should be a launcher (home), not the settings activity.
+            val topLine =
+                out.lineSequence()
+                    .firstOrNull { it.trim().startsWith("topResumedActivity=") }
+                    ?: ""
+            if (!topLine.contains("com.boringdroid.settings")) return
+            SystemClock.sleep(POLL_INTERVAL_MS)
+        }
+        throw AssertionError("settings remained the top resumed activity after Minimize")
+    }
+
     protected fun launchSettingsFreeform() {
         val intent =
             Intent()
