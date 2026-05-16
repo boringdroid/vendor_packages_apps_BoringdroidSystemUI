@@ -75,6 +75,27 @@ class TaskbarContextMenuTest {
     }
 
     @Test
+    fun leftClick_bringsTaskToFront() {
+        // Regression guard: the right-click pointerInput plus the long-press handler must not
+        // swallow a plain left tap. Pre-fix, detectTapGestures(onLongPress = ...) consumed the
+        // up event for short taps, blocking the .clickable's onClick — so clicking a taskbar
+        // icon did nothing. We now use combinedClickable(onClick, onLongClick), which routes
+        // both gestures correctly. This test guarantees the click path remains live.
+        launchSettingsFreeform()
+        val icon = waitForTaskbarIcon()
+        // Push Settings off-top so a successful click is observable as "Settings becomes top".
+        device.pressHome()
+        device.waitForIdle()
+        waitForTopResumedActivityNot(SETTINGS_PKG)
+
+        val iconAgain = waitForTaskbarIcon()
+        iconAgain.click()
+
+        waitForTopResumedActivity(SETTINGS_PKG)
+        assertThat(currentTopResumedActivity()).contains(SETTINGS_PKG)
+    }
+
+    @Test
     fun menuClose_removesTask() {
         launchSettingsFreeform()
         val icon = waitForTaskbarIcon()
@@ -161,6 +182,31 @@ class TaskbarContextMenuTest {
         restoreItem.click()
 
         waitForWindowingMode("freeform")
+    }
+
+    private fun currentTopResumedActivity(): String {
+        val out = device.executeShellCommand("dumpsys activity activities")
+        return out.lineSequence()
+            .firstOrNull { it.trim().startsWith("topResumedActivity=") }
+            .orEmpty()
+    }
+
+    private fun waitForTopResumedActivity(pkg: String) {
+        val deadline = SystemClock.uptimeMillis() + FIND_TIMEOUT_MS
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (currentTopResumedActivity().contains(pkg)) return
+            SystemClock.sleep(POLL_INTERVAL_MS)
+        }
+        throw AssertionError("top resumed activity never became $pkg")
+    }
+
+    private fun waitForTopResumedActivityNot(pkg: String) {
+        val deadline = SystemClock.uptimeMillis() + FIND_TIMEOUT_MS
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (!currentTopResumedActivity().contains(pkg)) return
+            SystemClock.sleep(POLL_INTERVAL_MS)
+        }
+        throw AssertionError("top resumed activity is still $pkg")
     }
 
     private fun waitForWindowingMode(expected: String) {

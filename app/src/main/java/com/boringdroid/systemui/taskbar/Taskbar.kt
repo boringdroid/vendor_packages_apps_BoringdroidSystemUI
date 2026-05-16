@@ -10,10 +10,11 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -250,7 +251,11 @@ private fun AppRail(
 }
 
 @Composable
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+)
 private fun AppRailItem(
     task: BdTaskInfo,
     isActive: Boolean,
@@ -287,7 +292,10 @@ private fun AppRailItem(
                             Modifier.background(colors.primary.copy(alpha = 0.18f))
                         } else Modifier
                     )
-                    .clickable(onClick = onClick)
+                    .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = { menuExpanded = true },
+                    )
                     .pointerInput(task.id) {
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
@@ -296,16 +304,12 @@ private fun AppRailItem(
                             // right-click the down event has BUTTON_SECONDARY set, which
                             // PointerButtons.isSecondaryPressed decodes. Inspecting it on the
                             // PointerEvent (rather than the PointerInputChange) is the API
-                            // exposed by compose-ui 1.6.0-alpha02 — PointerInputChange.buttons
-                            // doesn't exist in that version.
+                            // exposed by compose-ui 1.6.0-alpha02.
                             if (currentEvent.buttons.isSecondaryPressed) {
                                 menuExpanded = true
                                 down.consume()
                             }
                         }
-                    }
-                    .pointerInput(task.id) {
-                        detectTapGestures(onLongPress = { menuExpanded = true })
                     }
                     .semantics {
                         testTagsAsResourceId = true
