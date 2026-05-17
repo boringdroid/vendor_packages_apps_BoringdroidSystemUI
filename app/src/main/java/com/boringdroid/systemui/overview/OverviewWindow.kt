@@ -31,6 +31,7 @@ import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
 import com.android.systemui.shared.system.TaskStackChangeListeners
 import com.boringdroid.systemui.R
+import com.boringdroid.systemui.theme.ThemedIconLoader
 
 /**
  * Owns the boringdroid Overview window.
@@ -42,7 +43,10 @@ import com.boringdroid.systemui.R
  * own package context for WindowManager — unlike `TaskbarWindow`, which piggybacks on the host
  * SystemUI context.
  */
-class OverviewWindow(private val context: Context) {
+class OverviewWindow(
+    private val context: Context,
+    private val themedIconLoader: ThemedIconLoader? = null,
+) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var root: OverviewLayout? = null
     // Compose's AbstractComposeView#onAttachedToWindow requires a LifecycleOwner and
@@ -76,6 +80,7 @@ class OverviewWindow(private val context: Context) {
         }
         val view =
             LayoutInflater.from(context).inflate(R.layout.layout_overview, null) as OverviewLayout
+        view.setIconLoader(themedIconLoader)
         // TYPE_APPLICATION_OVERLAY is auto-granted for /system apps; no SYSTEM_ALERT_WINDOW
         // runtime permission dance needed.
         val lp =

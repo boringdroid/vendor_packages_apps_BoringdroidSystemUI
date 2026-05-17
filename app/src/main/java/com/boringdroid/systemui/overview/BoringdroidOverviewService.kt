@@ -8,10 +8,16 @@
 package com.boringdroid.systemui.overview
 
 import android.app.Service
+import android.content.ComponentCallbacks2
 import android.content.Intent
+import android.content.res.Configuration
+import android.database.ContentObserver
 import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.provider.Settings
 import android.util.Log
+import com.boringdroid.systemui.theme.ThemedIconLoader
 
 /**
  * Service bound by SystemUI's OverviewProxyService once the RRO points
@@ -30,10 +36,35 @@ class BoringdroidOverviewService : Service() {
 
     private lateinit var window: OverviewWindow
     private lateinit var proxy: OverviewProxyImpl
+    private var themedIconLoader: ThemedIconLoader? = null
+    private val themedIconsObserver: ContentObserver =
+        object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                themedIconLoader?.onThemedIconsSettingChanged()
+            }
+        }
+    private val themedIconsConfigCallbacks: ComponentCallbacks2 =
+        object : ComponentCallbacks2 {
+            override fun onConfigurationChanged(newConfig: Configuration) {
+                themedIconLoader?.onConfigurationChanged()
+            }
+
+            override fun onLowMemory() {}
+
+            override fun onTrimMemory(level: Int) {}
+        }
 
     override fun onCreate() {
         super.onCreate()
-        window = OverviewWindow(this)
+        val loader = ThemedIconLoader(this)
+        themedIconLoader = loader
+        contentResolver.registerContentObserver(
+            Settings.Secure.getUriFor(Settings.Secure.THEME_CUSTOMIZATION_OVERLAY_PACKAGES),
+            /* notifyForDescendants = */ false,
+            themedIconsObserver,
+        )
+        registerComponentCallbacks(themedIconsConfigCallbacks)
+        window = OverviewWindow(this, loader)
         proxy = OverviewProxyImpl(window, Handler(mainLooper))
         Log.i(TAG, "BoringdroidOverviewService onCreate")
     }
@@ -71,6 +102,9 @@ class BoringdroidOverviewService : Service() {
         if (::window.isInitialized && window.isShowing()) {
             window.hide()
         }
+        contentResolver.unregisterContentObserver(themedIconsObserver)
+        unregisterComponentCallbacks(themedIconsConfigCallbacks)
+        themedIconLoader = null
         super.onDestroy()
     }
 

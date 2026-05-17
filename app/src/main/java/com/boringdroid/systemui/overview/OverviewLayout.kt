@@ -7,6 +7,7 @@
 //      http://www.apache.org/licenses/LICENSE-2.0
 package com.boringdroid.systemui.overview
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -45,6 +46,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +83,8 @@ import androidx.compose.ui.unit.dp
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.boringdroid.systemui.theme.BdExpressiveMaterialTheme
 import com.boringdroid.systemui.theme.BdMotion
+import com.boringdroid.systemui.theme.LocalThemedIconLoader
+import com.boringdroid.systemui.theme.ThemedIconLoader
 
 /**
  * UiAutomator's `By.res(pkg, id)` matches the string Compose writes into
@@ -101,6 +105,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     FrameLayout(context, attrs, defStyle) {
     private var tasks: List<RecentAppTask> by mutableStateOf(emptyList())
     private var snapshotVersion: Int by mutableStateOf(0)
+    private var themedIconLoader: ThemedIconLoader? by mutableStateOf(null)
     private var cardClickListener: ((RecentAppTask) -> Unit)? = null
     private var cardCloseListener: ((RecentAppTask) -> Unit)? = null
     private val composeView: ComposeView = ComposeView(context)
@@ -128,6 +133,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     fun bumpSnapshotVersion() {
         snapshotVersion++
+    }
+
+    fun setIconLoader(loader: ThemedIconLoader?) {
+        themedIconLoader = loader
     }
 
     fun positionOfTaskId(taskId: Int): Int = tasks.indexOfFirst { it.taskId == taskId }
@@ -160,18 +169,20 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         composeView.layoutParams =
             LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         composeView.setContent {
-            BdExpressiveMaterialTheme {
-                OverviewPanel(
-                    tasks = tasks,
-                    snapshotVersion = snapshotVersion,
-                    expanded = expanded,
-                    onExitAnimationComplete = {
-                        exitCompleteCallback?.invoke()
-                        exitCompleteCallback = null
-                    },
-                    onCardClick = ::onCardClick,
-                    onCardClose = ::onCardClose,
-                )
+            CompositionLocalProvider(LocalThemedIconLoader provides themedIconLoader) {
+                BdExpressiveMaterialTheme {
+                    OverviewPanel(
+                        tasks = tasks,
+                        snapshotVersion = snapshotVersion,
+                        expanded = expanded,
+                        onExitAnimationComplete = {
+                            exitCompleteCallback?.invoke()
+                            exitCompleteCallback = null
+                        },
+                        onCardClick = ::onCardClick,
+                        onCardClose = ::onCardClose,
+                    )
+                }
             }
         }
         addView(composeView)
@@ -350,7 +361,11 @@ private fun RecentCard(
 ) {
     val context = LocalContext.current
     val pm = remember(context) { context.packageManager }
-    val appEntry = remember(task.packageName, pm) { resolveAppEntry(pm, task.packageName) }
+    val themedIconLoader = LocalThemedIconLoader.current
+    val appEntry =
+        remember(task.packageName, pm, themedIconLoader) {
+            resolveAppEntry(pm, task.packageName, themedIconLoader)
+        }
     val thumbnail: Bitmap? =
         remember(task.taskId, snapshotVersion) { loadThumbnail(task.taskId) }
     val density = LocalDensity.current
@@ -591,10 +606,17 @@ private fun FallbackAppIcon(icon: ImageVector, contentDescription: String, sizeD
 
 private data class AppEntry(val label: String, val icon: Drawable?)
 
-private fun resolveAppEntry(pm: PackageManager, packageName: String): AppEntry {
+private fun resolveAppEntry(
+    pm: PackageManager,
+    packageName: String,
+    themedIconLoader: ThemedIconLoader?,
+): AppEntry {
     return try {
         val info = pm.getApplicationInfo(packageName, 0)
-        AppEntry(pm.getApplicationLabel(info).toString(), pm.getApplicationIcon(info))
+        val component = ComponentName(packageName, "")
+        val raw = pm.getApplicationIcon(info)
+        val icon = themedIconLoader?.load(component, raw) ?: raw
+        AppEntry(pm.getApplicationLabel(info).toString(), icon)
     } catch (e: PackageManager.NameNotFoundException) {
         Log.w("OverviewLayout", "resolveAppEntry: missing package $packageName", e)
         AppEntry(packageName, null)
