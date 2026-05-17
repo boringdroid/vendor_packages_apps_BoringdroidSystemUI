@@ -173,6 +173,11 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
         return layoutParams
     }
 
+    /** Re-runs the loader task so the AllApps grid re-resolves icons (used by themed-icon toggle). */
+    fun refreshApps() {
+        appLoaderTask.start()
+    }
+
     fun dismiss() {
         // CLOSE_SYSTEM_DIALOGS is broadcast for many reasons unrelated to us
         // (home press, power menu, volume dialog). Without this guard every

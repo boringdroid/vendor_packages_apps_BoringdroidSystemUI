@@ -6,11 +6,13 @@ import android.app.ActivityManager
 import android.app.PendingIntent
 import android.app.RemoteAction
 import android.content.BroadcastReceiver
+import android.content.ComponentCallbacks2
 import android.content.pm.PackageManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.database.ContentObserver
 import android.graphics.drawable.Icon
 import android.net.Uri
@@ -33,6 +35,7 @@ import com.boringdroid.systemui.peek.PeekCaptionController
 import com.boringdroid.systemui.taskbar.BdTaskInfo
 import com.boringdroid.systemui.taskbar.TaskbarCallbacks
 import com.boringdroid.systemui.taskbar.TaskbarState
+import com.boringdroid.systemui.theme.ThemedIconLoader
 import com.boringdroid.systemui.wm.TaskActions
 import java.lang.reflect.InvocationTargetException
 import java.util.Arrays
@@ -53,6 +56,28 @@ class SystemUIOverlay : OverlayPlugin {
     private var resolver: ContentResolver? = null
     private val tunerKeys: MutableList<String> = ArrayList()
     private val tunerKeyObserver: ContentObserver = TunerKeyObserver()
+    private var themedIconLoader: ThemedIconLoader? = null
+
+    private val themedIconsObserver: ContentObserver =
+        object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                themedIconLoader?.onThemedIconsSettingChanged()
+                allAppsWindow?.refreshApps()
+                taskbarState?.refresh()
+            }
+        }
+
+    private val themedIconsConfigCallbacks: ComponentCallbacks2 =
+        object : ComponentCallbacks2 {
+            override fun onConfigurationChanged(newConfig: Configuration) {
+                themedIconLoader?.onConfigurationChanged()
+                allAppsWindow?.refreshApps()
+                taskbarState?.refresh()
+            }
+            override fun onLowMemory() {}
+            override fun onTrimMemory(level: Int) {}
+        }
+
     private val closeSystemDialogsReceiver: BroadcastReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -162,6 +187,14 @@ class SystemUIOverlay : OverlayPlugin {
     override fun onCreate(sysUIContext: Context, pluginContext: Context) {
         systemUIContext = sysUIContext
         this.pluginContext = pluginContext
+        val loader = ThemedIconLoader(sysUIContext)
+        themedIconLoader = loader
+        sysUIContext.contentResolver.registerContentObserver(
+            Settings.Secure.getUriFor(Settings.Secure.THEME_CUSTOMIZATION_OVERLAY_PACKAGES),
+            /* notifyForDescendants = */ false,
+            themedIconsObserver,
+        )
+        sysUIContext.registerComponentCallbacks(themedIconsConfigCallbacks)
         allAppsWindow = AllAppsWindow(pluginContext, sysUIContext)
         actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
         calendarClockWindow = CalendarClockWindow(pluginContext, sysUIContext)
@@ -351,6 +384,9 @@ class SystemUIOverlay : OverlayPlugin {
             }
         }
         resolver?.unregisterContentObserver(tunerKeyObserver)
+        systemUIContext?.contentResolver?.unregisterContentObserver(themedIconsObserver)
+        systemUIContext?.unregisterComponentCallbacks(themedIconsConfigCallbacks)
+        themedIconLoader = null
         qsController?.stop()
         qsController = null
         peekCaption?.stop()
