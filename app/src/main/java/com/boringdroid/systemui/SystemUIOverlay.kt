@@ -202,7 +202,7 @@ class SystemUIOverlay : OverlayPlugin {
         // via broadcasts rather than owning a second instance here. A second OverviewWindow in
         // the SystemUI process would share the class name but not the classloader, triggering a
         // ClassCastException when LayoutInflater returns the plugin-loaded OverviewLayout.
-        val state = TaskbarState(pluginContext, sysUIContext).also { it.start() }
+        val state = TaskbarState(pluginContext, sysUIContext, themedIconLoader).also { it.start() }
         taskbarState = state
         val taskActions =
             TaskActions(pluginContext, sysUIContext, onWctApplied = { state.refresh() })

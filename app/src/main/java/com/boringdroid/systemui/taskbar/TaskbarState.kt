@@ -18,6 +18,7 @@ import android.window.WindowContainerToken
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
 import com.android.systemui.shared.system.TaskStackChangeListeners
+import com.boringdroid.systemui.theme.ThemedIconLoader
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -79,7 +80,11 @@ data class BdTaskInfo(
  * Lifecycle: call [start] after construction (the plugin calls this from SystemUIOverlay.onCreate);
  * call [stop] on plugin tear-down. Idempotent.
  */
-class TaskbarState(private val pluginContext: Context, private val hostContext: Context) {
+class TaskbarState(
+    private val pluginContext: Context,
+    private val hostContext: Context,
+    private val themedIconLoader: ThemedIconLoader? = null,
+) {
     private val activityManager =
         pluginContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val launcherApps =
@@ -286,7 +291,7 @@ class TaskbarState(private val pluginContext: Context, private val hostContext: 
         for (userHandle in userManager.userProfiles) {
             val list = launcherApps.getActivityList(packageName, userHandle)
             if (list != null && list.isNotEmpty() && list[0] != null) {
-                return list[0].getIcon(0)
+                return themedIconLoader?.load(list[0]) ?: list[0].getIcon(0)
             }
         }
         return null
