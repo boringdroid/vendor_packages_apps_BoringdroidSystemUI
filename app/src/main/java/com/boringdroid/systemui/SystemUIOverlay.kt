@@ -195,7 +195,7 @@ class SystemUIOverlay : OverlayPlugin {
             themedIconsObserver,
         )
         sysUIContext.registerComponentCallbacks(themedIconsConfigCallbacks)
-        allAppsWindow = AllAppsWindow(pluginContext, sysUIContext)
+        allAppsWindow = AllAppsWindow(pluginContext, sysUIContext, themedIconLoader)
         actionCenterWindow = ActionCenterWindow(pluginContext, sysUIContext)
         calendarClockWindow = CalendarClockWindow(pluginContext, sysUIContext)
         // The Overview window lives in BoringdroidOverviewService (plugin process); we drive it

@@ -6,9 +6,14 @@ import android.content.pm.LauncherApps
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.UserManager
+import com.boringdroid.systemui.theme.ThemedIconLoader
 import java.lang.ref.WeakReference
 
-class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
+class AppLoaderTask(
+    context: Context?,
+    target: Handler?,
+    private val themedIconLoader: ThemedIconLoader?,
+) : Runnable {
     companion object {
         private val WORK_THREAD = HandlerThread("app-loader-thread")
 
@@ -41,7 +46,7 @@ class AppLoaderTask(context: Context?, target: Handler?) : Runnable {
             appData.name = info.label as String
             appData.componentName = info.componentName
             appData.packageName = info.applicationInfo.packageName
-            appData.icon = info.getIcon(0)
+            appData.icon = themedIconLoader?.load(info) ?: info.getIcon(0)
             loaderAllApps.add(appData)
         }
         loaderAllApps.sortWith { appDataOne: AppData, appDataTwo: AppData ->

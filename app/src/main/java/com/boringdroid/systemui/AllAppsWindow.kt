@@ -26,9 +26,14 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.boringdroid.systemui.theme.ThemedIconLoader
 import java.lang.ref.WeakReference
 
-class AllAppsWindow(private val mContext: Context?, private val hostContext: Context? = null) :
+class AllAppsWindow(
+    private val mContext: Context?,
+    private val hostContext: Context? = null,
+    private val themedIconLoader: ThemedIconLoader? = null,
+) :
     View.OnClickListener {
     private val windowManager: WindowManager
     private var windowContentView: View? = null
@@ -274,6 +279,6 @@ class AllAppsWindow(private val mContext: Context?, private val hostContext: Con
 
     init {
         windowManager = mContext!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        appLoaderTask = AppLoaderTask(mContext, handler)
+        appLoaderTask = AppLoaderTask(mContext, handler, themedIconLoader)
     }
 }
