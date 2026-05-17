@@ -418,7 +418,16 @@ private fun AppTile(appData: AppData, onClick: () -> Unit) {
             modifier =
                 Modifier.size(52.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(colors.surfaceContainerHigh),
+                    .background(colors.surfaceContainerHigh)
+                    .semantics {
+                        testTagsAsResourceId = true
+                        // Per-package testTag so instrumentation tests can target a specific
+                        // app's icon in the AllApps grid. Mirrors the
+                        // `iv_task_info_icon__<pkg>` pattern from Taskbar.kt — the double
+                        // underscore acts as a delimiter that can't legally appear inside a
+                        // package name.
+                        testTag = ID + "allapps_icon__" + (appData.packageName ?: "unknown")
+                    },
             contentAlignment = Alignment.Center,
         ) {
             AppIcon(appData.icon, contentDescription = label, sizeDp = 30)

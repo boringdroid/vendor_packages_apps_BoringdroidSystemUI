@@ -32,9 +32,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
@@ -171,6 +175,7 @@ class PeekPanelWindow(
     }
 
     @Composable
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun PeekCaption(
         target: PeekTarget,
         onRestore: () -> Unit,
@@ -186,7 +191,17 @@ class PeekPanelWindow(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             ) {
-                Box(modifier = Modifier.size(20.dp)) {
+                Box(
+                    modifier =
+                        Modifier.size(20.dp).semantics {
+                            testTagsAsResourceId = true
+                            // Single tag — only one peek panel is ever visible. Mirrors the
+                            // Taskbar pattern (Modifier.semantics { testTagsAsResourceId =
+                            // true }.testTag(...)) so instrumentation tests can resolve this
+                            // icon via `By.res("com.boringdroid.systemui:id/peek_caption_icon")`.
+                            testTag = "com.boringdroid.systemui:id/peek_caption_icon"
+                        },
+                ) {
                     target.icon?.let { drawable ->
                         AndroidView(
                             factory = { ctx ->

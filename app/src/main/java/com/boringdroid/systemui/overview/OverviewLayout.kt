@@ -432,6 +432,7 @@ private fun RecentCard(
         CardCaption(
             icon = appEntry.icon,
             label = appEntry.label,
+            packageName = task.packageName,
             alpha = ((progress - 0.55f) / 0.45f).coerceIn(0f, 1f),
         )
     }
@@ -534,7 +535,12 @@ private fun CloseAffordance(modifier: Modifier, onClose: () -> Unit) {
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun CardCaption(icon: Drawable?, label: String, alpha: Float = 1f) {
+private fun CardCaption(
+    icon: Drawable?,
+    label: String,
+    packageName: String,
+    alpha: Float = 1f,
+) {
     // Icon + label centred below the thumbnail, the way macOS Mission Control labels
     // windows. Larger icon (36dp) for prominence, titleMedium text for readability. Alpha
     // is driven by the flight progress — the caption doesn't belong at progress=0 where
@@ -544,7 +550,18 @@ private fun CardCaption(icon: Drawable?, label: String, alpha: Float = 1f) {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.padding(horizontal = 8.dp).graphicsLayer { this.alpha = alpha },
     ) {
-        Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
+        Box(
+            modifier =
+                Modifier.size(36.dp).semantics {
+                    testTagsAsResourceId = true
+                    // Per-package testTag mirrors the `iv_task_info_icon__<pkg>` pattern
+                    // from Taskbar.kt so instrumentation tests can target a specific
+                    // Overview card's chip icon. The double underscore acts as a
+                    // delimiter that can't legally appear inside a package name.
+                    testTag = ID + "overview_chip_icon__" + packageName
+                },
+            contentAlignment = Alignment.Center,
+        ) {
             AppIcon(icon, label, sizeDp = 36)
         }
         Text(
