@@ -303,7 +303,7 @@ object BdMotion {
  * Non-composable scheme resolver — extracted so it's unit-testable without the Compose UI test
  * harness (we don't depend on androidx.compose.ui_ui-test).
  */
-fun resolveColorScheme(
+internal fun resolveColorScheme(
     context: Context,
     darkTheme: Boolean,
     dynamicColor: Boolean,
@@ -315,9 +315,10 @@ fun resolveColorScheme(
 }
 
 /**
- * Apply the Expressive Material3 theme to a subtree. `darkTheme = null` resolves from the system
- * setting; call sites that need to pin a theme explicitly (e.g. the Calendar panel under a dark
- * wallpaper) can pass `darkTheme = true` / `false`.
+ * Apply the Expressive Material3 theme to a subtree. By default the color scheme is
+ * wallpaper-derived on API 31+ (Material You) and falls back to the hand-rolled seed below that.
+ * Pass `dynamicColor = false` to force the fixed seed regardless of API level, or `darkTheme` to
+ * pin light/dark mode (defaults to the system setting).
  */
 @Composable
 fun BdExpressiveMaterialTheme(
