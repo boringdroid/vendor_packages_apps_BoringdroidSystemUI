@@ -47,7 +47,27 @@ class ThemedIconLoader(private val context: Context) {
         if (!themedIconsEnabled) return raw
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return raw
         if (raw !is AdaptiveIconDrawable) return raw
-        return raw
+        val mono = raw.monochrome ?: return raw
+        val isDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        val key = CacheKey(component, isDark)
+        return cache.getOrPut(key) { buildThemed(mono, isDark) }
+    }
+
+    private fun buildThemed(mono: Drawable, isDark: Boolean): Drawable {
+        val res = context.resources
+        val bgColor: Int
+        val fgColor: Int
+        if (isDark) {
+            bgColor = res.getColor(android.R.color.system_neutral2_800, null)
+            fgColor = res.getColor(android.R.color.system_accent1_100, null)
+        } else {
+            bgColor = res.getColor(android.R.color.system_accent1_100, null)
+            fgColor = res.getColor(android.R.color.system_accent1_700, null)
+        }
+        val bg = ColorDrawable(bgColor)
+        val fg = mono.mutate().apply { setTint(fgColor) }
+        return AdaptiveIconDrawable(bg, fg)
     }
 
     private fun readSetting(): Boolean {

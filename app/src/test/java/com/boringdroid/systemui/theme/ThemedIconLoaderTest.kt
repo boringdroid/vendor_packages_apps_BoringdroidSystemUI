@@ -11,6 +11,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class ThemedIconLoaderTest {
@@ -51,6 +52,38 @@ class ThemedIconLoaderTest {
             ColorDrawable(0xFFCCCCCC.toInt()),
         )
         assertThat(loader.load(component, raw)).isSameInstanceAs(raw)
+    }
+
+    @Test
+    @Config(sdk = [33])
+    fun load_settingOn_adaptiveIconWithMonochrome_returnsThemedAdaptive() {
+        enableThemedIconsSetting()
+        val loader = ThemedIconLoader(context)
+        val mono = ColorDrawable(0xFF000000.toInt())
+        val raw = AdaptiveIconDrawable(
+            ColorDrawable(0xFFAAAAAA.toInt()),
+            ColorDrawable(0xFFCCCCCC.toInt()),
+            mono,
+        )
+        val themed = loader.load(component, raw)
+        assertThat(themed).isInstanceOf(AdaptiveIconDrawable::class.java)
+        assertThat(themed).isNotSameInstanceAs(raw)
+    }
+
+    @Test
+    @Config(sdk = [33])
+    fun load_settingOn_adaptiveIconWithMonochrome_isCachedByComponent() {
+        enableThemedIconsSetting()
+        val loader = ThemedIconLoader(context)
+        val mono = ColorDrawable(0xFF000000.toInt())
+        val raw = AdaptiveIconDrawable(
+            ColorDrawable(0xFFAAAAAA.toInt()),
+            ColorDrawable(0xFFCCCCCC.toInt()),
+            mono,
+        )
+        val first = loader.load(component, raw)
+        val second = loader.load(component, raw)
+        assertThat(first).isSameInstanceAs(second)
     }
 
     private fun enableThemedIconsSetting() {
