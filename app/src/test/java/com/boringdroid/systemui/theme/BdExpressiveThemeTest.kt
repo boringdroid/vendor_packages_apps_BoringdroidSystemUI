@@ -1,10 +1,13 @@
 package com.boringdroid.systemui.theme
 
+import android.content.Context
 import androidx.compose.ui.graphics.Color
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Guards the M3 Expressive seed colors against accidental drift.
@@ -34,5 +37,29 @@ class BdExpressiveThemeTest {
     @Test
     fun darkColors_backgroundIsExpressive() {
         assertThat(BdExpressiveTheme.DarkColors.background).isEqualTo(Color(0xFF141218))
+    }
+
+    @Test
+    fun resolveColorScheme_dynamicColorFalse_light_returnsFixedSeed() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val scheme = resolveColorScheme(ctx, darkTheme = false, dynamicColor = false)
+        assertThat(scheme.primary).isEqualTo(Color(0xFF6750A4))
+    }
+
+    @Test
+    fun resolveColorScheme_dynamicColorFalse_dark_returnsFixedSeed() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val scheme = resolveColorScheme(ctx, darkTheme = true, dynamicColor = false)
+        assertThat(scheme.primary).isEqualTo(Color(0xFFD0BCFF))
+    }
+
+    @Test
+    @Config(sdk = [31])
+    fun resolveColorScheme_dynamicColorTrue_postSPath_doesNotMatchFixedSeed() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val scheme = resolveColorScheme(ctx, darkTheme = false, dynamicColor = true)
+        // Robolectric's framework resources expose dynamic-color shims; the resolved primary
+        // differs from the hand-rolled pre-S fallback.
+        assertThat(scheme.primary).isNotEqualTo(Color(0xFF6750A4))
     }
 }
