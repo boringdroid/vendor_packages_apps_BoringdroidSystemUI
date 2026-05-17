@@ -307,7 +307,7 @@ class SystemUIOverlay : OverlayPlugin {
         )
         qsController = QsController(systemUIContext!!).also { it.start() }
         peekCaption =
-            PeekCaptionController(pluginContext, sysUIContext).also { it.start() }
+            PeekCaptionController(pluginContext, sysUIContext, themedIconLoader).also { it.start() }
         registerMetaKeySystemAction()
     }
 

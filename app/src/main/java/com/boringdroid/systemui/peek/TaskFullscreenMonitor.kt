@@ -12,6 +12,7 @@ import android.os.UserManager
 import android.window.WindowContainerToken
 import com.android.systemui.shared.system.TaskStackChangeListener
 import com.android.systemui.shared.system.TaskStackChangeListeners
+import com.boringdroid.systemui.theme.ThemedIconLoader
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,7 +45,10 @@ data class PeekTarget(
  * Modern desktop-mode caption stays in freeform and keeps its own in-window caption visible, so
  * peek would just double up. The decor-variant gate lives in [PeekCaptionController].
  */
-class TaskFullscreenMonitor(private val pluginContext: Context) {
+class TaskFullscreenMonitor(
+    private val pluginContext: Context,
+    private val themedIconLoader: ThemedIconLoader? = null,
+) {
     private val activityManager =
         pluginContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val launcherApps =
@@ -136,7 +140,10 @@ class TaskFullscreenMonitor(private val pluginContext: Context) {
     private fun resolveIcon(pkg: String): Drawable? {
         for (user in userManager.userProfiles) {
             val list = launcherApps.getActivityList(pkg, user)
-            if (!list.isNullOrEmpty()) return list[0].getIcon(0)
+            if (!list.isNullOrEmpty()) {
+                val item = list[0]
+                return themedIconLoader?.load(item) ?: item.getIcon(0)
+            }
         }
         return null
     }

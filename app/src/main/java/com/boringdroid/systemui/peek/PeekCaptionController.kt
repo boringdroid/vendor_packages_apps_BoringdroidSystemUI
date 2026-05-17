@@ -3,6 +3,7 @@ package com.boringdroid.systemui.peek
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import com.boringdroid.systemui.theme.ThemedIconLoader
 import com.boringdroid.systemui.wm.TaskActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -26,9 +27,10 @@ import kotlinx.coroutines.launch
 class PeekCaptionController(
     private val pluginContext: Context,
     private val hostContext: Context,
+    themedIconLoader: ThemedIconLoader? = null,
 ) : PeekPanelWindow.Callbacks {
 
-    private val monitor = TaskFullscreenMonitor(pluginContext)
+    private val monitor = TaskFullscreenMonitor(pluginContext, themedIconLoader)
     private val actions =
         TaskActions(pluginContext, hostContext, onWctApplied = { monitor.refresh() })
     private val edge = HoverEdgeWindow(hostContext) { onEdgeHover() }
